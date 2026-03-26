@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BarberPro Mobile Mockup</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #0f0f0f;
+            --card: #1a1a1a;
+            --accent: #d4a843;
+            --text: #ffffff;
+            --text-muted: #a0a0a0;
+            --border: #2a2a2a;
+            --danger: #ff4d4d;
+            --success: #34d399;
+            --info: #4f8cf7;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, blinkmacsystemfont, 'Segoe UI', roboto, sans-serif;
+        }
+
+        body {
+            background-color: #222;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text);
+        }
+
+        /* Mobile Device Frame */
+        .phone-frame {
+            width: 375px;
+            height: 750px;
+            background: var(--bg);
+            border: 12px solid #000;
+            border-radius: 40px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 50px 100px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .phone-notch {
+            width: 150px;
+            height: 25px;
+            background: #000;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;
+            z-index: 100;
+        }
+
+        .screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding-top: 25px;
+            /* Notch space */
+        }
+
+        /* Header */
+        header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h2 {
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        header i {
+            font-size: 20px;
+            color: var(--text-muted);
+        }
+
+        /* Content Area */
+        main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 20px 20px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--card);
+            padding: 16px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .stat-card i {
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+
+        .stat-card .val {
+            font-size: 20px;
+            font-weight: 700;
+            display: block;
+        }
+
+        .stat-card .lbl {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Queue Items */
+        .item-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .list-item {
+            background: var(--card);
+            padding: 14px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .avatar {
+            width: 44px;
+            height: 44px;
+            background: #252525;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-info .name {
+            font-weight: 600;
+            font-size: 15px;
+            display: block;
+        }
+
+        .item-info .sub {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .item-meta {
+            text-align: right;
+        }
+
+        .item-meta .time {
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 14px;
+            display: block;
+        }
+
+        .item-meta .status {
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        /* Bottom Nav */
+        nav {
+            height: 70px;
+            background: #121212;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: 10px;
+        }
+
+        .nav-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            color: var(--text-muted);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .nav-link.active {
+            color: var(--accent);
+        }
+
+        .nav-link i {
+            font-size: 20px;
+        }
+
+        .nav-link span {
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        /* Floating Action Button */
+        .fab {
+            position: absolute;
+            right: 20px;
+            bottom: 90px;
+            width: 56px;
+            height: 56px;
+            background: var(--accent);
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-size: 24px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 0;
+            background: transparent;
+        }
+
+        /* View Content Management */
+        .view-content {
+            display: none;
+        }
+
+        .view-content.active {
+            display: block;
+        }
+
+        /* Customer List Specific */
+        .search-bar {
+            background: var(--card);
+            padding: 12px 16px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="phone-frame">
+        <div class="phone-notch"></div>
+
+        <div class="screen">
+            <header style="padding-bottom: 5px;">
+                <div style="display: flex; flex-direction: column;">
+                    <span style="font-size: 13px; color: var(--text-muted);" id="current-date">Senin, 9 Maret
+                        2026</span>
+                    <h2 id="view-title">Dashboard Admin</h2>
+                </div>
+                <div
+                    style="width: 40px; height: 40px; border-radius: 50%; background: var(--card); display: flex; align-items: center; justify-content: center; border: 1px solid var(--border);">
+                    <i class="fa-regular fa-bell" style="font-size: 18px;"></i>
+                </div>
+            </header>
+
+            <main id="main-content">
+                <!-- Dashboard View -->
+                <div id="dashboard" class="view-content active">
+                    <!-- Revenue Preview Card -->
+                    <div
+                        style="background: linear-gradient(135deg, var(--accent) 0%, #b8860b 100%); padding: 25px; border-radius: 24px; margin-bottom: 25px; position: relative; overflow: hidden; box-shadow: 0 15px 30px rgba(212, 168, 67, 0.2);">
+                        <div
+                            style="position: absolute; right: -20px; top: -20px; opacity: 0.1; font-size: 120px; transform: rotate(-15deg);">
+                            <i class="fas fa-scissors"></i>
+                        </div>
+                        <span
+                            style="font-size: 12px; font-weight: 600; text-transform: uppercase; color: rgba(0,0,0,0.6); letter-spacing: 1px;">Total
+                            Omset Hari Ini</span>
+                        <h2 style="font-size: 32px; color: #000; margin: 5px 0 10px; font-weight: 800;">Rp 1.250.000
+                        </h2>
+                        <div
+                            style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.1); padding: 4px 10px; border-radius: 20px; width: fit-content;">
+                            <i class="fas fa-arrow-up" style="color: #000; font-size: 12px;"></i>
+                            <span style="font-size: 11px; font-weight: 700; color: #000;">+12.5% dari kemarin</span>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="section-title">Aksi Cepat</div>
+                    <div style="display: flex; gap: 15px; margin-bottom: 30px; overflow-x: auto; padding-bottom: 5px;">
+                        <div
+                            style="min-width: 70px; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                            <div
+                                style="width: 55px; height: 55px; border-radius: 18px; background: rgba(79, 140, 247, 0.15); display: flex; align-items: center; justify-content: center; color: var(--info);">
+                                <i class="fas fa-plus"></i>
+                            </div>
+                            <span style="font-size: 11px; font-weight: 500;">Booking</span>
+                        </div>
+                        <div
+                            style="min-width: 70px; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                            <div
+                                style="width: 55px; height: 55px; border-radius: 18px; background: rgba(52, 211, 153, 0.15); display: flex; align-items: center; justify-content: center; color: var(--success);">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <span style="font-size: 11px; font-weight: 500;">Customer</span>
+                        </div>
+                        <div
+                            style="min-width: 70px; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                            <div
+                                style="width: 55px; height: 55px; border-radius: 18px; background: rgba(244, 114, 182, 0.15); display: flex; align-items: center; justify-content: center; color: #f472b6;">
+                                <i class="fas fa-boxes-stacked"></i>
+                            </div>
+                            <span style="font-size: 11px; font-weight: 500;">Stok</span>
+                        </div>
+                        <div
+                            style="min-width: 70px; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                            <div
+                                style="width: 55px; height: 55px; border-radius: 18px; background: rgba(212, 168, 67, 0.15); display: flex; align-items: center; justify-content: center; color: var(--accent);">
+                                <i class="fas fa-qrcode"></i>
+                            </div>
+                            <span style="font-size: 11px; font-weight: 500;">Scan</span>
+                        </div>
+                    </div>
+
+                    <div class="section-title">Statistik</div>
+                    <div class="stats-grid">
+                        <div class="stat-card"
+                            style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(10px);">
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <span class="lbl">Selesai</span>
+                                <i class="fas fa-check-circle" style="font-size: 16px; color: var(--success);"></i>
+                            </div>
+                            <span class="val">18</span>
+                            <div
+                                style="height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 8px;">
+                                <div style="width: 75%; height: 100%; background: var(--success); border-radius: 2px;">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stat-card"
+                            style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(10px);">
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <span class="lbl">Rating</span>
+                                <i class="fas fa-star" style="font-size: 16px; color: var(--accent);"></i>
+                            </div>
+                            <span class="val">4.9/5.0</span>
+                            <span style="font-size: 10px; color: var(--text-muted);">Dari 24 ulasan</span>
+                        </div>
+                    </div>
+
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3 style="font-size: 16px; color: var(--text-muted); font-weight: 500;">Antrian Aktif</h3>
+                        <span style="font-size: 12px; color: var(--accent); font-weight: 600;">Lihat Semua</span>
+                    </div>
+
+                    <div class="item-list">
+                        <div class="list-item" style="border: 1px solid rgba(255,255,255,0.05);">
+                            <div class="avatar" style="background: var(--accent); color: #000; font-weight: 700;">BS
+                            </div>
+                            <div class="item-info">
+                                <span class="name">Budi Santoso</span>
+                                <span class="sub">Haircut + Wash • John</span>
+                                <div style="display: flex; gap: 5px; margin-top: 5px;">
+                                    <span
+                                        style="font-size: 9px; padding: 2px 6px; background: rgba(79, 140, 247, 0.2); color: var(--info); border-radius: 4px; font-weight: 700;">PROMO</span>
+                                    <span
+                                        style="font-size: 9px; padding: 2px 6px; background: rgba(212, 168, 67, 0.2); color: var(--accent); border-radius: 4px; font-weight: 700;">LOYAL</span>
+                                </div>
+                            </div>
+                            <div class="item-meta">
+                                <span class="time">14:00</span>
+                                <span style="font-size: 10px; color: var(--success); font-weight: 700;">DALAM
+                                    PROSES</span>
+                            </div>
+                        </div>
+                        <div class="list-item" style="border: 1px solid rgba(255,255,255,0.05); opacity: 0.8;">
+                            <div class="avatar">AS</div>
+                            <div class="item-info">
+                                <span class="name">Agus Salim</span>
+                                <span class="sub">Gentleman Cut • Mike</span>
+                            </div>
+                            <div class="item-meta">
+                                <span class="time">15:30</span>
+                                <span class="status">MENUNGGU</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Appointments View -->
+                <div id="appointments" class="view-content">
+                    <div class="section-title">Semua Reservasi</div>
+                    <div class="item-list">
+                        <div class="list-item">
+                            <div class="item-info">
+                                <span class="name">Ahmad Dhani</span>
+                                <span class="sub">14 Maret, 10:00</span>
+                            </div>
+                            <div
+                                style="background: var(--info); padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 700;">
+                                PENDING</div>
+                        </div>
+                        <div class="list-item">
+                            <div class="item-info">
+                                <span class="name">Once Mekel</span>
+                                <span class="sub">14 Maret, 11:30</span>
+                            </div>
+                            <div
+                                style="background: var(--success); padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; color: #000;">
+                                DONE</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customers View -->
+                <div id="customers" class="view-content">
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <span>Cari pelanggan...</span>
+                    </div>
+                    <div class="item-list">
+                        <div class="list-item"
+                            style="background: transparent; border-bottom: 1px solid var(--border); border-radius: 0;">
+                            <div class="avatar" style="border-radius: 50%; color: var(--accent);"><i
+                                    class="fas fa-user-circle"></i></div>
+                            <div class="item-info">
+                                <span class="name">Andi Wijaya</span>
+                                <span class="sub">0812-3456-XXXX • 12 Visit</span>
+                            </div>
+                            <i class="fas fa-chevron-right" style="color: var(--border);"></i>
+                        </div>
+                        <div class="list-item"
+                            style="background: transparent; border-bottom: 1px solid var(--border); border-radius: 0;">
+                            <div class="avatar" style="border-radius: 50%; color: var(--accent);"><i
+                                    class="fas fa-user-circle"></i></div>
+                            <div class="item-info">
+                                <span class="name">Citra Lestari</span>
+                                <span class="sub">0877-1122-XXXX • 5 Visit</span>
+                            </div>
+                            <i class="fas fa-chevron-right" style="color: var(--border);"></i>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <div class="fab">
+                <i class="fas fa-plus"></i>
+            </div>
+
+            <nav>
+                <div class="nav-link active" onclick="switchView('dashboard', this)">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-link" onclick="switchView('appointments', this)">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Janji</span>
+                </div>
+                <div class="nav-link" onclick="switchView('customers', this)">
+                    <i class="fas fa-users"></i>
+                    <span>Pelanggan</span>
+                </div>
+                <div class="nav-link" onclick="switchView('settings', this)">
+                    <i class="fas fa-cog"></i>
+                    <span>Pengaturan</span>
+                </div>
+            </nav>
+        </div>
+    </div>
+
+    <script>
+        function switchView(viewId, el) {
+            // Update active nav link
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            el.classList.add('active');
+
+            // Update visible content
+            document.querySelectorAll('.view-content').forEach(v => v.classList.remove('active'));
+            const targetView = document.getElementById(viewId);
+            if (targetView) targetView.classList.add('active');
+
+            // Update title
+            const titles = {
+                dashboard: 'Dashboard',
+                appointments: 'Janji Temu',
+                customers: 'Pelanggan',
+                settings: 'Pengaturan'
+            };
+            document.getElementById('view-title').innerText = titles[viewId] || 'BarberPro';
+        }
+    </script>
+</body>
+
+</html>

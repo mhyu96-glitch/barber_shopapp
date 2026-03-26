@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BarberPro - Live iPhone Preview</title>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: white;
+            flex-direction: column;
+        }
+
+        .container {
+            position: relative;
+            text-align: center;
+        }
+
+        /* High-end iPhone 14 Pro Frame */
+        .iphone-frame {
+            width: 390px;
+            height: 844px;
+            background: #000;
+            border-radius: 55px;
+            position: relative;
+            padding: 12px;
+            box-shadow: 0 0 0 4px #333, 0 0 0 7px #111, 0 30px 60px rgba(0, 0, 0, 0.8);
+            border: 1px solid #444;
+            overflow: hidden;
+        }
+
+        /* Dynamic Island */
+        .dynamic-island {
+            width: 120px;
+            height: 35px;
+            background: #000;
+            position: absolute;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 20px;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dynamic-island::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background: #1a1a1a;
+            border-radius: 50%;
+            margin-right: -20px;
+            opacity: 0.5;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 43px;
+        }
+
+        .status-bar {
+            position: absolute;
+            top: 32px;
+            width: calc(100% - 60px);
+            left: 30px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 99;
+            pointer-events: none;
+        }
+
+        .instructions {
+            margin-top: 30px;
+            max-width: 500px;
+            line-height: 1.6;
+            color: #888;
+        }
+
+        .error-msg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            width: 80%;
+            z-index: 1;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="iphone-frame">
+            <div class="dynamic-island"></div>
+            <div class="status-bar">
+                <span id="clock">9:41</span>
+                <span>
+                    <svg width="18" height="12" viewBox="0 0 18 12" fill="white">
+                        <path d="M16 2V10M13 4V10M10 6V10M7 8V10" stroke="white" stroke-width="2"
+                            stroke-linecap="round" />
+                    </svg>
+                    <svg width="24" height="12" viewBox="0 0 24 12" fill="none">
+                        <rect x="0.5" y="0.5" width="20" height="10" rx="2.5" stroke="white" opacity="0.4" />
+                        <rect x="2" y="2" width="15" height="7" rx="1" fill="white" />
+                        <path d="M22 4V8" stroke="white" stroke-linecap="round" />
+                    </svg>
+                </span>
+            </div>
+
+            <div class="error-msg" id="error">
+                <p>⚠️ Pastikan perintah <code>run_mobile.bat</code> sedang berjalan agar aplikasi muncul di sini.</p>
+            </div>
+
+            <!-- This iFrames the local Flutter web server -->
+            <iframe src="http://127.0.0.1:9000" id="preview-frame"></iframe>
+        </div>
+    </div>
+
+    <div class="instructions">
+        <h3>Cara Menggunakan Live iPhone Preview:</h3>
+        <ol>
+            <li>Jalankan file <b>run_mobile.bat</b> terlebih dahulu.</li>
+            <li>Jika muncul pilihan browser, pastikan server berjalan di <b>127.0.0.1:9000</b>.</li>
+            <li>Segarkan (refresh) halaman ini.</li>
+        </ol>
+    </div>
+
+    <script>
+        // Update clock
+        function updateClock() {
+            const now = new Date();
+            const h = now.getHours().toString().padStart(2, '0');
+            const m = now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('clock').innerText = `${h}:${m}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Check if iframe loaded
+        document.getElementById('preview-frame').onload = function () {
+            document.getElementById('error').style.display = 'none';
+        }
+    </script>
+</body>
+
+</html>
