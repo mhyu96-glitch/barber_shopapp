@@ -106,71 +106,92 @@ export function getCurrentPage() {
 
 // Init app
 async function initApp() {
-  // 1. Initial background logic (Theme, Mobile UI)
-  initTheme();
-  
-  const sidebarEl = document.getElementById('sidebar');
-  renderSidebar(sidebarEl);
+  console.log('🚀 BarberPro Booting...');
+  try {
+    // 1. Initial background logic (Theme, Mobile UI)
+    initTheme();
+    
+    const sidebarEl = document.getElementById('sidebar');
+    if (sidebarEl) renderSidebar(sidebarEl);
 
-  // Mobile setup
-  const toggle = document.createElement('button');
-  toggle.className = 'sidebar-toggle';
-  toggle.innerHTML = '<i class="fas fa-bars"></i>';
-  const overlay = document.createElement('div');
-  overlay.className = 'sidebar-overlay';
-  toggle.addEventListener('click', () => {
-    sidebarEl.classList.toggle('open');
-    overlay.classList.toggle('active');
-  });
-  overlay.addEventListener('click', () => {
-    sidebarEl.classList.remove('open');
-    overlay.classList.remove('active');
-  });
-  document.body.appendChild(toggle);
-  document.body.appendChild(overlay);
+    // Mobile setup
+    const toggle = document.createElement('button');
+    toggle.className = 'sidebar-toggle';
+    toggle.innerHTML = '<i class="fas fa-bars"></i>';
+    const overlay = document.createElement('div');
+    overlay.className = 'sidebar-overlay';
+    
+    toggle.addEventListener('click', () => {
+      sidebarEl?.classList.toggle('open');
+      overlay.classList.toggle('active');
+    });
+    
+    overlay.addEventListener('click', () => {
+      sidebarEl?.classList.remove('open');
+      overlay.classList.remove('active');
+    });
+    
+    document.body.appendChild(toggle);
+    document.body.appendChild(overlay);
 
-  // 2. Real Session Verification (Fixes Glitch)
-  // Check if we actually have a valid session from Supabase first
-  const { data: { session } } = await supabase.auth.getSession();
-  
-  if (!session) {
-    // If no session, clear local storage user to stay in sync
-    storage.set('user', null);
-  } else {
-    // Ensure local user matches session
-    const localUser = storage.getCurrentUser();
-    if (!localUser) {
-      // Re-sync profile if we have session but no local user data
-      await storage.syncFromSupabase();
+    // 2. Real Session Verification (Fixes Glitch)
+    let session = null;
+    try {
+      // Use race to prevent hanging if Supabase is unreachable
+      const sessionRes = await Promise.race([
+        supabase.auth.getSession(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Auth Timeout')), 3000))
+      ]);
+      session = sessionRes.data?.session;
+    } catch (e) {
+      console.warn('Auth check skipped/failed:', e);
+    }
+    
+    if (!session) {
+      storage.setCurrentUser(null);
+    } else {
+      const localUser = storage.getCurrentUser();
+      if (!localUser) {
+        // Sync in background
+        storage.syncFromSupabase();
+      }
+    }
+
+    // 3. Perform First Navigation
+    const user = storage.getCurrentUser();
+    let hash = (window.location.hash || '').replace('#', '');
+    
+    if (!hash) {
+      hash = user?.isSuperAdmin ? 'super-admin' : 'dashboard';
+    }
+
+    console.log(`📍 Boot Navulating to: ${hash}`);
+
+    // Navigate to login if not authenticated
+    if (!user && hash !== 'login' && hash !== 'register-shop') {
+      navigateTo('login');
+    } else {
+      navigateTo(hash || 'dashboard');
+    }
+
+    // 4. Background Maintenance
+    storage.migrateLocalToSupabase();
+    console.log('✅ Boot sequence finished.');
+  } catch (err) {
+    console.error('❌ CRITICAL BOOT ERROR:', err);
+    // Ultimate fallback to prevent total blank screen
+    if (!window.location.hash || window.location.hash === '#') {
+      window.location.hash = 'login';
     }
   }
-
-  // 3. Perform First Navigation
-  const user = storage.getCurrentUser();
-  let hash = window.location.hash.replace('#', '');
   
-  if (!hash) {
-    hash = user?.isSuperAdmin ? 'super-admin' : 'dashboard';
-  }
-
-  // Navigate to login if not authenticated
-  if (!user && hash !== 'login') {
-    navigateTo('login');
-  } else {
-    navigateTo(hash || 'dashboard');
-  }
-
-  // 4. Background Sync & Realtime
-  storage.migrateLocalToSupabase()
-    .then(() => storage.syncFromSupabase())
-    .catch(err => console.warn('Supabase sync background failed:', err));
-
   storage.setupRealtime();
 
   // Listen for realtime Supabase Updates
   window.addEventListener('supabase-synced', () => {
     navigateTo(currentPage);
-    renderSidebar(document.getElementById('sidebar'));
+    const sidebarEl = document.getElementById('sidebar');
+    if (sidebarEl) renderSidebar(sidebarEl);
   });
 
   // 🔔 Instant notification for new portal bookings (via Supabase Realtime)
