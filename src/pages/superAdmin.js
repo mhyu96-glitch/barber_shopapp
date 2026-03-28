@@ -282,19 +282,44 @@ export async function renderSuperAdmin(container) {
   }
 
   async function handleDeleteShop(shopId) {
-    if (!confirm('HAPUS TOKO INI PERMANEN?\n\nTindakan ini akan menghapus semua data transaksi, pelanggan, dan pengaturan toko tersebut. Tidak bisa dibatalkan.')) return;
+    if (!confirm('HAPUS TOKO INI PERMANEN?\n\nTindakan ini akan menghapus SELURUH data transaksi, pelanggan, layanan, dan pengaturan toko tersebut.\n\nAPAKAH ANDA YAKIN?')) return;
 
     try {
-      showToast('Menghapus toko...', 'info');
-      // 1. Get owner profile to delete auth user? (Maybe risky, skip for now, just delete data)
-      // 2. Delete data (RLS and Cascades should handle most, but we'll do main ones)
+      showToast('Sedang membersihkan data toko...', 'info');
+      
+      // 🖇️ Manual Cascade Delete to avoid Foreign Key Violations
+      // We must delete from child tables first
+      const tables = [
+        'appointments', 
+        'payments', 
+        'services', 
+        'inventory', 
+        'expenses', 
+        'barbers', 
+        'attendance', 
+        'memberships', 
+        'logbook'
+      ];
+
+      for (const table of tables) {
+        // Try deleting by shop_id
+        await supabase.from(table).delete().eq('shop_id', shopId);
+      }
+
+      // 👤 Clear related profiles and settings
+      await supabase.from('profiles').delete().eq('shop_id', shopId);
+      await supabase.from('settings').delete().eq('shop_id', shopId);
+
+      // 🏠 Finally, delete the shop row itself
       const { error } = await supabase.from('shops').delete().eq('id', shopId);
+      
       if (error) throw error;
 
-      showToast('Toko dan seluruh datanya berhasil dihapus!', 'success');
+      showToast('Toko dan seluruh datanya telah dihapus selamanya!', 'success');
       loadMasterData();
     } catch (err) {
-      showToast('Gagal menghapus: ' + err.message, 'danger');
+      console.error('Manual Cascade Delete failed:', err);
+      showToast('Gagal menghapus total: ' + err.message, 'danger');
     }
   }
 
