@@ -176,36 +176,35 @@ export function renderSidebar(container) {
             <span>Inventori</span>
           </button>
         ` : ''}
+        ${isFeatureEnabled('memberships') ? `
+          <button class="nav-item" data-page="memberships">
+            <i class="fas fa-id-card"></i>
+            <span>Membership</span>
+          </button>
+        ` : ''}
+        
+        <div class="nav-section-title">Lainnya</div>
+        ${isFeatureEnabled('gallery') ? `
+          <button class="nav-item" data-page="gallery">
+            <i class="fas fa-images"></i>
+            <span>Galeri Style</span>
+          </button>
+        ` : ''}
+
+        ${isFeatureEnabled('logbook') ? `
+          <button class="nav-item" data-page="logbook">
+            <i class="fas fa-book"></i>
+            <span>Catatan Harian</span>
+          </button>
+        ` : ''}
+        
+        ${role === 'admin' ? `
+          <button class="nav-item" data-page="settings">
+            <i class="fas fa-cog"></i>
+            <span>Pengaturan</span>
+          </button>
+        ` : ''}
       `}
-
-      ${isFeatureEnabled('memberships') ? `
-        <button class="nav-item" data-page="memberships">
-          <i class="fas fa-id-card"></i>
-          <span>Membership</span>
-        </button>
-      ` : ''}
-      
-      <div class="nav-section-title">Lainnya</div>
-      ${isFeatureEnabled('gallery') ? `
-        <button class="nav-item" data-page="gallery">
-          <i class="fas fa-images"></i>
-          <span>Galeri Style</span>
-        </button>
-      ` : ''}
-
-      ${isFeatureEnabled('logbook') ? `
-        <button class="nav-item" data-page="logbook">
-          <i class="fas fa-book"></i>
-          <span>Catatan Harian</span>
-        </button>
-      ` : ''}
-      
-      ${role === 'admin' ? `
-        <button class="nav-item" data-page="settings">
-          <i class="fas fa-cog"></i>
-          <span>Pengaturan</span>
-        </button>
-      ` : ''}
 
       <div style="margin-top: auto; padding-top: 20px;">
         <button class="nav-item text-danger" id="logout-btn" style="color: var(--danger);">
