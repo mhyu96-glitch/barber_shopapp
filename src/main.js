@@ -4,6 +4,7 @@
 // ========================================
 
 import './styles/index.css';
+import { supabase } from './utils/supabaseClient.js';
 import { storage } from './utils/storage.js';
 import { initSampleData } from './utils/sampleData.js';
 import { renderSidebar } from './components/sidebar.js';
@@ -104,57 +105,65 @@ export function getCurrentPage() {
 }
 
 // Init app
-function initApp() {
-  // Render sidebar
+async function initApp() {
+  // 1. Initial background logic (Theme, Mobile UI)
+  initTheme();
+  
   const sidebarEl = document.getElementById('sidebar');
   renderSidebar(sidebarEl);
 
-  // Mobile toggle
+  // Mobile setup
   const toggle = document.createElement('button');
   toggle.className = 'sidebar-toggle';
   toggle.innerHTML = '<i class="fas fa-bars"></i>';
+  const overlay = document.createElement('div');
+  overlay.className = 'sidebar-overlay';
   toggle.addEventListener('click', () => {
     sidebarEl.classList.toggle('open');
     overlay.classList.toggle('active');
   });
-  document.body.appendChild(toggle);
-
-  // Mobile overlay
-  const overlay = document.createElement('div');
-  overlay.className = 'sidebar-overlay';
   overlay.addEventListener('click', () => {
     sidebarEl.classList.remove('open');
     overlay.classList.remove('active');
   });
+  document.body.appendChild(toggle);
   document.body.appendChild(overlay);
 
-  // Boot strategy: Navigate immediately if locally authenticated, sync in background
+  // 2. Real Session Verification (Fixes Glitch)
+  // Check if we actually have a valid session from Supabase first
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  if (!session) {
+    // If no session, clear local storage user to stay in sync
+    storage.set('user', null);
+  } else {
+    // Ensure local user matches session
+    const localUser = storage.getCurrentUser();
+    if (!localUser) {
+      // Re-sync profile if we have session but no local user data
+      await storage.syncFromSupabase();
+    }
+  }
+
+  // 3. Perform First Navigation
   const user = storage.getCurrentUser();
   let hash = window.location.hash.replace('#', '');
   
-  // Smart Default Hash
   if (!hash) {
     hash = user?.isSuperAdmin ? 'super-admin' : 'dashboard';
   }
 
-  if (user || hash === 'login') {
-    navigateTo(user ? hash : 'login');
+  // Navigate to login if not authenticated
+  if (!user && hash !== 'login') {
+    navigateTo('login');
+  } else {
+    navigateTo(hash || 'dashboard');
   }
 
-  // Sync Supabase in background
+  // 4. Background Sync & Realtime
   storage.migrateLocalToSupabase()
     .then(() => storage.syncFromSupabase())
-    .catch(err => console.warn('Supabase sync background failed:', err))
-    .finally(() => {
-      // Re-trigger navigation if sync found we weren't actually logged in
-      const updatedUser = storage.getCurrentUser();
-      const current = window.location.hash.replace('#', '') || 'dashboard';
-      if (!updatedUser && current !== 'login') {
-        navigateTo('login');
-      } else if (updatedUser && current === 'login') {
-        navigateTo('dashboard');
-      }
-    });
+    .catch(err => console.warn('Supabase sync background failed:', err));
 
   storage.setupRealtime();
 

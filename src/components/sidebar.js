@@ -15,12 +15,13 @@ export function renderSidebar(container) {
   const branches = settings.branches || [{ id: 'main', name: 'Pusat' }];
   const user = storage.getCurrentUser();
   const role = user?.role || 'barber';
-  const isSuperAdmin = user?.isSuperAdmin || false;
-  const activeBranch = branches.find(b => b.id === activeBranchId) || branches[0];
+  const activeFeatures = storage.get('active_features', ['dashboard', 'appointments', 'customers', 'services', 'portal']); // Conservative default
+  const shopPlan = storage.get('shop_plan', 'Trial');
 
-  if (isSuperAdmin) {
-    return _renderSuperAdminSidebar(container, user);
-  }
+  const isFeatureEnabled = (page) => {
+    if (page === 'dashboard' || page === 'settings' || page === 'signup') return true; // Always allow core
+    return activeFeatures.includes(page);
+  };
 
   container.innerHTML = `
     <div class="sidebar-header">
@@ -28,8 +29,9 @@ export function renderSidebar(container) {
         <i class="fas fa-scissors"></i>
         <div>
           <h1>${shopName.length > 14 ? shopName.substring(0, 14) : shopName}</h1>
-          <div class="sidebar-branch-label">
-            <i class="fas fa-location-dot"></i> ${activeBranch.name}
+          <div class="sidebar-branch-label" style="display: flex; gap: 5px; align-items: center;">
+             <span><i class="fas fa-location-dot"></i> ${activeBranch.name}</span>
+             <span class="badge" style="background: var(--primary-glow); color: var(--primary); font-size: 8px; border: 0.5px solid var(--primary);">${shopPlan}</span>
           </div>
         </div>
       </div>
@@ -50,79 +52,118 @@ export function renderSidebar(container) {
         <span>Dashboard</span>
         ${pendingPortal > 0 ? `<span class="nav-badge" style="background: var(--info);">${pendingPortal}</span>` : ''}
       </button>
-      <button class="nav-item" data-page="appointments">
-        <i class="fas fa-calendar-check"></i>
-        <span>Janji Temu</span>
-        ${todayAppointments > 0 ? `<span class="nav-badge">${todayAppointments}</span>` : ''}
-      </button>
-      <button class="nav-item" data-page="queue">
-        <i class="fas fa-users-line"></i>
-        <span>Antrian</span>
-      </button>
+      
+      ${isFeatureEnabled('appointments') ? `
+        <button class="nav-item" data-page="appointments">
+          <i class="fas fa-calendar-check"></i>
+          <span>Janji Temu</span>
+          ${todayAppointments > 0 ? `<span class="nav-badge">${todayAppointments}</span>` : ''}
+        </button>
+      ` : ''}
+
+      ${isFeatureEnabled('queue') ? `
+        <button class="nav-item" data-page="queue">
+          <i class="fas fa-users-line"></i>
+          <span>Antrian</span>
+        </button>
+      ` : ''}
       
       <div class="nav-section-title">Kelola</div>
       <button class="nav-item" data-page="customers">
         <i class="fas fa-user-group"></i>
         <span>Pelanggan</span>
       </button>
-      <button class="nav-item" data-page="barbers">
-        <i class="fas fa-user-tie"></i>
-        <span>Barber</span>
-      </button>
+
+      ${isFeatureEnabled('barbers') ? `
+        <button class="nav-item" data-page="barbers">
+          <i class="fas fa-user-tie"></i>
+          <span>Barber</span>
+        </button>
+      ` : ''}
+
       ${role === 'admin' ? `
         <button class="nav-item" data-page="signup">
           <i class="fas fa-user-plus"></i>
           <span>Tambah Staf</span>
         </button>
       ` : ''}
+
       <button class="nav-item" data-page="services">
         <i class="fas fa-list-check"></i>
         <span>Layanan & Harga</span>
       </button>
-      <button class="nav-item" data-page="attendance">
-        <i class="fas fa-clock-rotate-left"></i>
-        <span>Presensi Barber</span>
-      </button>
+
+      ${isFeatureEnabled('attendance') ? `
+        <button class="nav-item" data-page="attendance">
+          <i class="fas fa-clock-rotate-left"></i>
+          <span>Presensi Barber</span>
+        </button>
+      ` : ''}
       
       <div class="nav-section-title">Bisnis</div>
-      <button class="nav-item" data-page="pos">
-        <i class="fas fa-cash-register"></i>
-        <span>Kasir (POS)</span>
-      </button>
-      <button class="nav-item" data-page="payments">
-        <i class="fas fa-wallet"></i>
-        <span>Pembayaran</span>
-      </button>
-      <button class="nav-item" data-page="promos">
-        <i class="fas fa-tags"></i>
-        <span>Promo & Diskon</span>
-      </button>
-      <button class="nav-item" data-page="reports">
-        <i class="fas fa-chart-line"></i>
-        <span>Laporan</span>
-      </button>
-      <button class="nav-item" data-page="expenses">
-        <i class="fas fa-receipt"></i>
-        <span>Pengeluaran</span>
-      </button>
-      <button class="nav-item" data-page="inventory">
-        <i class="fas fa-boxes-stacked"></i>
-        <span>Inventori</span>
-      </button>
-      <button class="nav-item" data-page="memberships">
-        <i class="fas fa-id-card"></i>
-        <span>Membership</span>
-      </button>
+      ${isFeatureEnabled('pos') ? `
+        <button class="nav-item" data-page="pos">
+          <i class="fas fa-cash-register"></i>
+          <span>Kasir (POS)</span>
+        </button>
+      ` : ''}
+
+      ${isFeatureEnabled('payments') ? `
+        <button class="nav-item" data-page="payments">
+          <i class="fas fa-wallet"></i>
+          <span>Pembayaran</span>
+        </button>
+      ` : ''}
+
+      ${isFeatureEnabled('promos') ? `
+        <button class="nav-item" data-page="promos">
+          <i class="fas fa-tags"></i>
+          <span>Promo & Diskon</span>
+        </button>
+      ` : ''}
+
+      ${isFeatureEnabled('reports') ? `
+        <button class="nav-item" data-page="reports">
+          <i class="fas fa-chart-line"></i>
+          <span>Laporan</span>
+        </button>
+      ` : ''}
+
+      ${isFeatureEnabled('expenses') ? `
+        <button class="nav-item" data-page="expenses">
+          <i class="fas fa-receipt"></i>
+          <span>Pengeluaran</span>
+        </button>
+      ` : ''}
+
+      ${isFeatureEnabled('inventory') ? `
+        <button class="nav-item" data-page="inventory">
+          <i class="fas fa-boxes-stacked"></i>
+          <span>Inventori</span>
+        </button>
+      ` : ''}
+
+      ${isFeatureEnabled('memberships') ? `
+        <button class="nav-item" data-page="memberships">
+          <i class="fas fa-id-card"></i>
+          <span>Membership</span>
+        </button>
+      ` : ''}
       
       <div class="nav-section-title">Lainnya</div>
-      <button class="nav-item" data-page="gallery">
-        <i class="fas fa-images"></i>
-        <span>Galeri Style</span>
-      </button>
-      <button class="nav-item" data-page="logbook">
-        <i class="fas fa-book"></i>
-        <span>Catatan Harian</span>
-      </button>
+      ${isFeatureEnabled('gallery') ? `
+        <button class="nav-item" data-page="gallery">
+          <i class="fas fa-images"></i>
+          <span>Galeri Style</span>
+        </button>
+      ` : ''}
+
+      ${isFeatureEnabled('logbook') ? `
+        <button class="nav-item" data-page="logbook">
+          <i class="fas fa-book"></i>
+          <span>Catatan Harian</span>
+        </button>
+      ` : ''}
       
       ${role === 'admin' ? `
         <button class="nav-item" data-page="settings">

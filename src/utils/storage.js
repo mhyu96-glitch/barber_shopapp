@@ -185,6 +185,23 @@ export const storage = {
                     if (!settingsError && settingsData?.[0]) {
                         this.set('settings', this.toCamelCaseObj(settingsData[0]));
                     }
+
+                    // --- NEW: Sync Shop Plan & Features ---
+                    if (shopId) {
+                        const { data: shopPlData } = await supabase
+                            .from('shops')
+                            .select('*, subscription_plans(features)')
+                            .eq('id', shopId)
+                            .single();
+                        
+                        if (shopPlData) {
+                            const features = shopPlData.subscription_plans?.features || [];
+                            this.set('active_features', features);
+                            this.set('shop_plan', shopPlData.subscription_plans?.name || 'Trial');
+                            this.set('shop_status', shopPlData.status);
+                        }
+                    }
+
                     window.dispatchEvent(new Event('supabase-synced'));
                 })(),
                 timeout
