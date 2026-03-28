@@ -113,7 +113,7 @@ export async function renderSuperAdmin(container) {
       const payments = pRes.data || [];
       const appointments = aRes.data || [];
       const shops = sRes.data || [];
-      const plans = plansRes.data || [];
+      const plans = plansRes.data || []; // Ensure it's an array
 
       // 2. Update Stats
       const totalShopRevenue = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
@@ -126,7 +126,7 @@ export async function renderSuperAdmin(container) {
       const trialShops = shops.filter(s => s.status === 'trial');
       
       const mrr = activeShops.reduce((sum, shop) => {
-        const plan = plans.find(p => p.id === shop.plan_id);
+        const plan = plans?.find(p => p.id === shop.plan_id);
         return sum + (plan?.price || 0);
       }, 0);
 
@@ -142,8 +142,8 @@ export async function renderSuperAdmin(container) {
       }
 
       tableBody.innerHTML = shops.map(shop => {
-        const plan = plans.find(p => p.id === shop.plan_id);
-        const expiryDate = shop.status === 'trial' ? shop.trial_end_date : null; // In real app, check subscriptions table
+        const plan = plans?.find(p => p.id === shop.plan_id);
+        const expiryDate = shop.status === 'trial' ? shop.trial_end_date : null; 
         
         return `
           <tr>
@@ -259,7 +259,8 @@ export async function renderSuperAdmin(container) {
 
   async function renderAddShopModal(container) {
     // Re-use current implementation but ensure plans are loaded if needed
-    const { data: plans } = await supabase.from('subscription_plans').select('*');
+    let { data: plans } = await supabase.from('subscription_plans').select('*');
+    if (!plans) plans = []; // Null-safety
     
     const modal = document.createElement('div');
     modal.className = 'modal-overlay';
@@ -288,9 +289,9 @@ export async function renderSuperAdmin(container) {
             <div>
               <label>Pilih Paket</label>
               <select id="new-shop-plan" class="form-control">
-                ${plans.map(p => `
+                ${plans.length > 0 ? plans.map(p => `
                   <option value="${p.id}">${p.name}</option>
-                `).join('')}
+                `).join('') : '<option value="">-- Jalankan SQL Terlebih Dahulu --</option>'}
               </select>
             </div>
           </div>

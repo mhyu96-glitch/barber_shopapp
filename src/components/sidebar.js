@@ -4,6 +4,7 @@
 
 import { navigateTo } from '../main.js';
 import { storage } from '../utils/storage.js';
+import { showToast } from './toast.js';
 
 export function renderSidebar(container) {
   const todayAppointments = getTodayAppointmentCount();
@@ -204,6 +205,12 @@ function _renderSuperAdminSidebar(container, user) {
         <i class="fas fa-building-shield"></i>
         <span>Master Control</span>
       </button>
+
+      <div class="nav-section-title">Tampilan</div>
+      <button class="nav-item" id="theme-toggle-btn">
+        <i class="fas fa-circle-half-stroke"></i>
+        <span>Ganti Tema (Light/Dark)</span>
+      </button>
       
       <div style="margin-top: auto; padding-top: 20px;">
         <button class="nav-item text-danger" id="logout-btn" style="color: var(--danger);">
@@ -215,9 +222,18 @@ function _renderSuperAdminSidebar(container, user) {
   `;
 
   container.querySelectorAll('.nav-item').forEach(item => {
-    if (item.id === 'logout-btn') {
+    if (item.id === 'theme-toggle-btn') {
       item.addEventListener('click', () => {
-        if (confirm('Keluar dari sistem Master?')) storage.logout();
+        const current = storage.get('theme', 'dark');
+        const next = current === 'dark' ? 'light' : 'dark';
+        storage.set('theme', next);
+        document.documentElement.setAttribute('data-theme', next);
+        if (next === 'light') {
+          document.documentElement.classList.add('light-theme');
+        } else {
+          document.documentElement.classList.remove('light-theme');
+        }
+        showToast(`Tema diubah ke ${next.toUpperCase()}`, 'info');
       });
       return;
     }
