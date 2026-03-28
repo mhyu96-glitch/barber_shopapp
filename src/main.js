@@ -123,21 +123,29 @@ function initApp() {
   });
   document.body.appendChild(overlay);
 
-  // Sync Supabase first before rendering
+  // Boot strategy: Navigate immediately if locally authenticated, sync in background
+  const user = storage.getCurrentUser();
+  const hash = window.location.hash.replace('#', '') || 'dashboard';
+
+  if (user || hash === 'login') {
+    navigateTo(user ? hash : 'login');
+  }
+
+  // Sync Supabase in background
   storage.migrateLocalToSupabase()
     .then(() => storage.syncFromSupabase())
-    .catch(err => console.warn('Supabase sync failed, starting in offline mode:', err))
+    .catch(err => console.warn('Supabase sync background failed:', err))
     .finally(() => {
-      // Navigate to initial page even if sync fails
-      const user = storage.getCurrentUser();
-      const hash = window.location.hash.replace('#', '') || 'dashboard';
-      
-      if (!user && hash !== 'login') {
+      // Re-trigger navigation if sync found we weren't actually logged in
+      const updatedUser = storage.getCurrentUser();
+      const current = window.location.hash.replace('#', '') || 'dashboard';
+      if (!updatedUser && current !== 'login') {
         navigateTo('login');
-      } else {
-        navigateTo(hash);
+      } else if (updatedUser && current === 'login') {
+        navigateTo('dashboard');
       }
     });
+
   storage.setupRealtime();
 
   // Listen for realtime Supabase Updates

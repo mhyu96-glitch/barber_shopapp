@@ -8,7 +8,10 @@ export async function renderSuperAdmin(container) {
         <h1>Master Dashboard Platform</h1>
         <p>Manajemen seluruh tenant dan langganan BarberPro</p>
       </div>
-      <div class="header-actions">
+      <div class="header-actions" style="display: flex; gap: 12px;">
+        <button id="add-shop-btn" class="btn btn-primary">
+          <i class="fas fa-plus"></i> Tambah Barbershop Baru
+        </button>
         <button id="refresh-btn" class="btn btn-secondary">
           <i class="fas fa-sync-alt"></i> Refresh Data
         </button>
@@ -75,6 +78,9 @@ export async function renderSuperAdmin(container) {
 
   const refreshBtn = container.querySelector('#refresh-btn');
   refreshBtn.addEventListener('click', loadShops);
+
+  const addShopBtn = container.querySelector('#add-shop-btn');
+  addShopBtn.addEventListener('click', () => renderAddShopModal(container));
 
   loadShops();
 
@@ -155,5 +161,155 @@ export async function renderSuperAdmin(container) {
             loadShops();
         }
     }
+  }
+
+  function slugify(text) {
+    return text.toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim();
+  }
+
+  async function renderAddShopModal(container) {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.style.display = 'flex';
+    modal.innerHTML = `
+      <div class="modal-content" style="max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto;">
+        <div class="modal-header">
+          <h3><i class="fas fa-plus-circle"></i> Tambah Tenant Baru</h3>
+          <button class="close-modal">&times;</button>
+        </div>
+        <form id="add-shop-form">
+          <div class="card-section-title">Data Barbershop</div>
+          <div class="form-group">
+            <label>Nama Barbershop *</label>
+            <input type="text" id="new-shop-name" class="form-control" placeholder="Contoh: Barbershop Pusat" required />
+          </div>
+          <div class="form-group">
+            <label>URL Slug *</label>
+            <input type="text" id="new-shop-slug" class="form-control" placeholder="barbershop-pusat" required />
+          </div>
+          <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div>
+              <label>No. HP / WA</label>
+              <input type="tel" id="new-shop-phone" class="form-control" placeholder="08..." />
+            </div>
+            <div>
+              <label>Status Awal</label>
+              <select id="new-shop-status" class="form-control">
+                <option value="trial">Trial (7 Hari)</option>
+                <option value="active">Langsung Aktif</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Alamat</label>
+            <textarea id="new-shop-address" class="form-control" rows="2" placeholder="Jl. Contoh..."></textarea>
+          </div>
+
+          <div class="card-section-title" style="margin-top: 20px;">Akun Admin Pemberi Akses</div>
+          <div class="form-group">
+            <label>Username Admin *</label>
+            <input type="text" id="new-admin-username" class="form-control" placeholder="admin_shopname" required />
+            <small style="color: var(--text-muted); font-size: 11px;">Email otomatis: username@barberpro.local</small>
+          </div>
+          <div class="form-group">
+            <label>Password Admin *</label>
+            <input type="password" id="new-admin-password" class="form-control" placeholder="Min. 6 karakter" required minlength="6" />
+          </div>
+
+          <div style="margin-top: 24px;">
+            <button type="submit" class="btn btn-primary btn-block" id="submit-shop-btn">
+              <i class="fas fa-save"></i> Daftarkan Barbershop
+            </button>
+          </div>
+        </form>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    const closeBtn = modal.querySelector('.close-modal');
+    closeBtn.onclick = () => modal.remove();
+
+    const nameInput = modal.querySelector('#new-shop-name');
+    const slugInput = modal.querySelector('#new-shop-slug');
+    const userInput = modal.querySelector('#new-admin-username');
+    
+    nameInput.addEventListener('input', () => {
+      slugInput.value = slugify(nameInput.value);
+      userInput.value = `admin_${slugInput.value.replace(/-/g, '_')}`;
+    });
+
+    const form = modal.querySelector('#add-shop-form');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = modal.querySelector('#submit-shop-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Memproses...';
+
+      try {
+        const name = nameInput.value.trim();
+        const slug = slugInput.value.trim();
+        const phone = modal.querySelector('#new-shop-phone').value.trim();
+        const status = modal.querySelector('#new-shop-status').value;
+        const address = modal.querySelector('#new-shop-address').value.trim();
+        const username = userInput.value.trim();
+        const password = modal.querySelector('#new-admin-password').value;
+
+        // 1. Create Auth User
+        const email = `${username}@barberpro.local`;
+        const { data: authData, error: authErr } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { full_name: `Admin ${name}`, role: 'admin', username },
+          },
+        });
+
+        if (authErr) throw authErr;
+        const userId = authData.user?.id;
+
+        // 2. Create Shop
+        const { data: newShop, error: shopErr } = await supabase
+          .from('shops')
+          .insert([{
+            name,
+            slug,
+            phone,
+            address,
+            status,
+            owner_id: userId,
+            plan_id: status === 'active' ? 'pro-unlimited' : null
+          }])
+          .select()
+          .single();
+
+        if (shopErr) throw shopErr;
+
+        // 3. Update Profile with Shop ID
+        await supabase.from('profiles').update({ shop_id: newShop.id }).eq('id', userId);
+
+        // 4. Create default settings
+        await supabase.from('settings').insert([{
+          shop_id: newShop.id,
+          shop_name: name,
+          phone,
+          address
+        }]);
+
+        showToast(`Tenant "${name}" berhasil didaftarkan!`, 'success');
+        modal.remove();
+        loadShops();
+
+      } catch (err) {
+        console.error('Error adding shop:', err);
+        showToast(`Gagal: ${err.message}`, 'danger');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-save"></i> Daftarkan Barbershop';
+      }
+    });
   }
 }
