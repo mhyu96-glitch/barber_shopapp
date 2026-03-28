@@ -1,5 +1,6 @@
 import { supabase } from '../utils/supabaseClient.js';
 import { showToast } from '../components/toast.js';
+import { openModal, closeModal } from '../components/modal.js';
 
 export async function renderSuperAdmin(container) {
   // Initial structure
@@ -193,48 +194,39 @@ export async function renderSuperAdmin(container) {
     const { data: shop } = await supabase.from('shops').select('*').eq('id', shopId).single();
     if (!shop) return;
 
-    const modal = document.createElement('div');
-    modal.className = 'modal-overlay';
-    modal.style.display = 'flex';
-    modal.innerHTML = `
-      <div class="modal-content" style="max-width: 400px; width: 90%;">
-        <div class="modal-header">
-          <h3>Kelola Langganan: ${shop.name}</h3>
-          <button class="close-modal">&times;</button>
+    const body = `
+      <form id="edit-shop-form">
+        <div class="form-group">
+          <label>Status Toko</label>
+          <select id="edit-shop-status" class="form-control">
+            <option value="trial" ${shop.status === 'trial' ? 'selected' : ''}>Trial (Uji Coba)</option>
+            <option value="active" ${shop.status === 'active' ? 'selected' : ''}>Active (Berbayar)</option>
+            <option value="expired" ${shop.status === 'expired' ? 'selected' : ''}>Expired</option>
+            <option value="deactivated" ${shop.status === 'deactivated' ? 'selected' : ''}>Deactivated (Blokir)</option>
+          </select>
         </div>
-        <form id="edit-shop-form">
-          <div class="form-group">
-            <label>Status Toko</label>
-            <select id="edit-shop-status" class="form-control">
-              <option value="trial" ${shop.status === 'trial' ? 'selected' : ''}>Trial (Uji Coba)</option>
-              <option value="active" ${shop.status === 'active' ? 'selected' : ''}>Active (Berbayar)</option>
-              <option value="expired" ${shop.status === 'expired' ? 'selected' : ''}>Expired</option>
-              <option value="deactivated" ${shop.status === 'deactivated' ? 'selected' : ''}>Deactivated (Blokir)</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Pilih Paket Langganan</label>
-            <select id="edit-shop-plan" class="form-control">
-              <option value="">-- Pilih Paket --</option>
-              ${plans.map(p => `
-                <option value="${p.id}" ${shop.plan_id === p.id ? 'selected' : ''}>${p.name} (Rp ${p.price.toLocaleString()})</option>
-              `).join('')}
-            </select>
-          </div>
-          <p style="font-size: 11px; color: var(--text-muted); line-height: 1.4; margin: 12px 0;">
-            * Perubahan status ke 'Active' akan memasukkan toko ke dalam hitungan MRR Anda.
-          </p>
-          <button type="submit" class="btn btn-primary btn-block">Simpan Perubahan</button>
-        </form>
-      </div>
+        <div class="form-group">
+          <label>Pilih Paket Langganan</label>
+          <select id="edit-shop-plan" class="form-control">
+            <option value="">-- Pilih Paket --</option>
+            ${plans.map(p => `
+              <option value="${p.id}" ${shop.plan_id === p.id ? 'selected' : ''}>${p.name} (Rp ${p.price.toLocaleString()})</option>
+            `).join('')}
+          </select>
+        </div>
+        <p style="font-size: 11px; color: var(--text-muted); line-height: 1.4; margin: 12px 0;">
+          * Perubahan status ke 'Active' akan memasukkan toko ke dalam hitungan MRR Anda.
+        </p>
+        <button type="submit" class="btn btn-primary btn-block">Simpan Perubahan</button>
+      </form>
     `;
-    document.body.appendChild(modal);
-    modal.querySelector('.close-modal').onclick = () => modal.remove();
 
-    modal.querySelector('#edit-shop-form').onsubmit = async (e) => {
+    openModal(`Kelola Langganan: ${shop.name}`, body, '', { maxWidth: '400px' });
+
+    document.querySelector('#edit-shop-form').onsubmit = async (e) => {
       e.preventDefault();
-      const newStatus = modal.querySelector('#edit-shop-status').value;
-      const newPlan = modal.querySelector('#edit-shop-plan').value;
+      const newStatus = document.querySelector('#edit-shop-status').value;
+      const newPlan = document.querySelector('#edit-shop-plan').value;
 
       try {
         const { error } = await supabase.from('shops').update({ 
@@ -245,7 +237,7 @@ export async function renderSuperAdmin(container) {
         if (error) throw error;
         
         showToast('Langganan berhasil diperbarui!', 'success');
-        modal.remove();
+        closeModal();
         loadMasterData();
       } catch (err) {
         showToast(err.message, 'danger');
@@ -258,63 +250,52 @@ export async function renderSuperAdmin(container) {
   }
 
   async function renderAddShopModal(container) {
-    // Re-use current implementation but ensure plans are loaded if needed
     let { data: plans } = await supabase.from('subscription_plans').select('*');
-    if (!plans) plans = []; // Null-safety
+    if (!plans) plans = [];
     
-    const modal = document.createElement('div');
-    modal.className = 'modal-overlay';
-    modal.style.display = 'flex';
-    modal.innerHTML = `
-      <div class="modal-content" style="max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto;">
-        <div class="modal-header">
-          <h3><i class="fas fa-plus-circle"></i> Tambah Tenant Baru</h3>
-          <button class="close-modal">&times;</button>
+    const body = `
+      <form id="add-shop-form">
+        <div class="card-section-title">Data Barbershop</div>
+        <div class="form-group">
+          <label>Nama Barbershop *</label>
+          <input type="text" id="new-shop-name" class="form-control" placeholder="Contoh: Barbershop Pusat" required />
         </div>
-        <form id="add-shop-form">
-          <div class="card-section-title">Data Barbershop</div>
-          <div class="form-group">
-            <label>Nama Barbershop *</label>
-            <input type="text" id="new-shop-name" class="form-control" placeholder="Contoh: Barbershop Pusat" required />
+        <div class="form-group">
+          <label>URL Slug *</label>
+          <input type="text" id="new-shop-slug" class="form-control" placeholder="barbershop-pusat" required />
+        </div>
+        <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div>
+            <label>No. WA Toko</label>
+            <input type="tel" id="new-shop-phone" class="form-control" placeholder="08..." />
           </div>
-          <div class="form-group">
-            <label>URL Slug *</label>
-            <input type="text" id="new-shop-slug" class="form-control" placeholder="barbershop-pusat" required />
+          <div>
+            <label>Pilih Paket</label>
+            <select id="new-shop-plan" class="form-control">
+              ${plans.length > 0 ? plans.map(p => `
+                <option value="${p.id}">${p.name}</option>
+              `).join('') : '<option value="">-- Jalankan SQL Terlebih Dahulu --</option>'}
+            </select>
           </div>
-          <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-            <div>
-              <label>No. WA Toko</label>
-              <input type="tel" id="new-shop-phone" class="form-control" placeholder="08..." />
-            </div>
-            <div>
-              <label>Pilih Paket</label>
-              <select id="new-shop-plan" class="form-control">
-                ${plans.length > 0 ? plans.map(p => `
-                  <option value="${p.id}">${p.name}</option>
-                `).join('') : '<option value="">-- Jalankan SQL Terlebih Dahulu --</option>'}
-              </select>
-            </div>
-          </div>
+        </div>
 
-          <div class="card-section-title" style="margin-top: 20px;">Akun Admin Utama</div>
-          <div class="form-group">
-            <label>Username Admin *</label>
-            <input type="text" id="new-admin-username" class="form-control" placeholder="admin_toko" required />
-          </div>
-          <div class="form-group">
-            <label>Password Admin *</label>
-            <input type="password" id="new-admin-password" class="form-control" placeholder="Min. 6 karakter" required minlength="6" />
-          </div>
+        <div class="card-section-title" style="margin-top: 20px;">Akun Admin Utama</div>
+        <div class="form-group">
+          <label>Username Admin *</label>
+          <input type="text" id="new-admin-username" class="form-control" placeholder="admin_toko" required />
+        </div>
+        <div class="form-group">
+          <label>Password Admin *</label>
+          <input type="password" id="new-admin-password" class="form-control" placeholder="Min. 6 karakter" required minlength="6" />
+        </div>
 
-          <button type="submit" class="btn btn-primary btn-block" id="submit-shop-btn" style="margin-top: 24px;">
-            <i class="fas fa-save"></i> Daftarkan Barbershop
-          </button>
-        </form>
-      </div>
+        <button type="submit" class="btn btn-primary btn-block" id="submit-shop-btn" style="margin-top: 24px;">
+          <i class="fas fa-save"></i> Daftarkan Barbershop
+        </button>
+      </form>
     `;
 
-    document.body.appendChild(modal);
-    modal.querySelector('.close-modal').onclick = () => modal.remove();
+    const modal = openModal('Tambah Tenant Baru', body, '', { maxWidth: '500px' });
 
     const nameInput = modal.querySelector('#new-shop-name');
     const slugInput = modal.querySelector('#new-shop-slug');
@@ -358,7 +339,7 @@ export async function renderSuperAdmin(container) {
         await supabase.from('settings').insert([{ shop_id: newShop.id, shop_name: name, phone }]);
 
         showToast(`Tenant "${name}" berhasil didaftarkan!`, 'success');
-        modal.remove();
+        closeModal();
         loadMasterData();
 
       } catch (err) {
