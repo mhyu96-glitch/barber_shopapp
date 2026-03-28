@@ -130,6 +130,17 @@ export function renderBarbers(container) {
 }
 
 function showBarberForm(editId = null) {
+  if (!editId) {
+    const currentBarbersCount = storage.getAll('barbers').length;
+    const constraints = storage.get('shop_constraints', {});
+    const maxBarbers = constraints.maxBarbers || 0; 
+    
+    if (maxBarbers > 0 && currentBarbersCount >= maxBarbers) {
+      showToast(`Batas maksimal Barber (${maxBarbers}) telah tercapai untuk paket berlangganan Anda.`, 'warning');
+      return;
+    }
+  }
+
   const existing = editId ? storage.find('barbers', editId) : null;
   const daysOfWeek = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 

@@ -159,7 +159,14 @@ export async function renderSuperAdmin(container) {
     }
 
     // Refresh
-    container.querySelector('#master-refresh-btn')?.addEventListener('click', loadMasterData);
+    const refreshBtn = container.querySelector('#master-refresh-btn');
+    refreshBtn?.addEventListener('click', async () => {
+      const icon = refreshBtn.querySelector('span');
+      if (icon) icon.classList.add('animate-spin');
+      showToast('Syncing global data from Supabase...', 'info');
+      await loadMasterData();
+      if (icon) icon.classList.remove('animate-spin');
+    });
   }
 
   // Initial render
@@ -682,6 +689,17 @@ export async function renderSuperAdmin(container) {
           </div>
         </div>
 
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+            <label class="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2 block">Max Global Staff</label>
+            <input type="number" id="edit-plan-barbers" class="w-full bg-surface-container border-white/10 rounded-lg px-3 py-2 text-sm font-bold text-white focus:ring-1 focus:ring-primary/30" value="${plan.max_barbers || 0}" placeholder="0 for unlimited" required />
+          </div>
+          <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+            <label class="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2 block">Max Linked Nodes</label>
+            <input type="number" id="edit-plan-branches" class="w-full bg-surface-container border-white/10 rounded-lg px-3 py-2 text-sm font-bold text-white focus:ring-1 focus:ring-primary/30" value="${plan.max_branches || 0}" placeholder="0 for unlimited" required />
+          </div>
+        </div>
+
         <div>
           <label class="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mb-4 block">Integrated Feature Matrix</label>
           <div class="grid grid-cols-2 gap-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
@@ -705,10 +723,17 @@ export async function renderSuperAdmin(container) {
     document.querySelector('#edit-plan-form').onsubmit = async (e) => {
       e.preventDefault();
       const price = document.querySelector('#edit-plan-price').value;
+      const barbers = document.querySelector('#edit-plan-barbers').value;
+      const branches = document.querySelector('#edit-plan-branches').value;
       const selected = Array.from(document.querySelectorAll('input[name="features"]:checked')).map(i => i.value);
 
       try {
-        await supabase.from('subscription_plans').update({ price: parseInt(price), features: selected }).eq('id', id);
+        await supabase.from('subscription_plans').update({ 
+          price: parseInt(price), 
+          max_barbers: parseInt(barbers) || null,
+          max_branches: parseInt(branches) || null,
+          features: selected 
+        }).eq('id', id);
         showToast('System configuration updated.', 'success');
         closeModal();
         loadMasterData();

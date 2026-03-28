@@ -195,15 +195,20 @@ export const storage = {
                     if (shopId) {
                         const { data: shopPlData } = await supabase
                             .from('shops')
-                            .select('*, subscription_plans(features)')
+                            .select('*, subscription_plans(features, name, max_barbers, max_branches)')
                             .eq('id', shopId)
                             .single();
                         
                         if (shopPlData) {
                             const features = shopPlData.subscription_plans?.features || [];
+                            const constraints = {
+                                maxBarbers: shopPlData.subscription_plans?.max_barbers || null,
+                                maxBranches: shopPlData.subscription_plans?.max_branches || null
+                            };
                             this.set('active_features', features);
                             this.set('shop_plan', shopPlData.subscription_plans?.name || 'Trial');
                             this.set('shop_status', shopPlData.status);
+                            this.set('shop_constraints', constraints);
                         }
                     }
 

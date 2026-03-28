@@ -30,6 +30,30 @@ export function renderSidebar(container) {
     return activeFeatures.includes(page);
   };
 
+  const renderNavItem = (page, icon, label, extraHtml = '', enabled = true) => {
+    if (!enabled) {
+      return `
+        <button class="nav-item locked-feature" onclick="window.showUpgradeToast('${label}')">
+          <i class="${icon}" style="color: var(--text-muted); opacity: 0.5;"></i>
+          <span style="color: var(--text-muted); opacity: 0.5;">${label}</span>
+          <i class="fas fa-lock" style="margin-left: auto; color: var(--primary); font-size: 12px; opacity: 0.8;"></i>
+        </button>
+      `;
+    }
+    return `
+      <button class="nav-item" data-page="${page}">
+        <i class="${icon}"></i>
+        <span>${label}</span>
+        ${extraHtml}
+      </button>
+    `;
+  };
+
+  // Expose upgrade toast to window for inline onclick handler
+  window.showUpgradeToast = (featureName) => {
+    showToast(`${featureName} terkunci. Upgrade paket berlangganan untuk akses.`, 'warning');
+  };
+
   container.innerHTML = `
     <div class="sidebar-header">
       <div class="sidebar-logo">
@@ -87,20 +111,8 @@ export function renderSidebar(container) {
           ${pendingPortal > 0 ? `<span class="nav-badge" style="background: var(--info);">${pendingPortal}</span>` : ''}
         </button>
         
-        ${isFeatureEnabled('appointments') ? `
-          <button class="nav-item" data-page="appointments">
-            <i class="fas fa-calendar-check"></i>
-            <span>Janji Temu</span>
-            ${todayAppointments > 0 ? `<span class="nav-badge">${todayAppointments}</span>` : ''}
-          </button>
-        ` : ''}
-
-        ${isFeatureEnabled('queue') ? `
-          <button class="nav-item" data-page="queue">
-            <i class="fas fa-users-line"></i>
-            <span>Antrian</span>
-          </button>
-        ` : ''}
+        ${renderNavItem('appointments', 'fas fa-calendar-check', 'Janji Temu', todayAppointments > 0 ? `<span class="nav-badge">${todayAppointments}</span>` : '', isFeatureEnabled('appointments'))}
+        ${renderNavItem('queue', 'fas fa-users-line', 'Antrian', '', isFeatureEnabled('queue'))}
         
         <div class="nav-section-title">Kelola</div>
         <button class="nav-item" data-page="customers">
@@ -108,13 +120,8 @@ export function renderSidebar(container) {
           <span>Pelanggan</span>
         </button>
 
-        ${isFeatureEnabled('barbers') ? `
-          <button class="nav-item" data-page="barbers">
-            <i class="fas fa-user-tie"></i>
-            <span>Barber</span>
-          </button>
-        ` : ''}
-
+        ${renderNavItem('barbers', 'fas fa-user-tie', 'Barber', '', isFeatureEnabled('barbers'))}
+        
         ${(role === 'admin' && !isSuperAdmin) ? `
           <button class="nav-item" data-page="signup">
             <i class="fas fa-user-plus"></i>
@@ -127,76 +134,20 @@ export function renderSidebar(container) {
           <span>Layanan & Harga</span>
         </button>
 
-        ${isFeatureEnabled('attendance') ? `
-          <button class="nav-item" data-page="attendance">
-            <i class="fas fa-clock-rotate-left"></i>
-            <span>Presensi Barber</span>
-          </button>
-        ` : ''}
+        ${renderNavItem('attendance', 'fas fa-clock-rotate-left', 'Presensi Barber', '', isFeatureEnabled('attendance'))}
         
         <div class="nav-section-title">Bisnis</div>
-        ${isFeatureEnabled('pos') ? `
-          <button class="nav-item" data-page="pos">
-            <i class="fas fa-cash-register"></i>
-            <span>Kasir (POS)</span>
-          </button>
-        ` : ''}
-
-        ${isFeatureEnabled('payments') ? `
-          <button class="nav-item" data-page="payments">
-            <i class="fas fa-wallet"></i>
-            <span>Pembayaran</span>
-          </button>
-        ` : ''}
-
-        ${isFeatureEnabled('promos') ? `
-          <button class="nav-item" data-page="promos">
-            <i class="fas fa-tags"></i>
-            <span>Promo & Diskon</span>
-          </button>
-        ` : ''}
-
-        ${isFeatureEnabled('reports') ? `
-          <button class="nav-item" data-page="reports">
-            <i class="fas fa-chart-line"></i>
-            <span>Laporan</span>
-          </button>
-        ` : ''}
-
-        ${isFeatureEnabled('expenses') ? `
-          <button class="nav-item" data-page="expenses">
-            <i class="fas fa-receipt"></i>
-            <span>Pengeluaran</span>
-          </button>
-        ` : ''}
-
-        ${isFeatureEnabled('inventory') ? `
-          <button class="nav-item" data-page="inventory">
-            <i class="fas fa-boxes-stacked"></i>
-            <span>Inventori</span>
-          </button>
-        ` : ''}
-        ${isFeatureEnabled('memberships') ? `
-          <button class="nav-item" data-page="memberships">
-            <i class="fas fa-id-card"></i>
-            <span>Membership</span>
-          </button>
-        ` : ''}
+        ${renderNavItem('pos', 'fas fa-cash-register', 'Kasir (POS)', '', isFeatureEnabled('pos'))}
+        ${renderNavItem('payments', 'fas fa-wallet', 'Pembayaran', '', isFeatureEnabled('payments'))}
+        ${renderNavItem('promos', 'fas fa-tags', 'Promo & Diskon', '', isFeatureEnabled('promos'))}
+        ${renderNavItem('reports', 'fas fa-chart-line', 'Laporan', '', isFeatureEnabled('reports'))}
+        ${renderNavItem('expenses', 'fas fa-receipt', 'Pengeluaran', '', isFeatureEnabled('expenses'))}
+        ${renderNavItem('inventory', 'fas fa-boxes-stacked', 'Inventori', '', isFeatureEnabled('inventory'))}
+        ${renderNavItem('memberships', 'fas fa-id-card', 'Membership', '', isFeatureEnabled('memberships'))}
         
         <div class="nav-section-title">Lainnya</div>
-        ${isFeatureEnabled('gallery') ? `
-          <button class="nav-item" data-page="gallery">
-            <i class="fas fa-images"></i>
-            <span>Galeri Style</span>
-          </button>
-        ` : ''}
-
-        ${isFeatureEnabled('logbook') ? `
-          <button class="nav-item" data-page="logbook">
-            <i class="fas fa-book"></i>
-            <span>Catatan Harian</span>
-          </button>
-        ` : ''}
+        ${renderNavItem('gallery', 'fas fa-images', 'Galeri Style', '', isFeatureEnabled('gallery'))}
+        ${renderNavItem('logbook', 'fas fa-book', 'Catatan Harian', '', isFeatureEnabled('logbook'))}
         
         ${role === 'admin' ? `
           <button class="nav-item" data-page="settings">
