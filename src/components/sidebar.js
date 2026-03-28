@@ -202,19 +202,9 @@ function _renderSuperAdminSidebar(container, user) {
       <div class="nav-section-title">Manajemen Utama</div>
       <button class="nav-item active" data-page="super-admin">
         <i class="fas fa-building-shield"></i>
-        <span>Semua Cabang (Tenant)</span>
+        <span>Master Control</span>
       </button>
       
-      <div class="nav-section-title">Platform</div>
-      <button class="nav-item" data-page="reports">
-        <i class="fas fa-chart-pie"></i>
-        <span>Statistik Global</span>
-      </button>
-      <button class="nav-item" data-page="settings">
-        <i class="fas fa-gears"></i>
-        <span>Konfig Platform</span>
-      </button>
-
       <div style="margin-top: auto; padding-top: 20px;">
         <button class="nav-item text-danger" id="logout-btn" style="color: var(--danger);">
           <i class="fas fa-sign-out-alt"></i>
