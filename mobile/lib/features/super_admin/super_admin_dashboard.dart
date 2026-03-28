@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/supabase_service.dart';
 import '../../core/app_state.dart';
 import 'manage_shop_screen.dart';
+import 'add_shop_screen.dart';
 
 class SuperAdminDashboard extends StatefulWidget {
   const SuperAdminDashboard({super.key});
@@ -50,6 +51,17 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
               : _buildShopList(),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddShopScreen()),
+          );
+          if (result == true) _loadShops();
+        },
+        backgroundColor: primaryColor,
+        child: const Icon(Icons.add_rounded, color: Colors.white, size: 30),
       ),
     );
   }

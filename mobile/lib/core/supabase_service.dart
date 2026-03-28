@@ -356,4 +356,32 @@ class SupabaseService {
   static Future<void> addSubscription(Map<String, dynamic> subData) async {
     await client.from('subscriptions').insert(subData);
   }
+
+  // --- Shop Management (Super Admin) ---
+  static Future<List<Map<String, dynamic>>> getSubscriptionPlans() async {
+    final response = await client.from('subscription_plans').select().order('price', ascending: true);
+    return List<Map<String, dynamic>>.from(response);
+  }
+
+  static Future<Map<String, dynamic>> createShop(Map<String, dynamic> shopData) async {
+    final response = await client.from('shops').insert(shopData).select().single();
+    return response as Map<String, dynamic>;
+  }
+
+  static Future<void> updateProfileShopId(String userId, String shopId) async {
+    await client.from('profiles').update({'shop_id': shopId}).eq('id', userId);
+  }
+
+  static Future<void> createInitialSettings(String shopId, String shopName, String phone) async {
+    await client.from('settings').insert({
+      'shop_id': shopId,
+      'shop_name': shopName,
+      'phone': phone,
+    });
+  }
+
+  static Future<List<Map<String, dynamic>>> getShops() async {
+    final response = await client.from('shops').select('*, subscription_plans(name)').order('created_at', ascending: false);
+    return List<Map<String, dynamic>>.from(response);
+  }
 }
