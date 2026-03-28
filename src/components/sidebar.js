@@ -20,6 +20,7 @@ export function renderSidebar(container) {
   
   const shopPlan = storage.get('shop_plan', 'Trial');
   const isSuperAdmin = user?.isSuperAdmin || false;
+  const activeBranch = branches.find(b => b.id === activeBranchId) || branches[0];
 
   const isFeatureEnabled = (page) => {
     // 🛡️ Always allow core system pages or if super admin
@@ -36,7 +37,7 @@ export function renderSidebar(container) {
         <div>
           <h1>${shopName.length > 14 ? shopName.substring(0, 14) : shopName}</h1>
           <div class="sidebar-branch-label" style="display: flex; gap: 5px; align-items: center;">
-             <span><i class="fas fa-location-dot"></i> ${activeBranch.name}</span>
+             <span><i class="fas fa-location-dot"></i> ${activeBranch?.name || 'Pusat'}</span>
              <span class="badge" style="background: var(--primary-glow); color: var(--primary); font-size: 8px; border: 0.5px solid var(--primary);">${shopPlan}</span>
           </div>
         </div>
