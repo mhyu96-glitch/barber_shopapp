@@ -6,6 +6,7 @@
 import { storage } from '../utils/storage.js';
 import { showToast } from '../components/toast.js';
 import { openModal, closeModal } from '../components/modal.js';
+import { receipt } from '../utils/receipt.js';
 
 export function renderSettings(container) {
   const settings = storage.get('settings', {});
@@ -17,84 +18,101 @@ export function renderSettings(container) {
       <p>Konfigurasi toko dan aplikasi</p>
     </div>
 
-    <div class="grid-2" style="align-items: start;">
-      <!-- Shop Info -->
-      <div class="card">
-        <h3 style="margin-bottom: 18px;"><i class="fas fa-store" style="color: var(--accent);"></i> Informasi Toko</h3>
-        <form id="settings-form">
-          <div class="form-group">
-            <label>Nama Toko</label>
-            <input type="text" class="form-control" name="shopName" value="${settings.shopName || 'BarberPro Studio'}" />
-          </div>
-          <div class="form-group">
-            <label>Alamat</label>
-            <input type="text" class="form-control" name="address" value="${settings.address || ''}" />
-          </div>
-          <div class="form-group">
-            <label>No. HP / WhatsApp Toko</label>
-            <input type="text" class="form-control" name="phone" value="${settings.phone || ''}" />
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Jam Buka</label>
-              <input type="time" class="form-control" name="openTime" value="${settings.openTime || '08:00'}" />
-            </div>
-            <div class="form-group">
-              <label>Jam Tutup</label>
-              <input type="time" class="form-control" name="closeTime" value="${settings.closeTime || '21:00'}" />
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Hari Libur Tetap</label>
-            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-              ${['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'].map((d, i) => `
-                <label style="display: flex; align-items: center; gap: 4px; padding: 6px 12px; background: var(--bg-input); border-radius: var(--radius-sm); cursor: pointer; font-size: 13px;">
-                  <input type="checkbox" name="closedDays" value="${i}" ${(settings.closedDays || [0]).includes(i) ? 'checked' : ''} />
-                  ${d.substring(0, 3)}
-                </label>
-              `).join('')}
-            </div>
-          </div>
-          <button type="button" class="btn btn-primary" id="save-settings-btn">
-            <i class="fas fa-save"></i> Simpan Pengaturan
-          </button>
-        </form>
-      </div>
-
-        <!-- Multi-Branch Management -->
+    <div class="settings-grid">
+      <!-- Column 1 -->
+      <div class="settings-column">
+        <!-- Shop Info -->
         <div class="card">
-          <h3 style="margin-bottom: 18px;"><i class="fas fa-network-wired" style="color: var(--accent);"></i> Manajemen Cabang (Multi-Branch)</h3>
-          <p class="text-sm text-muted mb-md">Kelola beberapa lokasi barbershop Anda dari satu dashboard.</p>
-          
-          <div class="queue-list mb-md">
-            ${(settings.branches || [{ id: 'main', name: 'Pusat' }]).map(b => `
-              <div class="queue-item" style="border-left-color: ${settings.activeBranchId === b.id ? 'var(--accent)' : 'var(--border)'}">
-                <div style="flex: 1;">
-                  <div class="fw-600">${b.name} ${settings.activeBranchId === b.id ? '<span class="badge badge-success">Aktif</span>' : ''}</div>
-                  <div class="text-xs text-muted">ID: ${b.id}</div>
-                </div>
-                ${settings.activeBranchId !== b.id ? `
-                  <button class="btn btn-ghost btn-sm" onclick="window.__switchBranch('${b.id}')">Switch</button>
-                ` : ''}
+          <h3 style="margin-bottom: 18px;"><i class="fas fa-store" style="color: var(--accent);"></i> Informasi Toko</h3>
+          <form id="settings-form">
+            <div class="form-group">
+              <label>Nama Toko</label>
+              <input type="text" class="form-control" name="shopName" value="${settings.shopName || 'BarberPro Studio'}" />
+            </div>
+            <div class="form-group">
+              <label>Alamat</label>
+              <input type="text" class="form-control" name="address" value="${settings.address || ''}" />
+            </div>
+            <div class="form-group">
+              <label>No. HP / WhatsApp Toko</label>
+              <input type="text" class="form-control" name="phone" value="${settings.phone || ''}" />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Jam Buka</label>
+                <input type="time" class="form-control" name="openTime" value="${settings.openTime || '08:00'}" />
               </div>
-            `).join('')}
-          </div>
-
-          <div style="display: flex; gap: 8px;">
-            <input type="text" class="form-control" id="new-branch-name" placeholder="Nama Cabang Baru" />
-            <button class="btn btn-primary btn-sm" id="add-branch-btn"><i class="fas fa-plus"></i></button>
-          </div>
+              <div class="form-group">
+                <label>Jam Tutup</label>
+                <input type="time" class="form-control" name="closeTime" value="${settings.closeTime || '21:00'}" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Hari Libur Tetap</label>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                ${['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'].map((d, i) => `
+                  <label style="display: flex; align-items: center; gap: 4px; padding: 6px 12px; background: var(--bg-input); border-radius: var(--radius-sm); cursor: pointer; font-size: 13px;">
+                    <input type="checkbox" name="closedDays" value="${i}" ${(settings.closedDays || [0]).includes(i) ? 'checked' : ''} />
+                    ${d.substring(0, 3)}
+                  </label>
+                `).join('')}
+              </div>
+            </div>
+            <button type="button" class="btn btn-primary" id="save-settings-btn">
+              <i class="fas fa-save"></i> Simpan Pengaturan
+            </button>
+          </form>
         </div>
 
-        <!-- Theme -->
+        <!-- Thermal Printer Settings -->
         <div class="card">
-          <h3 style="margin-bottom: 18px;"><i class="fas fa-palette" style="color: var(--accent);"></i> Tampilan</h3>
-          <div style="display: flex; gap: 12px;">
-            <button class="btn ${currentTheme === 'dark' ? 'btn-primary' : 'btn-secondary'}" id="theme-dark" style="flex: 1;">
-              <i class="fas fa-moon"></i> Dark Mode
+          <h3 style="margin-bottom: 18px;"><i class="fas fa-print" style="color: var(--accent);"></i> Pengaturan Printer Thermal</h3>
+          <p class="text-sm text-muted mb-md">Konfigurasi printer untuk cetak struk kasir.</p>
+          
+          <div class="card-section">
+            <div class="card-section-title">Ukuran Kertas</div>
+            <div style="display: flex; gap: 12px; margin-bottom: 18px;">
+              <button class="btn ${settings.printerPaperSize === '58mm' ? 'btn-primary' : 'btn-secondary'}" onclick="window.__setPrinterSize('58mm')" style="flex: 1;">
+                58mm
+              </button>
+              <button class="btn ${(settings.printerPaperSize || '80mm') === '80mm' ? 'btn-primary' : 'btn-secondary'}" onclick="window.__setPrinterSize('80mm')" style="flex: 1;">
+                80mm
+              </button>
+            </div>
+          </div>
+
+          <div class="card-section">
+            <div class="card-section-title">Logo & Header/Footer</div>
+            <div class="form-group">
+              <label>Logo Struk</label>
+              <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                <div id="printer-logo-preview" style="width: 50px; height: 50px; background: var(--bg-input); border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border);">
+                  ${settings.printerLogo ? `<img src="${settings.printerLogo}" style="max-width: 100%; max-height: 100%; object-fit: contain;" />` : '<i class="fas fa-image" style="color: var(--text-muted);"></i>'}
+                </div>
+                <div style="flex: 1;">
+                  <button class="btn btn-secondary btn-sm" onclick="document.getElementById('printer-logo-input').click()"><i class="fas fa-upload"></i> Pilih Logo</button>
+                  <input type="file" id="printer-logo-input" accept="image/*" style="display: none;" />
+                  ${settings.printerLogo ? '<button class="btn btn-ghost btn-sm text-danger" id="remove-logo-btn"><i class="fas fa-trash"></i> Hapus</button>' : ''}
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Header (Nama Toko)</label>
+              <input type="text" class="form-control" id="printer-header" value="${settings.printerHeader || 'BARBERPRO STUDIO'}" />
+            </div>
+            <div class="form-group">
+              <label>Footer (Pesan Penutup)</label>
+              <textarea class="form-control" id="printer-footer" rows="2">${settings.printerFooter || 'Terima Kasih!\nSilakan Datang Kembali'}</textarea>
+            </div>
+            <button class="btn btn-primary btn-sm" id="save-printer-text-btn">
+              <i class="fas fa-save"></i> Simpan Teks & Logo
             </button>
-            <button class="btn ${currentTheme === 'light' ? 'btn-primary' : 'btn-secondary'}" id="theme-light" style="flex: 1;">
-              <i class="fas fa-sun"></i> Light Mode
+          </div>
+
+          <div class="card-section">
+            <div class="card-section-title">Uji Coba</div>
+            <button class="btn btn-secondary btn-block" onclick="window.__testThermalPrint()">
+              <i class="fas fa-vial"></i> Cetak Test Page
             </button>
           </div>
         </div>
@@ -138,18 +156,35 @@ export function renderSettings(container) {
             <button class="btn btn-danger btn-sm" id="reset-data-btn">
               <i class="fas fa-trash"></i> Reset Semua Data
             </button>
-            <p class="text-sm text-muted mt-sm">Menghapus semua data dan kembali ke demo awal.</p>
           </div>
         </div>
+      </div>
 
-        <!-- Notifications -->
+      <!-- Column 2 -->
+      <div class="settings-column">
+        <!-- Multi-Branch Management -->
         <div class="card">
-          <h3 style="margin-bottom: 18px;"><i class="fas fa-bell" style="color: var(--warning);"></i> Notifikasi Browser</h3>
-          <p class="text-sm text-muted mb-md">Aktifkan notifikasi browser untuk reminder janji temu otomatis.</p>
-          <button class="btn btn-secondary" id="enable-notif-btn">
-            <i class="fas fa-bell"></i> Aktifkan Notifikasi
-          </button>
-          <p class="text-sm mt-sm" id="notif-status" style="color: var(--text-muted);"></p>
+          <h3 style="margin-bottom: 18px;"><i class="fas fa-network-wired" style="color: var(--accent);"></i> Manajemen Cabang (Multi-Branch)</h3>
+          <p class="text-sm text-muted mb-md">Kelola beberapa lokasi barbershop Anda dari satu dashboard.</p>
+          
+          <div class="queue-list mb-md">
+            ${(settings.branches || [{ id: 'main', name: 'Pusat' }]).map(b => `
+              <div class="queue-item" style="border-left-color: ${settings.activeBranchId === b.id ? 'var(--accent)' : 'var(--border)'}">
+                <div style="flex: 1;">
+                  <div class="fw-600">${b.name} ${settings.activeBranchId === b.id ? '<span class="badge badge-success">Aktif</span>' : ''}</div>
+                  <div class="text-xs text-muted">ID: ${b.id}</div>
+                </div>
+                ${settings.activeBranchId !== b.id ? `
+                  <button class="btn btn-ghost btn-sm" onclick="window.__switchBranch('${b.id}')">Switch</button>
+                ` : ''}
+              </div>
+            `).join('')}
+          </div>
+
+          <div style="display: flex; gap: 8px;">
+            <input type="text" class="form-control" id="new-branch-name" placeholder="Nama Cabang Baru" />
+            <button class="btn btn-primary btn-sm" id="add-branch-btn"><i class="fas fa-plus"></i></button>
+          </div>
         </div>
 
         <!-- Portal Link -->
@@ -172,66 +207,65 @@ export function renderSettings(container) {
           </div>
         </div>
 
-        <!-- Language Settings -->
+        <!-- Portal settings: Theme, Language, Theming -->
         <div class="card">
-          <h3 style="margin-bottom: 18px;"><i class="fas fa-language" style="color: var(--info);"></i> Bahasa Portal</h3>
-          <p class="text-sm text-muted mb-md">Pilih bahasa utama untuk portal booking pelanggan.</p>
-          <div style="display: flex; gap: 12px;">
-            <button class="btn ${(settings.language || 'id') === 'id' ? 'btn-primary' : 'btn-secondary'}" onclick="window.__setLanguage('id')" style="flex: 1;">
-              🇮🇩 Indonesia
-            </button>
-            <button class="btn ${(settings.language || 'id') === 'en' ? 'btn-primary' : 'btn-secondary'}" onclick="window.__setLanguage('en')" style="flex: 1;">
-              🇺🇸 English
-            </button>
-          </div>
-        </div>
-
-        <!-- Portal Theming -->
-        <div class="card">
-          <h3 style="margin-bottom: 18px;"><i class="fas fa-paint-roller" style="color: var(--accent);"></i> Tema Portal</h3>
-          <p class="text-sm text-muted mb-md">Ubah warna aksen portal untuk menyesuaikan branding Anda.</p>
-          <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px;">
-            ${[
-      { name: 'Gold', color: '#d4a843' },
-      { name: 'Blue', color: '#4f8cf7' },
-      { name: 'Green', color: '#34d399' },
-      { name: 'Purple', color: '#a78bfa' },
-      { name: 'Red', color: '#f87171' },
-      { name: 'Pink', color: '#f472b6' },
-      { name: 'Teal', color: '#2dd4bf' },
-      { name: 'Orange', color: '#fb923c' },
-    ].map(t => `
-              <button class="btn btn-sm" style="background: ${t.color}; color: #fff; border: 2px solid ${(settings.portalAccent || '#d4a843') === t.color ? '#fff' : 'transparent'}; min-width: 44px; height: 44px; border-radius: 12px; padding: 0; font-size: 18px;" onclick="window.__setPortalTheme('${t.color}')" title="${t.name}">
-                ${(settings.portalAccent || '#d4a843') === t.color ? '✓' : ''}
+          <h3 style="margin-bottom: 18px;"><i class="fas fa-sliders" style="color: var(--accent);"></i> Kustomisasi Portal</h3>
+          
+          <div class="card-section">
+            <div class="card-section-title">Bahasa</div>
+            <div style="display: flex; gap: 12px;">
+              <button class="btn ${(settings.language || 'id') === 'id' ? 'btn-primary' : 'btn-secondary'}" onclick="window.__setLanguage('id')" style="flex: 1;">
+                🇮🇩 Indonesia
               </button>
-            `).join('')}
+              <button class="btn ${(settings.language || 'id') === 'en' ? 'btn-primary' : 'btn-secondary'}" onclick="window.__setLanguage('en')" style="flex: 1;">
+                🇺🇸 English
+              </button>
+            </div>
           </div>
-          <div style="display: flex; gap: 8px; align-items: center;">
-            <label class="text-sm" style="white-space: nowrap;">Custom:</label>
-            <input type="color" id="custom-portal-color" value="${settings.portalAccent || '#d4a843'}" style="width: 44px; height: 36px; border: none; cursor: pointer; border-radius: 8px;" />
-            <button class="btn btn-secondary btn-sm" id="apply-custom-color">Terapkan</button>
+
+          <div class="card-section">
+            <div class="card-section-title">Warna Aksen Portal</div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px;">
+              ${[
+                { name: 'Gold', color: '#d4a843' },
+                { name: 'Blue', color: '#4f8cf7' },
+                { name: 'Green', color: '#34d399' },
+                { name: 'Purple', color: '#a78bfa' },
+                { name: 'Red', color: '#f87171' },
+                { name: 'Pink', color: '#f472b6' },
+                { name: 'Teal', color: '#2dd4bf' },
+                { name: 'Orange', color: '#fb923c' },
+              ].map(t => `
+                <button class="btn btn-sm" style="background: ${t.color}; color: #fff; border: 2px solid ${(settings.portalAccent || '#d4a843') === t.color ? '#fff' : 'transparent'}; min-width: 44px; height: 44px; border-radius: 12px; padding: 0; font-size: 18px;" onclick="window.__setPortalTheme('${t.color}')" title="${t.name}">
+                  ${(settings.portalAccent || '#d4a843') === t.color ? '✓' : ''}
+                </button>
+              `).join('')}
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input type="color" id="custom-portal-color" value="${settings.portalAccent || '#d4a843'}" style="width: 44px; height: 36px; border: none; cursor: pointer; border-radius: 8px;" />
+              <button class="btn btn-secondary btn-sm" id="apply-custom-color">Apply Custom</button>
+            </div>
           </div>
         </div>
 
         <!-- Happy Hour Settings -->
         <div class="card">
-          <h3 style="margin-bottom: 18px;"><i class="fas fa-bolt" style="color: var(--warning);"></i> Happy Hour (Diskon Otomatis)</h3>
-          <p class="text-sm text-muted mb-md">Berikan diskon otomatis pada jam-jam sepi untuk menarik lebih banyak pelanggan.</p>
+          <h3 style="margin-bottom: 18px;"><i class="fas fa-bolt" style="color: var(--warning);"></i> Happy Hour</h3>
           <form id="happy-hour-form">
-            <div class="form-group" style="display: flex; align-items: center; gap: 8px;">
+            <div class="form-group" style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
                <label class="switch">
                 <input type="checkbox" name="hhActive" ${(settings.hhActive) ? 'checked' : ''}>
                 <span class="slider round"></span>
               </label>
-              <span class="text-sm fw-600">Aktifkan Happy Hour</span>
+              <span class="fw-600">Aktifkan Happy Hour</span>
             </div>
             <div class="form-row">
               <div class="form-group">
-                <label>Jam Mulai</label>
+                <label>Mulai</label>
                 <input type="time" class="form-control" name="hhStart" value="${settings.hhStart || '10:00'}" />
               </div>
               <div class="form-group">
-                <label>Jam Selesai</label>
+                <label>Selesai</label>
                 <input type="time" class="form-control" name="hhEnd" value="${settings.hhEnd || '14:00'}" />
               </div>
             </div>
@@ -239,7 +273,7 @@ export function renderSettings(container) {
               <label>Diskon (%)</label>
               <input type="number" class="form-control" name="hhDiscount" value="${settings.hhDiscount || 15}" min="0" max="100" />
             </div>
-            <button type="button" class="btn btn-primary" id="save-hh-btn">
+            <button type="button" class="btn btn-primary btn-block" id="save-hh-btn">
               <i class="fas fa-save"></i> Simpan Happy Hour
             </button>
           </form>
@@ -247,21 +281,43 @@ export function renderSettings(container) {
 
         <!-- Booking Settings -->
         <div class="card">
-          <h3 style="margin-bottom: 18px;"><i class="fas fa-sliders" style="color: var(--accent);"></i> Atur Booking Portal</h3>
+          <h3 style="margin-bottom: 18px;"><i class="fas fa-calendar-check" style="color: var(--accent);"></i> Atur Booking Slot</h3>
           <form id="booking-settings-form">
             <div class="form-group">
-              <label>Max Booking per Slot (per jam)</label>
+              <label>Max Booking per Slot</label>
               <input type="number" class="form-control" name="maxBookingPerSlot" value="${settings.maxBookingPerSlot || 2}" min="1" />
             </div>
             <div class="form-group">
-              <label>Minimal Booking H- (hari sebelum)</label>
+              <label>Minimal Booking H- (hari)</label>
               <input type="number" class="form-control" name="minBookingDays" value="${settings.minBookingDays || 0}" min="0" />
-              <p class="text-sm text-muted mt-sm">0 = bisa booking hari ini</p>
             </div>
-            <button type="button" class="btn btn-primary" id="save-booking-settings-btn">
-              <i class="fas fa-save"></i> Simpan
+            <button type="button" class="btn btn-primary btn-block" id="save-booking-settings-btn">
+              <i class="fas fa-save"></i> Simpan Booking
             </button>
           </form>
+        </div>
+
+        <!-- Tampilan & Notifikasi -->
+        <div class="card">
+          <h3 style="margin-bottom: 18px;"><i class="fas fa-cog" style="color: var(--info);"></i> Sistem & Notifikasi</h3>
+          <div class="card-section">
+            <div class="card-section-title">Tema Aplikasi</div>
+            <div style="display: flex; gap: 12px;">
+              <button class="btn ${currentTheme === 'dark' ? 'btn-primary' : 'btn-secondary'}" id="theme-dark" style="flex: 1;">
+                <i class="fas fa-moon"></i> Dark
+              </button>
+              <button class="btn ${currentTheme === 'light' ? 'btn-primary' : 'btn-secondary'}" id="theme-light" style="flex: 1;">
+                <i class="fas fa-sun"></i> Light
+              </button>
+            </div>
+          </div>
+          <div class="card-section">
+            <div class="card-section-title">Notifikasi Browser</div>
+            <button class="btn btn-secondary btn-block" id="enable-notif-btn">
+              <i class="fas fa-bell"></i> Aktifkan Notifikasi
+            </button>
+            <p class="text-xs mt-sm" id="notif-status" style="color: var(--text-muted);"></p>
+          </div>
         </div>
       </div>
     </div>
@@ -420,6 +476,76 @@ export function renderSettings(container) {
     showToast('Berpindah cabang. Memuat data...', 'success');
     setTimeout(() => location.reload(), 1000);
   };
+
+  // Printer Handlers
+  window.__setPrinterSize = (size) => {
+    const sets = storage.get('settings', {});
+    sets.printerPaperSize = size;
+    storage.set('settings', sets);
+    showToast(`Ukuran kertas diatur ke: ${size}`, 'success');
+    renderSettings(container);
+  };
+
+  window.__testThermalPrint = () => {
+    receipt.print({
+      id: 'TEST-123456',
+      customerName: 'Pelanggan Tes',
+      amount: 50000
+    }, [
+      { name: 'Potong Rambut (Test)', price: 35000 },
+      { name: 'Vitamin Rambut (Test)', price: 15000 }
+    ], 'Tunai (Test)');
+  };
+
+  container.querySelector('#save-printer-text-btn')?.addEventListener('click', () => {
+    const data = storage.get('settings', {});
+    data.printerHeader = document.getElementById('printer-header').value;
+    data.printerFooter = document.getElementById('printer-footer').value;
+    storage.set('settings', data);
+    showToast('Teks struk berhasil disimpan!', 'success');
+  });
+
+  container.querySelector('#printer-logo-input')?.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        // Optimization: Max width 200px for thermal printer
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const maxWidth = 200;
+        const scale = maxWidth / img.width;
+        canvas.width = maxWidth;
+        canvas.height = img.height * scale;
+
+        // Draw and convert to grayscale/high contrast for thermal
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.filter = 'grayscale(100%) contrast(150%)';
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        const base64 = canvas.toDataURL('image/png');
+        const data = storage.get('settings', {});
+        data.printerLogo = base64;
+        storage.set('settings', data);
+        showToast('Logo dioptimalkan & diunggah!', 'success');
+        renderSettings(container);
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  container.querySelector('#remove-logo-btn')?.addEventListener('click', () => {
+    const data = storage.get('settings', {});
+    delete data.printerLogo;
+    storage.set('settings', data);
+    showToast('Logo dihapus', 'info');
+    renderSettings(container);
+  });
 }
 
 function setTheme(theme) {

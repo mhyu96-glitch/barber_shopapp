@@ -5,18 +5,27 @@
 import { supabase } from './supabaseClient.js';
 
 const STORAGE_PREFIX = 'barberpro_';
-const SUPABASE_COLLECTIONS = ['services', 'barbers', 'customers', 'appointments', 'payments', 'gallery', 'promos', 'holidays', 'inventory', 'expenses', 'attendance_logs', 'settings'];
+const SUPABASE_COLLECTIONS = ['services', 'barbers', 'customers', 'appointments', 'payments', 'gallery', 'promos', 'holidays', 'inventory', 'expenses', 'attendance', 'profiles', 'settings'];
+const SHOP_SCOPED_TABLES = ['services', 'barbers', 'customers', 'appointments', 'payments', 'inventory', 'expenses', 'attendance', 'profiles', 'settings'];
+
+export function getShopId() {
+  try {
+    const data = localStorage.getItem(STORAGE_PREFIX + 'shopId');
+    return data ? JSON.parse(data) : null;
+  } catch { return null; }
+}
 
 const ALLOWED_COLUMNS = {
-    services: ['id', 'name', 'price', 'duration', 'description', 'icon', 'category', 'consumables'],
-    barbers: ['id', 'name', 'phone', 'specialization', 'rating', 'total_ratings', 'work_days', 'work_start', 'work_end', 'avatar', 'bio', 'base_salary', 'commission_rate'],
-    customers: ['id', 'name', 'phone', 'email', 'avatar', 'total_appointments', 'total_spent', 'last_visit', 'notes', 'tags', 'loyalty_points', 'member_since'],
-    appointments: ['id', 'barber_id', 'customer_id', 'service_id', 'date', 'time', 'status', 'total_price', 'source', 'notes'],
-    payments: ['id', 'appointment_id', 'amount', 'method', 'status', 'reference', 'date'],
-    inventory: ['id', 'name', 'category', 'stock', 'unit', 'min_stock', 'price', 'last_restock'],
-    expenses: ['id', 'date', 'category', 'amount', 'description', 'barber_id', 'is_recurring'],
-    attendance_logs: ['id', 'barber_id', 'date', 'clock_in', 'clock_out', 'status', 'notes'],
-    settings: ['id', 'shop_name', 'address', 'phone', 'email', 'currency', 'opening_hours', 'active_branch_id', 'branches']
+    services: ['id', 'name', 'price', 'duration', 'description', 'icon', 'category', 'consumables', 'shop_id'],
+    barbers: ['id', 'name', 'phone', 'specialization', 'rating', 'total_ratings', 'work_days', 'work_start', 'work_end', 'avatar', 'bio', 'base_salary', 'commission_rate', 'shop_id'],
+    customers: ['id', 'name', 'phone', 'email', 'avatar', 'total_appointments', 'total_spent', 'last_visit', 'notes', 'tags', 'loyalty_points', 'member_since', 'shop_id'],
+    appointments: ['id', 'barber_id', 'customer_id', 'service_id', 'date', 'time', 'status', 'total_price', 'price', 'source', 'notes', 'shop_id'],
+    payments: ['id', 'appointment_id', 'amount', 'method', 'status', 'reference', 'date', 'customer_id', 'customer_name', 'shop_id'],
+    inventory: ['id', 'name', 'category', 'stock', 'unit', 'min_stock', 'price', 'last_restock', 'shop_id'],
+    expenses: ['id', 'date', 'category', 'amount', 'description', 'barber_id', 'is_recurring', 'shop_id'],
+    attendance: ['id', 'profile_id', 'date', 'check_in', 'check_out', 'status', 'notes', 'shop_id'],
+    profiles: ['id', 'full_name', 'username', 'role', 'avatar_url', 'shop_id'],
+    settings: ['id', 'shop_name', 'address', 'phone', 'email', 'currency', 'opening_hours', 'active_branch_id', 'branches', 'shop_id']
 };
 
 export const storage = {
@@ -40,6 +49,21 @@ export const storage = {
 
     remove(key) {
         localStorage.removeItem(STORAGE_PREFIX + key);
+    },
+
+    getCurrentUser() {
+        return this.get('currentUser', null);
+    },
+
+    setCurrentUser(user) {
+        this.set('currentUser', user);
+    },
+
+    logout() {
+        this.remove('currentUser');
+        localStorage.removeItem('supabase.auth.token'); // Clear supabase session too
+        window.location.hash = 'login';
+        window.location.reload();
     },
 
     getAll(collection) {
@@ -67,18 +91,20 @@ export const storage = {
             item.branchId = settings.activeBranchId;
         }
 
+        // Multi-tenant: inject shop_id
+        const shopId = getShopId();
+        if (shopId && SHOP_SCOPED_TABLES.includes(collection)) {
+            item.shopId = shopId;
+        }
+
         allItems.push(item);
         this.set(collection, allItems);
 
         // Async Sync to Supabase
-        // Async Sync to Supabase
-        const dbTable = collection === 'attendanceLogs' ? 'attendance_logs' : collection;
+        const dbTable = collection;
         if (SUPABASE_COLLECTIONS.includes(dbTable)) {
             const row = { ...item };
-            // Convert camelCase to snake_case if necessary, or let Supabase map it if columns match
-            // We assume matching schema (schema uses snake_case, JS uses camelCase)
             const dbData = this.toSnakeCaseObj(row);
-            // Drop fields that don't exist in Supabase DB
             if (dbData.created_at) delete dbData.created_at; 
             supabase.from(dbTable).insert([dbData]).then(({error}) => {
                 if(error) console.error('Supabase Insert Error:', error);
@@ -96,7 +122,7 @@ export const storage = {
             this.set(collection, allItems);
 
             // Async Sync to Supabase
-            const dbTable = collection === 'attendanceLogs' ? 'attendance_logs' : collection;
+            const dbTable = collection;
             if (SUPABASE_COLLECTIONS.includes(dbTable)) {
                 const dbUpdates = this.toSnakeCaseObj(updates);
                 supabase.from(dbTable).update(dbUpdates).eq('id', id).then(({error}) => {
@@ -115,7 +141,7 @@ export const storage = {
         this.set(collection, filtered);
 
         // Async Sync to Supabase
-        const dbTable = collection === 'attendanceLogs' ? 'attendance_logs' : collection;
+        const dbTable = collection;
         if (SUPABASE_COLLECTIONS.includes(dbTable)) {
             supabase.from(dbTable).delete().eq('id', id).then(({error}) => {
                 if(error) console.error('Supabase Delete Error:', error);
@@ -134,20 +160,28 @@ export const storage = {
     // --- Supabase Hybrid Methods ---
     async syncFromSupabase() {
         console.log('Syncing from Supabase...');
+        const shopId = getShopId();
         const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Sync Timeout')), 5000));
         
         try {
             await Promise.race([
                 (async () => {
                     for (const col of SUPABASE_COLLECTIONS) {
-                        const { data, error } = await supabase.from(col).select('*');
+                        let query = supabase.from(col).select('*');
+                        // Filter by shop_id for shop-scoped tables
+                        if (shopId && SHOP_SCOPED_TABLES.includes(col)) {
+                            query = query.eq('shop_id', shopId);
+                        }
+                        const { data, error } = await query;
                         if (!error && data) {
                             const mappedData = data.map(d => this.toCamelCaseObj(d));
-                            let storageKey = col === 'attendance_logs' ? 'attendanceLogs' : col;
-                            this.set(storageKey, mappedData);
+                            this.set(col, mappedData);
                         }
                     }
-                    const { data: settingsData, error: settingsError } = await supabase.from('settings').select('*').limit(1);
+                    const settingsQuery = shopId 
+                        ? supabase.from('settings').select('*').eq('shop_id', shopId).limit(1)
+                        : supabase.from('settings').select('*').limit(1);
+                    const { data: settingsData, error: settingsError } = await settingsQuery;
                     if (!settingsError && settingsData?.[0]) {
                         this.set('settings', this.toCamelCaseObj(settingsData[0]));
                     }
@@ -168,7 +202,7 @@ export const storage = {
             await Promise.race([
                 (async () => {
                     for (const col of SUPABASE_COLLECTIONS) {
-                        const storageKey = col === 'attendance_logs' ? 'attendanceLogs' : col;
+                        const storageKey = col;
                         const localData = this.get(storageKey, []);
                         if (localData.length === 0) continue;
 
@@ -200,11 +234,26 @@ export const storage = {
     },
 
     setupRealtime() {
+        // General sync channel for all tables
         supabase.channel('public-db-changes')
-            .on('postgres_changes', { event: '*', schema: 'public' }, () => {
+            .on('postgres_changes', { event: '*', schema: 'public' }, (payload) => {
+                // Sync all changes to local storage
                 this.syncFromSupabase();
+
+                // Specific handler for new portal bookings
+                if (payload.table === 'appointments' && payload.eventType === 'INSERT') {
+                    const newData = payload.new;
+                    if (newData && newData.source === 'portal') {
+                        const camelData = this.toCamelCaseObj(newData);
+                        window.dispatchEvent(new CustomEvent('new-portal-booking', {
+                            detail: camelData
+                        }));
+                    }
+                }
             })
-            .subscribe();
+            .subscribe((status) => {
+                console.log('Realtime subscription:', status);
+            });
     },
 
     // Utilities to convert DB snake_case to JS camelCase and vice versa
@@ -225,5 +274,24 @@ export const storage = {
         const result = {};
         for(const [key, val] of Object.entries(obj)) result[this.toSnakeCase(key)] = val;
         return result;
+    },
+
+    // --- Auth Extensions ---
+    async signUp(email, password, fullName, role) {
+        const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+                data: {
+                    full_name: fullName,
+                    role: role
+                }
+            }
+        });
+        
+        if (error) return { success: false, error: error.message };
+        
+        // Profiles are handled by Supabase trigger
+        return { success: true, user: data.user };
     }
 };

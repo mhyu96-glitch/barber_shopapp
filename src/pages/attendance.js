@@ -1,136 +1,219 @@
 // ========================================
 // Attendance Page
-// Clock in/out for barbers, shift logs
+// Professional Clock-in/out via Supabase
 // ========================================
 
-import { storage } from '../utils/storage.js';
+import { storage, getShopId } from '../utils/storage.js';
+import { supabase } from '../utils/supabaseClient.js';
 import { dateUtils } from '../utils/dateUtils.js';
 import { showToast } from '../components/toast.js';
 
 export function renderAttendance(container) {
-    const barbers = storage.getAll('barbers');
-    const logs = storage.getAll('attendanceLogs');
-    const today = new Date().toISOString().split('T')[0];
+    const user = storage.getCurrentUser();
+    const role = user?.role || 'barber';
+    const profileId = user?.id;
+    const now = new Date();
+    const today = [
+        now.getFullYear(),
+        (now.getMonth() + 1).toString().padStart(2, '0'),
+        now.getDate().toString().padStart(2, '0')
+    ].join('-');
 
     container.innerHTML = `
-    <div class="page-header">
-      <h2>Presensi & Shift</h2>
-      <p>Clock-in / Clock-out harian barber</p>
+    <div class="page-header flex-between">
+      <div>
+        <h2>Presensi Staf</h2>
+        <p>Kelola jam kerja dan kehadiran tim Profesional</p>
+      </div>
+      ${role === 'admin' ? `<button class="btn btn-secondary" id="download-attendance-report"><i class="fas fa-download"></i> Unduh Laporan (CSV)</button>` : ''}
     </div>
 
     <div class="grid-2" style="align-items: start;">
       <!-- Clock Action -->
-      <div class="card">
-        <h3 style="margin-bottom: 18px;"><i class="fas fa-clock" style="color: var(--accent);"></i> Form Presensi</h3>
-        <form id="attendance-form">
-          <div class="form-group">
-            <label>Pilih Barber</label>
-            <select class="form-control" id="barber-select" required>
-              <option value="">-- Pilih Nama Anda --</option>
-              ${barbers.map(b => `<option value="${b.id}">${b.name}</option>`).join('')}
-            </select>
-          </div>
-          
-          <div id="barber-status-container" style="margin-bottom: 20px;">
-             <!-- Status will be loaded here -->
-             <p class="text-sm text-muted">Silakan pilih nama barber untuk melihat status saat ini.</p>
-          </div>
+      <div class="card" id="attendance-action-card">
+        <div class="attendance-hero" style="background: var(--bg-secondary); padding: 30px; border-radius: var(--radius-lg); text-align: center; border: 1px solid var(--border);">
+            <div class="digital-clock" id="clock-display" style="font-size: 48px; font-weight: 800; color: var(--accent); font-family: 'Courier New', monospace; letter-spacing: 2px;">00:00:00</div>
+            <div class="date-display" style="color: var(--text-secondary); margin-top: 8px; font-weight: 500;">${dateUtils.formatDate(new Date(), 'long')}</div>
+        </div>
 
-          <div style="display: flex; gap: 8px;">
-            <button type="button" class="btn btn-primary" id="clock-in-btn" disabled>
-              <i class="fas fa-sign-in-alt"></i> Clock In
+        <div id="attendance-status-card" class="card-glass mt-md" style="text-align: center; border: 1px solid var(--border-accent); padding: 20px; margin-top: 20px;">
+            <div class="loading-spinner"><i class="fas fa-circle-notch fa-spin"></i> Memuat status...</div>
+        </div>
+
+        <div class="attendance-actions mt-md" style="display: flex; gap: 12px; margin-top: 20px;">
+            <button class="btn btn-primary btn-block py-16" id="check-in-btn" disabled style="height: 54px;">
+                <i class="fas fa-sign-in-alt"></i> Masuk (Check-In)
             </button>
-            <button type="button" class="btn btn-danger" id="clock-out-btn" disabled>
-              <i class="fas fa-sign-out-alt"></i> Clock Out
+            <button class="btn btn-danger btn-block py-16" id="check-out-btn" disabled style="height: 54px;">
+                <i class="fas fa-sign-out-alt"></i> Pulang (Check-Out)
             </button>
-          </div>
-        </form>
+        </div>
       </div>
 
-      <!-- Today's Logs -->
+      <!-- Logs -->
       <div class="card">
-        <h3 style="margin-bottom: 18px;"><i class="fas fa-list-ul" style="color: var(--info);"></i> Log Hari Ini</h3>
-        <div class="queue-list" id="today-logs">
-          ${renderLogs(logs, today, barbers)}
+        <div class="flex-between mb-md" style="margin-bottom: 20px;">
+            <h3 style="display: flex; align-items: center; gap: 8px;"><i class="fas fa-history text-accent"></i> ${role === 'admin' ? 'Laporan Presensi Hari Ini' : 'Riwayat Anda Hari Ini'}</h3>
+            <span class="badge badge-gold">${today}</span>
+        </div>
+        <div id="attendance-logs-list" class="queue-list">
+            <div class="loading-spinner py-20 text-center"><i class="fas fa-circle-notch fa-spin"></i> Memuat data...</div>
         </div>
       </div>
     </div>
-  `;
+    `;
 
-    const barberSelect = container.querySelector('#barber-select');
-    const statusContainer = container.querySelector('#barber-status-container');
-    const clockInBtn = container.querySelector('#clock-in-btn');
-    const clockOutBtn = container.querySelector('#clock-out-btn');
+    // Initialize clock
+    const clockDisplay = container.querySelector('#clock-display');
+    const updateTime = () => {
+        clockDisplay.textContent = new Date().toLocaleTimeString('id-ID', { hour12: false });
+    };
+    setInterval(updateTime, 1000);
+    updateTime();
 
-    barberSelect.addEventListener('change', () => {
-        const barberId = barberSelect.value;
-        if (!barberId) {
-            statusContainer.innerHTML = '<p class="text-sm text-muted">Silakan pilih nama barber untuk melihat status saat ini.</p>';
-            clockInBtn.disabled = true;
-            clockOutBtn.disabled = true;
-            return;
-        }
-
-        const lastLog = logs.filter(l => l.barberId === barberId && l.date === today).sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
-        const isClockedIn = lastLog && !lastLog.clockOut;
-
-        statusContainer.innerHTML = `
-          <div class="badge ${isClockedIn ? 'badge-success' : 'badge-warning'}" style="margin-bottom: 8px;">
-            Status: ${isClockedIn ? 'Bekerja (Online)' : 'Belum Mulai / Selesai'}
-          </div>
-          ${lastLog ? `<p class="text-xs text-muted">Aktivitas terakhir: ${lastLog.clockOut ? 'Clock Out pada ' + lastLog.clockOut : 'Clock In pada ' + lastLog.clockIn}</p>` : ''}
-        `;
-
-        clockInBtn.disabled = isClockedIn;
-        clockOutBtn.disabled = !isClockedIn;
-    });
-
-    clockInBtn.addEventListener('click', () => {
-        const barberId = barberSelect.value;
-        const time = new Date().toLocaleTimeString('id-ID', { hour12: false, hour: '2-digit', minute: '2-digit' });
-
-        storage.add('attendanceLogs', {
-            barberId,
-            date: today,
-            clockIn: time,
-            clockOut: null
-        });
-
-        showToast('Berhasil Clock In! Selamat bekerja. ✂️', 'success');
-        renderAttendance(container);
-    });
-
-    clockOutBtn.addEventListener('click', () => {
-        const barberId = barberSelect.value;
-        const time = new Date().toLocaleTimeString('id-ID', { hour12: false, hour: '2-digit', minute: '2-digit' });
-
-        const lastLog = logs.filter(l => l.barberId === barberId && l.date === today && !l.clockOut).sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
-
-        if (lastLog) {
-            storage.update('attendanceLogs', lastLog.id, { clockOut: time });
-            showToast('Berhasil Clock Out! Terima kasih untuk hari ini. 🙏', 'success');
-            renderAttendance(container);
-        }
-    });
+    // Load data
+    loadAttendanceData(container, profileId, role, today);
 }
 
-function renderLogs(logs, date, barbers) {
-    const todayLogs = logs.filter(l => l.date === date).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-    if (todayLogs.length === 0) return '<p class="text-sm text-muted text-center py-20">Belum ada aktivitas hari ini</p>';
+function formatTimeFromDB(timeStr) {
+    if (!timeStr) return '';
+    if (timeStr.includes('T')) {
+        return timeStr.split('T')[1].substring(0, 5);
+    }
+    return timeStr.substring(0, 5);
+}
 
-    return todayLogs.map(l => {
-        const barber = barbers.find(b => b.id === l.barberId);
-        return `
-          <div class="queue-item">
-            <div style="flex: 1;">
-              <div class="fw-600">${barber?.name || 'Barber'}</div>
-              <div class="text-xs text-muted">
-                <i class="fas fa-sign-in-alt text-success"></i> ${l.clockIn} 
-                ${l.clockOut ? ` • <i class="fas fa-sign-out-alt text-danger"></i> ${l.clockOut}` : ''}
-              </div>
-            </div>
-            ${!l.clockOut ? '<span class="badge badge-success">Online</span>' : '<span class="badge badge-warning">Selesai</span>'}
-          </div>
-        `;
-    }).join('');
+async function loadAttendanceData(container, profileId, role, today) {
+    const statusCard = container.querySelector('#attendance-status-card');
+    const logsList = container.querySelector('#attendance-logs-list');
+    const inBtn = container.querySelector('#check-in-btn');
+    const outBtn = container.querySelector('#check-out-btn');
+
+    try {
+        // Get Today's logs
+        const shopId = getShopId();
+        const settings = storage.get('settings', {});
+        const activeBranchId = settings.activeBranchId;
+
+        let query = supabase.from('attendance')
+            .select('*, profiles(full_name, username)')
+            .eq('date', today);
+        
+        if (shopId) query = query.eq('shop_id', shopId);
+        if (activeBranchId) query = query.eq('branch_id', activeBranchId);
+        
+        if (role !== 'admin') {
+            query = query.eq('profile_id', profileId);
+        }
+
+        const { data: logs, error } = await query.order('check_in', { ascending: false });
+        if (error) throw error;
+
+        // Find current active log for current user
+        const activeLog = logs?.find(l => l.profile_id === profileId && !l.check_out);
+
+        // Update UI Status
+        if (activeLog) {
+            statusCard.innerHTML = `
+                <div class="pulse-indicator" style="width: 12px; height: 12px; background: var(--success); border-radius: 50%; display: inline-block; margin-right: 8px; box-shadow: 0 0 10px var(--success);"></div>
+                <div class="text-accent fw-700" style="font-size: 18px; display: inline-block;">SEDANG BEKERJA</div>
+                <div class="text-sm text-muted" style="margin-top: 4px;">Mulai sejak ${formatTimeFromDB(activeLog.check_in)}</div>
+            `;
+            inBtn.disabled = true;
+            outBtn.disabled = false;
+        } else {
+            const finishedToday = logs?.find(l => l.profile_id === profileId && l.check_out);
+            statusCard.innerHTML = `
+                <div class="text-muted fw-600" style="font-size: 18px;">${finishedToday ? 'TUGAS SELESAI' : 'BELUM PRESENSI'}</div>
+                <div class="text-sm text-muted" style="margin-top: 4px;">${finishedToday ? 'Sesi kerja Anda telah berakhir hari ini.' : 'Silakan tekan tombol di bawah untuk mulai.'}</div>
+            `;
+            inBtn.disabled = !!finishedToday; 
+            outBtn.disabled = true;
+        }
+
+        // Update Logs List
+        if (logs && logs.length > 0) {
+            logsList.innerHTML = logs.map(l => `
+                <div class="queue-item" style="padding: 15px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
+                    <div style="flex: 1;">
+                        <div class="fw-600">${l.profiles?.full_name || l.profiles?.username || 'Staff'}</div>
+                        <div class="text-xs text-muted" style="margin-top: 2px;">
+                            <i class="fas fa-sign-in-alt text-success"></i> ${formatTimeFromDB(l.check_in)}
+                            ${l.check_out ? ` • <i class="fas fa-sign-out-alt text-danger"></i> ${formatTimeFromDB(l.check_out)}` : ' • <span class="text-accent fw-600">Aktif</span>'}
+                        </div>
+                    </div>
+                    <span class="badge ${l.check_out ? 'badge-secondary' : 'badge-success'}" style="text-transform: capitalize;">${l.status}</span>
+                </div>
+            `).join('');
+        } else {
+            logsList.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-muted);"><i class="fas fa-calendar-xmark" style="font-size: 32px; display: block; margin-bottom: 12px; opacity: 0.3;"></i> Belum ada aktivitas hari ini.</div>';
+        }
+
+        // Attach events
+        inBtn.onclick = () => handleCheckAction('in', profileId, today, container);
+        outBtn.onclick = () => handleCheckAction('out', activeLog?.id, today, container);
+
+        // Download Report CSV
+        container.querySelector('#download-attendance-report')?.addEventListener('click', () => {
+            if (logs && logs.length > 0) {
+                const csvRows = [
+                    ['Nama Staf', 'Tanggal', 'Masuk', 'Pulang', 'Status'],
+                    ...logs.map(l => [
+                        l.profiles?.full_name || l.profiles?.username,
+                        l.date,
+                        formatTimeFromDB(l.check_in),
+                        l.check_out ? formatTimeFromDB(l.check_out) : 'Aktif',
+                        l.status
+                    ])
+                ];
+                const csvContent = "data:text/csv;charset=utf-8," + csvRows.map(e => e.join(",")).join("\n");
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", `laporan_absensi_${today}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                showToast('Tidak ada data untuk diunduh', 'warning');
+            }
+        });
+
+    } catch (err) {
+        console.error('Attendance load error:', err);
+        showToast('Gagal memuat data presensi', 'danger');
+    }
+}
+
+async function handleCheckAction(type, id, today, container) {
+    const now = new Date();
+    const time = now.toISOString();
+    
+    try {
+        if (type === 'in') {
+            const shopId = getShopId();
+            const settings = storage.get('settings', {});
+            const { error } = await supabase.from('attendance').insert([{
+                profile_id: id,
+                date: today,
+                check_in: time,
+                status: 'hadir',
+                shop_id: shopId,
+                branch_id: settings.activeBranchId
+            }]);
+            if (error) throw error;
+            showToast('Check-In Berhasil! Selamat bekerja. ✂️', 'success');
+        } else {
+            const { error } = await supabase.from('attendance').update({
+                check_out: time
+            }).eq('id', id);
+            if (error) throw error;
+            showToast('Check-Out Berhasil! Terima kasih untuk hari ini. 🙏', 'success');
+        }
+        
+        renderAttendance(container);
+    } catch (err) {
+        console.error('Action error:', err);
+        showToast('Gagal memproses presensi: ' + err.message, 'danger');
+    }
 }

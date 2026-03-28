@@ -6,6 +6,7 @@ import '../appointments/book_appointment_screen.dart';
 import '../services/services_screen.dart';
 import 'reports_screen.dart';
 import 'dart:async';
+import 'package:intl/intl.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -20,6 +21,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     'total_done': 0,
     'total_customers': 0,
   };
+  Attendance? _todayAttendance;
   bool _isLoading = true;
 
   @override
@@ -30,10 +32,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> _loadStats() async {
     try {
-      final stats = await SupabaseService.getDashboardStats();
+      final isAdmin = AppState.isAdmin();
+      final profile = AppState.currentUserProfile.value;
+      final barberId = isAdmin ? null : profile?['id'];
+      
+      final stats = await SupabaseService.getDashboardStats(barberId: barberId);
+      final attendance = !isAdmin ? await SupabaseService.getTodayAttendance(profile?['id'] ?? '') : null;
+      
       if (mounted) {
         setState(() {
           _stats = stats;
+          _todayAttendance = attendance;
           _isLoading = false;
         });
       }
@@ -110,6 +119,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     // --- Revenue Analytics Card (Only for Admin) ---
                     if (isAdmin) _buildPremiumRevenueCard(primaryColor),
                     
+                    const SizedBox(height: 24),
+                    
+                    // --- Attendance Status Card ---
+                    _buildAttendanceCard(primaryColor, isAdmin),
+                    
                     const SizedBox(height: 32),
                     
                     // --- Quick Actions ---
@@ -124,12 +138,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         _buildModernAction(context, Icons.person_add_rounded, "Pelanggan", Colors.blueAccent, () {
                           AppState.selectedIndex.value = 2;
                         }),
-                        _buildModernAction(context, Icons.inventory_2_outlined, "Layanan", Colors.purpleAccent, () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => const ServicesScreen()));
-                        }),
-                        _buildModernAction(context, Icons.analytics_outlined, "Laporan", Colors.greenAccent, () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => const ReportsScreen()));
-                        }),
+                        if (isAdmin) ...[
+                          _buildModernAction(context, Icons.inventory_2_outlined, "Layanan", Colors.purpleAccent, () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => const ServicesScreen()));
+                          }),
+                          _buildModernAction(context, Icons.analytics_outlined, "Laporan", Colors.greenAccent, () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => const ReportsScreen()));
+                          }),
+                          _buildModernAction(context, Icons.person_add_alt_1_rounded, "Tambah Staf", Colors.orangeAccent, () {
+                            Navigator.pushNamed(context, '/signup');
+                          }),
+                        ] else ...[
+                           // Fill space with hidden icons or just wrap in a smaller row
+                           const Spacer(),
+                           const Spacer(),
+                        ],
                       ],
                     ),
 
@@ -163,7 +186,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     
                     // Premium Queue List from Supabase Real-time
                     StreamBuilder<List<Appointment>>(
-                      stream: SupabaseService.getAppointmentsStream(),
+                      stream: SupabaseService.getAppointmentsStream(
+                        barberId: isAdmin ? null : AppState.currentUserProfile.value?['id']
+                      ),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState == ConnectionState.waiting) {
                           return const Center(child: CircularProgressIndicator());
@@ -283,6 +308,84 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  Widget _buildAttendanceCard(Color primary, bool isAdmin) {
+    if (isAdmin) {
+      return GestureDetector(
+        onTap: () => Navigator.pushNamed(context, '/attendance-report'),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+          decoration: BoxDecoration(
+            color: primary.withOpacity(0.05),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: primary.withOpacity(0.1)),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.assignment_ind_rounded, color: primary),
+              const SizedBox(width: 16),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Laporan Kehadiran", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    Text("Pantau absensi barber hari ini", style: TextStyle(color: Colors.white38, fontSize: 12)),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right_rounded, color: Colors.white24),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Barber Card
+    final bool isCheckedIn = _todayAttendance != null;
+    final bool isCheckedOut = _todayAttendance?.checkOut != null;
+    
+    String status = "Belum Absen";
+    Color statusColor = Colors.white38;
+    if (isCheckedIn) {
+      status = isCheckedOut ? "Sudah Pulang" : "Sedang Bekerja";
+      statusColor = isCheckedOut ? Colors.greenAccent : primary;
+    }
+
+    return GestureDetector(
+      onTap: () => Navigator.pushNamed(context, '/attendance'),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.03),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Colors.white.withOpacity(0.05)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: statusColor.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.timer_outlined, color: statusColor, size: 20),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text("Status Kehadiran", style: TextStyle(color: Colors.white38, fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text(status, style: TextStyle(color: statusColor, fontWeight: FontWeight.w900, fontSize: 18, letterSpacing: -0.5)),
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_forward_ios_rounded, color: Colors.white10, size: 14),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildModernAction(BuildContext context, IconData icon, String label, Color color, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
@@ -330,6 +433,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ],
       ),
     );
+  }
+
+  Widget _formatTime(String? iso) {
+    if (iso == null) return const Text("--:--", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 15));
+    try {
+      if (iso.contains('T')) {
+        final dt = DateTime.parse(iso).toLocal();
+        return Text(DateFormat('HH:mm').format(dt), style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor, fontSize: 15));
+      }
+      // If it's already HH:mm:ss
+      return Text(iso.substring(0, 5), style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor, fontSize: 15));
+    } catch (e) {
+      return const Text("--:--", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 15));
+    }
   }
 
   Widget _buildPremiumQueueItem(BuildContext context, String name, String time, String sub, bool isInProcess) {

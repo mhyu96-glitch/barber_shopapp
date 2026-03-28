@@ -24,6 +24,10 @@ import { renderExpenses } from './pages/expenses.js';
 import { renderInventory } from './pages/inventory.js';
 import { renderAttendance } from './pages/attendance.js';
 import { renderMemberships } from './pages/memberships.js';
+import { renderLogin } from './pages/login.js';
+import { renderSignup } from './pages/signup.js';
+import { renderPOS } from './pages/pos.js';
+import { renderSuperAdmin } from './pages/superAdmin.js';
 
 // Initialize sample data (disabled for Supabase real DB)
 // initSampleData();
@@ -49,12 +53,23 @@ const routes = {
   logbook: { render: renderLogbook, title: 'Catatan Harian' },
   expenses: { render: renderExpenses, title: 'Pengeluaran' },
   inventory: { render: renderInventory, title: 'Inventori' },
+  login: { render: renderLogin, title: 'Login' },
+  signup: { render: renderSignup, title: 'Tambah Staf' },
+  pos: { render: renderPOS, title: 'Kasir (POS)' },
+  'super-admin': { render: renderSuperAdmin, title: 'Master Platform' },
 };
 
 let currentPage = 'dashboard';
 
 // Navigate to page
 export function navigateTo(page) {
+  // Session check
+  const user = storage.getCurrentUser();
+  if (!user && page !== 'login') {
+    window.location.hash = 'login';
+    return;
+  }
+
   if (!routes[page]) page = 'dashboard';
   currentPage = page;
 
@@ -114,8 +129,14 @@ function initApp() {
     .catch(err => console.warn('Supabase sync failed, starting in offline mode:', err))
     .finally(() => {
       // Navigate to initial page even if sync fails
+      const user = storage.getCurrentUser();
       const hash = window.location.hash.replace('#', '') || 'dashboard';
-      navigateTo(hash);
+      
+      if (!user && hash !== 'login') {
+        navigateTo('login');
+      } else {
+        navigateTo(hash);
+      }
     });
   storage.setupRealtime();
 
@@ -124,6 +145,36 @@ function initApp() {
     navigateTo(currentPage);
     renderSidebar(document.getElementById('sidebar'));
   });
+
+  // 🔔 Instant notification for new portal bookings (via Supabase Realtime)
+  window.addEventListener('new-portal-booking', (e) => {
+    const apt = e.detail;
+    const title = `📲 Booking Baru dari Portal!`;
+    const body = `${apt.customerName || 'Pelanggan'} - ${apt.serviceName || 'Layanan'} (${apt.time || ''})`;
+
+    // Toast notification
+    showToast(`${title} ${body}`, 'info', 10000);
+
+    // Sound alert
+    playNotificationSound();
+
+    // Browser notification
+    sendBrowserNotification(title, body);
+
+    // Electron native notification
+    if (window.electronAPI?.showNotification) {
+      window.electronAPI.showNotification(title, body);
+    }
+
+    // Refresh current page to show updated data
+    navigateTo(currentPage);
+    renderSidebar(document.getElementById('sidebar'));
+  });
+
+  // Request browser notification permission
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
 
   // Handle hash change
   window.addEventListener('hashchange', () => {

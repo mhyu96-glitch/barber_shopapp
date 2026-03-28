@@ -9,6 +9,7 @@ import { formatter } from '../utils/formatter.js';
 import { openModal, closeModal, confirmDialog } from '../components/modal.js';
 import { showToast } from '../components/toast.js';
 import { whatsapp } from '../components/whatsapp.js';
+import { receipt } from '../utils/receipt.js';
 
 let filterStatus = 'all';
 let filterDate = 'today';
@@ -672,12 +673,19 @@ function generateInvoice(aptId) {
 
   const footer = `
     <button class="btn btn-secondary" onclick="document.getElementById('active-modal').remove()">Tutup</button>
+    <button class="btn btn-primary" id="print-invoice-thermal">
+      <i class="fas fa-print"></i> Cetak Struk
+    </button>
     <button class="btn btn-wa" id="share-invoice-wa">
       <i class="fab fa-whatsapp"></i> Kirim via WA
     </button>
   `;
 
   openModal('Struk Digital', body, footer);
+
+  document.getElementById('print-invoice-thermal')?.addEventListener('click', () => {
+    receipt.print(apt, [{ name: apt.serviceName, price: apt.price }], 'Tunai');
+  });
 
   document.getElementById('share-invoice-wa')?.addEventListener('click', () => {
     const phone = (apt.customerPhone || '').replace(/\D/g, '');

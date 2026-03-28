@@ -23,13 +23,20 @@ dist-ssr
 *.sln
 *.sw?
 
-# Flutter
+# Flutter & Build Artifacts
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
 build/
+*.apk
+*.exe
+*.msi
+*.zip
+analysis_*.txt
+analyze_log.txt
+doctor_output*.txt
 
 # Android
 .gradle/

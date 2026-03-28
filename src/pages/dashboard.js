@@ -8,6 +8,7 @@ import { dateUtils } from '../utils/dateUtils.js';
 import { formatter } from '../utils/formatter.js';
 import { whatsapp } from '../components/whatsapp.js';
 import { navigateTo } from '../main.js';
+import { supabase } from '../utils/supabaseClient.js';
 
 let calendarYear, calendarMonth;
 
@@ -45,6 +46,9 @@ export function renderDashboard(container) {
       <h2>Dashboard</h2>
       <p>${dateUtils.formatDate(now, 'day')}, ${dateUtils.formatDate(now, 'long')}</p>
     </div>
+
+    <!-- Attendance Widget (Dynamic by Role) -->
+    <div id="dashboard-attendance-container" style="margin-bottom: 24px;"></div>
 
     <!-- Stats -->
     <div class="stats-grid stagger">
@@ -194,6 +198,9 @@ export function renderDashboard(container) {
 
   // Render calendar
   renderCalendar(container.querySelector('#dashboard-calendar'));
+  
+  // Render Attendance Widget
+  renderAttendanceWidget(container.querySelector('#dashboard-attendance-container'));
 
   // Event listeners
   container.querySelector('#quick-add-appt')?.addEventListener('click', () => navigateTo('appointments'));
@@ -763,4 +770,60 @@ function renderAIAdvisor(appointments, customers, settings) {
       </div>
     </div>
   `;
+}
+
+async function renderAttendanceWidget(container) {
+  const user = storage.getCurrentUser();
+  const role = user?.role || 'barber';
+  const now = new Date();
+  const today = [
+      now.getFullYear(),
+      (now.getMonth() + 1).toString().padStart(2, '0'),
+      now.getDate().toString().padStart(2, '0')
+  ].join('-');
+
+  try {
+    const { data: logs, error } = await supabase.from('attendance').select('*, profiles(full_name, username)').eq('date', today);
+    if (error) throw error;
+
+    if (role === 'admin') {
+      const onlineCount = logs ? logs.filter(l => !l.check_out).length : 0;
+      container.innerHTML = `
+        <div class="card" style="border-left: 4px solid var(--success); display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; margin-bottom: 24px;">
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <div class="stat-icon" style="background: var(--success-bg); color: var(--success); width: 44px; height: 44px; font-size: 18px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-user-check"></i>
+            </div>
+            <div>
+              <div class="fw-700" style="font-size: 18px;">${onlineCount} Barber Online</div>
+              <p class="text-sm text-muted">Staf sedang bekerja saat ini</p>
+            </div>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="window.location.hash='attendance'">
+            <i class="fas fa-list"></i> Lihat Laporan
+          </button>
+        </div>
+      `;
+    } else {
+      const activeLog = logs ? logs.find(l => l.profile_id === user.id && !l.check_out) : null;
+      container.innerHTML = `
+        <div class="card" style="border-left: 4px solid ${activeLog ? 'var(--success)' : 'var(--warning)'}; display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; margin-bottom: 24px;">
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <div class="stat-icon" style="background: ${activeLog ? 'var(--success-bg)' : 'var(--warning-bg)'}; color: ${activeLog ? 'var(--success)' : 'var(--warning)'}; width: 44px; height: 44px; font-size: 18px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center;">
+                <i class="fas ${activeLog ? 'fa-clock' : 'fa-door-open'}"></i>
+            </div>
+            <div>
+              <div class="fw-700" style="font-size: 18px;">Status: ${activeLog ? 'Sedang Bekerja' : 'Belum Check-In'}</div>
+              <p class="text-sm text-muted">${activeLog ? 'Mulai sejak ' + activeLog.check_in.substring(0, 5) : 'Silakan lakukan presensi hari ini'}</p>
+            </div>
+          </div>
+          <button class="btn ${activeLog ? 'btn-danger' : 'btn-primary'} btn-sm" onclick="window.location.hash='attendance'">
+            <i class="fas fa-sign-in-alt"></i> ${activeLog ? 'Check-Out' : 'Check-In'}
+          </button>
+        </div>
+      `;
+    }
+  } catch (err) {
+    console.error('Widget error:', err);
+  }
 }

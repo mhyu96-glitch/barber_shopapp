@@ -143,7 +143,6 @@ class AppointmentsScreen extends StatelessWidget {
                         return _buildAppointmentCard(
                           context,
                           appointment: apt,
-                          imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100",
                         );
                       },
                       childCount: appointments.length,
@@ -248,7 +247,6 @@ class AppointmentsScreen extends StatelessWidget {
   Widget _buildAppointmentCard(
     BuildContext context, {
     required Appointment appointment,
-    required String imageUrl,
     double opacity = 1.0,
   }) {
     final isAdmin = AppState.isAdmin();
@@ -277,8 +275,19 @@ class AppointmentsScreen extends StatelessWidget {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                image: DecorationImage(image: NetworkImage(imageUrl), fit: BoxFit.cover),
+                gradient: LinearGradient(
+                  colors: [primaryColor.withOpacity(0.2), primaryColor.withOpacity(0.05)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(15),
+                border: Border.all(color: primaryColor.withOpacity(0.1)),
+              ),
+              child: Center(
+                child: Text(
+                  appointment.customerName.isNotEmpty ? appointment.customerName.substring(0, 1).toUpperCase() : "?",
+                  style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold, fontSize: 20),
+                ),
               ),
             ),
             const SizedBox(width: 16),
@@ -292,11 +301,25 @@ class AppointmentsScreen extends StatelessWidget {
               ),
             ),
             if (isAdmin) 
-              TextButton(
-                onPressed: () {
-                  _showStatusDialog(context, appointment);
-                },
-                child: const Text("UBAH", style: TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.w900, fontSize: 10)),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (appointment.status == 'done')
+                    IconButton(
+                      icon: const Icon(Icons.receipt_long_rounded, color: Colors.greenAccent, size: 20),
+                      onPressed: () => _showReceiptDialog(context, appointment),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      tooltip: "Cetak Nota",
+                    ),
+                  const SizedBox(width: 8),
+                  TextButton(
+                    onPressed: () {
+                      _showStatusDialog(context, appointment);
+                    },
+                    child: const Text("UBAH", style: TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.w900, fontSize: 10)),
+                  ),
+                ],
               )
             else
               const Icon(Icons.more_vert, color: Colors.white38),
@@ -332,6 +355,73 @@ class AppointmentsScreen extends StatelessWidget {
         await SupabaseService.updateAppointmentStatus(id, status);
         if (context.mounted) Navigator.pop(context);
       },
+    );
+  }
+
+  void _showReceiptDialog(BuildContext context, Appointment apt) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1A1A1A),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.check_circle_rounded, color: Colors.greenAccent, size: 48),
+            const SizedBox(height: 16),
+            const Text("KWITANSI PEMBAYARAN", style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+            const Divider(height: 32, color: Colors.white12),
+            _receiptRow("Layanan", apt.serviceName),
+            _receiptRow("Pelanggan", apt.customerName),
+            _receiptRow("Barber", apt.barberName),
+            _receiptRow("Waktu", apt.time),
+            const Divider(height: 32, color: Colors.white12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text("TOTAL", style: TextStyle(fontWeight: FontWeight.bold)),
+                Text("Rp ${apt.paymentAmount}", style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.greenAccent, fontSize: 18)),
+              ],
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  // Simulate sharing
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text("Kwitansi dikirim ke WhatsApp!"),
+                      backgroundColor: Colors.green.shade700,
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.share, size: 18),
+                label: const Text("BAGIKAN NOTA"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _receiptRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: const TextStyle(color: Colors.white38, fontSize: 12)),
+          Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 12)),
+        ],
+      ),
     );
   }
 

@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'core/app_state.dart';
 import 'features/auth/login_screen.dart';
+import 'features/auth/signup_screen.dart';
+import 'features/attendance/attendance_screen.dart';
+import 'features/dashboard/attendance_report_screen.dart';
 import 'features/navigation/main_navigation.dart';
+import 'features/super_admin/super_admin_dashboard.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  await initializeDateFormatting('id_ID', null);
   
   await Supabase.initialize(
     url: 'https://lottgkrtjwbyhxtjjkge.supabase.co',
@@ -47,7 +54,11 @@ class BarberProApp extends StatelessWidget {
       initialRoute: '/login',
       routes: {
         '/login': (context) => const LoginScreen(),
+        '/signup': (context) => const SignUpScreen(),
+        '/attendance': (context) => const AttendanceScreen(),
+        '/attendance-report': (context) => const AttendanceReportScreen(),
         '/home': (context) => const MainNavigation(),
+        '/super-admin': (context) => const SuperAdminDashboard(),
       },
     );
   }

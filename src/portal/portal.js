@@ -2,6 +2,8 @@
 // Customer Portal - Booking Wizard
 // ========================================
 
+import { supabase } from '../utils/supabaseClient.js';
+
 const STORAGE_PREFIX = 'barberpro_';
 const DAYS_ID = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 const DAYS_SHORT = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
@@ -18,14 +20,154 @@ function sAdd(key, item) {
   const list = sGetAll(key);
   item.id = 'p_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
   item.createdAt = new Date().toISOString();
+  item.updatedAt = new Date().toISOString();
   list.push(item);
   sSet(key, list);
   return item;
 }
 
+// === Supabase Sync Helper ===
+function toSnakeCase(str) {
+  return str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+}
+function toSnakeCaseObj(obj) {
+  if (!obj || typeof obj !== 'object') return obj;
+  const result = {};
+  for (const [key, val] of Object.entries(obj)) result[toSnakeCase(key)] = val;
+  return result;
+}
+async function syncToSupabase(table, item, isUpdate = false) {
+  try {
+    const dbData = toSnakeCaseObj(item);
+    if (dbData.created_at) delete dbData.created_at;
+    if (dbData.updated_at) delete dbData.updated_at;
+    
+    let query;
+    if (isUpdate) {
+      query = supabase.from(table).update(dbData).eq('id', item.id);
+    } else {
+      query = supabase.from(table).insert([dbData]);
+    }
+    
+    const { error } = await query;
+    if (error) console.error(`Supabase sync error (${table}):`, error);
+    else console.log(`✅ Synced to Supabase (${isUpdate ? 'Update' : 'Insert'}): ${table}`);
+  } catch (e) {
+    console.warn(`Supabase sync failed for ${table}:`, e);
+  }
+}
+
 // === State ===
 let currentStep = 0; // 0=home, 1=service, 2=barber, 3=schedule, 4=info, 5=review, 6=success
 let booking = { service: null, barber: null, date: null, time: null, name: '', phone: '', notes: '', promoId: null };
+let currentShop = null; // { id, slug, name, ... }
+
+// === Multi-Tenant: Load shop data from Supabase ===
+async function loadShopData(slug) {
+  try {
+    // Fetch shop by slug
+    const { data: shop, error: shopErr } = await supabase
+      .from('shops')
+      .select('*')
+      .eq('slug', slug)
+      .eq('is_active', true)
+      .single();
+
+    if (shopErr || !shop) return null;
+    currentShop = shop;
+
+    // Fetch shop-scoped data from Supabase
+    const [servicesRes, barbersRes, settingsRes, promosRes, appointmentsRes, customersRes] = await Promise.all([
+      supabase.from('services').select('*').eq('shop_id', shop.id),
+      supabase.from('barbers').select('*').eq('shop_id', shop.id),
+      supabase.from('settings').select('*').eq('shop_id', shop.id).limit(1),
+      supabase.from('promos').select('*').eq('shop_id', shop.id),
+      supabase.from('appointments').select('*').eq('shop_id', shop.id),
+      supabase.from('customers').select('*').eq('shop_id', shop.id),
+    ]);
+
+    // Store in localStorage for portal helpers to use
+    if (servicesRes.data) sSet('services', servicesRes.data.map(toCamelCaseObj));
+    if (barbersRes.data) sSet('barbers', barbersRes.data.map(toCamelCaseObj));
+    if (promosRes.data) sSet('promos', promosRes.data.map(toCamelCaseObj));
+    if (appointmentsRes.data) sSet('appointments', appointmentsRes.data.map(toCamelCaseObj));
+    if (customersRes.data) sSet('customers', customersRes.data.map(toCamelCaseObj));
+    if (settingsRes.data?.[0]) sSet('settings', toCamelCaseObj(settingsRes.data[0]));
+
+    return shop;
+  } catch (e) {
+    console.error('Error loading shop:', e);
+    return null;
+  }
+}
+
+function toCamelCase(str) {
+  return str.replace(/([-_][a-z])/ig, ($1) => $1.toUpperCase().replace('-', '').replace('_', ''));
+}
+function toCamelCaseObj(obj) {
+  if (!obj || typeof obj !== 'object') return obj;
+  const result = {};
+  for (const [key, val] of Object.entries(obj)) result[toCamelCase(key)] = val;
+  return result;
+}
+
+function renderShopNotFound() {
+  const main = document.getElementById('portal-main');
+  main.innerHTML = `
+    <div class="portal-main fade-in" style="text-align: center; padding: 60px 20px;">
+      <div style="font-size: 64px; margin-bottom: 16px;">🏪</div>
+      <h2 style="margin-bottom: 8px;">Toko Tidak Ditemukan</h2>
+      <p style="color: var(--p-muted); margin-bottom: 24px;">
+        URL toko yang Anda masukkan tidak valid atau toko sudah tidak aktif.
+      </p>
+      <p style="font-size: 13px; color: var(--p-muted);">
+        Contoh URL: <code>portal.html?shop=nama-toko-anda</code>
+      </p>
+    </div>
+  `;
+}
+
+// === Init ===
+document.addEventListener('DOMContentLoaded', async () => {
+  const params = new URLSearchParams(window.location.search);
+  const shopSlug = params.get('shop');
+
+  if (shopSlug) {
+    // Multi-tenant: load from Supabase by slug
+    const shop = await loadShopData(shopSlug);
+    if (!shop) {
+      renderShopNotFound();
+      return;
+    }
+  }
+  // If no slug, fallback to localStorage (legacy/local mode)
+
+  initPortalTheme();
+  renderHeader();
+  renderFooter();
+
+  if (params.get('status')) {
+    renderStatusCheck(params.get('status'));
+  } else {
+    if (params.get('ref')) {
+      booking.refId = params.get('ref');
+    }
+    if (params.get('barber')) {
+      const bId = params.get('barber');
+      const b = sGetAll('barbers').find(b => b.id === bId);
+      if (b) booking.barber = b;
+    }
+    renderHome();
+  }
+});
+
+function initPortalTheme() {
+  const settings = sGet('settings', {});
+  const accent = settings.portalAccent || '#d4a843';
+  const root = document.documentElement;
+  root.style.setProperty('--p-accent', accent);
+  root.style.setProperty('--p-accent-glow', accent + '33');
+}
 
 const STEPS = [
   { label: 'Layanan', icon: 'fa-scissors' },
@@ -225,35 +367,7 @@ function t(key) {
   return TRANSLATIONS[lang][key] || TRANSLATIONS['id'][key] || key;
 }
 
-// === Init ===
-document.addEventListener('DOMContentLoaded', () => {
-  initPortalTheme();
-  renderHeader();
-  renderFooter();
-  // Check if URL has ?status=CODE or ?ref=ID
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('status')) {
-    renderStatusCheck(params.get('status'));
-  } else {
-    if (params.get('ref')) {
-      booking.refId = params.get('ref');
-    }
-    if (params.get('barber')) {
-      const bId = params.get('barber');
-      const b = sFind('barbers', bId);
-      if (b) booking.barber = b;
-    }
-    renderHome();
-  }
-});
 
-function initPortalTheme() {
-  const settings = sGet('settings', {});
-  const accent = settings.portalAccent || '#d4a843';
-  const root = document.documentElement;
-  root.style.setProperty('--p-accent', accent);
-  root.style.setProperty('--p-accent-glow', accent + '33'); // 20% opacity
-}
 
 // === Header ===
 function renderHeader() {
@@ -912,18 +1026,21 @@ window.submitBooking = function () {
     source: 'portal',
     bookingCode: bookingCode,
     promoId: booking.promoId,
-    refId: booking.refId, // Storing referral source
+    refId: booking.refId,
     isLoyaltyFree: isLoyaltyFree,
     recurringType: booking.recurringType || null,
+    shopId: currentShop?.id || null,
   };
 
-  sAdd('appointments', appointment);
+  const savedAppointment = sAdd('appointments', appointment);
+  // Sync appointment to Supabase for real-time notification to all platforms
+  syncToSupabase('appointments', savedAppointment);
 
   // Also try to find/create customer
   const customers = sGetAll('customers');
   let existingCust = customers.find(c => c.phone === booking.phone || c.name === booking.name);
   if (!existingCust) {
-    sAdd('customers', {
+    const newCustomer = sAdd('customers', {
       name: booking.name,
       phone: booking.phone,
       totalVisits: 0,
@@ -932,6 +1049,7 @@ window.submitBooking = function () {
       firstVisit: booking.date,
       notes: 'Dari Portal Online',
     });
+    syncToSupabase('customers', newCustomer);
   }
 
   // Play sound notification for admin (if same device)
@@ -1188,6 +1306,10 @@ window.submitReview = function (id) {
     list[index].rating = tempRating;
     list[index].reviewComment = comment;
     sSet('appointments', list);
+    
+    // Sync review to Supabase
+    syncToSupabase('appointments', list[index], true);
+    
     alert('Terima kasih atas ulasan Anda!');
     checkBookingStatus(); // Refresh
   }
@@ -1275,10 +1397,12 @@ window.submitWaitlist = function (time) {
     barberName: booking.barber?.name,
     serviceId: booking.service?.id,
     serviceName: booking.service?.name,
-    status: 'waiting'
+    status: 'waiting',
+    shopId: currentShop?.id || null,
   };
 
-  sAdd('waitlist', wlEntry);
+  const savedWl = sAdd('waitlist', wlEntry);
+  syncToSupabase('waitlist', savedWl);
 
   const body = `
     <div style="padding: 30px; text-align: center;">

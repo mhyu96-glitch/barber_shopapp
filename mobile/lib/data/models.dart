@@ -116,3 +116,35 @@ class Customer {
     );
   }
 }
+
+class Attendance {
+  final String id;
+  final String profileId;
+  final String date;
+  final String? checkIn;
+  final String? checkOut;
+  final String status;
+  final String? notes;
+
+  Attendance({
+    required this.id,
+    required this.profileId,
+    required this.date,
+    this.checkIn,
+    this.checkOut,
+    this.status = 'present',
+    this.notes,
+  });
+
+  factory Attendance.fromMap(Map<String, dynamic> map) {
+    return Attendance(
+      id: map['id'],
+      profileId: map['profile_id'],
+      date: map['date'] ?? '',
+      checkIn: map['check_in'],
+      checkOut: map['check_out'],
+      status: map['status'] ?? 'present',
+      notes: map['notes'],
+    );
+  }
+}

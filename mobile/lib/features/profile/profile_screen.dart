@@ -8,6 +8,7 @@ import 'add_edit_barber_screen.dart';
 import '../services/services_screen.dart';
 import '../dashboard/reports_screen.dart';
 import 'settings_detail_screen.dart';
+import '../settings/printer_settings_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -28,28 +29,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _loadProfile() async {
-    final role = AppState.currentRole.value;
-    final name = AppState.currentBarberName.value; // For barbers, we identify by name
-    
-    try {
-      if (role == UserRole.admin) {
-        // Mock admin data for now
-        _avatarUrl = 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=200';
-      } else if (role == UserRole.barber) {
-        final barbers = await SupabaseService.getBarbers();
-        final current = barbers.firstWhere((b) => b.name == name, orElse: () => barbers.first);
-        _avatarUrl = current.avatar;
-      } else if (role == UserRole.customer) {
-        // Assume the first customer is the logged-in one for demo purposes
-        final customers = await SupabaseService.getCustomers();
-        if (customers.isNotEmpty) {
-          _avatarUrl = customers.first['avatar'];
-        }
-      }
-      
-      if (mounted) setState(() {});
-    } catch (e) {
-      print("Error loading profile: $e");
+    final profile = AppState.currentUserProfile.value;
+    if (profile != null) {
+      setState(() {
+        _avatarUrl = profile['avatar'];
+      });
     }
   }
 
@@ -186,7 +170,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ],
                   ),
                   Text(
-                    role == UserRole.admin ? "Owner BarberPro Studio" : (role == UserRole.barber ? "Barber Profesional" : "Anggota sejak Jan 2023"),
+                    role == UserRole.admin 
+                      ? "Owner ${AppState.shopName.value}" 
+                      : (role == UserRole.barber 
+                          ? "Barber Profesional" 
+                          : "Anggota sejak Jan 2023"),
                     style: const TextStyle(color: Colors.white38, fontSize: 13),
                   ),
                 ],
@@ -202,6 +190,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       _buildAdminAction(context, Icons.person_add_alt_1_rounded, "Tambah Barber Baru", primaryColor, () {
                         Navigator.push(context, MaterialPageRoute(builder: (context) => const AddEditBarberScreen()));
+                      }),
+                      const SizedBox(height: 12),
+                      _buildAdminAction(context, Icons.key_rounded, "Buat Akun Baru", Colors.blueAccent, () {
+                        Navigator.pushNamed(context, '/signup');
                       }),
                       const SizedBox(height: 12),
                       _buildAdminAction(context, Icons.content_cut_rounded, "Kelola Layanan", Colors.purpleAccent, () {
@@ -296,6 +288,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     _buildMenuItem(context, Icons.payments, "Metode Pembayaran", primaryColor),
                     _buildMenuItem(context, Icons.content_cut, "Barber Favorit", primaryColor),
                   ],
+                  _buildMenuItem(context, Icons.print_rounded, "Pengaturan Printer", primaryColor, onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const PrinterSettingsScreen()),
+                    );
+                  }),
                   _buildMenuItem(context, Icons.notifications, "Notifikasi", primaryColor, badge: "2"),
                   _buildMenuItem(context, Icons.manage_accounts, "Pengaturan Akun", primaryColor),
                   const SizedBox(height: 24),
@@ -402,8 +400,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildLogoutButton(BuildContext context) {
     return ElevatedButton.icon(
-      onPressed: () {
-        Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+      onPressed: () async {
+        await SupabaseService.signOut();
+        AppState.currentUserProfile.value = null;
+        if (context.mounted) {
+          Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+        }
       },
       icon: const Icon(Icons.logout_rounded, color: Colors.redAccent),
       label: const Text("KELUAR AKUN", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),

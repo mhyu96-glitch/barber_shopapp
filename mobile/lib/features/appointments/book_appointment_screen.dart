@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/supabase_service.dart';
+import '../../core/app_state.dart';
 import '../../data/models.dart';
 import 'booking_confirmed_screen.dart';
 
@@ -13,12 +14,16 @@ class BookAppointmentScreen extends StatefulWidget {
 class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   List<Map<String, dynamic>> _services = [];
   List<Barber> _barbers = [];
+  List<Customer> _customers = [];
   
   Map<String, dynamic>? _selectedService;
   Barber? _selectedBarber;
+  Customer? _selectedCustomer;
   int _selectedDateIndex = 0;
   String? _selectedTime = '10:00';
+  String _customerSearchQuery = "";
   bool _isLoading = true;
+  bool _isSearchingCustomer = false;
   
   Color get primaryColor => Theme.of(context).primaryColor;
   Color get backgroundDark => Theme.of(context).scaffoldBackgroundColor;
@@ -33,11 +38,17 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     try {
       final services = await SupabaseService.getServices();
       final barbers = await SupabaseService.getBarbers();
+      final customers = await SupabaseService.getCustomers();
+      
       setState(() {
         _services = services;
         _barbers = barbers;
+        _customers = customers.map((e) => Customer.fromMap(e)).toList();
+        
         if (_services.isNotEmpty) _selectedService = _services.first;
         if (_barbers.isNotEmpty) _selectedBarber = _barbers.first;
+        if (_customers.isNotEmpty) _selectedCustomer = _customers.first;
+        
         _isLoading = false;
       });
     } catch (e) {
@@ -47,7 +58,10 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   }
 
   Future<void> _confirmBooking() async {
-    if (_selectedService == null || _selectedBarber == null || _selectedTime == null) return;
+    if (_selectedService == null || _selectedBarber == null || _selectedCustomer == null || _selectedTime == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Harap pilih pelanggan, layanan, dan barber.")));
+      return;
+    }
 
     setState(() => _isLoading = true);
     
@@ -55,6 +69,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     final dateStr = "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
 
     final appointmentData = {
+      'customer_id': _selectedCustomer!.id,
       'barber_id': _selectedBarber!.id,
       'service_id': _selectedService!['id'],
       'date': dateStr,
@@ -63,14 +78,32 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
       'price': _selectedService!['price'] ?? 0,
       'status': 'scheduled',
       'payment_status': 'unpaid',
+      'source': 'mobile',
     };
 
     try {
       await SupabaseService.addAppointment(appointmentData);
       if (mounted) {
+        final timeParts = _selectedTime!.split(':');
+        final appointmentDate = DateTime(
+          date.year,
+          date.month,
+          date.day,
+          int.parse(timeParts[0]),
+          int.parse(timeParts[1]),
+        );
+
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const BookingConfirmedScreen()),
+          MaterialPageRoute(
+            builder: (context) => BookingConfirmedScreen(
+              shopName: AppState.shopName.value,
+              customerName: _selectedCustomer!.name,
+              serviceName: _selectedService!['name'] ?? "Layanan",
+              price: (_selectedService!['price'] ?? 0).toDouble(),
+              date: appointmentDate,
+            ),
+          ),
         );
       }
     } catch (e) {
@@ -129,8 +162,15 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // --- Customer Selection ---
                   const Padding(
                     padding: EdgeInsets.fromLTRB(20, 24, 20, 16),
+                    child: Text('Pilih Pelanggan', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                  ),
+                  _buildCustomerSelector(),
+
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(20, 32, 20, 16),
                     child: Text(
                       'Pilih Layanan',
                       style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
@@ -410,6 +450,95 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildCustomerSelector() {
+    final filtered = _customers.where((c) => c.name.toLowerCase().contains(_customerSearchQuery.toLowerCase()) || (c.phone ?? '').contains(_customerSearchQuery)).toList();
+    
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        children: [
+          TextField(
+            onChanged: (v) => setState(() {
+              _customerSearchQuery = v;
+              _isSearchingCustomer = true;
+            }),
+            style: const TextStyle(color: Colors.white, fontSize: 14),
+            decoration: InputDecoration(
+              hintText: "Cari nama atau nomor HP...",
+              hintStyle: const TextStyle(color: Colors.white24),
+              prefixIcon: const Icon(Icons.search, size: 18, color: Colors.white24),
+              filled: true,
+              fillColor: Colors.white.withOpacity(0.03),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+          ),
+          if (_isSearchingCustomer && _customerSearchQuery.isNotEmpty) 
+            Container(
+              margin: const EdgeInsets.only(top: 8),
+              constraints: const BoxConstraints(maxHeight: 200),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1E1E1E),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.white.withOpacity(0.05)),
+              ),
+              child: ListView.builder(
+                shrinkWrap: true,
+                padding: EdgeInsets.zero,
+                itemCount: filtered.length,
+                itemBuilder: (context, index) {
+                  final c = filtered[index];
+                  return ListTile(
+                    title: Text(c.name, style: const TextStyle(color: Colors.white, fontSize: 14)),
+                    subtitle: Text(c.phone ?? 'MEMBER', style: const TextStyle(color: Colors.white38, fontSize: 12)),
+                    trailing: Icon(Icons.check_circle_rounded, color: _selectedCustomer?.id == c.id ? primaryColor : Colors.transparent, size: 18),
+                    onTap: () => setState(() {
+                      _selectedCustomer = c;
+                      _isSearchingCustomer = false;
+                      _customerSearchQuery = "";
+                    }),
+                  );
+                },
+              ),
+            ),
+          if (!_isSearchingCustomer && _selectedCustomer != null)
+            Container(
+              margin: const EdgeInsets.only(top: 12),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: primaryColor.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: primaryColor.withOpacity(0.2)),
+              ),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    backgroundColor: primaryColor.withOpacity(0.1),
+                    radius: 18,
+                    child: Text(_selectedCustomer!.name[0].toUpperCase(), style: TextStyle(color: primaryColor, fontSize: 14, fontWeight: FontWeight.bold)),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(_selectedCustomer!.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                        Text(_selectedCustomer!.phone ?? 'MEMBER', style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 12)),
+                      ],
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () => setState(() => _isSearchingCustomer = true),
+                    child: Text("GANTI", style: TextStyle(color: primaryColor, fontSize: 12, fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
