@@ -7,29 +7,42 @@ export async function renderSuperAdmin(container) {
 
   function renderLayout() {
     container.innerHTML = `
-      <div class="super-admin-header fade-in">
-        <div class="header-content">
-          <h1>Master Platform Control</h1>
-          <p>Sistem Manajemen Multi-Tenant BarberPro</p>
+      <div class="super-admin-header fade-in" style="padding: 20px 0; border-bottom: 1px solid rgba(0,0,0,0.05); margin-bottom: 30px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+          <div style="display: flex; align-items: center; gap: 15px;">
+            <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #f1c40f, #f39c12); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);">
+              <i class="fas fa-crown"></i>
+            </div>
+            <div>
+              <h2 style="margin: 0; font-size: 24px; font-weight: 800; color: #2c3e50;">Master Platform Control</h2>
+              <p style="margin: 2px 0 0 0; color: #7f8c8d; font-size: 13px; font-weight: 500;">Multi-Tenant SaaS Management • Executive Edition</p>
+            </div>
+          </div>
+          <div class="header-actions" style="display: flex; gap: 12px;">
+            <button id="add-shop-btn" class="btn btn-primary" style="box-shadow: 0 4px 10px var(--primary-shadow);">
+              <i class="fas fa-plus"></i> Tambah Tenant Baru
+            </button>
+            <button id="refresh-btn" class="btn btn-secondary">
+              <i class="fas fa-sync-alt"></i> Refresh Data
+            </button>
+          </div>
         </div>
-        <div class="header-actions" style="display: flex; gap: 12px;">
-          <button id="add-shop-btn" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Tambah Tenant Baru
+
+        <!-- Master Nav Tabs -->
+        <div class="master-tabs fade-in" style="margin-top: 35px; display: flex; gap: 30px; border-bottom: 2px solid #ecf0f1;">
+          <button class="tab-btn ${activeTab === 'shops' ? 'active' : ''}" data-tab="shops" style="padding: 12px 5px; border: none; background: none; font-weight: 700; color: ${activeTab === 'shops' ? 'var(--primary)' : '#bdc3c7'}; cursor: pointer; border-bottom: 3px solid ${activeTab === 'shops' ? 'var(--primary)' : 'transparent'}; transition: all 0.3s; font-size: 15px;">
+            <i class="fas fa-store" style="margin-right: 8px;"></i> Daftar Toko
           </button>
-          <button id="refresh-btn" class="btn btn-secondary">
-            <i class="fas fa-sync-alt"></i> Refresh Data
+          <button class="tab-btn ${activeTab === 'revenue' ? 'active' : ''}" data-tab="revenue" style="padding: 12px 5px; border: none; background: none; font-weight: 700; color: ${activeTab === 'revenue' ? 'var(--primary)' : '#bdc3c7'}; cursor: pointer; border-bottom: 3px solid ${activeTab === 'revenue' ? 'var(--primary)' : 'transparent'}; transition: all 0.3s; font-size: 15px;">
+            <i class="fas fa-chart-line" style="margin-right: 8px;"></i> Laporan Pendapatan
+          </button>
+          <button class="tab-btn ${activeTab === 'plans' ? 'active' : ''}" data-tab="plans" style="padding: 12px 5px; border: none; background: none; font-weight: 700; color: ${activeTab === 'plans' ? 'var(--primary)' : '#bdc3c7'}; cursor: pointer; border-bottom: 3px solid ${activeTab === 'plans' ? 'var(--primary)' : 'transparent'}; transition: all 0.3s; font-size: 15px;">
+            <i class="fas fa-gem" style="margin-right: 8px;"></i> Pengaturan Paket
           </button>
         </div>
       </div>
 
-      <!-- Master Nav Tabs -->
-      <div class="master-tabs fade-in" style="margin-top: 24px; display: flex; gap: 4px; border-bottom: 1px solid var(--border);">
-        <button class="tab-btn ${activeTab === 'shops' ? 'active' : ''}" data-tab="shops">Daftar Toko</button>
-        <button class="tab-btn ${activeTab === 'revenue' ? 'active' : ''}" data-tab="revenue">Laporan Pendapatan</button>
-        <button class="tab-btn ${activeTab === 'plans' ? 'active' : ''}" data-tab="plans">Pengaturan Paket (Tier)</button>
-      </div>
-
-      <div id="master-sub-content" style="margin-top: 20px;">
+      <div id="master-sub-content">
         <!-- Dynamic Content Here -->
       </div>
     `;
@@ -113,30 +126,41 @@ export async function renderSuperAdmin(container) {
         </div>
       ` : ''}
 
-      <div class="stats-grid fade-in">
-        <div class="stat-card" style="border-left: 4px solid #f39c12;">
-          <div class="stat-info">
-            <h3>Rp ${mrr.toLocaleString('id-ID')}</h3>
-            <p>Potensi Pendapatan (MRR)</p>
-          </div>
+      <div class="stats-grid fade-in" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px;">
+        <div class="stat-card" style="background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); display: flex; align-items: center; gap: 20px; border: 1px solid rgba(0,0,0,0.05); border-left: 5px solid #f39c12;">
+           <div style="width: 52px; height: 52px; border-radius: 12px; background: rgba(243, 156, 18, 0.1); display: flex; align-items: center; justify-content: center; color: #f39c12; font-size: 22px;">
+             <i class="fas fa-money-bill-trend-up"></i>
+           </div>
+           <div>
+             <div style="font-size: 24px; font-weight: 800; color: #2c3e50;">Rp ${mrr.toLocaleString('id-ID')}</div>
+             <div style="font-size: 11px; color: #7f8c8d; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">PENDAPATAN (MRR)</div>
+           </div>
         </div>
-        <div class="stat-card" style="border-left: 4px solid #2ecc71;">
-          <div class="stat-info">
-            <h3>${activeShops.length}</h3>
-            <p>Toko Active</p>
-          </div>
+        <div class="stat-card" style="background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); display: flex; align-items: center; gap: 20px; border: 1px solid rgba(0,0,0,0.05); border-left: 5px solid #2ecc71;">
+           <div style="width: 52px; height: 52px; border-radius: 12px; background: rgba(46, 204, 113, 0.1); display: flex; align-items: center; justify-content: center; color: #2ecc71; font-size: 22px;">
+             <i class="fas fa-store"></i>
+           </div>
+           <div>
+             <div style="font-size: 24px; font-weight: 800; color: #2c3e50;">${activeShops.length}</div>
+             <div style="font-size: 11px; color: #7f8c8d; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">TENANT AKTIF</div>
+           </div>
         </div>
-        <div class="stat-card" style="border-left: 4px solid #3498db;">
-          <div class="stat-info">
-            <h3>${trialShops.length}</h3>
-            <p>Toko Trial</p>
-          </div>
+        <div class="stat-card" style="background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); display: flex; align-items: center; gap: 20px; border: 1px solid rgba(0,0,0,0.05); border-left: 5px solid #3498db;">
+           <div style="width: 52px; height: 52px; border-radius: 12px; background: rgba(52, 152, 219, 0.1); display: flex; align-items: center; justify-content: center; color: #3498db; font-size: 22px;">
+             <i class="fas fa-flask"></i>
+           </div>
+           <div>
+             <div style="font-size: 24px; font-weight: 800; color: #2c3e50;">${trialShops.length}</div>
+             <div style="font-size: 11px; color: #7f8c8d; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">TENANT TRIAL</div>
+           </div>
         </div>
       </div>
 
-      <div class="card fade-in" style="margin-top: 20px;">
-        <div class="card-header">
-           <h2 style="font-size: 16px;">Daftar Tenant</h2>
+      <div class="card fade-in" style="margin-top: 20px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-radius: 15px; overflow: hidden;">
+        <div class="card-header" style="background: #f8f9fa; padding: 20px 25px; border-bottom: 1px solid rgba(0,0,0,0.05);">
+           <h2 style="font-size: 18px; font-weight: 800; color: #2c3e50; margin: 0; display: flex; align-items: center; gap: 10px;">
+             <i class="fas fa-list-check" style="color: var(--primary);"></i> Daftar Tenant
+           </h2>
         </div>
         <div class="table-container">
           <table class="data-table">
