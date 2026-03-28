@@ -285,41 +285,55 @@ export async function renderSuperAdmin(container) {
     if (!confirm('HAPUS TOKO INI PERMANEN?\n\nTindakan ini akan menghapus SELURUH data transaksi, pelanggan, layanan, dan pengaturan toko tersebut.\n\nAPAKAH ANDA YAKIN?')) return;
 
     try {
-      showToast('Sedang membersihkan data toko...', 'info');
+      showToast('Menghubungkan ke database...', 'info');
       
-      // 🖇️ Manual Cascade Delete to avoid Foreign Key Violations
-      // We must delete from child tables first
+      // 🖇️ Precise Order of Deletion (Most dependent to least)
       const tables = [
-        'appointments', 
-        'payments', 
-        'services', 
-        'inventory', 
-        'expenses', 
-        'barbers', 
-        'attendance', 
-        'memberships', 
-        'logbook'
+        'payments',       // (1) Depends on appointments
+        'appointments',    // (2) Depends on barbers, customers, services
+        'attendance',      // (3) Depends on profiles
+        'inventory',       // (4) Independent
+        'expenses',        // (5) Independent
+        'promos',          // (6) Independent
+        'gallery',         // (7) Independent
+        'holidays',        // (8) Independent
+        'services',        // (9) Independent
+        'barbers',         // (10) Independent
+        'customers',       // (11) Independent
+        'memberships',     // (12) Extra
+        'logbook'          // (13) Extra
       ];
 
       for (const table of tables) {
-        // Try deleting by shop_id
-        await supabase.from(table).delete().eq('shop_id', shopId);
+        showToast(`Membersihkan: ${table.toUpperCase()}...`, 'info');
+        const { error } = await supabase.from(table).delete().eq('shop_id', shopId);
+        if (error) {
+           console.warn(`Skip ${table}:`, error.message);
+           // If error is FK but not shop_id, this might be a problem later
+        }
       }
 
-      // 👤 Clear related profiles and settings
+      // 👤 Clear Profiles & Settings
+      showToast('Membersihkan: PROFIL & SETTINGS...', 'info');
       await supabase.from('profiles').delete().eq('shop_id', shopId);
       await supabase.from('settings').delete().eq('shop_id', shopId);
 
-      // 🏠 Finally, delete the shop row itself
-      const { error } = await supabase.from('shops').delete().eq('id', shopId);
+      // 🏠 Finally, delete the shop row
+      showToast('Menghapus Baris Toko Utama...', 'info');
+      const { error: shopErr } = await supabase.from('shops').delete().eq('id', shopId);
       
-      if (error) throw error;
+      if (shopErr) throw new Error(`Database Error (${shopErr.code}): ${shopErr.message}`);
 
       showToast('Toko dan seluruh datanya telah dihapus selamanya!', 'success');
       loadMasterData();
     } catch (err) {
-      console.error('Manual Cascade Delete failed:', err);
-      showToast('Gagal menghapus total: ' + err.message, 'danger');
+      console.error('Final Shop Delete Failure:', err);
+      // Give the user specific info if it's a FK constraint error
+      let errMsg = err.message;
+      if (errMsg.includes('violates foreign key constraint')) {
+          errMsg = "Masih ada data yang tersangkut. Harap hubungi developer atau jalankan query pembersihan manual.";
+      }
+      showToast('Gagal menghapus total: ' + errMsg, 'danger');
     }
   }
 
