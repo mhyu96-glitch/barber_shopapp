@@ -41,7 +41,25 @@ export function renderDashboard(container) {
   const todayMMDD = `${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   const birthdayCustomers = customers.filter(c => c.birthday && c.birthday.slice(5) === todayMMDD);
 
+  const user = storage.getCurrentUser();
+  const isSuperAdmin = user?.isSuperAdmin || false;
+
   container.innerHTML = `
+    ${isSuperAdmin ? `
+      <div class="card" style="background: var(--accent-subtle); border: 1px dashed var(--accent); margin-bottom: 24px; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; border-radius: var(--radius-md);">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="font-size: 20px;">🛡️</div>
+          <div>
+            <div class="fw-700 text-accent">Mode Master Aktif</div>
+            <p class="text-xs text-muted">Anda sedang melihat data spesifik toko ini. Fitur edit mungkin terbatas.</p>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="window.location.hash='super-admin'">
+          <i class="fas fa-arrow-left"></i> Kembali ke Master Hub
+        </button>
+      </div>
+    ` : ''}
+
     <div class="page-header">
       <h2>Dashboard</h2>
       <p>${dateUtils.formatDate(now, 'day')}, ${dateUtils.formatDate(now, 'long')}</p>

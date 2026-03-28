@@ -106,6 +106,8 @@ export function renderLogin(container) {
         
         // Redirect to Super Admin Master Dashboard if applicable
         if (profile.isSuperAdmin) {
+          // Clear any previous branch/shop context for Global Master
+          storage.remove('shopId');
           window.location.hash = 'super-admin';
         } else {
           window.location.hash = 'dashboard';

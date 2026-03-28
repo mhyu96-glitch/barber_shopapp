@@ -70,7 +70,12 @@ export function navigateTo(page) {
     return;
   }
 
-  if (!routes[page]) page = 'dashboard';
+  // Master Redirect: If Master tries to go to shop dashboard, send to master platform
+  if (user?.isSuperAdmin && (page === 'dashboard' || !page)) {
+    page = 'super-admin';
+  }
+
+  if (!routes[page]) page = user?.isSuperAdmin ? 'super-admin' : 'dashboard';
   currentPage = page;
 
   const container = document.getElementById('page-container');
@@ -125,7 +130,12 @@ function initApp() {
 
   // Boot strategy: Navigate immediately if locally authenticated, sync in background
   const user = storage.getCurrentUser();
-  const hash = window.location.hash.replace('#', '') || 'dashboard';
+  let hash = window.location.hash.replace('#', '');
+  
+  // Smart Default Hash
+  if (!hash) {
+    hash = user?.isSuperAdmin ? 'super-admin' : 'dashboard';
+  }
 
   if (user || hash === 'login') {
     navigateTo(user ? hash : 'login');
