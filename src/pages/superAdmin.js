@@ -4,42 +4,55 @@ import { openModal, closeModal } from '../components/modal.js';
 
 export async function renderSuperAdmin(container) {
   let activeTab = 'shops'; // 'shops', 'revenue', 'plans'
+  let searchTerm = '';     // Real-time search filter
 
   function renderLayout() {
     container.innerHTML = `
-      <div class="super-admin-header fade-in" style="padding: 20px 0; border-bottom: 1px solid rgba(0,0,0,0.05); margin-bottom: 30px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
-          <div style="display: flex; align-items: center; gap: 15px;">
-            <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #f1c40f, #f39c12); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);">
+      <style>
+        .master-glass { background: rgba(255,255,255,0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; }
+        .glow-crown { box-shadow: 0 0 20px rgba(243, 156, 18, 0.4); animation: crown-pulse 3s infinite; }
+        @keyframes crown-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        .tab-btn { position: relative; overflow: hidden; }
+        .tab-btn.active::after { content:''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: var(--accent); }
+        .master-search-group { position: relative; margin-bottom: 25px; }
+        .master-search-group i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+        .master-search-group input { padding-left: 45px !important; border-radius: 50px !important; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2) !important; color: white !important; }
+      </style>
+
+      <div class="super-admin-header fade-in" style="padding: 25px 0; margin-bottom: 35px;">
+        <div class="master-glass" style="padding: 25px 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+          <div style="display: flex; align-items: center; gap: 20px;">
+            <div class="glow-crown" style="width: 65px; height: 65px; background: linear-gradient(135deg, #f1c40f, #d4a843); border-radius: 15px; display: flex; align-items: center; justify-content: center; color: white; font-size: 30px;">
               <i class="fas fa-crown"></i>
             </div>
             <div>
-              <h2 style="margin: 0; font-size: 24px; font-weight: 800; color: #2c3e50;">Master Platform Control</h2>
-              <p style="margin: 2px 0 0 0; color: #7f8c8d; font-size: 13px; font-weight: 500;">Multi-Tenant SaaS Management • Executive Edition</p>
+              <div style="font-size: 11px; letter-spacing: 2px; color: #f1c40f; font-weight: 800; text-transform: uppercase; margin-bottom: 4px;">GLOBAL PLATFORM</div>
+              <h2 style="margin: 0; font-size: 28px; font-weight: 900; color: white; letter-spacing: -0.5px;">Master Control Center</h2>
             </div>
           </div>
-          <div class="header-actions" style="display: flex; gap: 12px;">
-            <button id="add-shop-btn" class="btn btn-primary" style="box-shadow: 0 4px 10px var(--primary-shadow);">
-              <i class="fas fa-plus"></i> Tambah Tenant Baru
+          <div class="header-actions" style="display: flex; gap: 15px;">
+            <button id="add-shop-btn" class="btn btn-primary" style="padding: 12px 25px; border-radius: 50px; font-weight: 700; background: linear-gradient(to right, var(--accent), var(--accent-dark)); border: none;">
+              <i class="fas fa-plus"></i> <span class="hide-mobile">Tenant Baru</span>
             </button>
-            <button id="refresh-btn" class="btn btn-secondary">
-              <i class="fas fa-sync-alt"></i> Refresh Data
+            <button id="refresh-btn" class="btn btn-ghost" style="border-radius: 50px; border: 1px solid rgba(255,255,255,0.1);">
+              <i class="fas fa-sync-alt"></i>
             </button>
           </div>
         </div>
 
-        <!-- Master Nav Tabs -->
-        <div class="master-tabs fade-in" style="margin-top: 35px; display: flex; gap: 30px; border-bottom: 2px solid #ecf0f1;">
-          <button class="tab-btn ${activeTab === 'shops' ? 'active' : ''}" data-tab="shops" style="padding: 12px 5px; border: none; background: none; font-weight: 700; color: ${activeTab === 'shops' ? 'var(--primary)' : '#bdc3c7'}; cursor: pointer; border-bottom: 3px solid ${activeTab === 'shops' ? 'var(--primary)' : 'transparent'}; transition: all 0.3s; font-size: 15px;">
-            <i class="fas fa-store" style="margin-right: 8px;"></i> Daftar Toko
+        <!-- Master Nav Nav -->
+        <div class="master-tabs fade-in" style="margin-top: 30px; display: flex; gap: 40px; padding: 0 10px;">
+          <button class="tab-btn ${activeTab === 'shops' ? 'active' : ''}" data-tab="shops" style="padding: 15px 5px; border: none; background: none; font-weight: 800; color: ${activeTab === 'shops' ? 'var(--accent)' : 'var(--text-muted)'}; cursor: pointer; transition: all 0.3s; font-size: 15px; text-transform: uppercase; letter-spacing: 1px;">
+            Daftar Toko
           </button>
-          <button class="tab-btn ${activeTab === 'revenue' ? 'active' : ''}" data-tab="revenue" style="padding: 12px 5px; border: none; background: none; font-weight: 700; color: ${activeTab === 'revenue' ? 'var(--primary)' : '#bdc3c7'}; cursor: pointer; border-bottom: 3px solid ${activeTab === 'revenue' ? 'var(--primary)' : 'transparent'}; transition: all 0.3s; font-size: 15px;">
-            <i class="fas fa-chart-line" style="margin-right: 8px;"></i> Laporan Pendapatan
+          <button class="tab-btn ${activeTab === 'revenue' ? 'active' : ''}" data-tab="revenue" style="padding: 15px 5px; border: none; background: none; font-weight: 800; color: ${activeTab === 'revenue' ? 'var(--accent)' : 'var(--text-muted)'}; cursor: pointer; transition: all 0.3s; font-size: 15px; text-transform: uppercase; letter-spacing: 1px;">
+            Pendapatan
           </button>
-          <button class="tab-btn ${activeTab === 'plans' ? 'active' : ''}" data-tab="plans" style="padding: 12px 5px; border: none; background: none; font-weight: 700; color: ${activeTab === 'plans' ? 'var(--primary)' : '#bdc3c7'}; cursor: pointer; border-bottom: 3px solid ${activeTab === 'plans' ? 'var(--primary)' : 'transparent'}; transition: all 0.3s; font-size: 15px;">
-            <i class="fas fa-gem" style="margin-right: 8px;"></i> Pengaturan Paket
+          <button class="tab-btn ${activeTab === 'plans' ? 'active' : ''}" data-tab="plans" style="padding: 15px 5px; border: none; background: none; font-weight: 800; color: ${activeTab === 'plans' ? 'var(--accent)' : 'var(--text-muted)'}; cursor: pointer; transition: all 0.3s; font-size: 15px; text-transform: uppercase; letter-spacing: 1px;">
+            Paket & Fitur
           </button>
         </div>
+        <div style="height: 1px; background: rgba(255,255,255,0.05); width: 100%; margin-top: -1px;"></div>
       </div>
 
       <div id="master-sub-content">
@@ -88,8 +101,17 @@ export async function renderSuperAdmin(container) {
 
       const globalPayments = results[0].data || [];
       const globalAppts = results[1].data || [];
-      const shops = results[2].data || [];
+      let shops = results[2].data || [];
       const plans = results[3].data || [];
+
+      // Apply Search Filter locally
+      if (searchTerm) {
+        const query = searchTerm.toLowerCase();
+        shops = shops.filter(s => 
+          s.name.toLowerCase().includes(query) || 
+          s.slug.toLowerCase().includes(query)
+        );
+      }
 
       if (activeTab === 'shops') {
         renderShopsTab(contentArea, shops, plans, globalPayments, globalAppts);
@@ -115,6 +137,23 @@ export async function renderSuperAdmin(container) {
     }
   }
 
+  function getTimeAgo(dateString) {
+    if (!dateString) return '-';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - date) / 1000);
+    const diffInMinutes = Math.floor(diffInSeconds / 60);
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    const diffInDays = Math.floor(diffInHours / 24);
+
+    if (diffInSeconds < 60) return 'Baru saja';
+    if (diffInMinutes < 60) return `${diffInMinutes} menit lalu`;
+    if (diffInHours < 24) return `${diffInHours} jam lalu`;
+    if (diffInDays === 1) return 'Kemarin';
+    if (diffInDays < 7) return `${diffInDays} hari lalu`;
+    return date.toLocaleDateString('id-ID');
+  }
+
   function renderShopsTab(contentArea, shops, plans, payments, appointments) {
     // 1. Expiry Check for Banner
     const criticalShops = shops.filter(s => {
@@ -126,94 +165,113 @@ export async function renderSuperAdmin(container) {
 
     const activeShops = shops.filter(s => s.status === 'active');
     const trialShops = shops.filter(s => s.status === 'trial');
-    const totalShopRev = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
     const mrr = activeShops.reduce((sum, shop) => {
       const p = plans?.find(pl => pl.id === shop.plan_id);
       return sum + (p?.price || 0);
     }, 0);
 
-    // Use a closure variable to keep track of plans for the manage modal
     const currentPlans = plans;
 
     contentArea.innerHTML = `
       ${criticalShops.length > 0 ? `
-        <div class="alert alert-warning fade-in" style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+        <div class="alert alert-warning fade-in" style="margin-bottom: 25px; border-radius: 12px; background: rgba(243, 156, 18, 0.1); border: 1px solid rgba(243, 156, 18, 0.2); color: #f39c12; display: flex; justify-content: space-between; align-items: center;">
           <div>
-            <i class="fas fa-bell"></i> <strong>Peringatan Masa Aktif:</strong> ${criticalShops.length} toko akan segera berakhir dalam 3 hari!
+            <i class="fas fa-exclamation-circle"></i> <strong>Peringatan Urgen:</strong> ${criticalShops.length} tenant memiliki masa aktif kritis (< 3 hari).
           </div>
-          <button class="btn btn-sm btn-outline-warning" onclick="this.parentElement.remove()">Tutup</button>
+          <button class="btn btn-sm btn-ghost" onclick="this.parentElement.remove()" style="color: #f39c12;"><i class="fas fa-times"></i></button>
         </div>
       ` : ''}
 
-      <div class="stats-grid fade-in" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px;">
-        <div class="stat-card" style="background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); display: flex; align-items: center; gap: 20px; border: 1px solid rgba(0,0,0,0.05); border-left: 5px solid #f39c12;">
-           <div style="width: 52px; height: 52px; border-radius: 12px; background: rgba(243, 156, 18, 0.1); display: flex; align-items: center; justify-content: center; color: #f39c12; font-size: 22px;">
-             <i class="fas fa-money-bill-trend-up"></i>
+      <div class="stats-grid fade-in" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 40px;">
+        <div class="master-glass" style="padding: 25px; display: flex; align-items: center; gap: 20px; border-left: 4px solid var(--accent);">
+           <div style="width: 55px; height: 55px; border-radius: 12px; background: rgba(212, 168, 67, 0.1); display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 24px;">
+             <i class="fas fa-sack-dollar"></i>
            </div>
            <div>
-             <div style="font-size: 24px; font-weight: 800; color: #2c3e50;">Rp ${mrr.toLocaleString('id-ID')}</div>
-             <div style="font-size: 11px; color: #7f8c8d; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">PENDAPATAN (MRR)</div>
+             <div style="font-size: 26px; font-weight: 900; color: white;">Rp ${mrr.toLocaleString('id-ID')}</div>
+             <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Estimasi MRR</div>
            </div>
         </div>
-        <div class="stat-card" style="background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); display: flex; align-items: center; gap: 20px; border: 1px solid rgba(0,0,0,0.05); border-left: 5px solid #2ecc71;">
-           <div style="width: 52px; height: 52px; border-radius: 12px; background: rgba(46, 204, 113, 0.1); display: flex; align-items: center; justify-content: center; color: #2ecc71; font-size: 22px;">
-             <i class="fas fa-store"></i>
+        <div class="master-glass" style="padding: 25px; display: flex; align-items: center; gap: 20px; border-left: 4px solid #34d399;">
+           <div style="width: 55px; height: 55px; border-radius: 12px; background: rgba(52, 211, 153, 0.1); display: flex; align-items: center; justify-content: center; color: #34d399; font-size: 24px;">
+             <i class="fas fa-shop"></i>
            </div>
            <div>
-             <div style="font-size: 24px; font-weight: 800; color: #2c3e50;">${activeShops.length}</div>
-             <div style="font-size: 11px; color: #7f8c8d; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">TENANT AKTIF</div>
+             <div style="font-size: 26px; font-weight: 900; color: white;">${activeShops.length}</div>
+             <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Tenant Aktif</div>
            </div>
         </div>
-        <div class="stat-card" style="background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); display: flex; align-items: center; gap: 20px; border: 1px solid rgba(0,0,0,0.05); border-left: 5px solid #3498db;">
-           <div style="width: 52px; height: 52px; border-radius: 12px; background: rgba(52, 152, 219, 0.1); display: flex; align-items: center; justify-content: center; color: #3498db; font-size: 22px;">
-             <i class="fas fa-flask"></i>
+        <div class="master-glass" style="padding: 25px; display: flex; align-items: center; gap: 20px; border-left: 4px solid #60a5fa;">
+           <div style="width: 55px; height: 55px; border-radius: 12px; background: rgba(96, 165, 250, 0.1); display: flex; align-items: center; justify-content: center; color: #60a5fa; font-size: 24px;">
+             <i class="fas fa-vial"></i>
            </div>
            <div>
-             <div style="font-size: 24px; font-weight: 800; color: #2c3e50;">${trialShops.length}</div>
-             <div style="font-size: 11px; color: #7f8c8d; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">TENANT TRIAL</div>
+             <div style="font-size: 26px; font-weight: 900; color: white;">${trialShops.length}</div>
+             <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Masa Uji Coba</div>
            </div>
         </div>
       </div>
 
-      <div class="card fade-in" style="margin-top: 20px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-radius: 15px; overflow: hidden;">
-        <div class="card-header" style="background: #f8f9fa; padding: 20px 25px; border-bottom: 1px solid rgba(0,0,0,0.05);">
-           <h2 style="font-size: 18px; font-weight: 800; color: #2c3e50; margin: 0; display: flex; align-items: center; gap: 10px;">
-             <i class="fas fa-list-check" style="color: var(--primary);"></i> Daftar Tenant
-           </h2>
+      <!-- Search & Filter Area -->
+      <div class="master-search-group fade-in">
+        <i class="fas fa-search"></i>
+        <input type="text" id="tenant-search" class="form-control" placeholder="Cari tenant berdasarkan nama atau slug..." value="${searchTerm}">
+      </div>
+
+      <div class="master-glass fade-in" style="overflow: hidden; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+        <div style="background: rgba(255,255,255,0.02); padding: 20px 25px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
+           <h3 style="font-size: 16px; font-weight: 800; color: white; margin: 0;">
+             <i class="fas fa-list-ul" style="margin-right: 10px; color: var(--accent);"></i> Data Tenant (${shops.length})
+           </h3>
         </div>
         <div class="table-container">
-          <table class="data-table">
+          <table class="data-table" style="width: 100%;">
             <thead>
               <tr>
-                <th>Toko</th>
+                <th style="padding: 15px 25px;">Barbershop</th>
                 <th>Status</th>
                 <th>Paket</th>
-                <th>Masa Berlaku</th>
-                <th>Aksi</th>
+                <th>Terdaftar</th>
+                <th style="text-align: right; padding-right: 25px;">Aksi</th>
               </tr>
             </thead>
-            <tbody id="shops-table-body">
-               ${shops.map(shop => {
+            <tbody>
+               ${shops.length > 0 ? shops.map(shop => {
                  const plan = plans?.find(p => p.id === shop.plan_id);
-                 const expiry = shop.trial_end_date ? new Date(shop.trial_end_date).toLocaleDateString('id-ID') : (shop.status === 'active' ? 'Selamanya' : '-');
                  return `
-                    <tr>
-                      <td>
-                        <div style="font-weight: bold; cursor: pointer; color: var(--primary);" onclick="window.handleShopDetail('${shop.id}')">${shop.name}</div>
-                        <div style="font-size: 10px; color: var(--text-muted);">${shop.slug}</div>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
+                      <td style="padding: 15px 25px;">
+                        <div style="font-weight: 700; color: white; cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.handleShopDetail('${shop.id}')">
+                          ${shop.name}
+                          <i class="fas fa-external-link-alt" style="font-size: 10px; opacity: 0.5;"></i>
+                        </div>
+                        <div style="font-size: 11px; color: var(--text-muted); font-family: monospace;">@${shop.slug}</div>
                       </td>
-                      <td><span class="status-badge status-${shop.status}">${shop.status.toUpperCase()}</span></td>
-                      <td>${plan?.name || '-'}</td>
-                      <td>${expiry}</td>
                       <td>
-                        <div style="display: flex; gap: 4px;">
-                          <button class="btn-icon manage-btn" data-id="${shop.id}" title="Edit"><i class="fas fa-edit"></i></button>
-                          <button class="btn-icon text-danger delete-shop-btn" data-id="${shop.id}" title="Hapus"><i class="fas fa-trash"></i></button>
+                        <div class="status-badge" style="background: ${shop.status === 'active' ? 'var(--success-bg)' : 'var(--warning-bg)'}; color: ${shop.status === 'active' ? 'var(--success)' : 'var(--warning)'}; border: 1px solid ${shop.status === 'active' ? 'var(--success)' : 'var(--warning)'}40; padding: 4px 10px; border-radius: 50px; font-size: 10px; font-weight: 800; display: inline-block;">
+                          ${shop.status.toUpperCase()}
+                        </div>
+                      </td>
+                      <td>
+                        <span style="font-weight: 600; font-size: 13px;">${plan?.name || '<span style="color: var(--text-muted);">Trial</span>'}</span>
+                      </td>
+                      <td style="font-size: 13px; color: var(--text-secondary);">${getTimeAgo(shop.created_at)}</td>
+                      <td style="text-align: right; padding-right: 25px;">
+                        <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                          <button class="btn-icon manage-btn" data-id="${shop.id}" style="background: rgba(255,255,255,0.05); color: white;" title="Manage Subscr."><i class="fas fa-cog"></i></button>
+                          <button class="btn-icon text-danger delete-shop-btn" data-id="${shop.id}" style="background: rgba(248, 113, 113, 0.1);" title="Hapus"><i class="fas fa-trash-alt"></i></button>
                         </div>
                       </td>
                     </tr>
                  `;
-               }).join('')}
+               }).join('') : `
+                 <tr>
+                    <td colspan="5" style="padding: 60px; text-align: center; color: var(--text-muted);">
+                      <i class="fas fa-search" style="font-size: 30px; margin-bottom: 15px; display: block; opacity: 0.3;"></i>
+                      Tidak ada tenant yang cocok dengan pencarian Anda.
+                    </td>
+                 </tr>
+               `}
             </tbody>
           </table>
         </div>
@@ -228,6 +286,16 @@ export async function renderSuperAdmin(container) {
     contentArea.querySelectorAll('.manage-btn').forEach(btn => {
       btn.addEventListener('click', () => handleManageShop(btn.dataset.id, currentPlans));
     });
+
+    const searchInput = contentArea.querySelector('#tenant-search');
+    searchInput?.addEventListener('input', (e) => {
+      searchTerm = e.target.value;
+      // Debounced or direct trigger
+      loadMasterData();
+    });
+    searchInput?.focus();
+    // Move cursor to end
+    searchInput?.setSelectionRange(searchTerm.length, searchTerm.length);
   }
 
   function renderRevenueTab(contentArea, shops, plans) {
@@ -240,33 +308,69 @@ export async function renderSuperAdmin(container) {
     const totalMRR = mrrHistory.reduce((sum, h) => sum + h.amount, 0);
 
     contentArea.innerHTML = `
-      <div class="card fade-in">
-        <div class="card-header">
-          <h2><i class="fas fa-money-bill-trend-up"></i> Ringkasan Pendapatan Langganan (MRR)</h2>
+      <div class="stats-grid fade-in" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 40px;">
+        <div class="master-glass" style="padding: 35px; text-align: center; border-bottom: 4px solid var(--accent); grid-column: 1 / -1;">
+           <div style="font-size: 14px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px;">Total Monthly Recurring Revenue</div>
+           <div style="font-size: 56px; font-weight: 900; color: white; letter-spacing: -1.5px; line-height: 1;">Rp ${totalMRR.toLocaleString('id-ID')}</div>
+           <div style="font-size: 13px; color: var(--success); margin-top: 15px; font-weight: 700; background: var(--success-bg); display: inline-block; padding: 5px 15px; border-radius: 50px;">
+             <i class="fas fa-arrow-up"></i> Berdasarkan ${activeShops.length} tenant aktif berbayar
+           </div>
         </div>
-        <div style="padding: 20px; text-align: center; background: var(--bg-secondary); margin: 20px; border-radius: 12px;">
-          <div style="font-size: 14px; color: var(--text-muted);">Total Pendapatan Bulanan (Estimasi)</div>
-          <div style="font-size: 32px; font-weight: 800; color: var(--primary);">Rp ${totalMRR.toLocaleString('id-ID')}</div>
-        </div>
-        <div class="table-container" style="padding: 0 20px 20px 20px;">
-           <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Nama Toko</th>
-                  <th>Paket</th>
-                  <th>Nilai Kontrak / Bln</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${mrrHistory.map(h => `
+      </div>
+
+      <div class="grid-2 fade-in" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 25px;">
+        <div class="master-glass" style="padding: 25px;">
+           <h3 style="margin-bottom: 25px; font-size: 16px; font-weight: 800; border-left: 3px solid var(--accent); padding-left: 15px;">
+             <i class="fas fa-chart-pie" style="margin-right: 10px;"></i> Distribusi Kontrak Tenant
+           </h3>
+           <div class="table-container">
+             <table class="data-table">
+                <thead>
                   <tr>
-                    <td>${h.name}</td>
-                    <td><span class="badge">${h.plan}</span></td>
-                    <td style="font-weight: bold; color: var(--success);">Rp ${h.amount.toLocaleString()}</td>
+                    <th>Barbershop</th>
+                    <th style="text-align: right;">Nilai / Bln</th>
                   </tr>
-                `).join('')}
-              </tbody>
-           </table>
+                </thead>
+                <tbody>
+                  ${mrrHistory.map(h => `
+                    <tr>
+                      <td style="padding: 12px 10px;">
+                        <div style="font-weight: 700; color: white;">${h.name}</div>
+                        <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-top: 2px;">${h.plan}</div>
+                      </td>
+                      <td style="text-align: right; font-weight: 800; color: var(--success); font-size: 15px;">Rp ${h.amount.toLocaleString()}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+             </table>
+           </div>
+        </div>
+
+        <div class="master-glass" style="padding: 25px;">
+           <h3 style="margin-bottom: 25px; font-size: 16px; font-weight: 800; border-left: 3px solid #60a5fa; padding-left: 15px;">
+             <i class="fas fa-layer-group" style="margin-right: 10px;"></i> Komposisi Paket SaaS
+           </h3>
+           <div style="display: flex; flex-direction: column; gap: 18px;">
+              ${plans.map(p => {
+                const count = activeShops.filter(s => s.plan_id === p.id).length;
+                const totalActive = activeShops.length;
+                const share = totalActive > 0 ? Math.round((count / totalActive) * 100) : 0;
+                return `
+                  <div style="background: rgba(255,255,255,0.02); padding: 18px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px; align-items: center;">
+                      <div>
+                        <span style="font-weight: 800; color: white; font-size: 13px; text-transform: uppercase;">${p.name}</span>
+                        <div style="font-size: 10px; color: var(--text-muted);">Rp ${p.price.toLocaleString()} / bln</div>
+                      </div>
+                      <span style="font-size: 12px; font-weight: 800; color: var(--accent);">${count} Toko</span>
+                    </div>
+                    <div style="height: 6px; background: rgba(0,0,0,0.3); border-radius: 10px; overflow: hidden; position: relative;">
+                      <div style="width: ${share}%; height: 100%; background: linear-gradient(to right, var(--accent), var(--accent-light)); box-shadow: 0 0 10px var(--accent-glow);"></div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+           </div>
         </div>
       </div>
     `;
@@ -274,32 +378,44 @@ export async function renderSuperAdmin(container) {
 
   function renderPlansTab(contentArea, plans) {
     contentArea.innerHTML = `
-      <div class="card fade-in">
-        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-          <h2><i class="fas fa-tags"></i> Pengaturan Tier & Fitur</h2>
-          <button class="btn btn-sm btn-primary" onclick="showToast('Fitur tambah paket manual segera hadir!', 'info')">Tambah Tier</button>
-        </div>
-        <div class="plans-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; padding: 20px;">
-          ${plans.map(p => `
-            <div class="plan-card" style="border: 1px solid var(--border); padding: 15px; border-radius: 12px; background: var(--bg-primary);">
-              <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                <h3 style="color: var(--primary);">${p.name}</h3>
-                <span class="badge">Rp ${p.price.toLocaleString()}</span>
-              </div>
-              <div style="margin-top: 15px;">
-                <label style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Fitur Aktif:</label>
-                <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px;">
-                   ${(p.features || []).map(f => `
-                     <span style="font-size: 9px; background: var(--bg-secondary); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border);">${f}</span>
-                   `).join('')}
-                </div>
-              </div>
-              <button class="btn btn-block btn-secondary btn-sm" style="margin-top: 15px;" onclick="window.handleEditPlan('${p.id}')">
-                <i class="fas fa-cog"></i> Edit Fitur
+      <div class="page-header" style="margin-bottom: 40px; text-align: center; max-width: 600px; margin-left: auto; margin-right: auto;">
+         <h2 style="font-weight: 950; font-size: 32px; letter-spacing: -0.5px; color: white; margin-bottom: 10px;">Tiered Business Logic</h2>
+         <p style="color: var(--text-muted); font-size: 14px; line-height: 1.6;">Atur batasan fitur dan skema harga untuk setiap tingkatan paket SaaS platform Anda.</p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px;" class="fade-in">
+        ${plans.map(p => `
+          <div class="master-glass" style="padding: 0; display: flex; flex-direction: column; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: default;" onmouseover="this.style.transform='translateY(-8px)'; this.style.borderColor='var(--accent)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(255,255,255,0.08)';">
+            <div style="padding: 35px; text-align: center; background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.05);">
+              <div style="color: var(--accent); font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 2.5px; margin-bottom: 20px;">${p.name}</div>
+              <div style="font-size: 38px; font-weight: 950; color: white; line-height: 1;">Rp ${(p.price / 1000).toLocaleString()}k <span style="font-size: 14px; color: var(--text-muted); font-weight: 500; letter-spacing: 0;">/ bln</span></div>
+            </div>
+            <div style="padding: 30px; flex-grow: 1;">
+              <ul style="list-style: none; padding: 0; margin: 0;">
+                <li style="margin-bottom: 15px; display: flex; align-items: center; gap: 12px; font-size: 14px; color: white;">
+                  <div style="color: var(--success); background: var(--success-bg); width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px;"><i class="fas fa-check"></i></div>
+                  Max <b>${p.max_barbers || '∞'}</b> Barber Staff
+                </li>
+                <li style="margin-bottom: 15px; display: flex; align-items: center; gap: 12px; font-size: 14px; color: white;">
+                  <div style="color: var(--success); background: var(--success-bg); width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px;"><i class="fas fa-check"></i></div>
+                  Max <b>${p.max_branches || '∞'}</b> Cabang / Outlet
+                </li>
+                <div style="height: 1px; background: rgba(255,255,255,0.05); margin: 20px 0;"></div>
+                ${(p.features || []).slice(0, 6).map(f => `
+                  <li style="margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--text-secondary);">
+                    <i class="fas fa-plus" style="color: var(--accent); font-size: 10px; width: 22px; text-align: center;"></i> 
+                    ${f.replace(/_/g, ' ').toUpperCase()}
+                  </li>
+                `).join('')}
+              </ul>
+            </div>
+            <div style="padding: 25px; background: rgba(255,255,255,0.03);">
+              <button class="btn btn-ghost btn-block" onclick="window.handleEditPlan('${p.id}')" style="border: 1px solid rgba(255,255,255,0.15); color: white; padding: 12px; border-radius: 12px; font-weight: 700;">
+                <i class="fas fa-cog" style="margin-right: 8px;"></i> Edit Konfigurasi
               </button>
             </div>
-          `).join('')}
-        </div>
+          </div>
+        `).join('')}
       </div>
     `;
   }
