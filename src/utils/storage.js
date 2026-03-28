@@ -61,7 +61,12 @@ export const storage = {
 
     logout() {
         this.remove('currentUser');
-        localStorage.removeItem('supabase.auth.token'); // Clear supabase session too
+        this.remove('shopId');
+        this.remove('active_features');
+        this.remove('shop_plan');
+        this.remove('shop_status');
+        localStorage.removeItem('supabase.auth.token'); // Clear old supabase session
+        // Clear all session specific items
         window.location.hash = 'login';
         window.location.reload();
     },

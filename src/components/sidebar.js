@@ -15,11 +15,17 @@ export function renderSidebar(container) {
   const branches = settings.branches || [{ id: 'main', name: 'Pusat' }];
   const user = storage.getCurrentUser();
   const role = user?.role || 'barber';
-  const activeFeatures = storage.get('active_features', ['dashboard', 'appointments', 'customers', 'services', 'portal']); // Conservative default
+  let activeFeatures = storage.get('active_features', ['dashboard', 'appointments', 'customers', 'services', 'portal']);
+  if (!Array.isArray(activeFeatures)) activeFeatures = ['dashboard', 'appointments', 'customers', 'services', 'portal'];
+  
   const shopPlan = storage.get('shop_plan', 'Trial');
+  const isSuperAdmin = user?.isSuperAdmin || false;
 
   const isFeatureEnabled = (page) => {
-    if (page === 'dashboard' || page === 'settings' || page === 'signup') return true; // Always allow core
+    // 🛡️ Always allow core system pages or if super admin
+    if (page === 'dashboard' || page === 'settings' || page === 'signup') return true; 
+    if (isSuperAdmin) return true;
+    
     return activeFeatures.includes(page);
   };
 

@@ -99,6 +99,14 @@ export function renderLogin(container) {
 
         showToast(`Selamat datang di ${shopName}, ${profile.fullName || profile.username}!`, 'success');
         
+        // 🚀 CRITICAL: Sync all shop details (Tier, Status, Features) BEFORE reload
+        // This prevents blank screen on boot by ensuring data is ready in localStorage
+        try {
+          await storage.syncFromSupabase();
+        } catch (sErr) {
+          console.warn('Pre-reload sync warning:', sErr);
+        }
+
         // Restore layout and redirect
         document.getElementById('sidebar').style.display = 'block';
         document.getElementById('main-content').style.marginLeft = '';
@@ -106,13 +114,16 @@ export function renderLogin(container) {
         
         // Redirect to Super Admin Master Dashboard if applicable
         if (profile.isSuperAdmin) {
-          // Clear any previous branch/shop context for Global Master
           storage.remove('shopId');
           window.location.hash = 'super-admin';
         } else {
           window.location.hash = 'dashboard';
         }
-        window.location.reload();
+
+        // Small delay to ensure toast is visible and storage is persisted
+        setTimeout(() => {
+          window.location.reload();
+        }, 800);
       }
     } catch (err) {
       console.error('Login error:', err);
