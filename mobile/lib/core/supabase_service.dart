@@ -337,30 +337,16 @@ class SupabaseService {
     return await query;
   }
 
-  // --- Super Admin Management ---
-  static Future<List<Map<String, dynamic>>> getShops() async {
-    // Requires is_super_admin = true (RLS enforced)
-    return await client.from('shops').select('*, subscription_plans(name)');
-  }
-
+  // --- Shop Management (Super Admin) ---
   static Future<List<Map<String, dynamic>>> getSubscriptionPlans() async {
-    return await client.from('subscription_plans').select();
+    final response = await client.from('subscription_plans').select().order('price', ascending: true);
+    return List<Map<String, dynamic>>.from(response);
   }
 
   static Future<void> updateShopStatus(String shopId, String status, {String? planId}) async {
     final Map<String, dynamic> data = {'status': status};
     if (planId != null) data['plan_id'] = planId;
     await client.from('shops').update(data).eq('id', shopId);
-  }
-
-  static Future<void> addSubscription(Map<String, dynamic> subData) async {
-    await client.from('subscriptions').insert(subData);
-  }
-
-  // --- Shop Management (Super Admin) ---
-  static Future<List<Map<String, dynamic>>> getSubscriptionPlans() async {
-    final response = await client.from('subscription_plans').select().order('price', ascending: true);
-    return List<Map<String, dynamic>>.from(response);
   }
 
   static Future<Map<String, dynamic>> createShop(Map<String, dynamic> shopData) async {
@@ -383,5 +369,9 @@ class SupabaseService {
   static Future<List<Map<String, dynamic>>> getShops() async {
     final response = await client.from('shops').select('*, subscription_plans(name)').order('created_at', ascending: false);
     return List<Map<String, dynamic>>.from(response);
+  }
+
+  static Future<void> addSubscription(Map<String, dynamic> subData) async {
+    await client.from('subscriptions').insert(subData);
   }
 }
