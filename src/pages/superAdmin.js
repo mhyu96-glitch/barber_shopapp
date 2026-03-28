@@ -73,17 +73,23 @@ export async function renderSuperAdmin(container) {
     if (!contentArea) return;
 
     try {
-      const [pRes, aRes, sRes, plansRes] = await Promise.all([
+      const results = await Promise.all([
         supabase.from('payments').select('amount'),
         supabase.from('appointments').select('id'),
         supabase.from('shops').select('*').order('created_at', { ascending: false }),
         supabase.from('subscription_plans').select('*').order('price', { ascending: true })
       ]);
 
-      const shops = sRes.data || [];
-      const plans = plansRes.data || [];
-      const globalPayments = pRes.data || [];
-      const globalAppts = aRes.data || [];
+      // Check for errors in any of the results
+      const errors = results.filter(r => r.error).map(r => r.error.message);
+      if (errors.length > 0) {
+        console.warn('Partial data load failure:', errors);
+      }
+
+      const globalPayments = results[0].data || [];
+      const globalAppts = results[1].data || [];
+      const shops = results[2].data || [];
+      const plans = results[3].data || [];
 
       if (activeTab === 'shops') {
         renderShopsTab(contentArea, shops, plans, globalPayments, globalAppts);
@@ -94,8 +100,18 @@ export async function renderSuperAdmin(container) {
       }
 
     } catch (err) {
-      console.error('Master data load failed:', err);
-      showToast('Gagal memuat data master.', 'danger');
+      console.error('CRITICAL MASTER LOAD ERROR:', err);
+      showToast('Gagal memuat data: ' + err.message, 'danger');
+      contentArea.innerHTML = `
+        <div style="text-align: center; padding: 50px; color: #7f8c8d;">
+          <i class="fas fa-exclamation-triangle" style="font-size: 40px; color: #e74c3c; margin-bottom: 20px;"></i>
+          <h3>Gagal Memuat Data</h3>
+          <p>${err.message}</p>
+          <button class="btn btn-secondary" onclick="window.location.reload()" style="margin-top: 20px;">
+            <i class="fas fa-sync"></i> Muat Ulang Halaman
+          </button>
+        </div>
+      `;
     }
   }
 
@@ -115,6 +131,9 @@ export async function renderSuperAdmin(container) {
       const p = plans?.find(pl => pl.id === shop.plan_id);
       return sum + (p?.price || 0);
     }, 0);
+
+    // Use a closure variable to keep track of plans for the manage modal
+    const currentPlans = plans;
 
     contentArea.innerHTML = `
       ${criticalShops.length > 0 ? `
@@ -188,7 +207,7 @@ export async function renderSuperAdmin(container) {
                       <td>${expiry}</td>
                       <td>
                         <div style="display: flex; gap: 4px;">
-                          <button class="btn-icon manage-btn" onclick="window.handleManageShop('${shop.id}', ${JSON.stringify(plans).replace(/"/g, '&quot;')})" title="Edit"><i class="fas fa-edit"></i></button>
+                          <button class="btn-icon manage-btn" data-id="${shop.id}" title="Edit"><i class="fas fa-edit"></i></button>
                           <button class="btn-icon text-danger delete-shop-btn" data-id="${shop.id}" title="Hapus"><i class="fas fa-trash"></i></button>
                         </div>
                       </td>
@@ -204,6 +223,10 @@ export async function renderSuperAdmin(container) {
     // Listeners for shops tab
     contentArea.querySelectorAll('.delete-shop-btn').forEach(btn => {
       btn.addEventListener('click', () => handleDeleteShop(btn.dataset.id));
+    });
+
+    contentArea.querySelectorAll('.manage-btn').forEach(btn => {
+      btn.addEventListener('click', () => handleManageShop(btn.dataset.id, currentPlans));
     });
   }
 
