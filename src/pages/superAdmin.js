@@ -875,7 +875,7 @@ export async function renderSuperAdmin(container) {
   function renderAddStoreFlow(viewPort) {
     let step = 1;
     let selectedTier = '';
-    let payload = { name: '', address: '', phone: '', category: 'Premium Barber' };
+    let payload = { name: '', address: '', phone: '' };
 
     function render() {
       if (step === 1) {
@@ -967,30 +967,6 @@ export async function renderSuperAdmin(container) {
           viewPort.querySelector('#final-deploy').onclick = async () => {
             const btn = viewPort.querySelector('#final-deploy');
             btn.innerHTML = `<span class="material-symbols-outlined animate-spin font-black">sync</span> <span>PENDING...</span>`;
-            btn.disabled = true;
-            
-            try {
-              const { data: ud } = await supabase.auth.getUser();
-              const slug = payload.name.toLowerCase().replace(/[^a-z0-9]/g, '-') + '-' + Math.floor(Math.random() * 1000);
-              
-              const { data: newShop, error } = await supabase.from('shops').insert([{
-                name: payload.name, slug, address: payload.address, plan_id: selectedTier, status: 'active', category: payload.category, owner_id: ud.user?.id
-              }]).select().single();
-              
-              if (error) throw error;
-              
-              const plan = plansData.find(x => x.id === selectedTier);
-              await supabase.from('subscription_history').insert([{
-                shop_id: newShop.id, plan_id: selectedTier, amount: plan?.price || 0, status: 'paid', end_date: new Date(Date.now() + 30*24*60*60*1000).toISOString()
-              }]);
-              
-              showToast('Ecosystem Unit Registered Successfully', 'success');
-              activeTab = 'stores';
-              loadMasterData();
-            } catch (err) {
-              showToast('Deployment Failed: ' + err.message, 'danger');
-              render();
-            }
           };
         }
       }
