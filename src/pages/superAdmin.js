@@ -48,10 +48,19 @@ export async function renderSuperAdmin(container) {
   }
 
   function renderLayout() {
+    // Hide global sidebar and remove left margin to use full viewport
+    const globalSidebar = document.getElementById('sidebar');
+    if (globalSidebar) globalSidebar.style.display = 'none';
+    const mainContent = document.getElementById('main-content');
+    if (mainContent) {
+      mainContent.style.marginLeft = '0';
+      mainContent.style.width = '100%';
+    }
+
     container.innerHTML = `
       <style>
         .gold-gradient { background: linear-gradient(135deg, #f2ca50 0%, #d4af37 100%); }
-        .glass-header { background: rgba(17, 19, 28, 0.6); backdrop-filter: blur(20px); }
+        .glass-header { background: rgba(29, 31, 41, 0.85); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
         .sidebar-link.active { background: #32343e; color: #f2ca50; }
         .sidebar-link.active span[data-fill="1"] { font-variation-settings: 'FILL' 1; }
       </style>
@@ -346,9 +355,17 @@ export async function renderSuperAdmin(container) {
               <h4 class="text-xl font-bold font-headline text-on-surface">Tenant Management</h4>
               <p class="text-sm text-on-surface-variant font-medium">Managing your global network of barber shop franchises.</p>
             </div>
-            <p class="text-[10px] uppercase tracking-widest text-outline font-bold bg-white/5 px-3 py-1.5 rounded text-on-surface-variant">
-              Total: ${shops.length} registered
-            </p>
+            <div class="flex items-center gap-4">
+              <p class="text-[10px] uppercase tracking-widest text-outline font-bold bg-white/5 px-3 py-1.5 rounded text-on-surface-variant">
+                Total: ${shops.length} registered
+              </p>
+              ${!isOverview ? `
+                <button id="add-shop-btn-table" class="px-4 py-2 rounded-lg gold-gradient text-on-primary font-bold text-xs flex items-center gap-2 hover:brightness-110 active:scale-95 transition-all">
+                  <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+                  <span>New Tenant</span>
+                </button>
+              ` : ''}
+            </div>
           </div>
           <div class="overflow-x-auto">
             <table class="w-full text-left border-separate border-spacing-y-2">
@@ -416,9 +433,10 @@ export async function renderSuperAdmin(container) {
     `;
 
     // Re-bind listeners
-    contentArea.querySelectorAll('.manage-btn').forEach(btn => btn.onclick = () => handleManageShop(btn.dataset.id, currentPlans));
+    contentArea.querySelectorAll('.manage-btn').forEach(btn => btn.onclick = () => handleManageShop(btn.dataset.id, plans));
     contentArea.querySelectorAll('.delete-shop-btn').forEach(btn => btn.onclick = () => handleDeleteShop(btn.dataset.id));
     contentArea.querySelector('#add-shop-btn-hero')?.addEventListener('click', () => renderAddShopModal(container));
+    contentArea.querySelector('#add-shop-btn-table')?.addEventListener('click', () => renderAddShopModal(container));
   }
   function renderRevenueTab(contentArea, shops, plans) {
     const activeShops = shops.filter(s => s.status === 'active');
@@ -527,12 +545,19 @@ export async function renderSuperAdmin(container) {
                   <span>Max <strong>${p.max_branches || '∞'}</strong> Linked Nodes</span>
                 </div>
                 <div class="h-[1px] bg-white/5 my-6"></div>
-                ${(p.features || []).slice(0, 6).map(f => `
-                  <div class="flex items-center gap-3 text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">
-                    <span class="material-symbols-outlined text-primary/40 text-sm">add</span>
-                    <span>${f.replace(/_/g, ' ')}</span>
-                  </div>
-                `).join('')}
+                ${(() => {
+                  let feats = p.features;
+                  if (typeof feats === 'string') {
+                    feats = feats.replace(/[{}"[\]]/g, '').split(',');
+                  }
+                  if (!Array.isArray(feats)) feats = [];
+                  return feats.slice(0, 6).map(f => `
+                    <div class="flex items-center gap-3 text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">
+                      <span class="material-symbols-outlined text-primary/40 text-sm">add</span>
+                      <span>${f.trim().replace(/_/g, ' ')}</span>
+                    </div>
+                  `).join('');
+                })()}
               </div>
             </div>
 
