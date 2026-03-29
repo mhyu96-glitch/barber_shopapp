@@ -5,6 +5,27 @@ import { openModal, closeModal } from '../components/modal.js';
 export async function renderSuperAdmin(container) {
   let activeTab = 'dashboard'; 
   let searchTerm = '';
+  let notificationCount = 0;
+  let realtimeChannel = null;
+
+  // Real-time Notification Listener
+  function setupNotifications() {
+    if (realtimeChannel) return;
+    
+    realtimeChannel = supabase.channel('master-notifs')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'shops' }, (payload) => {
+        notificationCount++;
+        showToast(`Toko Baru Terdeteksi: ${payload.new.name}`, 'info');
+        renderLayout();
+        loadMasterData();
+      })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'subscription_history' }, (payload) => {
+        showToast(`Aliran Dana Masuk: Pelunasan Tier detected`, 'success');
+        loadMasterData();
+      })
+      .subscribe();
+  }
+
 
   // CSS already handled in index.html, keeping specific superAdmin overrides if any
 
@@ -55,21 +76,21 @@ export async function renderSuperAdmin(container) {
               </a>
               <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-[#D0C5AF] hover:bg-[#353534] hover:text-[#E5E2E1] rounded-xl transition-all text-sm font-medium tracking-wide ${activeTab === 'subscriptions' ? 'active-tab' : ''}" href="#" data-tab="subscriptions">
                 <span class="material-symbols-outlined" data-icon="notifications_active">notifications_active</span>
-                <span>Subscription Report</span>
+                <span>Laporan Berlangganan</span>
               </a>
 
               <p class="text-[10px] uppercase tracking-[0.2em] text-outline font-bold px-4 mb-4 mt-10">Resource Registry</p>
               <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-[#D0C5AF] hover:bg-[#353534] hover:text-[#E5E2E1] rounded-xl transition-all text-sm font-medium tracking-wide ${activeTab === 'stores' ? 'active-tab' : ''}" href="#" data-tab="stores">
                 <span class="material-symbols-outlined" data-icon="storefront">storefront</span>
-                <span>Store Management</span>
+                <span>Manajemen Toko</span>
               </a>
               <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-[#D0C5AF] hover:bg-[#353534] hover:text-[#E5E2E1] rounded-xl transition-all text-sm font-medium tracking-wide ${activeTab === 'tiers' ? 'active-tab' : ''}" href="#" data-tab="tiers">
                 <span class="material-symbols-outlined" data-icon="layers">layers</span>
-                <span>Tier Management</span>
+                <span>Tier & Layanan</span>
               </a>
               <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-[#D0C5AF] hover:bg-[#353534] hover:text-[#E5E2E1] rounded-xl transition-all text-sm font-medium tracking-wide ${activeTab === 'settings' ? 'active-tab' : ''}" href="#" data-tab="settings">
                 <span class="material-symbols-outlined" data-icon="tune">tune</span>
-                <span>Application Settings</span>
+                <span>Pengaturan Sistem</span>
               </a>
             </nav>
           </div>
@@ -78,7 +99,7 @@ export async function renderSuperAdmin(container) {
           <div class="mt-auto space-y-4">
             <button id="sidebar-add-node-btn" class="w-full flex items-center justify-center gap-2 bg-primary text-on-primary py-3.5 rounded-2xl font-black active:scale-95 duration-150 transition-all hover:shadow-[0_8px_20px_rgba(246,202,34,0.3)] text-xs uppercase tracking-widest">
               <span class="material-symbols-outlined text-sm" data-icon="add">add_circle</span>
-              <span>Deploy Node</span>
+              <span>Daftarkan Toko</span>
             </button>
             <button id="master-logout-btn" class="w-full flex items-center justify-center gap-2 text-error/80 hover:text-error py-2 text-sm font-medium transition-colors">
               <span class="material-symbols-outlined text-sm">logout</span>
@@ -101,9 +122,9 @@ export async function renderSuperAdmin(container) {
           </div>
           <div class="flex items-center gap-6">
             <div class="flex items-center gap-4 text-on-surface-variant mr-4">
-              <button class="hover:text-primary cursor-pointer transition-colors relative">
+              <button id="master-notif-btn" class="hover:text-primary cursor-pointer transition-colors relative">
                 <span class="material-symbols-outlined">notifications</span>
-                <span class="absolute top-0 right-0 w-2 h-2 bg-primary rounded-full border-2 border-background"></span>
+                ${notificationCount > 0 ? `<span class="absolute -top-1 -right-1 w-4 h-4 bg-primary text-on-primary text-[8px] font-black rounded-full flex items-center justify-center border-2 border-[#131313]">${notificationCount}</span>` : ''}
               </button>
               <button class="hover:text-primary cursor-pointer transition-colors">
                 <span class="material-symbols-outlined">help_outline</span>
@@ -193,7 +214,14 @@ export async function renderSuperAdmin(container) {
     });
   }
 
+    // Notification Reset
+    container.querySelector('#master-notif-btn')?.addEventListener('click', () => {
+      notificationCount = 0;
+      renderLayout();
+    });
+
   // Initial render
+  setupNotifications();
   renderLayout();
   loadMasterData();
 
@@ -299,7 +327,7 @@ export async function renderSuperAdmin(container) {
           <div>
             <p class="text-[10px] font-bold text-primary uppercase tracking-[0.3em] mb-3">SYSTEM MONITOR</p>
             <h2 class="text-4xl font-extrabold font-headline tracking-tight text-on-surface uppercase italic tracking-tighter">Pusat Kendali Master</h2>
-            <p class="text-on-surface-variant mt-2 max-w-xl">Status operasional ekosistem BarberPro: ${shops.length} Node Terhubung.</p>
+            <p class="text-on-surface-variant mt-2 max-w-xl">Status operasional ekosistem BarberPro: ${shops.length} Toko Barber Terhubung.</p>
           </div>
           <div class="flex gap-4">
             <button id="dashboard-refresh-stats" class="px-6 py-4 bg-surface-container rounded-2xl border border-outline-variant/10 text-xs font-bold text-outline hover:text-primary transition-all flex items-center gap-2">
@@ -328,12 +356,12 @@ export async function renderSuperAdmin(container) {
           </div>
 
           <!-- Widget 2: Node Distribution -->
-          <div class="bg-surface-container-low p-8 rounded-3xl border border-outline-variant/5 shadow-xl flex flex-col justify-between group cursor-pointer hover:border-primary/20 transition-all">
+          <div class="bg-surface-container-low p-8 rounded-3xl border border-outline-variant/5 shadow-xl flex flex-col justify-between group cursor-pointer hover:border-primary/20 transition-all" onclick="activeTab='stores'; renderLayout(); loadMasterData();">
             <div>
               <div class="w-10 h-10 bg-surface-container rounded-xl flex items-center justify-center text-outline mb-6 group-hover:text-primary transition-colors">
                 <span class="material-symbols-outlined">hub</span>
               </div>
-              <p class="text-[10px] font-bold text-outline uppercase tracking-widest mb-1">Total Active Nodes</p>
+              <p class="text-[10px] font-bold text-outline uppercase tracking-widest mb-1">Total Toko Barber Aktif</p>
               <h4 class="text-3xl font-black font-headline text-on-surface tracking-tight">${activeShops.length}</h4>
             </div>
             <div class="mt-4 flex items-center gap-2">
@@ -462,7 +490,7 @@ export async function renderSuperAdmin(container) {
 
           <!-- Tier Performance -->
           <div class="lg:col-span-4 bg-surface-container-low p-8 rounded-3xl border border-outline-variant/5 shadow-xl flex flex-col">
-             <h4 class="text-xs font-black font-headline text-outline uppercase tracking-[0.2em] mb-8">Node Tier Performance</h4>
+             <h4 class="text-xs font-black font-headline text-outline uppercase tracking-[0.2em] mb-8">Performa Layanan Tier</h4>
              <div class="space-y-6 flex-1">
                 ${plans.map(p => {
                   const items = history.filter(h => h.plan_id === p.id);
@@ -563,20 +591,20 @@ export async function renderSuperAdmin(container) {
         <!-- Status Filter Cards -->
         <section class="grid grid-cols-1 md:grid-cols-4 gap-6">
            <div class="bg-surface-container-low p-6 rounded-2xl border border-outline-variant/5 shadow-xl transition-all cursor-pointer hover:bg-surface-container hover:-translate-y-1">
-              <p class="text-[9px] font-black text-outline uppercase tracking-widest mb-1">Total Instances</p>
-              <h4 class="text-2xl font-black font-headline text-on-surface uppercase">${shops.length} Units</h4>
+              <p class="text-[9px] font-black text-outline uppercase tracking-widest mb-1">Total Unit Bisnis</p>
+              <h4 class="text-2xl font-black font-headline text-on-surface uppercase">${shops.length} Toko</h4>
            </div>
            <div class="bg-surface-container-low p-6 rounded-2xl border border-emerald-400/10 shadow-xl transition-all cursor-pointer hover:bg-surface-container-high hover:-translate-y-1">
-              <p class="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-1 italic">Active RELAY</p>
-              <h4 class="text-2xl font-black font-headline text-on-surface uppercase">${shops.filter(s=>s.status==='active').length} Nodes</h4>
+              <p class="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-1 italic">Operasional Aktif</p>
+              <h4 class="text-2xl font-black font-headline text-on-surface uppercase">${shops.filter(s=>s.status==='active').length} Toko</h4>
            </div>
            <div class="bg-surface-container-low p-6 rounded-2xl border border-amber-400/10 shadow-xl transition-all cursor-pointer hover:bg-surface-container-high hover:-translate-y-1">
-              <p class="text-[9px] font-black text-amber-400 uppercase tracking-widest mb-1 italic">Trial Protocol</p>
-              <h4 class="text-2xl font-black font-headline text-on-surface uppercase">${shops.filter(s=>s.status==='trial').length} Nodes</h4>
+              <p class="text-[9px] font-black text-amber-400 uppercase tracking-widest mb-1 italic">Masa Uji Coba</p>
+              <h4 class="text-2xl font-black font-headline text-on-surface uppercase">${shops.filter(s=>s.status==='trial').length} Toko</h4>
            </div>
            <div class="bg-surface-container-low p-6 rounded-2xl border border-red-400/10 shadow-xl transition-all cursor-pointer hover:bg-surface-container-high hover:-translate-y-1">
-              <p class="text-[9px] font-black text-red-400 uppercase tracking-widest mb-1 italic">Expired Nodes</p>
-              <h4 class="text-2xl font-black font-headline text-on-surface uppercase">${shops.filter(s=>s.status==='expired').length} Nodes</h4>
+              <p class="text-[9px] font-black text-red-400 uppercase tracking-widest mb-1 italic">Masa Aktif Habis</p>
+              <h4 class="text-2xl font-black font-headline text-on-surface uppercase">${shops.filter(s=>s.status==='expired').length} Toko</h4>
            </div>
         </section>
 
@@ -695,7 +723,7 @@ export async function renderSuperAdmin(container) {
             </div>
             <div>
               <h4 class="text-xl font-black font-headline text-primary">${shop.name}</h4>
-              <p class="text-xs text-on-surface-variant font-medium uppercase tracking-widest">Global Node Identification Unit</p>
+              <p class="text-xs text-on-surface-variant font-medium uppercase tracking-widest">Global Shop Identification Unit</p>
             </div>
           </div>
 
@@ -735,10 +763,10 @@ export async function renderSuperAdmin(container) {
           <div class="bg-white/5 p-5 rounded-2xl border border-white/5">
              <div class="flex items-center gap-3 mb-4">
                <span class="material-symbols-outlined text-primary">location_on</span>
-               <p class="text-xs font-bold uppercase tracking-widest text-gray-400">Node Location Header</p>
+               <p class="text-xs font-bold uppercase tracking-widest text-gray-400">Lokasi Toko</p>
              </div>
              <p class="text-sm leading-relaxed text-gray-300 font-medium">
-               ${settings?.address || 'Geolocation data not synchronized by operator.'}
+               ${settings?.address || 'Data geolokasi belum disinkronkan oleh operator.'}
              </p>
              <div class="mt-4 flex items-center gap-2 text-xs text-primary font-bold">
                <span class="material-symbols-outlined text-sm">call</span>
@@ -763,10 +791,16 @@ export async function renderSuperAdmin(container) {
     const { data: plan } = await supabase.from('subscription_plans').select('*').eq('id', id).single();
     if (!plan) return;
 
-    // Comprehensive list of available system modules
+    // Categorized features mapping
+    const featureTaxonomy = {
+      'PONDASI (LITE)': ['dashboard', 'appointments', 'customers', 'services', 'portal'],
+      'OPERASIONAL (PRO)': ['queue', 'barbers', 'attendance', 'pos', 'payments', 'promos', 'reports', 'expenses'],
+      'EKSPANSI (ULTIMATE)': ['inventory', 'memberships', 'gallery', 'logbook']
+    };
+
     const allFeatures = [
       { id: 'dashboard', label: 'Dashboard Overview', icon: 'grid_view' },
-      { id: 'pos', label: 'Point of Sale (Kasir)', icon: 'point_of_sale' },
+      { id: 'pos', label: 'Kasir (POS)', icon: 'point_of_sale' },
       { id: 'appointments', label: 'Janji Temu Online', icon: 'calendar_month' },
       { id: 'queue', label: 'Management Antrian', icon: 'group' },
       { id: 'customers', label: 'CRM Pelanggan', icon: 'person' },
@@ -801,12 +835,12 @@ export async function renderSuperAdmin(container) {
 
           <!-- Limits -->
           <div class="bg-surface-container p-6 rounded-2xl border border-outline-variant/10">
-            <label class="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-4 block">Limitasi Staff (Nodes)</label>
+            <label class="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-4 block">Limitasi Staf (Barber)</label>
             <div class="flex items-center gap-4">
               <span class="material-symbols-outlined text-outline">group</span>
               <input type="number" id="edit-plan-barbers" class="flex-1 bg-surface-container-high border-none rounded-xl px-4 py-4 text-lg font-bold text-on-surface focus:ring-2 focus:ring-primary/50" value="${plan.max_barbers || 0}" />
             </div>
-            <p class="text-[10px] text-outline mt-3">0 = Unlimited Nodes</p>
+            <p class="text-[10px] text-outline mt-3">0 = Unlimited Barber</p>
           </div>
 
           <div class="bg-surface-container p-6 rounded-2xl border border-outline-variant/10">
@@ -823,41 +857,80 @@ export async function renderSuperAdmin(container) {
         <div class="bg-surface-container p-6 rounded-2xl border border-outline-variant/10">
           <div class="flex justify-between items-center mb-6">
             <label class="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Matrix Fitur Terintegrasi</label>
-            <span class="text-[10px] font-bold text-outline uppercase tracking-wider counter-label">0 Fitur Aktif</span>
+            <div class="flex items-center gap-4">
+               <span class="text-[10px] font-bold text-outline uppercase tracking-wider counter-label">0 Fitur Aktif</span>
+               <div class="flex gap-2">
+                  <button type="button" class="preset-btn px-3 py-1 bg-surface-container-highest rounded text-[9px] font-black text-outline hover:text-primary transition-all" data-preset="LITE">LITE PRESET</button>
+                  <button type="button" class="preset-btn px-3 py-1 bg-surface-container-highest rounded text-[9px] font-black text-outline hover:text-primary transition-all" data-preset="PRO">PRO PRESET</button>
+                  <button type="button" class="preset-btn px-3 py-1 bg-surface-container-highest rounded text-[9px] font-black text-outline hover:text-primary transition-all" data-preset="ULTIMATE">ULTIMATE PRESET</button>
+               </div>
+            </div>
           </div>
           
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
-            ${allFeatures.map(f => {
-              const isChecked = plan.features?.includes(f.id);
-              return `
-                <label class="flex items-center gap-4 bg-surface-container-low p-4 rounded-xl border border-outline-variant/5 cursor-pointer hover:bg-surface-container-highest transition-all group relative overflow-hidden">
-                  <div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <input type="checkbox" name="features" value="${f.id}" ${isChecked ? 'checked' : ''} class="feature-checkbox w-5 h-5 rounded border-outline bg-surface-container text-primary focus:ring-primary/30" />
-                  <div class="flex items-center gap-3 relative z-10">
-                    <span class="material-symbols-outlined text-xl text-outline group-hover:text-primary transition-colors">${f.icon}</span>
-                    <span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant group-hover:text-on-surface transition-colors">${f.label}</span>
-                  </div>
-                </label>
-              `;
-            }).join('')}
+          <div class="space-y-8 max-h-[450px] overflow-y-auto pr-2 custom-scrollbar">
+            ${Object.entries(featureTaxonomy).map(([category, fids]) => `
+              <div>
+                <p class="text-[9px] font-black text-outline uppercase tracking-[0.2em] mb-4 border-l-2 border-primary pl-3">${category}</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  ${fids.map(fid => {
+                    const f = allFeatures.find(x => x.id === fid);
+                    if (!f) return '';
+                    const isChecked = plan.features?.includes(f.id);
+                    return `
+                      <label class="flex items-center gap-4 bg-surface-container-low p-4 rounded-xl border border-outline-variant/5 cursor-pointer hover:bg-surface-container-highest transition-all group relative overflow-hidden">
+                        <input type="checkbox" name="features" value="${f.id}" ${isChecked ? 'checked' : ''} class="feature-checkbox w-5 h-5 rounded border-outline bg-surface-container text-primary focus:ring-primary/30" />
+                        <div class="flex items-center gap-3 relative z-10">
+                          <span class="material-symbols-outlined text-xl text-outline group-hover:text-primary transition-colors">${f.icon}</span>
+                          <span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant group-hover:text-on-surface transition-colors">${f.label}</span>
+                        </div>
+                      </label>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+            `).join('')}
           </div>
         </div>
 
         <button type="submit" class="w-full py-5 gold-gradient text-on-primary font-black uppercase tracking-[0.2em] rounded-2xl shadow-2xl shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-4">
           <span class="material-symbols-outlined">security_update_good</span>
-          SYNC PLATFORM ARCHITECTURE
+          SIMPAN ARSITEKTUR LAYANAN
         </button>
       </form>
     `;
 
-    openModal(`Relay Optimization: ${plan.name}`, body, '', { maxWidth: '640px' });
+    openModal(`Optimasi Paket: ${plan.name}`, body, '', { maxWidth: '640px' });
 
-    // Update counter on change
+    // Update counter or presets
     const updateCounter = () => {
       const count = document.querySelectorAll('input[name="features"]:checked').length;
-      document.querySelector('.counter-label').textContent = `${count} Fitur Aktif`;
+      const counterLabel = document.querySelector('.counter-label');
+      if (counterLabel) counterLabel.textContent = `${count} Fitur Aktif`;
     };
     document.querySelectorAll('.feature-checkbox').forEach(i => i.onchange = updateCounter);
+
+    document.querySelectorAll('.preset-btn').forEach(btn => {
+      btn.onclick = () => {
+        const preset = btn.dataset.preset;
+        const toCheck = [];
+        if (preset === 'LITE' || preset === 'PRO' || preset === 'ULTIMATE') {
+          toCheck.push(...featureTaxonomy['PONDASI (LITE)']);
+        }
+        if (preset === 'PRO' || preset === 'ULTIMATE') {
+          toCheck.push(...featureTaxonomy['OPERASIONAL (PRO)']);
+        }
+        if (preset === 'ULTIMATE') {
+          toCheck.push(...featureTaxonomy['EKSPANSI (ULTIMATE)']);
+        }
+
+        document.querySelectorAll('input[name="features"]').forEach(cb => {
+          cb.checked = toCheck.includes(cb.value);
+        });
+        updateCounter();
+        showToast(`Preset ${preset} diaplikasikan`, 'info');
+      };
+    });
+    
     updateCounter();
 
     document.querySelector('#edit-plan-form').onsubmit = async (e) => {
@@ -882,7 +955,7 @@ export async function renderSuperAdmin(container) {
 
         if (error) throw error;
         
-        showToast('System architecture updated successfully.', 'success');
+        showToast('Arsitektur sistem berhasil diperbarui.', 'success');
         closeModal();
         loadMasterData();
       } catch (err) {
@@ -918,15 +991,15 @@ export async function renderSuperAdmin(container) {
           </div>
         </div>
         <p class="text-[10px] text-on-surface-variant font-medium leading-relaxed italic opacity-60">
-          * Transitioning node to 'ACTIVE PROTOCOL' will synchronize all premium features and impact platform MRR metrics.
+          * Mengalihkan toko ke 'ACTIVE PROTOCOL' akan menyinkronkan seluruh fitur premium dan berdampak pada metrik MRR platform.
         </p>
         <button type="submit" class="w-full py-4 gold-gradient text-on-primary font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all">
-          Execute Protocol Update
+          Eksekusi Pembaruan Protokol
         </button>
       </form>
     `;
 
-    openModal(`Relay Control: ${shop.name}`, body, '', { maxWidth: '420px' });
+    openModal(`Kontrol Unit: ${shop.name}`, body, '', { maxWidth: '420px' });
 
     document.querySelector('#edit-shop-form').onsubmit = async (e) => {
       e.preventDefault();
@@ -959,7 +1032,7 @@ export async function renderSuperAdmin(container) {
             }
         }
 
-        showToast('Node relay updated successfully & billing recorded.', 'success');
+        showToast('Toko berhasil diperbarui & riwayat billing dicatat.', 'success');
         closeModal();
         loadMasterData();
       } catch (err) {
@@ -979,7 +1052,7 @@ export async function renderSuperAdmin(container) {
           </div>
           <button id="mgr-add-store-btn" class="px-8 py-4 bg-primary text-on-primary font-black uppercase tracking-widest rounded-2xl shadow-lg hover:shadow-primary/20 hover:-translate-y-1 active:scale-95 transition-all flex items-center gap-3 text-xs">
             <span class="material-symbols-outlined text-lg">add_circle</span>
-            <span>Deploy New Node</span>
+            <span>Daftarkan Toko Baru</span>
           </button>
         </section>
 
@@ -1013,7 +1086,7 @@ export async function renderSuperAdmin(container) {
                 </div>
                 <div class="mt-8 flex gap-2">
                   <button class="flex-1 py-3 bg-surface-container-high rounded-xl text-[10px] font-black text-outline hover:text-on-surface transition-all uppercase tracking-widest border border-white/5 store-edit-btn" data-id="${shop.id}">
-                    Manage Node
+                    Kelola Toko
                   </button>
                   <button class="w-12 h-12 bg-surface-container-high rounded-xl flex items-center justify-center text-outline hover:text-red-400 transition-all border border-white/5 store-delete-btn" data-id="${shop.id}">
                     <span class="material-symbols-outlined text-lg">delete</span>
@@ -1041,7 +1114,7 @@ export async function renderSuperAdmin(container) {
             <p class="text-on-surface-variant mt-2 max-w-xl">Konfigurasi paket layanan, limitasi fitur, dan skema harga platform.</p>
           </div>
           <button class="px-8 py-4 bg-surface-container-highest text-outline font-black uppercase tracking-widest rounded-2xl border border-outline-variant/10 text-xs hover:text-primary transition-all">
-            + Create New Plan
+            + Buat Paket Baru
           </button>
         </section>
 
@@ -1076,8 +1149,8 @@ export async function renderSuperAdmin(container) {
               </div>
 
               <div class="relative z-10 pt-8 border-t border-outline-variant/5">
-                <button class="w-full py-4 bg-surface-container-high rounded-xl text-[10px] font-black text-outline hover:text-primary transition-all uppercase tracking-[0.2em] border border-white/5" onclick="showToast('Feature Coming Soon: Plan Editor', 'info')">
-                  Edit Plan Architecture
+                <button class="w-full py-4 bg-surface-container-high rounded-xl text-[10px] font-black text-outline hover:text-primary transition-all uppercase tracking-[0.2em] border border-white/5 tier-edit-btn" data-id="${p.id}">
+                  Edit Arsitektur Paket
                 </button>
               </div>
             </div>
@@ -1179,11 +1252,11 @@ export async function renderSuperAdmin(container) {
       if (currentStep === 1) {
         contentArea.innerHTML = `
           <div class="w-full max-w-4xl space-y-12 fade-in">
-            <section class="flex justify-between items-end">
+           <section class="flex justify-between items-end">
                <div>
                   <p class="text-[10px] font-bold text-primary uppercase tracking-[0.3em] mb-3 italic">STEP 01 / 02</p>
-                  <h2 class="text-4xl font-extrabold font-headline tracking-tight text-on-surface uppercase italic tracking-tighter">Node Identity</h2>
-                  <p class="text-on-surface-variant mt-2 max-w-xl">Masukkan informasi dasar untuk instance toko baru Anda.</p>
+                  <h2 class="text-4xl font-extrabold font-headline tracking-tight text-on-surface uppercase italic tracking-tighter">Identitas Toko</h2>
+                  <p class="text-on-surface-variant mt-2 max-w-xl">Masukkan informasi dasar untuk pendaftaran toko baru.</p>
                </div>
                <div class="w-32 h-1.5 bg-surface-container rounded-full overflow-hidden">
                   <div class="h-full bg-primary" style="width: 50%"></div>
@@ -1237,8 +1310,8 @@ export async function renderSuperAdmin(container) {
             <section class="flex justify-between items-end">
                <div>
                   <p class="text-[10px] font-bold text-primary uppercase tracking-[0.3em] mb-3 italic">STEP 02 / 02</p>
-                  <h2 class="text-4xl font-extrabold font-headline tracking-tight text-on-surface uppercase italic tracking-tighter">Protocol Selection</h2>
-                  <p class="text-on-surface-variant mt-2 max-w-xl">Pilih paket layanan (Tier) yang akan diaktifkan untuk instance ini.</p>
+                  <h2 class="text-4xl font-extrabold font-headline tracking-tight text-on-surface uppercase italic tracking-tighter">Pemilihan Paket</h2>
+                  <p class="text-on-surface-variant mt-2 max-w-xl">Pilih paket layanan (Tier) yang akan diaktifkan untuk toko ini.</p>
                </div>
                <div class="w-32 h-1.5 bg-surface-container rounded-full overflow-hidden">
                   <div class="h-full bg-primary shadow-[0_0_10px_rgba(246,202,34,0.5)]" style="width: 100%"></div>
@@ -1273,10 +1346,10 @@ export async function renderSuperAdmin(container) {
             <div class="flex justify-between pt-12 border-t border-outline-variant/10">
                <button type="button" class="px-8 py-4 text-xs font-black text-outline uppercase tracking-widest hover:text-on-surface transition-all flex items-center gap-2" onclick="currentStep = 1; updateView()">
                   <span class="material-symbols-outlined text-lg">arrow_back</span>
-                  Identity Module
+                  Modul Identitas
                </button>
                <button id="submit-relay-btn" class="px-12 py-5 bg-primary text-on-primary font-black uppercase tracking-[0.3em] rounded-2xl shadow-2xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all text-xs flex items-center gap-3">
-                  Authorize Deployment
+                  Otorisasi Pendaftaran Toko
                   <span class="material-symbols-outlined">bolt</span>
                </button>
             </div>
@@ -1325,7 +1398,7 @@ export async function renderSuperAdmin(container) {
               end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
             }]);
 
-            showToast('Node Authorised & Relay Deployed successfully.', 'success');
+            showToast('Toko Berhasil Terdaftar & Sinkronisasi Selesai.', 'success');
             activeTab = 'stores';
             loadMasterData();
           } catch (err) {
