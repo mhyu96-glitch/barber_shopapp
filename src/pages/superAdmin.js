@@ -147,8 +147,9 @@ export async function renderSuperAdmin(container) {
     });
 
     // Logout
-    container.querySelector('#master-logout-btn')?.addEventListener('click', () => {
-      supabase.auth.signOut().then(() => window.location.reload());
+    container.querySelector('#master-logout-btn')?.addEventListener('click', async () => {
+      try { await supabase.auth.signOut(); } catch(e) {}
+      import('../utils/storage.js').then(m => m.storage.logout());
     });
 
     // Global Search

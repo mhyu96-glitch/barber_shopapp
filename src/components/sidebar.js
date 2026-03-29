@@ -251,6 +251,14 @@ function _renderSuperAdminSidebar(container, user) {
   `;
 
   container.querySelectorAll('.nav-item').forEach(item => {
+    if (item.id === 'logout-btn') {
+      item.addEventListener('click', () => {
+        if (confirm('Apakah Anda yakin ingin keluar?')) {
+          storage.logout();
+        }
+      });
+      return;
+    }
     if (item.id === 'theme-toggle-btn') {
       item.addEventListener('click', () => {
         const current = storage.get('theme', 'dark');
