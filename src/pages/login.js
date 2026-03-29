@@ -8,41 +8,17 @@ export function renderLogin(container) {
   document.getElementById('main-content').style.marginLeft = '0';
   document.getElementById('main-content').style.width = '100%';
 
-  // Dynamically load Tailwind CSS if not present
-  if (!document.getElementById('tailwind-cdn')) {
-    const twScript = document.createElement('script');
-    twScript.id = 'tailwind-cdn';
-    twScript.src = 'https://cdn.tailwindcss.com';
-    document.head.appendChild(twScript);
-  }
-
-  // Dynamically load Google Fonts if not present
-  if (!document.getElementById('atelier-fonts')) {
-    const fontLink = document.createElement('link');
-    fontLink.id = 'atelier-fonts';
-    fontLink.rel = 'stylesheet';
-    fontLink.href = 'https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap';
-    document.head.appendChild(fontLink);
-  }
-
   // Clean up existing global styles that might conflict
   document.body.className = '';
-  document.body.classList.add('bg-[#131313]', 'text-[#e5e2e1]', 'selection:bg-[#D4AF37]/30');
+  document.body.classList.add('bg-background', 'text-on-surface', 'selection:bg-primary/30');
   
   container.innerHTML = `
 <style>
-  .brass-gradient {
-    background: linear-gradient(135deg, #FFD700 0%, #D4AF37 100%);
-  }
   .noise-overlay {
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
     opacity: 0.03;
   }
 </style>
-
-<!-- Subtle Background Texture -->
-<div class="fixed inset-0 noise-overlay pointer-events-none z-0"></div>
-<div class="fixed inset-0 bg-gradient-to-tr from-[#0e0e0e] via-transparent to-[#0e0e0e]/50 pointer-events-none z-0"></div>
 
 <!-- Login Container -->
 <main class="relative z-10 min-h-screen flex flex-col items-center justify-center p-6" style="font-family: 'Manrope', sans-serif;">

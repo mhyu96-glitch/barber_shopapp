@@ -3,57 +3,10 @@ import { showToast } from '../components/toast.js';
 import { openModal, closeModal } from '../components/modal.js';
 
 export async function renderSuperAdmin(container) {
-  let activeTab = 'overview'; // 'overview', 'revenue', 'analytics', 'settings', 'add_tenant'
+  let activeTab = 'dashboard'; 
   let searchTerm = '';
 
-  // Inject Tailwind and Config
-  if (!document.getElementById('tailwind-master-script')) {
-    const script = document.createElement('script');
-    script.id = 'tailwind-master-script';
-    script.src = 'https://cdn.tailwindcss.com?plugins=forms,container-queries';
-    document.head.appendChild(script);
-
-    const config = document.createElement('script');
-    config.innerHTML = `
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            colors: {
-              "background": "#131313", "on-secondary-fixed": "#231a00", "secondary-container": "#ad8d1d",
-              "secondary-fixed-dim": "#e7c351", "surface-dim": "#131313", "on-tertiary": "#003920",
-              "outline": "#99907c", "on-secondary-fixed-variant": "#574500", "primary-fixed-dim": "#eec215",
-              "inverse-primary": "#735c00", "on-surface-variant": "#d0c5af", "on-primary-fixed-variant": "#574500",
-              "surface": "#131313", "on-error": "#690005", "inverse-surface": "#e5e2e1",
-              "surface-container": "#201f1f", "on-secondary": "#3c2f00", "primary-fixed": "#ffe084",
-              "inverse-on-surface": "#313030", "tertiary-container": "#66c68f", "tertiary-fixed-dim": "#7adaa1",
-              "primary": "#f6ca22", "surface-container-high": "#2a2a2a", "secondary-fixed": "#ffe087",
-              "surface-container-low": "#1c1b1b", "error-container": "#93000a", "on-surface": "#e5e2e1",
-              "on-primary": "#3c2f00", "surface-container-highest": "#353534", "surface-container-lowest": "#0e0e0e",
-              "on-error-container": "#ffdad6", "surface-variant": "#353534", "on-tertiary-fixed-variant": "#005230",
-              "surface-tint": "#eec215", "on-primary-container": "#554300", "on-primary-fixed": "#231b00",
-              "on-background": "#e5e2e1", "on-secondary-container": "#342800", "surface-bright": "#393939",
-              "tertiary-fixed": "#95f7bb", "secondary": "#e7c351", "outline-variant": "#4d4635",
-              "tertiary": "#82e2a9", "on-tertiary-container": "#00502f", "error": "#ffb4ab",
-              "primary-container": "#d7ae00", "on-tertiary-fixed": "#002110"
-            },
-            fontFamily: {
-              "headline": ["Manrope", "sans-serif"],
-              "body": ["Manrope", "sans-serif"],
-              "label": ["Manrope", "sans-serif"]
-            },
-            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
-          }
-        }
-      }
-    `;
-    document.head.appendChild(config);
-
-    const googleFonts = document.createElement('link');
-    googleFonts.rel = 'stylesheet';
-    googleFonts.href = 'https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap';
-    document.head.appendChild(googleFonts);
-  }
+  // CSS already handled in index.html, keeping specific superAdmin overrides if any
 
   function renderLayout() {
     const globalSidebar = document.getElementById('sidebar');
@@ -90,31 +43,42 @@ export async function renderSuperAdmin(container) {
             </div>
             
             <!-- Navigation Links -->
-            <nav class="space-y-2">
-              <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-[#D0C5AF] hover:bg-[#353534] hover:text-[#E5E2E1] rounded-lg transition-all text-sm font-medium tracking-wide ${activeTab === 'overview' ? 'active-tab' : ''}" href="#" data-tab="overview">
+            <nav class="space-y-1.5">
+              <p class="text-[10px] uppercase tracking-[0.2em] text-outline font-bold px-4 mb-4 mt-6">Core Monitor</p>
+              <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-[#D0C5AF] hover:bg-[#353534] hover:text-[#E5E2E1] rounded-xl transition-all text-sm font-medium tracking-wide ${activeTab === 'dashboard' ? 'active-tab' : ''}" href="#" data-tab="dashboard">
                 <span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
-                <span>Dashboard</span>
+                <span>Main Dashboard</span>
               </a>
-              <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-[#D0C5AF] hover:bg-[#353534] hover:text-[#E5E2E1] rounded-lg transition-all text-sm font-medium tracking-wide ${activeTab === 'revenue' ? 'active-tab' : ''}" href="#" data-tab="revenue">
-                <span class="material-symbols-outlined" data-icon="assessment">assessment</span>
-                <span>Laporan</span>
+              <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-[#D0C5AF] hover:bg-[#353534] hover:text-[#E5E2E1] rounded-xl transition-all text-sm font-medium tracking-wide ${activeTab === 'sales' ? 'active-tab' : ''}" href="#" data-tab="sales">
+                <span class="material-symbols-outlined" data-icon="query_stats">query_stats</span>
+                <span>Sales Analytics</span>
               </a>
-              <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-[#D0C5AF] hover:bg-[#353534] hover:text-[#E5E2E1] rounded-lg transition-all text-sm font-medium tracking-wide ${activeTab === 'analytics' ? 'active-tab' : ''}" href="#" data-tab="analytics">
-                <span class="material-symbols-outlined" data-icon="analytics">analytics</span>
-                <span>Analitik</span>
+              <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-[#D0C5AF] hover:bg-[#353534] hover:text-[#E5E2E1] rounded-xl transition-all text-sm font-medium tracking-wide ${activeTab === 'subscriptions' ? 'active-tab' : ''}" href="#" data-tab="subscriptions">
+                <span class="material-symbols-outlined" data-icon="notifications_active">notifications_active</span>
+                <span>Subscription Report</span>
               </a>
-              <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-[#D0C5AF] hover:bg-[#353534] hover:text-[#E5E2E1] rounded-lg transition-all text-sm font-medium tracking-wide ${activeTab === 'settings' ? 'active-tab' : ''}" href="#" data-tab="settings">
-                <span class="material-symbols-outlined" data-icon="settings">settings</span>
-                <span>Pengaturan</span>
+
+              <p class="text-[10px] uppercase tracking-[0.2em] text-outline font-bold px-4 mb-4 mt-10">Resource Registry</p>
+              <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-[#D0C5AF] hover:bg-[#353534] hover:text-[#E5E2E1] rounded-xl transition-all text-sm font-medium tracking-wide ${activeTab === 'stores' ? 'active-tab' : ''}" href="#" data-tab="stores">
+                <span class="material-symbols-outlined" data-icon="storefront">storefront</span>
+                <span>Store Management</span>
+              </a>
+              <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-[#D0C5AF] hover:bg-[#353534] hover:text-[#E5E2E1] rounded-xl transition-all text-sm font-medium tracking-wide ${activeTab === 'tiers' ? 'active-tab' : ''}" href="#" data-tab="tiers">
+                <span class="material-symbols-outlined" data-icon="layers">layers</span>
+                <span>Tier Management</span>
+              </a>
+              <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-[#D0C5AF] hover:bg-[#353534] hover:text-[#E5E2E1] rounded-xl transition-all text-sm font-medium tracking-wide ${activeTab === 'settings' ? 'active-tab' : ''}" href="#" data-tab="settings">
+                <span class="material-symbols-outlined" data-icon="tune">tune</span>
+                <span>Application Settings</span>
               </a>
             </nav>
           </div>
           
           <!-- Sidebar CTA -->
           <div class="mt-auto space-y-4">
-            <button class="sidebar-link w-full flex items-center justify-center gap-2 bg-[#353534] text-[#F6CA22] py-3 rounded-xl font-semibold active:scale-95 duration-150 transition-all hover:bg-surface-container-high border border-outline-variant/20 ${activeTab === 'add_tenant' ? 'ring-2 ring-primary/50' : ''}" data-tab="add_tenant">
-              <span class="material-symbols-outlined text-sm" data-icon="add">add</span>
-              <span>Tambah Toko</span>
+            <button id="sidebar-add-node-btn" class="w-full flex items-center justify-center gap-2 bg-primary text-on-primary py-3.5 rounded-2xl font-black active:scale-95 duration-150 transition-all hover:shadow-[0_8px_20px_rgba(246,202,34,0.3)] text-xs uppercase tracking-widest">
+              <span class="material-symbols-outlined text-sm" data-icon="add">add_circle</span>
+              <span>Deploy Node</span>
             </button>
             <button id="master-logout-btn" class="w-full flex items-center justify-center gap-2 text-error/80 hover:text-error py-2 text-sm font-medium transition-colors">
               <span class="material-symbols-outlined text-sm">logout</span>
@@ -265,60 +229,27 @@ export async function renderSuperAdmin(container) {
         );
       }
 
-      if (activeTab === 'overview') {
-        renderOverviewTab(contentArea, shops, plans, globalPayments, globalAppts);
-      } else if (activeTab === 'revenue') {
-        renderRevenueTab(contentArea, shops, plans, globalPayments, globalAppts);
+      if (activeTab === 'dashboard') {
+        renderDashboardTab(contentArea, shops, plans, globalPayments, globalAppts);
+      } else if (activeTab === 'sales') {
+        renderSalesAnalyticsTab(contentArea, history, plans);
+      } else if (activeTab === 'subscriptions') {
+        renderSubscriptionReportTab(contentArea, shops, plans);
+      } else if (activeTab === 'stores') {
+        renderStoreManagementTab(contentArea, shops, plans);
+      } else if (activeTab === 'tiers') {
+        renderTierManagementTab(contentArea, plans);
       } else if (activeTab === 'settings') {
-        renderSettingsTab(contentArea, plans);
-      } else if (activeTab === 'add_tenant') {
-        renderAddTenantTab(contentArea);
-      } else if (activeTab === 'analytics') {
-        contentArea.innerHTML = `
-          <div class="w-full space-y-12 fade-in">
-            <section>
-              <p class="text-[10px] font-bold text-primary uppercase tracking-[0.3em] mb-3">AI PROTOCOL ALPHA</p>
-              <h2 class="text-4xl font-extrabold font-headline tracking-tight text-on-surface">Intelijen Analitik</h2>
-              <p class="text-on-surface-variant mt-2 max-w-xl">Prediksi performa dan analisis demografi berbasis data operasional global.</p>
-            </section>
+        renderSystemSettingsTab(contentArea);
+      }
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div class="md:col-span-2 bg-surface-container-low p-10 rounded-3xl border border-outline-variant/10 shadow-2xl relative overflow-hidden flex flex-col justify-center min-h-[400px]">
-                <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent"></div>
-                <div class="relative z-10 flex flex-col items-center text-center">
-                  <span class="material-symbols-outlined text-7xl text-primary/40 mb-6" style="font-variation-settings: 'FILL' 1;">insights</span>
-                  <h3 class="text-2xl font-black font-headline text-on-surface mb-2 tracking-tighter uppercase italic">Deployment Analitik ALPHA V2</h3>
-                  <p class="text-sm text-outline max-w-sm font-medium">Data operasional dari ${shops.length} node sedang diindeks untuk optimalisasi AI. Statistik real-time akan siap dalam beberapa saat.</p>
-                  <div class="mt-8 flex gap-2">
-                    <div class="px-4 py-2 bg-primary/10 rounded-full border border-primary/20 text-[10px] font-black text-primary uppercase">Indexing 84%</div>
-                    <div class="px-4 py-2 bg-surface-container rounded-full border border-white/5 text-[10px] font-black text-outline uppercase tracking-widest">Global Sync</div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="flex flex-col gap-6">
-                <div class="bg-surface-container-low p-8 rounded-3xl border border-outline-variant/5 shadow-xl flex-grow flex flex-col justify-center items-center text-center">
-                   <div class="w-16 h-1 bg-primary/20 rounded-full mb-6 relative overflow-hidden">
-                     <div class="absolute inset-y-0 left-0 w-1/2 bg-primary animate-[move_2s_infinite]"></div>
-                   </div>
-                   <p class="text-xs font-bold text-on-surface uppercase tracking-widest leading-relaxed">Prediksi Churn Rate</p>
-                   <h4 class="text-3xl font-black font-headline text-emerald-400 mt-2 tracking-tighter">0.42%</h4>
-                   <p class="text-[10px] text-outline mt-2 font-medium italic">Estimasi optimis untuk ekosistem Master.</p>
-                </div>
-                <div class="bg-surface-container-low p-8 rounded-3xl border border-outline-variant/5 shadow-xl flex-grow flex flex-col justify-center items-center text-center">
-                   <span class="material-symbols-outlined text-primary/50 text-4xl mb-4">hub</span>
-                   <p class="text-xs font-bold text-on-surface uppercase tracking-widest leading-relaxed">Node Reliability</p>
-                   <h4 class="text-3xl font-black font-headline text-white mt-2 tracking-tighter">99.8%</h4>
-                   <p class="text-[10px] text-outline mt-2 font-medium italic">Operational uptime platform.</p>
-                </div>
-              </div>
-            </div>
-            
-            <style>
-              @keyframes move { 0% { transform: translateX(-100%); } 100% { transform: translateX(200%); } }
-            </style>
-          </div>
-        `;
+      // Action Listeners for sidebar (inside loadMasterData to share results)
+      const addNodeBtn = container.querySelector('#sidebar-add-node-btn');
+      if (addNodeBtn) {
+        addNodeBtn.onclick = () => {
+          activeTab = 'stores';
+          renderAddStoreFlow(contentArea, plans);
+        };
       }
 
     } catch (err) {
@@ -354,10 +285,9 @@ export async function renderSuperAdmin(container) {
     return date.toLocaleDateString('id-ID');
   }
 
-  function renderOverviewTab(contentArea, shops, plans, payments, appointments) {
+  function renderDashboardTab(contentArea, shops, plans, payments, appointments) {
     const activeShops = shops.filter(s => s.status === 'active');
-    const trialShops = shops.filter(s => s.status === 'trial');
-    const mrr = activeShops.reduce((sum, shop) => {
+    const totalMRR = activeShops.reduce((sum, shop) => {
       const p = plans?.find(pl => pl.id === shop.plan_id);
       return sum + (p?.price || 0);
     }, 0);
@@ -367,418 +297,362 @@ export async function renderSuperAdmin(container) {
         <!-- Header Section -->
         <section class="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
-            <p class="text-[10px] font-bold text-primary uppercase tracking-[0.3em] mb-3">GLOBAL OVERVIEW</p>
-            <h2 class="text-4xl font-extrabold font-headline tracking-tight text-on-surface">Pusat Kendali Master</h2>
-            <p class="text-on-surface-variant mt-2 max-w-xl">Mengelola ekosistem digital ${shops.length} outlet barbershop secara global.</p>
+            <p class="text-[10px] font-bold text-primary uppercase tracking-[0.3em] mb-3">SYSTEM MONITOR</p>
+            <h2 class="text-4xl font-extrabold font-headline tracking-tight text-on-surface uppercase italic tracking-tighter">Pusat Kendali Master</h2>
+            <p class="text-on-surface-variant mt-2 max-w-xl">Status operasional ekosistem BarberPro: ${shops.length} Node Terhubung.</p>
           </div>
           <div class="flex gap-4">
-            <button id="overview-add-shop-btn" class="px-8 py-4 bg-primary text-on-primary font-black uppercase tracking-widest rounded-2xl shadow-lg hover:shadow-primary/20 hover:-translate-y-1 active:scale-95 transition-all flex items-center gap-3 text-xs">
-              <span class="material-symbols-outlined text-lg">add_circle</span>
-              <span>Daftarkan Outlet</span>
+            <button id="dashboard-refresh-stats" class="px-6 py-4 bg-surface-container rounded-2xl border border-outline-variant/10 text-xs font-bold text-outline hover:text-primary transition-all flex items-center gap-2">
+              <span class="material-symbols-outlined text-lg">sync</span>
+              Refresh Metrics
             </button>
           </div>
         </section>
 
         <!-- Metrics Bento Grid -->
         <section class="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <!-- MRR Card -->
-          <div class="md:col-span-2 bg-surface-container-low p-8 rounded-2xl border border-outline-variant/5 shadow-xl relative overflow-hidden group">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-primary/10 transition-all"></div>
+          <!-- Widget 1: Revenue -->
+          <div class="md:col-span-2 bg-surface-container-low p-8 rounded-3xl border border-outline-variant/5 shadow-2xl relative overflow-hidden group">
+            <div class="absolute top-0 right-0 w-48 h-48 bg-primary/5 rounded-full -mr-24 -mt-24 blur-3xl group-hover:bg-primary/10 transition-all"></div>
             <div class="flex justify-between items-start mb-8">
-              <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
-                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">payments</span>
+              <div class="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary shadow-lg shadow-primary/10">
+                <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">payments</span>
               </div>
-              <span class="text-[10px] font-bold text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded">+12.5%</span>
-            </div>
-            <p class="text-xs font-bold text-outline uppercase tracking-widest mb-1">ESTIMATED MRR</p>
-            <h4 class="text-4xl font-extrabold font-headline text-on-surface">Rp ${(mrr/1000000).toFixed(2)}M</h4>
-            <div class="mt-6 flex gap-1 h-1">
-              ${[40, 70, 50, 90, 60, 80, 100].map(h => `<div class="flex-1 bg-primary/20 rounded-full"><div class="h-full bg-primary rounded-full" style="width: ${h}%"></div></div>`).join('')}
-            </div>
-          </div>
-
-          <!-- Total Nodes -->
-          <div class="bg-surface-container-low p-8 rounded-2xl border border-outline-variant/5 shadow-xl transition-all hover:-translate-y-1">
-            <div class="w-10 h-10 bg-surface-container rounded-lg flex items-center justify-center text-outline mb-6">
-              <span class="material-symbols-outlined">hub</span>
-            </div>
-            <p class="text-xs font-bold text-outline uppercase tracking-widest mb-1">TOTAL NODES</p>
-            <h4 class="text-3xl font-extrabold font-headline text-on-surface">${shops.length}</h4>
-            <p class="text-[10px] text-on-surface-variant mt-2">Active Production Hubs</p>
-          </div>
-
-          <!-- Global Traffic -->
-          <div class="bg-surface-container-low p-8 rounded-2xl border border-outline-variant/5 shadow-xl transition-all hover:-translate-y-1">
-            <div class="w-10 h-10 bg-surface-container rounded-lg flex items-center justify-center text-outline mb-6">
-              <span class="material-symbols-outlined">bolt</span>
-            </div>
-            <p class="text-xs font-bold text-outline uppercase tracking-widest mb-1">GLOBAL SESS</p>
-            <h4 class="text-3xl font-extrabold font-headline text-on-surface">${appointments.length}</h4>
-            <p class="text-[10px] text-on-surface-variant mt-2">Real-time Operations</p>
-          </div>
-        </section>
-
-        <!-- Tier Distribution -->
-        <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          ${plans.map((p, idx) => {
-            const count = activeShops.filter(s => s.plan_id === p.id).length;
-            return `
-              <div class="bg-surface-container-low p-6 rounded-2xl border border-outline-variant/5 flex items-center justify-between group cursor-default hover:bg-surface-container-high transition-all">
-                <div class="flex items-center gap-4">
-                  <div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-[10px] font-black text-primary border border-primary/20">
-                    0${idx + 1}
-                  </div>
-                  <div>
-                    <h5 class="text-sm font-bold text-on-surface uppercase tracking-wider">${p.name}</h5>
-                    <p class="text-[10px] text-outline font-medium">Rp ${(p.price / 1000).toLocaleString()}k / mo</p>
-                  </div>
-                </div>
-                <div class="text-right">
-                  <p class="text-lg font-black text-on-surface">${count}</p>
-                  <p class="text-[9px] text-primary font-bold uppercase tracking-widest">TOKO</p>
-                </div>
-              </div>
-            `;
-          }).join('')}
-        </section>
-
-        <!-- Tenant Management Table -->
-        <section class="bg-surface-container-low rounded-3xl overflow-hidden border border-outline-variant/5 shadow-2xl">
-          <div class="p-8 border-b border-outline-variant/5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-             <div>
-               <h4 class="text-xl font-bold font-headline text-on-surface">Node Management</h4>
-               <p class="text-sm text-outline">Kendali penuh atas setiap tenant di jaringan global.</p>
-             </div>
-             <div class="flex gap-2">
-               <button class="px-4 py-2 bg-surface-container rounded-lg text-xs font-bold text-outline hover:text-on-surface transition-all">Filter: Status</button>
-               <button class="px-4 py-2 bg-surface-container rounded-lg text-xs font-bold text-outline hover:text-on-surface transition-all">Export Report</button>
-             </div>
-          </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left">
-              <thead>
-                <tr class="text-[10px] uppercase tracking-[0.2em] text-outline font-bold bg-surface-container-highest/30">
-                  <th class="px-8 py-5">Identity</th>
-                  <th class="px-8 py-5">SaaS Protocol</th>
-                  <th class="px-8 py-5">Status</th>
-                  <th class="px-8 py-5 text-right">Relay Control</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-outline-variant/10 text-sm">
-                ${shops.map((shop) => {
-                  const plan = plans.find(p => p.id === shop.plan_id);
-                  const statusInfo = {
-                    'active': { color: '#4ade80', bg: 'rgba(74, 222, 128, 0.1)' },
-                    'trial': { color: '#60a5fa', bg: 'rgba(96, 165, 250, 0.1)' },
-                    'expired': { color: '#f87171', bg: 'rgba(248, 113, 113, 0.1)' }
-                  };
-                  const s = statusInfo[shop.status] || { color: '#9ca3af', bg: 'rgba(156, 163, 175, 0.1)' };
-                  
-                  return `
-                    <tr class="group hover:bg-white/[0.02] transition-colors">
-                      <td class="px-8 py-6">
-                        <div class="flex items-center gap-4">
-                          <div class="w-12 h-12 rounded-xl bg-surface-container-highest flex items-center justify-center font-black text-primary border border-outline-variant/10">
-                            ${shop.name.charAt(0).toUpperCase()}
-                          </div>
-                          <div>
-                            <p class="font-bold text-[#E5E2E1] group-hover:text-primary transition-colors cursor-pointer" onclick="window.handleShopDetail('${shop.id}')">${shop.name}</p>
-                            <code class="text-[10px] text-outline opacity-60">@${shop.slug}</code>
-                          </div>
-                        </div>
-                      </td>
-                      <td class="px-8 py-6">
-                        <div class="flex flex-col">
-                          <span class="text-xs font-bold text-on-surface">${plan ? plan.name : 'NO TIER'}</span>
-                          <span class="text-[10px] text-outline">Since ${new Date(shop.created_at).toLocaleDateString()}</span>
-                        </div>
-                      </td>
-                      <td class="px-8 py-6">
-                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/5" style="background: ${s.bg}; color: ${s.color}">
-                          <div class="w-1.5 h-1.5 rounded-full" style="background: ${s.color}"></div>
-                          <span class="text-[10px] font-black uppercase tracking-widest">${shop.status}</span>
-                        </div>
-                      </td>
-                      <td class="px-8 py-6 text-right">
-                        <div class="flex items-center justify-end gap-3">
-                          <button class="w-10 h-10 rounded-lg hover:bg-white/5 flex items-center justify-center text-outline hover:text-primary transition-all manage-btn" data-id="${shop.id}">
-                            <span class="material-symbols-outlined text-lg">settings</span>
-                          </button>
-                          <button class="w-10 h-10 rounded-lg hover:bg-white/5 flex items-center justify-center text-outline hover:text-red-400 transition-all delete-shop-btn" data-id="${shop.id}">
-                            <span class="material-symbols-outlined text-lg">delete</span>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  `;
-                }).join('')}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      </div>
-    `;
-
-    contentArea.querySelectorAll('.manage-btn').forEach(btn => btn.onclick = () => handleManageShop(btn.dataset.id, plans));
-    contentArea.querySelectorAll('.delete-shop-btn').forEach(btn => btn.onclick = () => handleDeleteShop(btn.dataset.id));
-    
-    // Switch to Add Tenant tab
-    contentArea.querySelector('#overview-add-shop-btn')?.addEventListener('click', () => {
-      activeTab = 'add_tenant';
-      renderLayout();
-      loadMasterData();
-    });
-  }
-
-  function renderRevenueTab(contentArea, shops, plans, history) {
-    const activeShops = shops.filter(s => s.status === 'active' || s.status === 'trial');
-    
-    // Real MRR Calculation: Sum of prices of plans for all active shops
-    const totalMRR = activeShops.reduce((sum, s) => {
-      const p = plans?.find(pl => pl.id === s.plan_id);
-      return sum + (p?.price || 0);
-    }, 0);
-
-    // Calculate Growth (dummy logic but based on real count)
-    const growthPercent = (activeShops.length / 10).toFixed(1); 
-
-    contentArea.innerHTML = `
-      <div class="w-full space-y-12 fade-in">
-        <section>
-          <div class="flex items-center gap-2 mb-3">
-            <span class="w-8 h-[2px] bg-primary"></span>
-            <p class="text-[10px] font-black text-primary uppercase tracking-[0.3em]">FINANCIAL PROTOCOL v2.0</p>
-          </div>
-          <h2 class="text-4xl font-extrabold font-headline tracking-tight text-on-surface">Laporan Pendapatan</h2>
-          <p class="text-on-surface-variant mt-2 max-w-xl">Audit komprehensif arus kas dari paket berlangganan node global.</p>
-        </section>
-
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <!-- Total MRR Large Card -->
-          <div class="lg:col-span-8 bg-surface-container-low p-10 rounded-3xl border border-outline-variant/10 shadow-2xl relative overflow-hidden flex flex-col justify-between min-h-[400px] group">
-            <div class="absolute -right-20 -top-20 w-64 h-64 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-all duration-700"></div>
-            
-            <div class="relative z-10">
-              <p class="text-xs font-bold text-outline uppercase tracking-widest mb-4 flex items-center gap-2">
-                <span class="material-symbols-outlined text-sm">trending_up</span>
-                PROYEKSI MRR (Monthly Recurring Revenue)
-              </p>
-              <h3 class="text-7xl font-black font-headline text-on-surface tracking-tighter tabular-nums">
-                Rp ${(totalMRR/1000).toLocaleString()}k<span class="text-2xl text-outline ml-4 font-normal tracking-normal uppercase">/ mo</span>
-              </h3>
-              <div class="flex items-center gap-4 mt-8">
-                 <div class="px-4 py-2 bg-emerald-400/10 rounded-full border border-emerald-400/20 text-emerald-400 text-xs font-black flex items-center gap-2">
-                    <span class="material-symbols-outlined text-sm">auto_graph</span>
-                    +${growthPercent}% Velocity
-                 </div>
-                 <p class="text-outline text-xs tabular-nums">Aggregated from ${activeShops.length} active instances.</p>
+              <div class="text-right">
+                <span class="text-[10px] font-black text-emerald-400 bg-emerald-400/10 px-3 py-1 rounded-full border border-emerald-400/20">+14% GROWTH</span>
               </div>
             </div>
-            
-            <!-- Real Growth Visualization -->
-            <div class="flex items-end gap-3 h-40 mt-12 px-2">
-               ${Array.from({length: 12}).map((_, i) => {
-                 const volume = Math.random() * 60 + 30; // Simulated volume for now
-                 const isLast = i === 11;
-                 return `
-                   <div class="flex-1 rounded-t-xl transition-all duration-500 hover:scale-y-110 cursor-pointer group/bar relative ${isLast ? 'bg-primary shadow-[0_0_20px_rgba(246,202,34,0.4)]' : 'bg-surface-container-highest'}" style="height: ${volume}%">
-                     <div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-surface backdrop-blur px-3 py-1.5 rounded-lg border border-outline-variant/20 text-[10px] font-black text-primary opacity-0 group-hover/bar:opacity-100 transition-all scale-75 group-hover/bar:scale-100 shadow-xl pointer-events-none whitespace-nowrap z-20">
-                        VOL-${i+1}: ${Math.floor(volume)} Units
-                     </div>
-                   </div>
-                 `;
-               }).join('')}
-            </div>
+            <p class="text-xs font-bold text-outline uppercase tracking-widest mb-1">Estimated Plateform MRR</p>
+            <h4 class="text-5xl font-black font-headline text-on-surface tracking-tighter tabular-nums">Rp ${(totalMRR/1000).toLocaleString()}k</h4>
+            <p class="text-[10px] text-on-surface-variant mt-4 font-medium uppercase tracking-widest italic">Aggregated from active subscriptions</p>
           </div>
 
-          <!-- Tier Breakdown -->
-          <div class="lg:col-span-4 space-y-6">
-            <div class="bg-surface-container-low p-8 rounded-3xl border border-outline-variant/5 shadow-xl h-full flex flex-col">
-              <h4 class="text-sm font-black font-headline text-outline uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
-                <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">pie_chart</span>
-                Node Distribution
-              </h4>
-              <div class="space-y-8 flex-1">
-                ${plans.map(p => {
-                  const count = activeShops.filter(s => s.plan_id === p.id).length;
-                  const share = activeShops.length > 0 ? (count / activeShops.length) * 100 : 0;
-                  return `
-                    <div class="space-y-4">
-                      <div class="flex justify-between items-end">
-                        <div class="flex flex-col">
-                          <span class="text-xs font-black text-on-surface uppercase tracking-wider">${p.name}</span>
-                          <span class="text-[10px] text-outline font-medium tracking-wide">Rp ${p.price.toLocaleString()} / mo</span>
-                        </div>
-                        <div class="text-right">
-                          <span class="text-sm font-black text-primary">${count}</span>
-                          <span class="text-[9px] text-outline font-bold ml-1">NODES</span>
-                        </div>
-                      </div>
-                      <div class="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
-                        <div class="h-full gold-gradient rounded-full transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(246,202,34,0.3)]" style="width: ${share}%"></div>
-                      </div>
-                    </div>
-                  `;
-                }).join('')}
-              </div>
-              <div class="mt-8 pt-8 border-t border-outline-variant/5">
-                 <button class="w-full py-4 rounded-xl bg-surface-container-high text-xs font-bold text-outline hover:text-on-surface transition-all flex items-center justify-center gap-2">
-                    <span class="material-symbols-outlined text-sm">download</span>
-                    EXPORT FULL REPORT
-                 </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Recent Billing Audit Log -->
-        <section class="bg-surface-container-low rounded-3xl border border-outline-variant/5 overflow-hidden shadow-2xl">
-          <div class="p-8 border-b border-outline-variant/5 flex items-center justify-between">
+          <!-- Widget 2: Node Distribution -->
+          <div class="bg-surface-container-low p-8 rounded-3xl border border-outline-variant/5 shadow-xl flex flex-col justify-between group cursor-pointer hover:border-primary/20 transition-all">
             <div>
-              <h4 class="text-xl font-bold font-headline text-on-surface">Billing Audit Log</h4>
-              <p class="text-sm text-outline">Rekaman historis transaksi dan perpanjangan paket global.</p>
+              <div class="w-10 h-10 bg-surface-container rounded-xl flex items-center justify-center text-outline mb-6 group-hover:text-primary transition-colors">
+                <span class="material-symbols-outlined">hub</span>
+              </div>
+              <p class="text-[10px] font-bold text-outline uppercase tracking-widest mb-1">Total Active Nodes</p>
+              <h4 class="text-3xl font-black font-headline text-on-surface tracking-tight">${activeShops.length}</h4>
             </div>
-            <div class="flex gap-2">
-               <button class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-outline transition-all hover:bg-surface-container-highest">
-                  <span class="material-symbols-outlined text-lg">filter_alt</span>
-               </button>
+            <div class="mt-4 flex items-center gap-2">
+               <div class="flex-1 h-1 bg-surface-container rounded-full overflow-hidden">
+                 <div class="h-full bg-primary" style="width: ${(activeShops.length/shops.length)*100}%"></div>
+               </div>
+               <span class="text-[10px] font-bold text-outline">${Math.round((activeShops.length/shops.length)*100)}%</span>
             </div>
           </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left">
-              <thead>
-                <tr class="text-[10px] uppercase tracking-[0.3em] text-outline font-black bg-surface-container-highest/30">
-                  <th class="px-8 py-6">Node Identity</th>
-                  <th class="px-8 py-6">Transaction Date</th>
-                  <th class="px-8 py-6">Protocol / Tier</th>
-                  <th class="px-8 py-6 text-right">Relay Status</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-outline-variant/10 text-sm">
-                ${history.length > 0 ? history.map(h => `
-                  <tr class="group hover:bg-white/[0.01] transition-all">
-                    <td class="px-8 py-6">
-                      <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center font-bold text-outline text-xs">
-                           ${h.shops?.name?.[0] || '?' }
-                        </div>
-                        <div>
-                          <p class="font-black text-on-surface uppercase tracking-wider text-xs">${h.shops?.name || 'Unknown Node'}</p>
-                          <p class="text-[10px] text-outline font-bold">ID: ...${h.id.slice(-6)}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="px-8 py-6">
-                      <div class="flex flex-col">
-                        <span class="text-xs font-bold text-on-surface tabular-nums">${new Date(h.created_at).toLocaleDateString()}</span>
-                        <span class="text-[10px] text-outline font-medium uppercase tracking-widest">${new Date(h.created_at).toLocaleTimeString()}</span>
-                      </div>
-                    </td>
-                    <td class="px-8 py-6">
-                      <div class="flex flex-col">
-                         <span class="text-xs font-bold text-primary tabular-nums">Rp ${h.amount.toLocaleString()}</span>
-                         <span class="text-[10px] text-outline font-bold uppercase tracking-widest">${h.billing_cycle || 'MONTHLY'}</span>
-                      </div>
-                    </td>
-                    <td class="px-8 py-6 text-right">
-                       <span class="inline-flex px-3 py-1 rounded-full bg-emerald-400/10 text-emerald-400 text-[10px] font-black uppercase tracking-widest border border-emerald-400/20">
-                          SUCCESS: RECO
-                       </span>
-                    </td>
-                  </tr>
-                `).join('') : `
-                  <tr>
-                    <td colspan="4" class="px-8 py-20 text-center">
-                       <div class="flex flex-col items-center gap-4 opacity-40">
-                          <span class="material-symbols-outlined text-6xl">account_balance_wallet</span>
-                          <p class="text-xs font-black uppercase tracking-[0.2em]">No financial data records found.</p>
-                       </div>
-                    </td>
-                  </tr>
-                `}
-              </tbody>
-            </table>
+
+          <!-- Widget 3: Real-time Traffic -->
+          <div class="bg-surface-container-low p-8 rounded-3xl border border-outline-variant/5 shadow-xl flex flex-col justify-between group">
+            <div>
+              <div class="w-10 h-10 bg-surface-container rounded-xl flex items-center justify-center text-outline mb-6">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">bolt</span>
+              </div>
+              <p class="text-[10px] font-bold text-outline uppercase tracking-widest mb-1">Global Traffic</p>
+              <h4 class="text-3xl font-black font-headline text-on-surface tracking-tight">${appointments.length}</h4>
+            </div>
+            <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-widest animate-pulse flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              Live Operations Sync
+            </p>
           </div>
-          <div class="p-6 bg-surface-container-highest/20 text-center">
-             <button class="text-[10px] font-black text-primary uppercase tracking-[0.2em] hover:underline transition-all">
-                Load Architecture History
+        </section>
+
+        <!-- Performance Graph (Simplified for Dashboard) -->
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="md:col-span-2 bg-surface-container-low p-8 rounded-3xl border border-outline-variant/5 shadow-2xl min-h-[300px] flex flex-col justify-between">
+             <div class="flex justify-between items-center mb-6">
+                <h4 class="text-sm font-black font-headline text-on-surface tracking-widest uppercase italic">Network Performance Delta</h4>
+                <div class="flex gap-2">
+                   <div class="flex items-center gap-2 text-[10px] font-bold text-outline uppercase tracking-widest">
+                      <span class="w-2 h-2 rounded-full bg-primary"></span> Revenue
+                   </div>
+                   <div class="flex items-center gap-2 text-[10px] font-bold text-outline uppercase tracking-widest">
+                      <span class="w-2 h-2 rounded-full bg-surface-container-highest"></span> Sessions
+                   </div>
+                </div>
+             </div>
+             <div class="flex-1 flex items-end gap-2 px-2 pb-2">
+                ${Array.from({length: 24}).map((_, i) => {
+                  const h = Math.random() * 60 + 20;
+                  return `<div class="flex-1 bg-surface-container-highest/30 rounded-t-sm hover:bg-primary/40 transition-all cursor-crosshair" style="height: ${h}%"></div>`;
+                }).join('')}
+             </div>
+          </div>
+
+          <!-- Recent Logs Widget -->
+          <div class="bg-surface-container-low p-8 rounded-3xl border border-outline-variant/5 shadow-xl flex flex-col">
+             <h4 class="text-[10px] font-black font-headline text-outline tracking-widest uppercase mb-6">Critical Alerts</h4>
+             <div class="space-y-4 flex-1">
+                <div class="flex items-start gap-4 p-3 rounded-xl bg-red-400/5 border border-red-400/10">
+                   <span class="material-symbols-outlined text-red-400 text-lg">error</span>
+                   <div>
+                      <p class="text-xs font-bold text-on-surface">Node Expired</p>
+                      <p class="text-[9px] text-outline">Senopati Center requires billing update.</p>
+                   </div>
+                </div>
+                <div class="flex items-start gap-4 p-3 rounded-xl bg-amber-400/5 border border-amber-400/10">
+                   <span class="material-symbols-outlined text-amber-400 text-lg">warning</span>
+                   <div>
+                      <p class="text-xs font-bold text-on-surface">System Load High</p>
+                      <p class="text-[9px] text-outline">Delta traffic peak detected across 8 nodes.</p>
+                   </div>
+                </div>
+             </div>
+             <button class="w-full py-3 mt-6 bg-surface-container rounded-xl text-[10px] font-black text-outline hover:text-on-surface transition-all uppercase tracking-[0.2em] border border-white/5">
+                View Global Logs
              </button>
           </div>
         </section>
       </div>
     `;
+
+    contentArea.querySelector('#dashboard-refresh-stats')?.addEventListener('click', () => loadMasterData());
   }
 
-  function renderSettingsTab(contentArea, plans) {
+  function renderSalesAnalyticsTab(contentArea, history, plans) {
+    const totalRev = history.reduce((sum, h) => sum + (h.amount || 0), 0);
+    const recentHistory = history.slice(0, 10);
+
     contentArea.innerHTML = `
       <div class="w-full space-y-12 fade-in">
         <section>
-          <p class="text-[10px] font-bold text-primary uppercase tracking-[0.3em] mb-3">SYSTEM ARCHITECTURE</p>
-          <h2 class="text-4xl font-extrabold font-headline tracking-tight text-on-surface">Master Settings</h2>
-          <p class="text-on-surface-variant mt-2 max-w-xl">Konfigurasi limitasi dan protokol fitur pada setiap tier ekosistem.</p>
+          <p class="text-[10px] font-bold text-primary uppercase tracking-[0.3em] mb-3 italic">FINANCIAL PROTOCOL ALPHA</p>
+          <h2 class="text-4xl font-extrabold font-headline tracking-tight text-on-surface">Sales & Revenue Intelligence</h2>
+          <p class="text-on-surface-variant mt-2 max-w-xl">Deep analytics on platform subscription cycles and payment distributions.</p>
         </section>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-          ${plans.map(p => `
-            <div class="bg-surface-container-low rounded-3xl border border-outline-variant/5 shadow-2xl flex flex-col group hover:border-primary/20 transition-all duration-500 overflow-hidden relative">
-              <div class="absolute -top-12 -right-12 w-48 h-48 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-all"></div>
-              
-              <div class="p-10 border-b border-outline-variant/5">
-                <p class="text-[10px] font-black text-primary uppercase tracking-[0.4em] mb-4">${p.name}</p>
-                <h3 class="text-4xl font-black font-headline text-on-surface tracking-tighter">Rp ${(p.price / 1000).toLocaleString()}k <span class="text-xs text-outline font-medium tracking-normal">/ mo</span></h3>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <!-- Main Revenue Chart Container -->
+          <div class="lg:col-span-8 bg-surface-container-low p-10 rounded-3xl border border-outline-variant/10 shadow-2xl relative overflow-hidden flex flex-col justify-between min-h-[450px]">
+            <div class="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent"></div>
+            
+            <div class="relative z-10 flex justify-between items-start">
+              <div>
+                 <p class="text-xs font-bold text-outline uppercase tracking-widest mb-2 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm text-primary">auto_graph</span>
+                    Gross Combined Revenue
+                 </p>
+                 <h3 class="text-6xl font-black font-headline text-on-surface tracking-tighter">
+                   Rp ${(totalRev/1000).toLocaleString()}k
+                 </h3>
               </div>
-              
-              <div class="p-10 flex-grow space-y-6">
-                <div class="space-y-4">
-                  <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-surface-container-highest flex items-center justify-center text-primary">
-                      <span class="material-symbols-outlined text-sm">group</span>
-                    </div>
-                    <div>
-                      <p class="text-[10px] text-outline font-bold uppercase tracking-widest">Global Staff</p>
-                      <p class="text-sm font-bold text-on-surface">Max ${p.max_barbers || '∞'} Barbers</p>
-                    </div>
-                  </div>
-                  <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-surface-container-highest flex items-center justify-center text-primary">
-                      <span class="material-symbols-outlined text-sm">hub</span>
-                    </div>
-                    <div>
-                      <p class="text-[10px] text-outline font-bold uppercase tracking-widest">Network Nodes</p>
-                      <p class="text-sm font-bold text-on-surface">Max ${p.max_branches || '∞'} Branches</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="h-[1px] bg-outline-variant/5"></div>
-
-                <div class="space-y-4">
-                   ${(() => {
-                      let features = p.features;
-                      if (typeof features === 'string') features = features.replace(/[{}"[\]]/g, '').split(',');
-                      if (!Array.isArray(features)) features = [];
-                      return features.slice(0, 5).map(f => `
-                        <div class="flex items-center gap-3">
-                          <span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-                          <span class="text-xs font-bold text-outline group-hover:text-on-surface transition-colors uppercase tracking-wider">${f.trim().replace(/_/g, ' ')}</span>
-                        </div>
-                      `).join('');
-                   })()}
-                </div>
-              </div>
-
-              <div class="p-10 border-t border-outline-variant/5 bg-surface-container-highest/30">
-                <button onclick="window.handleEditPlan('${p.id}')" class="w-full py-4 bg-primary text-on-primary font-black uppercase tracking-widest rounded-2xl shadow-lg hover:shadow-primary/20 hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 text-[10px]">
-                  <span class="material-symbols-outlined text-sm">settings_suggest</span>
-                  <span>Modifikasi Protokol</span>
-                </button>
+              <div class="flex gap-2">
+                 <button class="px-4 py-2 bg-surface-container rounded-lg text-[10px] font-bold text-on-surface border border-outline-variant/10">30D</button>
+                 <button class="px-4 py-2 bg-primary/20 rounded-lg text-[10px] font-bold text-primary border border-primary/20">90D</button>
               </div>
             </div>
-          `).join('')}
+
+            <!-- Detailed Graph Visualization -->
+            <div class="h-48 mt-12 flex items-end gap-4 px-4 overflow-hidden group">
+               ${Array.from({length: 15}).map((_, i) => {
+                 const v = 30 + Math.random() * 70;
+                 return `
+                    <div class="flex-1 min-w-[20px] bg-surface-container-highest rounded-t-lg relative transition-all duration-700 hover:bg-primary shadow-lg group-hover:opacity-50 hover:!opacity-100 cursor-pointer" style="height: ${v}%">
+                       <div class="absolute -top-12 left-1/2 -translate-x-1/2 bg-surface-container-high border border-outline-variant/20 px-3 py-1.5 rounded-lg opacity-0 hover:opacity-100 transition-opacity text-[10px] font-black text-primary whitespace-nowrap shadow-2xl">
+                          Day ${i+1}: Rp ${Math.floor(v*100)}k
+                       </div>
+                    </div>
+                 `;
+               }).join('')}
+            </div>
+          </div>
+
+          <!-- Tier Performance -->
+          <div class="lg:col-span-4 bg-surface-container-low p-8 rounded-3xl border border-outline-variant/5 shadow-xl flex flex-col">
+             <h4 class="text-xs font-black font-headline text-outline uppercase tracking-[0.2em] mb-8">Node Tier Performance</h4>
+             <div class="space-y-6 flex-1">
+                ${plans.map(p => {
+                  const items = history.filter(h => h.plan_id === p.id);
+                  const rev = items.reduce((sum, x) => sum + x.amount, 0);
+                  const percent = totalRev > 0 ? (rev / totalRev * 100) : 0;
+                  return `
+                    <div class="space-y-3">
+                       <div class="flex justify-between items-end">
+                          <span class="text-xs font-bold text-on-surface uppercase tracking-wider">${p.name}</span>
+                          <span class="text-xs font-black text-primary">${Math.round(percent)}%</span>
+                       </div>
+                       <div class="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
+                          <div class="h-full bg-primary shadow-[0_0_10px_rgba(246,202,34,0.3)] transition-all duration-1000" style="width: ${percent}%"></div>
+                       </div>
+                    </div>
+                  `;
+                }).join('')}
+             </div>
+             <div class="mt-10 pt-8 border-t border-outline-variant/5">
+                <div class="flex justify-between items-center text-xs text-outline font-bold mb-4">
+                   <span>Avg Subscription Cycle</span>
+                   <span class="text-on-surface">32.4 Days</span>
+                </div>
+                <button class="w-full py-4 text-[10px] font-black text-primary uppercase tracking-[0.2em] bg-primary/5 rounded-xl border border-primary/20 hover:bg-primary hover:text-on-primary transition-all">
+                   Full Audit Ledger
+                </button>
+             </div>
+          </div>
         </div>
+
+        <!-- Sales Ledger Table -->
+        <section class="bg-surface-container-low rounded-3xl border border-outline-variant/5 overflow-hidden shadow-2xl">
+          <div class="p-8 border-b border-outline-variant/5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+             <div>
+               <h4 class="text-xl font-bold font-headline text-on-surface italic uppercase tracking-tighter">Transaction Ledger</h4>
+               <p class="text-sm text-outline">Real-time recording of all node relay financial triggers.</p>
+             </div>
+             <button class="px-6 py-3 bg-white/5 border border-white/5 rounded-xl text-[10px] font-black text-outline hover:text-on-surface transition-all flex items-center gap-2 uppercase tracking-widest">
+                <span class="material-symbols-outlined text-sm">filter_list</span> Filter Ledger
+             </button>
+          </div>
+          <div class="overflow-x-auto">
+             <table class="w-full text-left">
+                <thead>
+                   <tr class="text-[10px] uppercase tracking-[0.3em] text-outline font-black bg-surface-container-highest/20">
+                      <th class="px-8 py-6">Node Instance</th>
+                      <th class="px-8 py-6">Protocol Action</th>
+                      <th class="px-8 py-6">Amount</th>
+                      <th class="px-8 py-6 text-right">Relay Status</th>
+                   </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant/10">
+                   ${history.map(h => `
+                     <tr class="group hover:bg-white/[0.01] transition-all">
+                        <td class="px-8 py-6">
+                           <p class="text-xs font-black text-on-surface tracking-wider uppercase">${h.shops?.name || 'NODE-' + h.id.slice(0,4)}</p>
+                           <p class="text-[10px] text-outline tabular-nums italic">${new Date(h.created_at).toLocaleString('id-ID')}</p>
+                        </td>
+                        <td class="px-8 py-6">
+                           <div class="flex items-center gap-2">
+                              <span class="px-2 py-0.5 rounded bg-surface-container-highest text-[9px] font-black text-outline border border-outline-variant/10 uppercase tracking-widest">SUB_SYNC</span>
+                              <span class="text-[10px] font-bold text-on-surface-variant">Tier Uplink</span>
+                           </div>
+                        </td>
+                        <td class="px-8 py-6">
+                           <span class="text-sm font-black text-emerald-400 tabular-nums">Rp ${h.amount.toLocaleString()}</span>
+                        </td>
+                        <td class="px-8 py-6 text-right">
+                           <span class="text-[10px] font-black text-primary px-3 py-1 rounded-full border border-primary/20 bg-primary/5 uppercase tracking-[0.2em]">VERIFIED</span>
+                        </td>
+                     </tr>
+                   `).join('')}
+                </tbody>
+             </table>
+          </div>
+        </section>
       </div>
     `;
   }
+
+  function renderSubscriptionReportTab(contentArea, shops, plans) {
+    contentArea.innerHTML = `
+      <div class="w-full space-y-12 fade-in">
+        <section class="flex justify-between items-end">
+          <div>
+            <p class="text-[10px] font-bold text-primary uppercase tracking-[0.3em] mb-3 italic">NODE STATUS REGISTRY</p>
+            <h2 class="text-4xl font-extrabold font-headline tracking-tight text-on-surface uppercase tracking-tighter italic text-on-surface/90">Subscription Monitor</h2>
+            <p class="text-on-surface-variant mt-2 max-w-xl">Daftar lengkap node dan siklus berlangganan yang sedang berjalan di ekosistem.</p>
+          </div>
+          <div class="flex gap-3">
+             <div class="relative group">
+                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors text-sm">search</span>
+                <input class="bg-surface-container-low border border-outline-variant/10 rounded-2xl py-3 pl-10 pr-6 text-xs text-on-surface focus:ring-1 focus:ring-primary focus:border-none transition-all w-64" placeholder="Cari Node Master..." type="text" />
+             </div>
+          </div>
+        </section>
+
+        <!-- Status Filter Cards -->
+        <section class="grid grid-cols-1 md:grid-cols-4 gap-6">
+           <div class="bg-surface-container-low p-6 rounded-2xl border border-outline-variant/5 shadow-xl transition-all cursor-pointer hover:bg-surface-container hover:-translate-y-1">
+              <p class="text-[9px] font-black text-outline uppercase tracking-widest mb-1">Total Instances</p>
+              <h4 class="text-2xl font-black font-headline text-on-surface uppercase">${shops.length} Units</h4>
+           </div>
+           <div class="bg-surface-container-low p-6 rounded-2xl border border-emerald-400/10 shadow-xl transition-all cursor-pointer hover:bg-surface-container-high hover:-translate-y-1">
+              <p class="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-1 italic">Active RELAY</p>
+              <h4 class="text-2xl font-black font-headline text-on-surface uppercase">${shops.filter(s=>s.status==='active').length} Nodes</h4>
+           </div>
+           <div class="bg-surface-container-low p-6 rounded-2xl border border-amber-400/10 shadow-xl transition-all cursor-pointer hover:bg-surface-container-high hover:-translate-y-1">
+              <p class="text-[9px] font-black text-amber-400 uppercase tracking-widest mb-1 italic">Trial Protocol</p>
+              <h4 class="text-2xl font-black font-headline text-on-surface uppercase">${shops.filter(s=>s.status==='trial').length} Nodes</h4>
+           </div>
+           <div class="bg-surface-container-low p-6 rounded-2xl border border-red-400/10 shadow-xl transition-all cursor-pointer hover:bg-surface-container-high hover:-translate-y-1">
+              <p class="text-[9px] font-black text-red-400 uppercase tracking-widest mb-1 italic">Expired Nodes</p>
+              <h4 class="text-2xl font-black font-headline text-on-surface uppercase">${shops.filter(s=>s.status==='expired').length} Nodes</h4>
+           </div>
+        </section>
+
+        <section class="bg-surface-container-low rounded-3xl border border-outline-variant/5 overflow-hidden shadow-2xl">
+          <div class="overflow-x-auto">
+             <table class="w-full text-left">
+                <thead>
+                   <tr class="text-[10px] uppercase tracking-[0.3em] text-outline font-black bg-surface-container-highest/20">
+                      <th class="px-8 py-6">Node Identity</th>
+                      <th class="px-8 py-6">Active Tier</th>
+                      <th class="px-8 py-6">Access Protocol</th>
+                      <th class="px-8 py-6">Status Delta</th>
+                      <th class="px-8 py-6 text-right">Control</th>
+                   </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant/10">
+                   ${shops.map(shop => {
+                     const plan = plans.find(p => p.id === shop.plan_id);
+                     const sInfo = {
+                       'active': { color: '#4ade80', label: 'OPERATIONAL' },
+                       'trial': { color: '#fbbf24', label: 'SANDBOX' },
+                       'expired': { color: '#f87171', label: 'OFFLINE' }
+                     }[shop.status] || { color: '#9ca3af', label: 'UNKNOWN' };
+
+                     return `
+                       <tr class="group hover:bg-white/[0.015] transition-all">
+                          <td class="px-8 py-6">
+                             <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-xl bg-surface-container-highest/50 flex items-center justify-center font-black text-primary border border-outline-variant/5">
+                                   ${shop.name.charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                   <p class="text-xs font-black text-on-surface uppercase tracking-[0.05em]">${shop.name}</p>
+                                   <p class="text-[9px] text-outline italic tabular-nums">RELAY-ID: ...${shop.id.slice(-8)}</p>
+                                </div>
+                             </div>
+                          </td>
+                          <td class="px-8 py-6">
+                             <span class="text-[10px] font-black text-on-surface px-3 py-1 bg-surface-container-highest rounded-lg border border-outline-variant/10 uppercase tracking-widest">
+                                ${plan ? plan.name : 'NO_TIER'}
+                             </span>
+                          </td>
+                          <td class="px-8 py-6">
+                             <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1 italic">Multi-Tenant v3.0</p>
+                             <p class="text-[9px] font-medium text-outline uppercase tracking-[0.2em]">Enabled Access: CORE, POS, CRM</p>
+                          </td>
+                          <td class="px-8 py-6">
+                             <div class="flex items-center gap-2">
+                                <div class="w-2 h-2 rounded-full shadow-[0_0_8px_${sInfo.color}]" style="background: ${sInfo.color}"></div>
+                                <span class="text-[10px] font-black uppercase tracking-[0.2em]" style="color: ${sInfo.color}">${sInfo.label}</span>
+                             </div>
+                          </td>
+                          <td class="px-8 py-6 text-right">
+                             <div class="flex items-center justify-end gap-2">
+                                <button class="w-10 h-10 rounded-xl hover:bg-white/5 flex items-center justify-center text-outline hover:text-primary transition-all shop-edit-btn" data-id="${shop.id}">
+                                   <span class="material-symbols-outlined text-lg">edit_note</span>
+                                </button>
+                                <button class="w-10 h-10 rounded-xl hover:bg-white/5 flex items-center justify-center text-outline hover:text-emerald-400 transition-all shop-relay-btn" data-id="${shop.id}">
+                                   <span class="material-symbols-outlined text-lg">sensors</span>
+                                </button>
+                             </div>
+                          </td>
+                       </tr>
+                     `;
+                   }).join('')}
+                </tbody>
+             </table>
+          </div>
+        </section>
+      </div>
+    `;
+
+    contentArea.querySelectorAll('.shop-edit-btn').forEach(btn => btn.onclick = () => handleManageShop(btn.dataset.id, plans));
+    contentArea.querySelectorAll('.shop-relay-btn').forEach(btn => btn.onclick = () => window.handleShopDetail(btn.dataset.id));
+  }
+
 
   async function handleDeleteShop(shopId) {
     if (!confirm('HAPUS TOKO INI PERMANEN?\nTindakan ini akan menghapus SELURUH data transaksi dan pengaturan toko tersebut.')) return;
@@ -1094,176 +968,376 @@ export async function renderSuperAdmin(container) {
     };
   }
 
-  function renderAddTenantTab(contentArea) {
+  function renderStoreManagementTab(contentArea, shops, plans) {
     contentArea.innerHTML = `
-      <!-- Registration Stepper/Header -->
-      <div class="w-full max-w-4xl mb-12 fade-in">
-        <div class="flex justify-between items-end">
+      <div class="w-full space-y-12 fade-in">
+        <section class="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
-            <h2 class="text-4xl font-extrabold font-headline tracking-tight text-on-surface">Registrasi Toko Baru</h2>
-            <p class="text-on-surface-variant mt-2 max-w-md">Lengkapi informasi di bawah ini untuk menambahkan outlet baru ke dalam ekosistem digital BarberPro.</p>
+            <p class="text-[10px] font-bold text-primary uppercase tracking-[0.3em] mb-3 italic">FLEET OPERATIONS</p>
+            <h2 class="text-4xl font-extrabold font-headline tracking-tight text-on-surface uppercase italic tracking-tighter">Store Management</h2>
+            <p class="text-on-surface-variant mt-2 max-w-xl">Konfigurasi dan aktivasi instance toko dalam jaringan global.</p>
           </div>
-          <div class="flex items-center gap-2 text-sm font-semibold">
-            <span class="text-primary">Langkah 1</span>
-            <span class="text-outline">dari 2</span>
-            <div class="w-32 h-1 bg-surface-container rounded-full overflow-hidden ml-2">
-              <div class="w-1/2 h-full bg-primary shadow-[0_0_8px_rgba(246,202,34,0.5)]"></div>
-            </div>
-          </div>
-        </div>
+          <button id="mgr-add-store-btn" class="px-8 py-4 bg-primary text-on-primary font-black uppercase tracking-widest rounded-2xl shadow-lg hover:shadow-primary/20 hover:-translate-y-1 active:scale-95 transition-all flex items-center gap-3 text-xs">
+            <span class="material-symbols-outlined text-lg">add_circle</span>
+            <span>Deploy New Node</span>
+          </button>
+        </section>
+
+        <!-- Node List -->
+        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          ${shops.map(shop => {
+            const plan = plans.find(p => p.id === shop.plan_id);
+            return `
+              <div class="bg-surface-container-low p-8 rounded-3xl border border-outline-variant/10 shadow-xl group hover:border-primary/20 transition-all flex flex-col justify-between">
+                <div>
+                  <div class="flex justify-between items-start mb-6">
+                    <div class="w-14 h-14 bg-surface-container rounded-2xl flex items-center justify-center text-primary font-black text-xl border border-outline-variant/5">
+                      ${shop.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div class="px-3 py-1 bg-surface-container-highest rounded-full border border-outline-variant/10 text-[9px] font-black text-outline uppercase tracking-widest">
+                      ${shop.status}
+                    </div>
+                  </div>
+                  <h4 class="text-xl font-black text-on-surface uppercase tracking-tight mb-1">${shop.name}</h4>
+                  <p class="text-xs text-outline mb-4">@${shop.slug}</p>
+                  <div class="space-y-3 pt-4 border-t border-outline-variant/5">
+                    <div class="flex justify-between text-[10px] font-bold text-outline uppercase tracking-widest">
+                       <span>Active Tier</span>
+                       <span class="text-primary">${plan ? plan.name : 'NONE'}</span>
+                    </div>
+                    <div class="flex justify-between text-[10px] font-bold text-outline uppercase tracking-widest">
+                       <span>Database Sync</span>
+                       <span class="text-emerald-400">ENCRYPTED</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-8 flex gap-2">
+                  <button class="flex-1 py-3 bg-surface-container-high rounded-xl text-[10px] font-black text-outline hover:text-on-surface transition-all uppercase tracking-widest border border-white/5 store-edit-btn" data-id="${shop.id}">
+                    Manage Node
+                  </button>
+                  <button class="w-12 h-12 bg-surface-container-high rounded-xl flex items-center justify-center text-outline hover:text-red-400 transition-all border border-white/5 store-delete-btn" data-id="${shop.id}">
+                    <span class="material-symbols-outlined text-lg">delete</span>
+                  </button>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </section>
       </div>
-      
-      <!-- Multi-Step Form Layout (Bento Style) -->
-      <form id="atelier-add-tenant-form" class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-12 gap-6 fade-in" style="animation-delay: 100ms">
-        <!-- Basic Info Card -->
-        <div class="md:col-span-8 bg-surface-container-low p-8 rounded-xl shadow-sm space-y-8">
-          <div class="flex items-center gap-4">
-            <div class="w-12 h-12 bg-surface-container-highest rounded-full flex items-center justify-center text-primary">
-              <span class="material-symbols-outlined">storefront</span>
-            </div>
-            <div>
-              <h3 class="text-xl font-bold font-headline text-on-surface">Informasi Dasar</h3>
-              <p class="text-xs text-on-surface-variant uppercase tracking-widest">Identitas Outlet</p>
-            </div>
+    `;
+
+    contentArea.querySelector('#mgr-add-store-btn')?.addEventListener('click', () => renderAddStoreFlow(contentArea, plans));
+    contentArea.querySelectorAll('.store-edit-btn').forEach(btn => btn.onclick = () => handleManageShop(btn.dataset.id, plans));
+    contentArea.querySelectorAll('.store-delete-btn').forEach(btn => btn.onclick = () => handleDeleteShop(btn.dataset.id));
+  }
+
+  function renderTierManagementTab(contentArea, plans) {
+    contentArea.innerHTML = `
+      <div class="w-full space-y-12 fade-in">
+        <section class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <p class="text-[10px] font-bold text-primary uppercase tracking-[0.3em] mb-3 italic">COMMERCIAL PROTOCOL</p>
+            <h2 class="text-4xl font-extrabold font-headline tracking-tight text-on-surface uppercase italic tracking-tighter">Tier Management</h2>
+            <p class="text-on-surface-variant mt-2 max-w-xl">Konfigurasi paket layanan, limitasi fitur, dan skema harga platform.</p>
           </div>
-          <div class="grid grid-cols-1 gap-6">
-            <div class="group">
-              <label class="block text-xs font-bold text-outline uppercase tracking-widest mb-2 ml-1">Nama Toko</label>
-              <input id="add-tenant-name" class="w-full bg-surface-container border-none rounded-xl py-4 px-6 text-on-surface focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-outline/30" placeholder="Contoh: BarberPro Senopati" type="text" required />
-            </div>
-            <div class="group">
-              <label class="block text-xs font-bold text-outline uppercase tracking-widest mb-2 ml-1">Alamat Lengkap</label>
-              <textarea id="add-tenant-address" class="w-full bg-surface-container border-none rounded-xl py-4 px-6 text-on-surface focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-outline/30 resize-none" placeholder="Masukkan alamat lengkap toko di sini..." rows="3"></textarea>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div class="group">
-                <label class="block text-xs font-bold text-outline uppercase tracking-widest mb-2 ml-1">No. Telepon</label>
-                <div class="relative">
-                  <span class="absolute left-6 top-1/2 -translate-y-1/2 text-on-surface-variant font-semibold">+62</span>
-                  <input id="add-tenant-phone" class="w-full bg-surface-container border-none rounded-xl py-4 pl-16 pr-6 text-on-surface focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-outline/30" placeholder="812 3456 7890" type="tel" />
+          <button class="px-8 py-4 bg-surface-container-highest text-outline font-black uppercase tracking-widest rounded-2xl border border-outline-variant/10 text-xs hover:text-primary transition-all">
+            + Create New Plan
+          </button>
+        </section>
+
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          ${plans.map(p => `
+            <div class="bg-surface-container-low p-10 rounded-3xl border border-outline-variant/10 shadow-2xl relative overflow-hidden flex flex-col group">
+              <div class="absolute -right-10 -top-10 w-32 h-32 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-all"></div>
+              
+              <div class="relative z-10 flex-1">
+                <p class="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-2 italic">Service Level</p>
+                <h3 class="text-3xl font-black font-headline text-on-surface uppercase tracking-tight mb-6">${p.name}</h3>
+                
+                <div class="mb-8">
+                  <span class="text-4xl font-black text-on-surface tabular-nums">Rp ${(p.price/1000).toLocaleString()}k</span>
+                  <span class="text-xs text-outline font-bold uppercase tracking-widest ml-2">/ month</span>
                 </div>
+
+                <ul class="space-y-4 mb-10">
+                   <li class="flex items-center gap-3 text-xs text-on-surface-variant font-bold">
+                      <span class="material-symbols-outlined text-primary text-lg">check_circle</span>
+                      Full POS Architecture
+                   </li>
+                   <li class="flex items-center gap-3 text-xs text-on-surface-variant font-bold">
+                      <span class="material-symbols-outlined text-primary text-lg">check_circle</span>
+                      Cloud Sync Protocol
+                   </li>
+                   <li class="flex items-center gap-3 text-xs text-on-surface-variant font-bold">
+                      <span class="material-symbols-outlined text-primary text-lg">check_circle</span>
+                      Up to 24/7 Support
+                   </li>
+                </ul>
               </div>
-              <div class="group">
-                <label class="block text-xs font-bold text-outline uppercase tracking-widest mb-2 ml-1">Kategori Layanan</label>
-                <select id="add-tenant-category" class="w-full bg-surface-container border-none rounded-xl py-4 px-6 text-on-surface focus:ring-1 focus:ring-primary/50 transition-all">
-                  <option>Premium Barber</option>
-                  <option>Classic Cut</option>
-                  <option>Express Cut</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Operating Hours & Sidebar Card -->
-        <div class="md:col-span-4 flex flex-col gap-6">
-          <!-- Visual Preview / Status -->
-          <div class="bg-surface-container p-6 rounded-xl border border-outline-variant/10 relative overflow-hidden group">
-            <div class="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div class="relative z-10">
-              <p class="text-[10px] text-primary font-bold uppercase tracking-[0.2em] mb-4">Preview Kartu</p>
-              <div class="h-32 rounded-lg bg-surface-container-low flex flex-col justify-end p-4 border border-outline-variant/5">
-                <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center mb-2">
-                  <span class="material-symbols-outlined text-primary text-sm">image</span>
-                </div>
-                <div class="h-3 w-3/4 bg-surface-container-highest rounded mb-2"></div>
-                <div class="h-2 w-1/2 bg-surface-container-highest/50 rounded"></div>
-              </div>
-              <button type="button" class="mt-4 w-full py-2 bg-surface-container-highest text-xs font-bold rounded-lg border border-outline-variant/20 hover:border-primary/50 transition-all">
-                  Unggah Foto Toko
-              </button>
-            </div>
-          </div>
-          
-          <!-- Operating Hours -->
-          <div class="bg-surface-container-low p-6 rounded-xl shadow-sm flex-1">
-            <h4 class="text-sm font-bold text-on-surface mb-6 flex items-center gap-2">
-              <span class="material-symbols-outlined text-primary text-lg">schedule</span> Jam Operasional
-            </h4>
-            <div class="space-y-4">
-              <div class="flex items-center justify-between group">
-                <span class="text-xs font-medium text-on-surface-variant">Senin - Jumat</span>
-                <input class="w-28 bg-surface-container border-none rounded-lg py-2 px-3 text-xs text-center focus:ring-1 focus:ring-primary/50 text-white" type="text" value="09:00 - 21:00" />
-              </div>
-              <div class="flex items-center justify-between group">
-                <span class="text-xs font-medium text-on-surface-variant">Sabtu</span>
-                <input class="w-28 bg-surface-container border-none rounded-lg py-2 px-3 text-xs text-center focus:ring-1 focus:ring-primary/50 text-white" type="text" value="10:00 - 22:00" />
-              </div>
-              <div class="flex items-center justify-between group">
-                <span class="text-xs font-medium text-on-surface-variant">Minggu</span>
-                <input class="w-28 bg-surface-container-highest text-error border-none rounded-lg py-2 px-3 text-xs text-center focus:ring-1 focus:ring-primary/50" type="text" value="Tutup" />
-              </div>
-              <div class="pt-4 border-t border-outline-variant/10">
-                <button class="text-[10px] font-bold text-primary uppercase tracking-widest hover:underline" type="button">
-                  + Sesuaikan Jadwal Khusus
+
+              <div class="relative z-10 pt-8 border-t border-outline-variant/5">
+                <button class="w-full py-4 bg-surface-container-high rounded-xl text-[10px] font-black text-outline hover:text-primary transition-all uppercase tracking-[0.2em] border border-white/5" onclick="showToast('Feature Coming Soon: Plan Editor', 'info')">
+                  Edit Plan Architecture
                 </button>
               </div>
             </div>
-          </div>
-        </div>
-        
-        <!-- Form Actions -->
-        <div class="md:col-span-12 flex items-center justify-between pt-8 mt-4 border-t border-outline-variant/10">
-          <button type="button" class="flex items-center gap-2 px-6 py-4 text-on-surface-variant font-bold hover:text-on-surface transition-colors" onclick="document.querySelector('[data-tab=overview]').click()">
-            <span class="material-symbols-outlined">arrow_back</span>
-            <span>Batalkan</span>
-          </button>
-          <div class="flex items-center gap-4">
-            <button type="button" class="px-8 py-4 bg-surface-container-highest text-on-surface font-bold rounded-xl active:scale-95 transition-all outline-none">
-                Simpan Draf
-            </button>
-            <button id="atelier-submit-shop-btn" class="px-10 py-4 bg-primary text-on-primary font-extrabold rounded-xl shadow-[0_8px_20px_rgba(246,202,34,0.3)] hover:shadow-[0_12px_24px_rgba(246,202,34,0.4)] hover:-translate-y-0.5 active:scale-95 transition-all flex items-center gap-3" type="submit">
-              <span>Daftarkan Toko</span>
-              <span class="material-symbols-outlined">chevron_right</span>
-            </button>
-          </div>
-        </div>
-      </form>
+          `).join('')}
+        </section>
+      </div>
     `;
-
-    const form = contentArea.querySelector('#atelier-add-tenant-form');
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const shopName = contentArea.querySelector('#add-tenant-name').value;
-      const address = contentArea.querySelector('#add-tenant-address').value;
-      const phone = contentArea.querySelector('#add-tenant-phone').value;
-      const category = contentArea.querySelector('#add-tenant-category').value;
-      const submitBtn = contentArea.querySelector('#atelier-submit-shop-btn');
-      
-      submitBtn.innerHTML = '<span class="material-symbols-outlined animate-spin">refresh</span> Processing...';
-      submitBtn.disabled = true;
-
-      try {
-        // Fast-track demo deployment for the Atelier UI
-        const { data: ud, error: ue } = await supabase.auth.getUser();
-        if (ue) throw ue;
-        const uid = ud.user?.id;
-
-        const slug = shopName.toLowerCase().replace(/[^a-z0-9]/g, '-') + '-' + Math.floor(Math.random() * 1000);
-
-        const { data: newShop, error } = await supabase.from('shops').insert([{
-          name: shopName,
-          slug: slug,
-          address: address + ' (Telp: ' + phone + ' - ' + category + ')',
-          status: 'trial',
-          owner_id: uid
-        }]).select().single();
-
-        if (error) throw error;
-
-        showToast(`Tenant "${shopName}" berhasil didaftarkan ke Ekosistem!`, 'success');
-        
-        // Reset and switch back
-        form.reset();
-        activeTab = 'overview';
-        renderLayout();
-        loadMasterData();
-      } catch (err) {
-        showToast(`Gagal menambahkan toko: ${err.message}`, 'danger');
-        submitBtn.innerHTML = '<span>Daftarkan Toko</span><span class="material-symbols-outlined">chevron_right</span>';
-        submitBtn.disabled = false;
-      }
-    });
-
   }
+
+  function renderSystemSettingsTab(contentArea) {
+    contentArea.innerHTML = `
+      <div class="w-full space-y-12 fade-in">
+        <section>
+          <p class="text-[10px] font-bold text-primary uppercase tracking-[0.3em] mb-3 italic">CORE SYSTEM v3.0</p>
+          <h2 class="text-4xl font-extrabold font-headline tracking-tight text-on-surface uppercase italic tracking-tighter">Application Settings</h2>
+          <p class="text-on-surface-variant mt-2 max-w-xl">Konfigurasi mendalam parameter sistem, API keys, dan variabel lingkungan global.</p>
+        </section>
+
+        <section class="max-w-4xl space-y-8">
+          <div class="bg-surface-container-low p-8 rounded-3xl border border-outline-variant/10 shadow-xl space-y-8">
+             <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
+                   <span class="material-symbols-outlined">settings_suggest</span>
+                </div>
+                <div>
+                   <h4 class="text-xl font-black text-on-surface uppercase tracking-tight">Platform Identity</h4>
+                   <p class="text-[10px] text-outline font-bold uppercase tracking-widest">Global Meta Configuration</p>
+                </div>
+             </div>
+
+             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="space-y-3">
+                   <label class="text-[10px] font-black text-outline uppercase tracking-widest ml-1">Platform Name</label>
+                   <input class="w-full bg-surface-container border border-outline-variant/10 rounded-xl py-4 px-6 text-sm text-on-surface focus:ring-1 focus:ring-primary transition-all" type="text" value="BarberPro Master" />
+                </div>
+                <div class="space-y-3">
+                   <label class="text-[10px] font-black text-outline uppercase tracking-widest ml-1">Support Email</label>
+                   <input class="w-full bg-surface-container border border-outline-variant/10 rounded-xl py-4 px-6 text-sm text-on-surface focus:ring-1 focus:ring-primary transition-all" type="email" value="admin@barberpro.io" />
+                </div>
+             </div>
+          </div>
+
+          <div class="bg-surface-container-low p-8 rounded-3xl border border-outline-variant/10 shadow-xl space-y-8">
+             <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-red-400/10 rounded-2xl flex items-center justify-center text-red-400">
+                   <span class="material-symbols-outlined">security</span>
+                </div>
+                <div>
+                   <h4 class="text-xl font-black text-on-surface uppercase tracking-tight">Security & Protocol</h4>
+                   <p class="text-[10px] text-outline font-bold uppercase tracking-widest">Access & Encryption Layers</p>
+                </div>
+             </div>
+
+             <div class="space-y-6">
+                <div class="flex items-center justify-between p-6 bg-surface-container rounded-2xl border border-outline-variant/5">
+                   <div>
+                      <h5 class="text-xs font-black text-on-surface uppercase tracking-wider mb-1">Two-Factor Authentication</h5>
+                      <p class="text-[10px] text-outline">Require 2FA for all Superadmin accounts.</p>
+                   </div>
+                   <button class="w-12 h-6 bg-primary rounded-full relative shadow-lg shadow-primary/20">
+                      <div class="absolute right-1 top-1 w-4 h-4 bg-on-primary rounded-full"></div>
+                   </button>
+                </div>
+                <div class="flex items-center justify-between p-6 bg-surface-container rounded-2xl border border-outline-variant/5">
+                   <div>
+                      <h5 class="text-xs font-black text-on-surface uppercase tracking-wider mb-1">Audit Log Retention</h5>
+                      <p class="text-[10px] text-outline">Keep system logs for 90 days.</p>
+                   </div>
+                   <select class="bg-surface-container-highest border-none rounded-lg text-[10px] font-black uppercase text-on-surface p-2">
+                      <option>30 Days</option>
+                      <option selected>90 Days</option>
+                      <option>365 Days</option>
+                   </select>
+                </div>
+             </div>
+          </div>
+
+          <div class="flex justify-end gap-4 pt-4">
+             <button class="px-10 py-4 bg-primary text-on-primary font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-primary/20 hover:shadow-primary/30 active:scale-95 transition-all text-xs">
+                Save Core Config
+             </button>
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
+  function renderAddStoreFlow(contentArea, plans) {
+    let currentStep = 1;
+    let formData = {
+      name: '',
+      address: '',
+      phone: '',
+      category: 'Premium Barber',
+      plan_id: plans[0]?.id
+    };
+
+    function updateView() {
+      if (currentStep === 1) {
+        contentArea.innerHTML = `
+          <div class="w-full max-w-4xl space-y-12 fade-in">
+            <section class="flex justify-between items-end">
+               <div>
+                  <p class="text-[10px] font-bold text-primary uppercase tracking-[0.3em] mb-3 italic">STEP 01 / 02</p>
+                  <h2 class="text-4xl font-extrabold font-headline tracking-tight text-on-surface uppercase italic tracking-tighter">Node Identity</h2>
+                  <p class="text-on-surface-variant mt-2 max-w-xl">Masukkan informasi dasar untuk instance toko baru Anda.</p>
+               </div>
+               <div class="w-32 h-1.5 bg-surface-container rounded-full overflow-hidden">
+                  <div class="h-full bg-primary" style="width: 50%"></div>
+               </div>
+            </section>
+
+            <form id="add-store-step1" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+               <div class="md:col-span-2 space-y-3">
+                  <label class="text-[10px] font-black text-outline uppercase tracking-[0.2em] ml-1">Store Name</label>
+                  <input id="in-name" class="w-full bg-surface-container-low border border-outline-variant/10 rounded-2xl py-5 px-8 text-on-surface focus:ring-1 focus:ring-primary transition-all" value="${formData.name}" placeholder="e.g. BarberPro Downtown" required />
+               </div>
+               <div class="md:col-span-2 space-y-3">
+                  <label class="text-[10px] font-black text-outline uppercase tracking-[0.2em] ml-1">Full Address</label>
+                  <textarea id="in-address" class="w-full bg-surface-container-low border border-outline-variant/10 rounded-2xl py-5 px-8 text-on-surface focus:ring-1 focus:ring-primary transition-all" rows="3" placeholder="Street, City, Province...">${formData.address}</textarea>
+               </div>
+               <div class="space-y-3">
+                  <label class="text-[10px] font-black text-outline uppercase tracking-[0.2em] ml-1">Phone Number</label>
+                  <input id="in-phone" class="w-full bg-surface-container-low border border-outline-variant/10 rounded-2xl py-5 px-8 text-on-surface focus:ring-1 focus:ring-primary transition-all" value="${formData.phone}" placeholder="812 xxxx xxxx" />
+               </div>
+               <div class="space-y-3">
+                  <label class="text-[10px] font-black text-outline uppercase tracking-[0.2em] ml-1">Service Category</label>
+                  <select id="in-category" class="w-full bg-surface-container-low border border-outline-variant/10 rounded-2xl py-5 px-8 text-on-surface focus:ring-1 focus:ring-primary transition-all">
+                     <option ${formData.category === 'Premium Barber' ? 'selected' : ''}>Premium Barber</option>
+                     <option ${formData.category === 'Classic Cut' ? 'selected' : ''}>Classic Cut</option>
+                     <option ${formData.category === 'Express Cut' ? 'selected' : ''}>Express Cut</option>
+                  </select>
+               </div>
+               <div class="md:col-span-2 flex justify-between pt-8 border-t border-outline-variant/10">
+                  <button type="button" class="px-8 py-4 text-xs font-black text-outline uppercase tracking-widest hover:text-on-surface transition-all" onclick="loadMasterData()">Cancel Process</button>
+                  <button type="submit" class="px-10 py-4 bg-primary text-on-primary font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-primary/20 hover:-translate-y-1 transition-all text-xs flex items-center gap-2">
+                     Next Module
+                     <span class="material-symbols-outlined text-lg">arrow_forward</span>
+                  </button>
+               </div>
+            </form>
+          </div>
+        `;
+
+        contentArea.querySelector('#add-store-step1').onsubmit = (e) => {
+          e.preventDefault();
+          formData.name = contentArea.querySelector('#in-name').value;
+          formData.address = contentArea.querySelector('#in-address').value;
+          formData.phone = contentArea.querySelector('#in-phone').value;
+          formData.category = contentArea.querySelector('#in-category').value;
+          currentStep = 2;
+          updateView();
+        };
+      } else {
+        contentArea.innerHTML = `
+          <div class="w-full max-w-5xl space-y-12 fade-in">
+            <section class="flex justify-between items-end">
+               <div>
+                  <p class="text-[10px] font-bold text-primary uppercase tracking-[0.3em] mb-3 italic">STEP 02 / 02</p>
+                  <h2 class="text-4xl font-extrabold font-headline tracking-tight text-on-surface uppercase italic tracking-tighter">Protocol Selection</h2>
+                  <p class="text-on-surface-variant mt-2 max-w-xl">Pilih paket layanan (Tier) yang akan diaktifkan untuk instance ini.</p>
+               </div>
+               <div class="w-32 h-1.5 bg-surface-container rounded-full overflow-hidden">
+                  <div class="h-full bg-primary shadow-[0_0_10px_rgba(246,202,34,0.5)]" style="width: 100%"></div>
+               </div>
+            </section>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+               ${plans.map(p => `
+                  <div class="plan-card bg-surface-container-low p-8 rounded-3xl border-2 transition-all cursor-pointer group hover:shadow-2xl ${formData.plan_id === p.id ? 'border-primary bg-primary/5 shadow-2xl' : 'border-outline-variant/10 hover:border-primary/40'}" data-id="${p.id}">
+                     <div class="flex justify-between items-start mb-6">
+                        <div class="w-10 h-10 bg-surface-container rounded-xl flex items-center justify-center text-outline group-hover:text-primary transition-colors">
+                           <span class="material-symbols-outlined">${p.name === 'Enterprise' ? 'rocket_launch' : 'terminal'}</span>
+                        </div>
+                        ${formData.plan_id === p.id ? '<span class="material-symbols-outlined text-primary">verified</span>' : ''}
+                     </div>
+                     <h4 class="text-xl font-black text-on-surface uppercase tracking-tight mb-2">${p.name}</h4>
+                     <p class="text-2xl font-black text-on-surface mb-6">Rp ${(p.price/1000).toLocaleString()}k <span class="text-[10px] text-outline italic">/ mo</span></p>
+                     <ul class="space-y-3 mb-8 opacity-60 group-hover:opacity-100 transition-opacity">
+                        <li class="flex items-center gap-2 text-[10px] font-bold text-outline uppercase italic">
+                           <span class="w-1 h-1 rounded-full bg-primary"></span>
+                           Uplink Capacity Alpha
+                        </li>
+                        <li class="flex items-center gap-2 text-[10px] font-bold text-outline uppercase italic">
+                           <span class="w-1 h-1 rounded-full bg-primary"></span>
+                           Core Data Layer v3
+                        </li>
+                     </ul>
+                  </div>
+               `).join('')}
+            </div>
+
+            <div class="flex justify-between pt-12 border-t border-outline-variant/10">
+               <button type="button" class="px-8 py-4 text-xs font-black text-outline uppercase tracking-widest hover:text-on-surface transition-all flex items-center gap-2" onclick="currentStep = 1; updateView()">
+                  <span class="material-symbols-outlined text-lg">arrow_back</span>
+                  Identity Module
+               </button>
+               <button id="submit-relay-btn" class="px-12 py-5 bg-primary text-on-primary font-black uppercase tracking-[0.3em] rounded-2xl shadow-2xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all text-xs flex items-center gap-3">
+                  Authorize Deployment
+                  <span class="material-symbols-outlined">bolt</span>
+               </button>
+            </div>
+          </div>
+        `;
+
+        contentArea.querySelectorAll('.plan-card').forEach(card => {
+          card.onclick = () => {
+            formData.plan_id = card.dataset.id;
+            updateView();
+          };
+        });
+
+        contentArea.querySelector('#submit-relay-btn').onclick = async () => {
+          const btn = contentArea.querySelector('#submit-relay-btn');
+          btn.innerHTML = '<span class="material-symbols-outlined animate-spin">refresh</span> Provisioning...';
+          btn.disabled = true;
+
+          try {
+            const { data: ud, error: ue } = await supabase.auth.getUser();
+            if (ue) throw ue;
+            const uid = ud.user?.id;
+            const slug = formData.name.toLowerCase().replace(/[^a-z0-9]/g, '-') + '-' + Math.floor(Math.random() * 1000);
+
+            const { data: newShop, error } = await supabase.from('shops').insert([{
+              name: formData.name,
+              slug: slug,
+              address: `${formData.address} (Telp: ${formData.phone})`,
+              category: formData.category,
+              status: 'active',
+              plan_id: formData.plan_id,
+              owner_id: uid
+            }]).select().single();
+
+            if (error) throw error;
+
+            // Record initial billing
+            const plan = plans.find(p => p.id === formData.plan_id);
+            await supabase.from('subscription_history').insert([{
+              shop_id: newShop.id,
+              plan_id: formData.plan_id,
+              amount: plan?.price || 0,
+              billing_cycle: 'monthly',
+              payment_method: 'admin_manual',
+              status: 'paid',
+              end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+            }]);
+
+            showToast('Node Authorised & Relay Deployed successfully.', 'success');
+            activeTab = 'stores';
+            loadMasterData();
+          } catch (err) {
+            showToast('Deployment Failed: ' + err.message, 'danger');
+            btn.innerHTML = 'Authorize Deployment <span class="material-symbols-outlined">bolt</span>';
+            btn.disabled = false;
+          }
+        };
+      }
+    }
+
+    updateView();
+  }
+
 }
