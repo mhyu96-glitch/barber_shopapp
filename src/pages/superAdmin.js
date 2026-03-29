@@ -19,18 +19,41 @@ export async function renderSuperAdmin(container) {
   let plansData = [];
   let historyData = [];
 
-  // Theme Initializer
+  // Theme Initializer - Force Clean Slate
   function initTheme() {
+    // 1. Kill global sidebar and its footprint
     const globalSidebar = document.getElementById('sidebar');
-    if (globalSidebar) globalSidebar.style.display = 'none';
+    if (globalSidebar) {
+      globalSidebar.style.display = 'none';
+      globalSidebar.setAttribute('aria-hidden', 'true');
+    }
+    
+    // 2. Kill sidebar toggle (mobile)
+    const mobileToggle = document.querySelector('.sidebar-toggle');
+    if (mobileToggle) mobileToggle.style.display = 'none';
+
+    // 3. Reset main content constraints
     const mainContent = document.getElementById('main-content');
     if (mainContent) {
       mainContent.style.marginLeft = '0';
-      mainContent.style.width = '100%';
+      mainContent.style.padding = '0';
+      mainContent.style.width = '100vw';
+      mainContent.style.minWidth = '100%';
     }
     
-    document.body.className = '';
-    document.body.classList.add('bg-[#131313]', 'text-[#E5E2E1]', 'font-body', 'min-h-screen');
+    // 4. Reset page-container padding
+    const container = document.getElementById('page-container');
+    if (container) {
+      container.style.padding = '0';
+      container.style.maxWidth = '100%';
+    }
+
+    // 5. Apply SuperAdmin Body Overrides
+    document.body.style.overflowX = 'hidden';
+    document.body.className = 'bg-[var(--bg-main)] text-[var(--text-main)] font-body custom-scrollbar';
+    
+    const savedTheme = localStorage.getItem('master-admin-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
   }
 
   // Real-time Event Hub
@@ -99,42 +122,42 @@ export async function renderSuperAdmin(container) {
         body { background-color: var(--bg-main); color: var(--text-main); transition: background-color 0.3s, color 0.3s; }
       </style>
 
-      <!-- Sidebar -->
-      <aside class="w-64 fixed left-0 top-0 h-screen bg-[var(--bg-main)] border-r border-[var(--border-main)] z-50 flex flex-col p-6 overflow-hidden">
-        <div class="flex items-center gap-4 mb-16 px-2">
-            <div class="w-10 h-10 bg-[var(--border-main)] rounded-xl flex items-center justify-center border border-[var(--border-main)] group-hover:scale-110 transition-transform">
-                <span class="material-symbols-outlined text-[var(--primary)] font-black" style="font-variation-settings: 'FILL' 1;">widgets</span>
+      <!-- Atelier Navigation Protocol -->
+      <aside class="w-72 fixed left-0 top-0 h-screen bg-[var(--bg-main)] border-r border-[var(--border-main)] z-[100] flex flex-col p-8 overflow-hidden">
+        <div class="flex items-center gap-5 mb-20 px-2 group cursor-pointer" onclick="window.location.hash='super-admin'">
+            <div class="w-12 h-12 bg-[var(--primary)]/10 rounded-2xl flex items-center justify-center border border-[var(--primary)]/40 group-hover:neon-card-yellow transition-all duration-500">
+                <span class="material-symbols-outlined text-[var(--primary)] font-black text-2xl" style="font-variation-settings: 'FILL' 1;">widgets</span>
             </div>
             <div>
-              <h1 class="text-xl font-black font-headline tracking-tighter text-[var(--text-main)] leading-none">Barber<span class="text-[var(--primary)] italic">Pro</span></h1>
-              <p class="text-[8px] text-[var(--text-muted)] font-bold uppercase tracking-[0.2em] mt-1">Atelier 3.0 Master</p>
+              <h1 class="text-2xl font-black font-headline tracking-tighter text-[var(--text-main)] leading-none italic">Barber<span class="text-[var(--primary)]">Pro</span></h1>
+              <p class="text-[9px] text-[var(--text-muted)] font-black uppercase tracking-[0.4em] mt-2 italic">Atelier 3.0 Master</p>
             </div>
         </div>
 
-        <nav class="flex-1 space-y-1 text-sm font-bold">
-            <a href="#" class="sidebar-link flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all ${activeTab === 'dashboard' ? 'active-tab' : 'text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--border-main)]'}" data-tab="dashboard">
-                <span class="material-symbols-outlined scale-90">dashboard</span> <span class="tracking-tight text-[11px] uppercase">Dashboard</span>
+        <nav class="flex-1 space-y-2 text-sm font-bold">
+            <a href="#" class="sidebar-link flex items-center gap-5 px-6 py-4 rounded-2xl transition-all duration-300 ${activeTab === 'dashboard' ? 'active-tab scale-[1.02]' : 'text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-secondary)]'}" data-tab="dashboard">
+                <span class="material-symbols-outlined text-xl">dashboard_customize</span> <span class="tracking-[0.2em] text-[10px] uppercase font-black">Dashboard</span>
             </a>
-            <a href="#" class="sidebar-link flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all ${activeTab === 'stores' ? 'active-tab' : 'text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--border-main)]'}" data-tab="stores">
-                <span class="material-symbols-outlined scale-90">storefront</span> <span class="tracking-tight text-[11px] uppercase">Shops</span>
+            <a href="#" class="sidebar-link flex items-center gap-5 px-6 py-4 rounded-2xl transition-all duration-300 ${activeTab === 'stores' ? 'active-tab scale-[1.02]' : 'text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-secondary)]'}" data-tab="stores">
+                <span class="material-symbols-outlined text-xl">account_tree</span> <span class="tracking-[0.2em] text-[10px] uppercase font-black">Manajemen Unit</span>
             </a>
-            <a href="#" class="sidebar-link flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all ${activeTab === 'reports' ? 'active-tab' : 'text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--border-main)]'}" data-tab="reports">
-                <span class="material-symbols-outlined scale-90">insert_chart</span> <span class="tracking-tight text-[11px] uppercase">Reports</span>
+            <a href="#" class="sidebar-link flex items-center gap-5 px-6 py-4 rounded-2xl transition-all duration-300 ${activeTab === 'reports' ? 'active-tab scale-[1.02]' : 'text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-secondary)]'}" data-tab="reports">
+                <span class="material-symbols-outlined text-xl">monitoring</span> <span class="tracking-[0.2em] text-[10px] uppercase font-black">Laporan Global</span>
             </a>
-            <a href="#" class="sidebar-link flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all ${activeTab === 'settings' ? 'active-tab' : 'text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--border-main)]'}" data-tab="settings">
-                <span class="material-symbols-outlined scale-90">settings</span> <span class="tracking-tight text-[11px] uppercase">Settings</span>
+            <a href="#" class="sidebar-link flex items-center gap-5 px-6 py-4 rounded-2xl transition-all duration-300 ${activeTab === 'settings' ? 'active-tab scale-[1.02]' : 'text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-secondary)]'}" data-tab="settings">
+                <span class="material-symbols-outlined text-xl">admin_panel_settings</span> <span class="tracking-[0.2em] text-[10px] uppercase font-black">Konfigurasi</span>
             </a>
         </nav>
 
-        <div class="mt-auto pt-6 border-t border-[var(--border-main)]">
-            <button id="master-logout-btn" class="w-full flex items-center gap-4 px-4 py-3 text-[var(--text-muted)] hover:text-rose-500 transition-colors text-[10px] font-black uppercase tracking-widest">
-              <span class="material-symbols-outlined text-sm">logout</span> Sign Out
+        <div class="mt-auto pt-8 border-t border-[var(--border-main)]">
+            <button id="master-logout-btn" class="w-full flex items-center gap-5 px-6 py-4 text-[var(--text-muted)] hover:text-rose-500 transition-all text-[10px] font-black uppercase tracking-[0.3em] italic">
+              <span class="material-symbols-outlined text-lg">logout</span> Keluar Sistem
             </button>
         </div>
       </aside>
 
-      <!-- Content Area -->
-      <div class="flex-1 ml-64 min-h-screen bg-[var(--bg-main)]">
+      <!-- Protocol Viewport -->
+      <div class="flex-1 ml-72 min-h-screen bg-[var(--bg-main)] flex flex-col">
           <!-- Topbar -->
           <header class="h-20 flex justify-between items-center px-12 sticky top-0 z-40 bg-[var(--bg-main)]/80 backdrop-blur-xl border-b border-[var(--border-main)]">
               <div class="flex items-center gap-4">

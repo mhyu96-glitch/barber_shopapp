@@ -7,6 +7,18 @@ import { storage } from '../utils/storage.js';
 import { showToast } from './toast.js';
 
 export function renderSidebar(container) {
+  // 🛡️ Master Redirect: Prevent global sidebar from rendering in SuperAdmin Dashboard
+  if (window.location.hash === '#super-admin') {
+    container.style.display = 'none';
+    const mainContent = document.getElementById('main-content');
+    if (mainContent) {
+      mainContent.style.marginLeft = '0';
+      mainContent.style.padding = '0';
+    }
+    return;
+  }
+  
+  container.style.display = 'flex'; // Reset display if coming from SuperAdmin
   const todayAppointments = getTodayAppointmentCount();
   const pendingPortal = getPendingPortalCount();
   const settings = storage.get('settings', {});
