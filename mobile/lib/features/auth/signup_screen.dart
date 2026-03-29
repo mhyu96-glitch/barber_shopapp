@@ -30,7 +30,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     try {
       await SupabaseService.signUp(
         _usernameController.text.trim(),
-        _passwordController.text.trim(),
+        _passwordController.text,
         _nameController.text.trim(),
         _selectedRole,
       );
@@ -77,6 +77,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
               controller: _usernameController,
               decoration: _inputDecoration("Username", Icons.person_outline),
               style: const TextStyle(color: Colors.white),
+              autocorrect: false,
+              enableSuggestions: false,
+              textCapitalization: TextCapitalization.none,
+              keyboardType: TextInputType.visiblePassword,
             ),
             const SizedBox(height: 16),
             TextField(
@@ -84,6 +88,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
               obscureText: true,
               decoration: _inputDecoration("Password", Icons.lock_outline),
               style: const TextStyle(color: Colors.white),
+              autocorrect: false,
+              enableSuggestions: false,
             ),
             const SizedBox(height: 24),
             const Text("Role Pengguna", style: TextStyle(color: Colors.white70, fontWeight: FontWeight.bold)),

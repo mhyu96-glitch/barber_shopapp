@@ -246,6 +246,14 @@ export function renderSettings(container) {
               <button class="btn btn-secondary btn-sm" id="apply-custom-color">Apply Custom</button>
             </div>
           </div>
+
+          <div class="card-section" style="border-top: 1px solid var(--border); padding-top: 16px; margin-top: 16px;">
+            <div class="card-section-title">Manual Sync</div>
+            <button class="btn btn-secondary btn-block" id="sync-tier-btn" style="border: 1px dashed var(--accent);">
+              <i class="fas fa-sync-alt"></i> Sync Paket Berlangganan
+            </button>
+            <p class="text-[10px] text-muted mt-xs italic">Gunakan ini jika fitur paket Anda belum terupdate setelah pembayaran.</p>
+          </div>
         </div>
 
         <!-- Happy Hour Settings -->
@@ -410,17 +418,40 @@ export function renderSettings(container) {
     
     // Sync to Supabase so the isolated online portal can see it!
     try {
-        const { supabase } = await import('../utils/supabaseClient.js');
-        const dbRow = { portal_accent: color };
+        const { supabase: sb } = await import('../utils/supabaseClient.js');
         const shopId = storage.get('shopId');
         if (shopId) {
-            await supabase.from('settings').update(dbRow).eq('shop_id', shopId);
+            showToast('Sinkronisasi tema ke cloud...', 'info');
+            const { error } = await sb.from('settings')
+              .update({ portal_accent: color })
+              .eq('shop_id', shopId);
+              
+            if (error) throw error;
+            showToast(`Tema portal diperbarui: ${color}`, 'success');
         }
-    } catch(e) { console.warn('Supabase sync theme error', e) }
+    } catch(e) { 
+      console.warn('Supabase sync theme error', e);
+      showToast('Gagal sinkron ke cloud. Perubahan hanya tersimpan lokal.', 'warning');
+    }
     
-    import('../components/toast.js').then(m => m.showToast(`Tema portal diperbarui: ${color}`, 'success'));
     renderSettings(container);
   };
+
+  container.querySelector('#sync-tier-btn')?.addEventListener('click', async (e) => {
+    const btn = e.currentTarget;
+    const original = btn.innerHTML;
+    try {
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-sync-alt animate-spin"></i> Syncing...';
+      await storage.syncFromSupabase();
+      showToast('Status paket & fitur berhasil disinkronisasi!', 'success');
+      setTimeout(() => location.reload(), 1000);
+    } catch (err) {
+      showToast('Gagal sinkronisasi: ' + err.message, 'danger');
+      btn.disabled = false;
+      btn.innerHTML = original;
+    }
+  });
 
   container.querySelector('#apply-custom-color')?.addEventListener('click', () => {
     const color = container.querySelector('#custom-portal-color').value;
@@ -428,10 +459,20 @@ export function renderSettings(container) {
   });
 
   // Language Handler
-  window.__setLanguage = (lang) => {
+  window.__setLanguage = async (lang) => {
     const sets = storage.get('settings', {});
     sets.language = lang;
     storage.set('settings', sets);
+    
+    // Sync language to cloud
+    try {
+      const { supabase: sb } = await import('../utils/supabaseClient.js');
+      const shopId = storage.get('shopId');
+      if (shopId) {
+        await sb.from('settings').update({ language: lang }).eq('shop_id', shopId);
+      }
+    } catch(e) {}
+
     showToast(`Bahasa diatur ke: ${lang === 'id' ? 'Indonesia' : 'English'}`, 'success');
     renderSettings(container);
   };

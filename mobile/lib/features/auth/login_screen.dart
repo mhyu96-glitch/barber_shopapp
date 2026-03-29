@@ -210,40 +210,45 @@ class _LoginScreenState extends State<LoginScreen> {
                                 const SizedBox(height: 32),
                                 
                                 // Username
+                                // Username
                                 const Padding(
                                   padding: EdgeInsets.only(left: 4, bottom: 8),
                                   child: Text(
-                                    "USERNAME",
+                                    "IDENTITY / USERNAME",
                                     style: TextStyle(
                                       fontFamily: 'Inter',
                                       fontSize: 10,
-                                      fontWeight: FontWeight.w500,
-                                      letterSpacing: 1.0,
-                                      color: Color(0xFFD0C5AF),
+                                      fontWeight: FontWeight.w700,
+                                      letterSpacing: 1.5,
+                                      color: Color(0xFFD4AF37),
                                     ),
                                   ),
                                 ),
                                 TextField(
                                   controller: _usernameController,
-                                  style: const TextStyle(color: Color(0xFFE5E2E1)),
+                                  style: const TextStyle(color: Color(0xFFE5E2E1), fontWeight: FontWeight.bold),
+                                  keyboardType: TextInputType.visiblePassword, // Disables most autocorrect
+                                  autocorrect: false,
+                                  enableSuggestions: false,
+                                  textCapitalization: TextCapitalization.none,
                                   decoration: InputDecoration(
                                     hintText: 'Enter your username',
-                                    hintStyle: const TextStyle(color: Colors.white24),
-                                    prefixIcon: const Icon(Icons.person_outline_rounded, color: Color(0xFFD0C5AF), size: 20),
+                                    hintStyle: const TextStyle(color: Colors.white10),
+                                    prefixIcon: const Icon(Icons.person_outline_rounded, color: Color(0xFFD4AF37), size: 20),
                                     filled: true,
                                     fillColor: const Color(0xFF0E0E0E),
-                                    contentPadding: const EdgeInsets.symmetric(vertical: 20),
-                                    border: const UnderlineInputBorder(
-                                      borderSide: BorderSide(color: Color(0x804D4635)),
-                                      borderRadius: BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8)),
+                                    contentPadding: const EdgeInsets.symmetric(vertical: 22, horizontal: 16),
+                                    border: OutlineInputBorder(
+                                      borderSide: const BorderSide(color: Color(0x3399907C)),
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
-                                    enabledBorder: const UnderlineInputBorder(
-                                      borderSide: BorderSide(color: Color(0x804D4635)),
-                                      borderRadius: BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8)),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: const BorderSide(color: Color(0x3399907C)),
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
-                                    focusedBorder: const UnderlineInputBorder(
-                                      borderSide: BorderSide(color: Color(0xFFD4AF37), width: 2),
-                                      borderRadius: BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8)),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: const BorderSide(color: Color(0xFFD4AF37), width: 1.5),
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
                                   ),
                                 ),
@@ -256,23 +261,22 @@ class _LoginScreenState extends State<LoginScreen> {
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       const Text(
-                                        "PASSWORD",
+                                        "SECURITY PROTOCOL",
                                         style: TextStyle(
                                           fontFamily: 'Inter',
                                           fontSize: 10,
-                                          fontWeight: FontWeight.w500,
-                                          letterSpacing: 1.0,
-                                          color: Color(0xFFD0C5AF),
+                                          fontWeight: FontWeight.w700,
+                                          letterSpacing: 1.5,
+                                          color: Color(0xFFD4AF37),
                                         ),
                                       ),
                                       Text(
-                                        "FORGOT PASSWORD?",
+                                        "RECOVER ACCESS?",
                                         style: TextStyle(
                                           fontFamily: 'Inter',
                                           fontSize: 10,
-                                          fontWeight: FontWeight.w500,
-                                          letterSpacing: 0.5,
-                                          color: const Color(0xFF99907C).withOpacity(0.8),
+                                          fontWeight: FontWeight.w600,
+                                          color: const Color(0xFF99907C).withOpacity(0.6),
                                         ),
                                       ),
                                     ],
@@ -281,34 +285,53 @@ class _LoginScreenState extends State<LoginScreen> {
                                 TextField(
                                   controller: _passwordController,
                                   obscureText: true,
-                                  style: const TextStyle(color: Color(0xFFE5E2E1)),
+                                  autocorrect: false,
+                                  enableSuggestions: false,
+                                  textCapitalization: TextCapitalization.none,
+                                  style: const TextStyle(color: Color(0xFFE5E2E1), letterSpacing: 3.0),
                                   decoration: InputDecoration(
                                     hintText: '••••••••',
-                                    hintStyle: const TextStyle(color: Colors.white24),
-                                    prefixIcon: const Icon(Icons.lock_outline_rounded, color: Color(0xFFD0C5AF), size: 20),
+                                    hintStyle: const TextStyle(color: Colors.white10, letterSpacing: 0),
+                                    prefixIcon: const Icon(Icons.lock_outline_rounded, color: Color(0xFFD4AF37), size: 20),
                                     filled: true,
                                     fillColor: const Color(0xFF0E0E0E),
-                                    contentPadding: const EdgeInsets.symmetric(vertical: 20),
-                                    border: const UnderlineInputBorder(
-                                      borderSide: BorderSide(color: Color(0x804D4635)),
-                                      borderRadius: BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8)),
+                                    contentPadding: const EdgeInsets.symmetric(vertical: 22, horizontal: 16),
+                                    border: OutlineInputBorder(
+                                      borderSide: const BorderSide(color: Color(0x3399907C)),
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
-                                    enabledBorder: const UnderlineInputBorder(
-                                      borderSide: BorderSide(color: Color(0x804D4635)),
-                                      borderRadius: BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8)),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: const BorderSide(color: Color(0x3399907C)),
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
-                                    focusedBorder: const UnderlineInputBorder(
-                                      borderSide: BorderSide(color: Color(0xFFD4AF37), width: 2),
-                                      borderRadius: BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8)),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: const BorderSide(color: Color(0xFFD4AF37), width: 1.5),
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
                                   ),
                                 ),
                                 
                                 if (_errorMessage != null) ...[
                                   const SizedBox(height: 16),
-                                  Text(
-                                    _errorMessage!,
-                                    style: const TextStyle(color: Color(0xFFFFB4AB), fontSize: 13),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0x1AFFB4AB),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(color: const Color(0x33FFB4AB)),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const Icon(Icons.error_outline, color: Color(0xFFFFB4AB), size: 16),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            _errorMessage!,
+                                            style: const TextStyle(color: Color(0xFFFFB4AB), fontSize: 12, fontWeight: FontWeight.w500),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                                 
@@ -317,9 +340,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 // Submit Button
                                 Container(
                                   width: double.infinity,
-                                  height: 56,
+                                  height: 64,
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8),
+                                    borderRadius: BorderRadius.circular(12),
                                     gradient: const LinearGradient(
                                       colors: [Color(0xFFFFD700), Color(0xFFD4AF37)],
                                       begin: Alignment.topLeft,
@@ -327,9 +350,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: const Color(0xFFD4AF37).withOpacity(0.2),
-                                        blurRadius: 12,
-                                        offset: const Offset(0, 4),
+                                        color: const Color(0xFFD4AF37).withOpacity(0.35),
+                                        blurRadius: 24,
+                                        offset: const Offset(0, 8),
                                       ),
                                     ],
                                   ),
@@ -338,41 +361,51 @@ class _LoginScreenState extends State<LoginScreen> {
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.transparent,
                                       shadowColor: Colors.transparent,
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                     ),
                                     child: _isLoading
                                         ? const SizedBox(
-                                            height: 20,
-                                            width: 20,
-                                            child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF412D00)))
-                                        : const Text(
-                                            "SIGN IN TO ATELIER",
-                                            style: TextStyle(
-                                              fontFamily: 'Epilogue',
-                                              fontWeight: FontWeight.bold,
-                                              color: Color(0xFF412D00),
-                                              fontSize: 14,
-                                              letterSpacing: 0.5,
-                                            ),
+                                            height: 24,
+                                            width: 24,
+                                            child: CircularProgressIndicator(strokeWidth: 3, color: Color(0xFF412D00)))
+                                        : const Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                "ACCESS ATELIER",
+                                                style: TextStyle(
+                                                  fontFamily: 'Epilogue',
+                                                  fontWeight: FontWeight.w900,
+                                                  color: Color(0xFF412D00),
+                                                  fontSize: 14,
+                                                  letterSpacing: 2.0,
+                                                ),
+                                              ),
+                                              SizedBox(width: 8),
+                                              Icon(Icons.chevron_right, color: Color(0xFF412D00)),
+                                            ],
                                           ),
                                   ),
                                 ),
                                 
-                                const SizedBox(height: 40),
-                                const Divider(color: Color(0x4D4D4635)),
-                                const SizedBox(height: 24),
+                                const SizedBox(height: 48),
+                                const Divider(color: Color(0x1A99907C)),
+                                const SizedBox(height: 32),
                                 
                                 Center(
-                                  child: RichText(
-                                    text: const TextSpan(
-                                      text: "New to the studio? ",
-                                      style: TextStyle(color: Color(0xFFD0C5AF), fontSize: 12),
-                                      children: [
-                                        TextSpan(
-                                          text: "Contact Administration",
-                                          style: TextStyle(color: Color(0xFFD4AF37), fontWeight: FontWeight.bold),
-                                        )
-                                      ]
+                                  child: TextButton(
+                                    onPressed: () {},
+                                    child: RichText(
+                                      text: const TextSpan(
+                                        text: "New Operator? ",
+                                        style: TextStyle(color: Color(0xFFD0C5AF), fontSize: 12),
+                                        children: [
+                                          TextSpan(
+                                            text: "CONTACT ADMINISTRATION",
+                                            style: TextStyle(color: Color(0xFFD4AF37), fontWeight: FontWeight.w900, fontSize: 11, letterSpacing: 0.5),
+                                          )
+                                        ]
+                                      ),
                                     ),
                                   ),
                                 )
@@ -383,18 +416,19 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 48),
                     
                     // Footer
                     const Text(
-                      "© 2024 BarberPro Studio. The Private Atelier Experience.",
+                      "BARBERPRO STUDIO v2.4\n© 2024 THE PRIVATE ATELIER EXPERIENCE.",
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: 'Inter',
-                        fontSize: 10,
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: 1.0,
-                        color: Color(0x9999907C),
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 2.0,
+                        color: Color(0x4D99907C),
+                        height: 2.0,
                       ),
                     ),
                   ],
