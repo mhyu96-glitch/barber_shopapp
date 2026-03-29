@@ -8,8 +8,26 @@ export function renderLogin(container) {
   document.getElementById('main-content').style.marginLeft = '0';
   document.getElementById('main-content').style.width = '100%';
 
-  // Set the specific fonts required and body classes manually
-  document.body.classList.add('bg-[#131313]', 'font-body', 'text-[#e5e2e1]', 'selection:bg-[#D4AF37]/30');
+  // Dynamically load Tailwind CSS if not present
+  if (!document.getElementById('tailwind-cdn')) {
+    const twScript = document.createElement('script');
+    twScript.id = 'tailwind-cdn';
+    twScript.src = 'https://cdn.tailwindcss.com';
+    document.head.appendChild(twScript);
+  }
+
+  // Dynamically load Google Fonts if not present
+  if (!document.getElementById('atelier-fonts')) {
+    const fontLink = document.createElement('link');
+    fontLink.id = 'atelier-fonts';
+    fontLink.rel = 'stylesheet';
+    fontLink.href = 'https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap';
+    document.head.appendChild(fontLink);
+  }
+
+  // Clean up existing global styles that might conflict
+  document.body.className = '';
+  document.body.classList.add('bg-[#131313]', 'text-[#e5e2e1]', 'selection:bg-[#D4AF37]/30');
   
   container.innerHTML = `
 <style>
