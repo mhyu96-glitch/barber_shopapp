@@ -58,8 +58,10 @@ export async function renderSuperAdmin(container) {
         .font-headline { font-family: 'Outfit', sans-serif; }
         .glass { background: rgba(28, 27, 27, 0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
         .gold-gradient { background: linear-gradient(135deg, #f6ca22 0%, #d4af37 100%); }
-        .active-tab { background-color: #353534; color: #f6ca22 !important; border-right: 3px solid #f6ca22; }
-        .active-tab span { color: #f6ca22; font-variation-settings: 'FILL' 1; }
+        .neon-glow { box-shadow: 0 0 20px rgba(246, 202, 34, 0.2), inset 0 0 10px rgba(246, 202, 34, 0.1); }
+        .text-glow { text-shadow: 0 0 10px rgba(246, 202, 34, 0.3); }
+        .active-tab { background-color: #353534; color: #f6ca22 !important; border-right: 4px solid #f6ca22; box-shadow: inset -10px 0 20px -10px rgba(246, 202, 34, 0.1); }
+        .active-tab span { color: #f6ca22; font-variation-settings: 'FILL' 1; filter: drop-shadow(0 0 5px rgba(246, 202, 34, 0.5)); }
         .fade-in { animation: fadeIn 0.4s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .custom-scrollbar::-webkit-scrollbar { width: 5px; }
@@ -204,40 +206,42 @@ export async function renderSuperAdmin(container) {
       <div class="space-y-10 fade-in">
           <!-- Bento Grid Header -->
           <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div class="col-span-1 md:col-span-2 gold-gradient p-10 rounded-[2.5rem] text-black shadow-2xl relative overflow-hidden group">
+              <div class="col-span-1 md:col-span-2 gold-gradient p-12 rounded-[3.5rem] text-black shadow-[0_20px_50px_rgba(246,202,34,0.15)] relative overflow-hidden group neon-glow">
                   <div class="relative z-10">
-                      <p class="text-black/60 text-[10px] font-black uppercase tracking-[0.3em] italic">Cumulative Ecosystem Revenue</p>
-                      <h3 class="text-6xl font-black font-headline mt-3 tracking-tighter tabular-nums">Rp ${(globalRevenue/1000000).toFixed(1)}M</h3>
-                      <div class="mt-8 flex items-center gap-3 text-xs font-black uppercase tracking-widest bg-black/5 w-fit px-4 py-2 rounded-full">
-                          <span class="material-symbols-outlined text-sm">trending_up</span>
+                      <p class="text-black/60 text-[10px] font-black uppercase tracking-[0.4em] italic mb-2">Cumulative Ecosystem Revenue</p>
+                      <h3 class="text-7xl font-black font-headline tracking-tighter tabular-nums drop-shadow-sm">Rp ${(globalRevenue/1000000).toFixed(1)}M</h3>
+                      <div class="mt-8 flex items-center gap-3 text-[10px] font-black uppercase tracking-widest bg-black/10 w-fit px-5 py-2.5 rounded-2xl">
+                          <span class="material-symbols-outlined text-sm font-black">trending_up</span>
                           <span>Stable Node Growth Active</span>
                       </div>
                   </div>
-                  <span class="material-symbols-outlined absolute -right-6 -bottom-6 text-[180px] opacity-10 font-thin transition-transform group-hover:scale-110 group-hover:-rotate-12 duration-700">payments</span>
+                  <span class="material-symbols-outlined absolute -right-6 -bottom-6 text-[220px] opacity-10 font-thin transition-transform group-hover:scale-110 group-hover:-rotate-12 duration-1000">payments</span>
               </div>
 
-              <div class="bg-[#1C1B1B] p-10 rounded-[2.5rem] border border-white/5 flex flex-col justify-between group hover:border-primary/20 transition-all shadow-xl">
-                  <div class="flex justify-between items-start">
-                      <div class="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center text-primary border border-white/5 transition-colors group-hover:bg-primary/10">
-                          <span class="material-symbols-outlined text-3xl">storefront</span>
+              <div class="bg-[#1C1B1B] p-12 rounded-[3.5rem] border border-white/5 flex flex-col justify-between group hover:border-primary/20 transition-all shadow-2xl relative overflow-hidden">
+                  <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                  <div class="flex justify-between items-start relative z-10">
+                      <div class="w-16 h-16 bg-white/5 rounded-3xl flex items-center justify-center text-primary border border-white/5 transition-all group-hover:scale-110 group-hover:bg-primary/10">
+                          <span class="material-symbols-outlined text-4xl">storefront</span>
                       </div>
-                      <span class="text-[9px] font-black text-emerald-400 bg-emerald-400/10 px-4 py-1.5 rounded-full border border-emerald-400/20 uppercase tracking-[0.2em] leading-none">Healthy</span>
+                      <span class="text-[9px] font-black text-emerald-400 bg-emerald-400/10 px-4 py-2 rounded-full border border-emerald-400/20 uppercase tracking-[0.3em] leading-none">Healthy</span>
                   </div>
-                  <div>
-                      <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1.5">Total Unit Bisnis</p>
-                      <h4 class="text-4xl font-black font-headline text-white tracking-tight tabular-nums">${shopsData.length} <span class="text-xs text-gray-600 font-bold uppercase ml-1">Nodes</span></h4>
+                  <div class="relative z-10">
+                      <p class="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-2">Total Unit Bisnis</p>
+                      <h4 class="text-5xl font-black font-headline text-white tracking-tight tabular-nums">${shopsData.length} <span class="text-xs text-gray-600 font-bold uppercase ml-1 italic tracking-widest">Nodes</span></h4>
                   </div>
               </div>
 
-              <div class="bg-[#1C1B1B] p-10 rounded-[2.5rem] border border-white/5 flex flex-col justify-between group hover:border-primary/20 transition-all shadow-xl">
-                  <div class="flex justify-between items-start">
-                      <div class="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center text-rose-500 border border-white/5 transition-colors group-hover:bg-rose-500/10">
-                          <span class="material-symbols-outlined text-3xl">bolt</span>
+              <div class="bg-[#1C1B1B] p-12 rounded-[3.5rem] border border-white/5 flex flex-col justify-between group hover:border-rose-500/20 transition-all shadow-2xl relative overflow-hidden">
+                  <div class="absolute inset-0 bg-gradient-to-br from-rose-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                  <div class="flex justify-between items-start relative z-10">
+                      <div class="w-16 h-16 bg-white/5 rounded-3xl flex items-center justify-center text-rose-500 border border-white/5 transition-all group-hover:scale-110 group-hover:bg-rose-500/10">
+                          <span class="material-symbols-outlined text-4xl">bolt</span>
                       </div>
                   </div>
-                  <div>
-                      <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1.5">Menunggu Otorisasi</p>
-                      <h4 class="text-4xl font-black font-headline text-rose-500 tracking-tight tabular-nums">${shopsData.filter(s => s.status === 'trial').length} <span class="text-xs text-gray-600 font-bold uppercase ml-1 italic">Trial</span></h4>
+                  <div class="relative z-10">
+                      <p class="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-2">Menunggu Otorisasi</p>
+                      <h4 class="text-5xl font-black font-headline text-rose-500 tracking-tight tabular-nums">${shopsData.filter(s => s.status === 'trial').length} <span class="text-xs text-gray-600 font-bold uppercase ml-1 italic tracking-widest">Trial</span></h4>
                   </div>
               </div>
           </div>
@@ -245,80 +249,93 @@ export async function renderSuperAdmin(container) {
           <!-- Analysis Section -->
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <!-- Global Revenue Growth Chart -->
-              <div class="col-span-1 lg:col-span-2 bg-[#1C1B1B] p-10 rounded-[2.5rem] border border-white/5 flex flex-col min-h-[480px] shadow-2xl relative overflow-hidden">
-                  <div class="flex justify-between items-center mb-12">
+              <div class="col-span-1 lg:col-span-2 bg-[#1C1B1B] p-12 rounded-[3.5rem] border border-white/5 flex flex-col min-h-[520px] shadow-2xl relative overflow-hidden group">
+                  <div class="absolute inset-0 bg-gradient-to-t from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
+                  <div class="flex justify-between items-center mb-16 relative z-10">
                       <div>
-                        <h4 class="text-xs font-black text-white uppercase tracking-widest italic border-l-2 border-primary pl-4">Metrik Pertumbuhan Arus Kas</h4>
-                        <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1 pl-4">Last 180 Days Ecosystem Traffic</p>
+                        <h4 class="text-xs font-black text-white uppercase tracking-[0.4em] italic border-l-4 border-primary pl-5 text-glow">Metrik Pertumbuhan Arus Kas</h4>
+                        <p class="text-[10px] text-gray-500 font-black uppercase tracking-[0.3em] mt-2 pl-5">Real-time Ecosystem Traffic Analytics</p>
                       </div>
-                      <div class="flex gap-2 text-[10px] font-black">
-                          <button class="px-5 py-2.5 gold-gradient rounded-xl text-black shadow-lg shadow-primary/20 scale-105">ANALYTICS ENGINE</button>
+                      <div class="flex gap-3 text-[10px] font-black">
+                          <button class="px-6 py-3 gold-gradient rounded-2xl text-black shadow-[0_10px_30px_rgba(246,202,34,0.3)] hover:scale-105 transition-all italic tracking-widest">ANALYTICS ENGINE</button>
                       </div>
                   </div>
                   
-                  <div class="flex-1 flex items-end gap-4 px-2 pb-6 relative">
+                  <div class="flex-1 flex items-end gap-5 px-4 mb-10 relative">
                       <!-- Grid Lines -->
-                      <div class="absolute inset-0 flex flex-col justify-between opacity-5 py-6">
-                        <div class="border-t border-white border-dashed w-full"></div>
-                        <div class="border-t border-white border-dashed w-full"></div>
-                        <div class="border-t border-white border-dashed w-full"></div>
-                        <div class="border-t border-white border-dashed w-full"></div>
+                      <div class="absolute inset-0 flex flex-col justify-between opacity-[0.03] py-10">
+                        <div class="border-t-2 border-white border-dashed w-full"></div>
+                        <div class="border-t-2 border-white border-dashed w-full"></div>
+                        <div class="border-t-2 border-white border-dashed w-full"></div>
+                        <div class="border-t-2 border-white border-dashed w-full"></div>
                       </div>
 
-                      <!-- SVG Area Chart -->
-                      <div class="absolute inset-0 px-2 py-6 overflow-hidden">
-                        <svg class="w-full h-full" viewBox="0 0 400 100" preserveAspectRatio="none">
+                      <!-- SVG Liquid Area Chart -->
+                      <div class="absolute inset-0 px-4 py-10 overflow-hidden mix-blend-screen">
+                        <svg class="w-full h-full" viewBox="0 0 1000 100" preserveAspectRatio="none">
                           <defs>
-                            <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="0%" stop-color="#f6ca22" stop-opacity="0.3"></stop>
+                            <linearGradient id="liquidGrad" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stop-color="#f6ca22" stop-opacity="0.4"></stop>
                               <stop offset="100%" stop-color="#f6ca22" stop-opacity="0"></stop>
                             </linearGradient>
+                            <filter id="glow">
+                              <feGaussianBlur stdDeviation="3" result="coloredBlur"></feGaussianBlur>
+                              <feMerge>
+                                <feMergeNode in="coloredBlur"></feMergeNode>
+                                <feMergeNode in="SourceGraphic"></feMergeNode>
+                              </feMerge>
+                            </filter>
                           </defs>
-                          <path d="M0,100 L0,70 Q50,40 100,50 T200,30 T300,45 T400,10 L400,100 Z" fill="url(#areaGrad)"></path>
-                          <path d="M0,70 Q50,40 100,50 T200,30 T300,45 T400,10" fill="none" stroke="#f6ca22" stroke-width="2" vector-effect="non-scaling-stroke"></path>
+                          <path d="M0,100 C150,80 250,95 400,60 C550,25 650,55 800,20 C900,10 1000,40 1000,100 Z" fill="url(#liquidGrad)"></path>
+                          <path d="M0,80 C150,60 250,75 400,40 C550,5 650,35 800,0 C900,-10 1000,20" fill="none" stroke="#f6ca22" stroke-width="3" filter="url(#glow)" vector-effect="non-scaling-stroke" stroke-linecap="round"></path>
                         </svg>
                       </div>
 
-                      <!-- Chart Mock Bars (Optional fallback) -->
-                      <div class="flex-1 bg-white/5 rounded-t-xl h-[45%] hover:bg-primary/20 transition-all z-10"></div>
-                      <div class="flex-1 bg-white/5 rounded-t-xl h-[65%] hover:bg-primary/20 transition-all z-10"></div>
-                      <div class="flex-1 bg-white/5 rounded-t-xl h-[55%] hover:bg-primary/20 transition-all z-10"></div>
-                      <div class="flex-1 bg-white/5 rounded-t-xl h-[85%] hover:bg-primary/20 transition-all z-10"></div>
-                      <div class="flex-1 gold-gradient rounded-t-xl h-[98%] shadow-[0_0_30px_rgba(246,202,34,0.3)] z-10"></div>
-                      <div class="flex-1 bg-white/5 rounded-t-xl h-[75%] hover:bg-primary/20 transition-all z-10"></div>
+                      <!-- Highlight Bar (Mockup Style) -->
+                      <div class="flex-1 h-[45%] bg-white/5 rounded-2xl z-10 hover:bg-white/10 transition-all"></div>
+                      <div class="flex-1 h-[65%] bg-white/5 rounded-2xl z-10 hover:bg-white/10 transition-all"></div>
+                      <div class="flex-1 h-[55%] bg-white/5 rounded-2xl z-10 hover:bg-white/10 transition-all"></div>
+                      <div class="flex-1 h-[85%] bg-white/5 rounded-2xl z-10 hover:bg-white/10 transition-all"></div>
+                      <div class="flex-1 h-[100%] gold-gradient rounded-2xl z-20 shadow-[0_0_40px_rgba(246,202,34,0.4)] relative">
+                          <div class="absolute -top-12 left-1/2 -translate-x-1/2 bg-white text-black text-[9px] font-black px-3 py-1.5 rounded-lg whitespace-nowrap shadow-xl">PK PERFORMANCE</div>
+                      </div>
+                      <div class="flex-1 h-[75%] bg-white/5 rounded-2xl z-10 hover:bg-white/10 transition-all"></div>
                   </div>
-                  <div class="grid grid-cols-6 mt-6 px-2 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] text-center border-t border-white/5 pt-6">
-                      <span>Januari</span><span>Februari</span><span>Maret</span><span>April</span><span>Mei</span><span>Juni</span>
+                  <div class="grid grid-cols-6 mt-6 px-4 text-[10px] font-black text-gray-500 uppercase tracking-[0.4em] text-center border-t border-white/5 pt-8 relative z-10">
+                      <span>JAN</span><span>FEB</span><span>MAR</span><span>APR</span><span>MEI</span><span>JUN</span>
                   </div>
               </div>
 
               <!-- Tier Popularity Section -->
-              <div class="bg-[#1C1B1B] p-10 rounded-[2.5rem] border border-white/5 flex flex-col justify-between shadow-2xl">
-                  <div>
-                      <h4 class="text-xs font-black text-white uppercase tracking-widest mb-10 border-l-2 border-primary pl-4 italic">Platform Tier Matrix</h4>
-                      <div class="space-y-10">
+              <div class="bg-[#1C1B1B] p-12 rounded-[3.5rem] border border-white/5 flex flex-col justify-between shadow-2xl relative overflow-hidden">
+                  <div class="absolute -left-20 -bottom-20 w-60 h-60 bg-primary/5 rounded-full blur-[80px]"></div>
+                  <div class="relative z-10">
+                      <h4 class="text-xs font-black text-white uppercase tracking-[0.4em] mb-12 border-l-4 border-primary pl-5 italic text-glow">Platform Tier Matrix</h4>
+                      <div class="space-y-12">
                           ${plansData.map(p => {
                             const count = shopsData.filter(s => s.plan_id === p.id).length;
                             const pct = Math.round((count / (shopsData.length || 1)) * 100);
+                            const pColor = p.name === 'Enterprise' ? 'gold-gradient' : (p.name === 'Premium' ? 'bg-white/40' : 'bg-white/10');
                             return `
                               <div>
-                                  <div class="flex justify-between text-[11px] font-black uppercase mb-3 px-1">
-                                      <span class="text-gray-400 tracking-widest">${p.name} <span class="text-[9px] italic opacity-40 ml-2">Tier</span></span>
-                                      <span class="text-white">${count} Units <span class="text-primary opacity-50 ml-1">(${pct}%)</span></span>
+                                  <div class="flex justify-between text-[11px] font-black uppercase mb-4 px-1 group cursor-default">
+                                      <span class="text-gray-500 tracking-widest group-hover:text-white transition-colors">${p.name} <span class="text-[9px] italic opacity-40 ml-2 group-hover:text-primary transition-colors">TIER</span></span>
+                                      <span class="text-white">${count} UNITS <span class="text-primary opacity-50 ml-1 tracking-tighter">(${pct}%)</span></span>
                                   </div>
-                                  <div class="h-2 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
-                                      <div class="h-full ${p.name === 'Enterprise' ? 'gold-gradient' : 'bg-white/20'} transition-all duration-1000" style="width: ${pct}%"></div>
+                                  <div class="h-2.5 w-full bg-black/40 rounded-full overflow-hidden border border-white/5 p-[1px]">
+                                      <div class="h-full ${pColor} rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(255,255,255,0.05)]" style="width: ${pct}%"></div>
                                   </div>
                               </div>
                             `;
                           }).join('')}
                       </div>
                   </div>
-                  <div class="mt-12 p-6 bg-white/5 rounded-3xl border border-white/5">
-                      <p class="text-[10px] font-black text-primary uppercase tracking-widest mb-2 flex items-center gap-2">
-                        <span class="material-symbols-outlined text-sm">info</span> insight sistem
+                  <div class="mt-16 p-8 bg-white/[0.03] rounded-[2rem] border border-white/10 relative group overflow-hidden">
+                      <div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                      <p class="text-[11px] font-black text-primary uppercase tracking-[0.3em] mb-3 flex items-center gap-2 italic relative z-10">
+                        <span class="material-symbols-outlined text-sm font-black animate-pulse">info</span> insight sistem
                       </p>
-                      <p class="text-[10px] text-gray-500 font-bold leading-relaxed uppercase">Paket ${plansData[1]?.name || 'Premium'} menunjukkan konversi tertinggi (65%) dalam 30 hari terakhir. Pertimbangkan penambahan kuota barber di tier ini.</p>
+                      <p class="text-[10px] text-gray-500 font-bold leading-relaxed uppercase tracking-wider relative z-10">Paket ${plansData[1]?.name || 'Premium'} menunjukkan konversi tertinggi (65%) dalam 30 hari terakhir. Optimasi kuota barber disarankan.</p>
                   </div>
               </div>
           </div>
