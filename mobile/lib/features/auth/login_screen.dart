@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/app_state.dart';
 import '../../core/supabase_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../navigation/main_navigation.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -30,7 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final response = await SupabaseService.signIn(
         _usernameController.text.trim(),
-        _passwordController.text.trim(),
+        _passwordController.text,
       );
 
       if (response.user != null) {
@@ -66,7 +67,11 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       }
     } catch (e) {
-      setState(() => _errorMessage = "Email atau Password salah.");
+      if (e is AuthException) {
+        setState(() => _errorMessage = "Login gagal: ${e.message}");
+      } else {
+        setState(() => _errorMessage = "Koneksi gagal atau error: ${e.toString()}");
+      }
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
