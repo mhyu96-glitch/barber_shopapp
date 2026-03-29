@@ -124,7 +124,6 @@ export async function renderSuperAdmin(container) {
         </div>
       </aside>
 
-      <!-- TopAppBar Shell -->
       <header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 z-40 bg-[#131313] dark:bg-[#131313]/90 backdrop-blur-md">
         <div class="flex items-center justify-between px-8 w-full h-full border-b border-outline-variant/10">
           <div class="flex items-center gap-4 flex-1">
@@ -137,13 +136,14 @@ export async function renderSuperAdmin(container) {
             </button>
           </div>
           <div class="flex items-center gap-6">
-            <div class="flex flex-col items-center justify-center -mr-2">
-              <div class="flex gap-1">
-                <div class="w-2 h-2 rounded-full bg-primary/70 animate-pulse"></div>
-                <div class="w-2 h-2 rounded-full bg-primary animate-pulse" style="animation-delay: 150ms"></div>
-                <div class="w-2 h-2 rounded-full bg-primary/40 animate-pulse" style="animation-delay: 300ms"></div>
-              </div>
-              <span class="text-[8px] text-primary tracking-widest mt-1">LIVE</span>
+            <div class="flex items-center gap-4 text-on-surface-variant mr-4">
+              <button class="hover:text-primary cursor-pointer transition-colors relative">
+                <span class="material-symbols-outlined">notifications</span>
+                <span class="absolute top-0 right-0 w-2 h-2 bg-primary rounded-full border-2 border-background"></span>
+              </button>
+              <button class="hover:text-primary cursor-pointer transition-colors">
+                <span class="material-symbols-outlined">help_outline</span>
+              </button>
             </div>
             <div class="h-8 w-[1px] bg-outline-variant/30"></div>
             <div class="flex items-center gap-3">
