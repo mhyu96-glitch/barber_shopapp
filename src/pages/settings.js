@@ -403,11 +403,22 @@ export function renderSettings(container) {
   });
 
   // Portal Theme Handlers
-  window.__setPortalTheme = (color) => {
+  window.__setPortalTheme = async (color) => {
     const sets = storage.get('settings', {});
     sets.portalAccent = color;
     storage.set('settings', sets);
-    showToast(`Tema portal diperbarui: ${color}`, 'success');
+    
+    // Sync to Supabase so the isolated online portal can see it!
+    try {
+        const { supabase } = await import('../utils/supabaseClient.js');
+        const dbRow = { portal_accent: color };
+        const shopId = storage.get('shopId');
+        if (shopId) {
+            await supabase.from('settings').update(dbRow).eq('shop_id', shopId);
+        }
+    } catch(e) { console.warn('Supabase sync theme error', e) }
+    
+    import('../components/toast.js').then(m => m.showToast(`Tema portal diperbarui: ${color}`, 'success'));
     renderSettings(container);
   };
 

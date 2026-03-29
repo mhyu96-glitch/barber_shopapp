@@ -80,21 +80,17 @@ export async function renderSuperAdmin(container) {
             </div>
           </div>
           <nav class="flex flex-col py-6 gap-2 px-4 flex-grow" id="master-nav">
-            <a href="#" class="sidebar-link ${activeTab === 'overview' ? 'active' : ''} text-[#d0c5af] flex items-center gap-3 px-4 py-3 rounded-sm font-medium transition-all" data-tab="overview">
-              <span class="material-symbols-outlined" data-fill="1">dashboard</span>
-              <span>Overview</span>
-            </a>
-            <a href="#" class="sidebar-link ${activeTab === 'tenants' ? 'active' : ''} text-[#d0c5af] flex items-center gap-3 px-4 py-3 hover:bg-[#282933] hover:text-[#f2ca50] rounded-sm transition-all" data-tab="tenants">
-              <span class="material-symbols-outlined" data-fill="${activeTab === 'tenants' ? 1 : 0}">storefront</span>
-              <span>Tenants</span>
+            <a href="#" class="sidebar-link ${activeTab === 'overview' ? 'active' : ''} text-[#d0c5af] flex items-center gap-3 px-4 py-3 hover:bg-[#282933] hover:text-[#f2ca50] rounded-sm transition-all" data-tab="overview">
+              <span class="material-symbols-outlined" data-fill="${activeTab === 'overview' ? 1 : 0}">dashboard</span>
+              <span>Beranda</span>
             </a>
             <a href="#" class="sidebar-link ${activeTab === 'revenue' ? 'active' : ''} text-[#d0c5af] flex items-center gap-3 px-4 py-3 hover:bg-[#282933] hover:text-[#f2ca50] rounded-sm transition-all" data-tab="revenue">
               <span class="material-symbols-outlined" data-fill="${activeTab === 'revenue' ? 1 : 0}">payments</span>
-              <span>Revenue</span>
+              <span>Laporan</span>
             </a>
-            <a href="#" class="sidebar-link ${activeTab === 'plans' ? 'active' : ''} text-[#d0c5af] flex items-center gap-3 px-4 py-3 hover:bg-[#282933] hover:text-[#f2ca50] rounded-sm transition-all" data-tab="plans">
-              <span class="material-symbols-outlined" data-fill="${activeTab === 'plans' ? 1 : 0}">hourglass_empty</span>
-              <span>Plans & Features</span>
+            <a href="#" class="sidebar-link ${activeTab === 'settings' ? 'active' : ''} text-[#d0c5af] flex items-center gap-3 px-4 py-3 hover:bg-[#282933] hover:text-[#f2ca50] rounded-sm transition-all" data-tab="settings">
+              <span class="material-symbols-outlined" data-fill="${activeTab === 'settings' ? 1 : 0}">settings</span>
+              <span>Pengaturan Master</span>
             </a>
           </nav>
           <div class="p-6 border-t border-outline-variant/10">
@@ -214,14 +210,12 @@ export async function renderSuperAdmin(container) {
         );
       }
 
-      if (activeTab === 'overview' || activeTab === 'tenants') {
-        renderShopsTab(contentArea, shops, plans, globalPayments, globalAppts, activeTab === 'overview');
+      if (activeTab === 'overview') {
+        renderOverviewTab(contentArea, shops, plans, globalPayments, globalAppts);
       } else if (activeTab === 'revenue') {
-        renderRevenueTab(contentArea, shops, plans);
-      } else if (activeTab === 'plans') {
-        renderPlansTab(contentArea, plans);
-      } else if (activeTab === 'analytics') {
-        renderAnalyticsTab(contentArea, shops, globalPayments, globalAppts);
+        renderRevenueTab(contentArea, shops, plans, globalPayments, globalAppts);
+      } else if (activeTab === 'settings') {
+        renderSettingsTab(contentArea, plans);
       }
 
     } catch (err) {
@@ -257,14 +251,7 @@ export async function renderSuperAdmin(container) {
     return date.toLocaleDateString('id-ID');
   }
 
-  function renderShopsTab(contentArea, shops, plans, payments, appointments, isOverview = false) {
-    const criticalShops = shops.filter(s => {
-      if (s.status !== 'trial' && s.status !== 'active') return false;
-      if (!s.trial_end_date) return false;
-      const daysLeft = Math.ceil((new Date(s.trial_end_date) - new Date()) / (1000 * 60 * 60 * 24));
-      return daysLeft >= 0 && daysLeft <= 3;
-    });
-
+  function renderOverviewTab(contentArea, shops, plans, payments, appointments) {
     const activeShops = shops.filter(s => s.status === 'active');
     const trialShops = shops.filter(s => s.status === 'trial');
     const mrr = activeShops.reduce((sum, shop) => {
@@ -273,99 +260,70 @@ export async function renderSuperAdmin(container) {
     }, 0);
 
     contentArea.innerHTML = `
-      <!-- Hero Header Section -->
-      ${isOverview ? `
       <section class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 fade-in">
         <div>
-          <h2 class="text-4xl font-extrabold font-headline tracking-tight text-on-surface mb-2">Master Control Center</h2>
-          <p class="text-on-surface-variant max-w-xl font-medium">Welcome back, Director. You are currently overseeing ${shops.length} active global nodes and monitoring revenue streams.</p>
-        </div>
-        <div class="flex items-center gap-3">
-          <button id="add-shop-btn-hero" class="px-6 py-2.5 rounded-lg gold-gradient text-on-primary font-bold flex items-center gap-2 shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
-            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add_circle</span>
-            <span>New Tenant</span>
-          </button>
+          <h2 class="text-4xl font-extrabold font-headline tracking-tight text-on-surface mb-2">Pusat Kendali Master</h2>
+          <p class="text-on-surface-variant max-w-xl font-medium">Ringkasan performa platform. Anda mengelola ${shops.length} toko aktif.</p>
         </div>
       </section>
-      ` : ''}
-
-      ${criticalShops.length > 0 ? `
-        <div class="bg-primary/5 border border-primary/20 rounded-xl p-4 mb-8 flex items-center justify-between text-primary fade-in">
-          <div class="flex items-center gap-3 font-medium">
-            <span class="material-symbols-outlined">warning</span>
-            <span><strong>Urgent Warning:</strong> ${criticalShops.length} tenants have critical active periods (< 3 days).</span>
-          </div>
-          <button class="hover:bg-primary/10 p-1 rounded-lg transition-colors" onclick="this.parentElement.remove()">
-            <span class="material-symbols-outlined text-sm">close</span>
-          </button>
-        </div>
-      ` : ''}
 
       <!-- Metrics Grid -->
-      <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 fade-in">
-        <div class="bg-surface-container p-8 rounded-lg relative overflow-hidden group border border-white/5">
-          <div class="absolute top-0 left-0 w-1 h-full bg-primary/40"></div>
-          <div class="flex justify-between items-start mb-4">
-            <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
-              <span class="material-symbols-outlined text-3xl">payments</span>
-            </div>
-            <span class="text-[10px] font-bold text-primary px-2 py-1 bg-primary/10 rounded uppercase tracking-wider">Estimated MRR</span>
-          </div>
-          <h3 class="text-3xl font-black font-headline text-on-surface tracking-tighter">Rp ${mrr.toLocaleString('id-ID')}</h3>
-          <div class="mt-4 flex items-center gap-2 text-xs font-medium text-on-surface-variant">
-            <span class="text-primary flex items-center gap-1">
-              <span class="material-symbols-outlined text-sm">trending_up</span> 100%
-            </span>
-            <span>Health Status</span>
-          </div>
+      <section class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12 fade-in">
+        <div class="bg-surface-container p-6 rounded-xl border border-white/5 shadow-xl relative overflow-hidden group">
+          <div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
+          <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2 text-primary">Estimasi MRR</p>
+          <h4 class="text-3xl font-black font-headline tracking-tighter">Rp ${(mrr/1000000).toFixed(2)}M</h4>
         </div>
-        <div class="bg-surface-container p-8 rounded-lg relative overflow-hidden group border border-white/5">
-          <div class="absolute top-0 left-0 w-1 h-full bg-emerald-500/40"></div>
-          <div class="flex justify-between items-start mb-4">
-            <div class="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-400">
-              <span class="material-symbols-outlined text-3xl">group</span>
-            </div>
-            <span class="text-[10px] font-bold text-emerald-400 px-2 py-1 bg-emerald-500/10 rounded uppercase tracking-wider">Active Tenants</span>
-          </div>
-          <h3 class="text-3xl font-black font-headline text-on-surface tracking-tighter">${activeShops.length}</h3>
-          <div class="mt-4 flex items-center gap-2 text-xs font-medium text-on-surface-variant">
-            <span>Operational Nodes</span>
-          </div>
+        <div class="bg-surface-container p-6 rounded-xl border border-white/5 shadow-xl relative overflow-hidden">
+          <div class="absolute top-0 left-0 w-1 h-full bg-emerald-400"></div>
+          <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2 text-emerald-400">Total Toko</p>
+          <h4 class="text-3xl font-black font-headline tracking-tighter">${shops.length} Node</h4>
         </div>
-        <div class="bg-surface-container p-8 rounded-lg relative overflow-hidden group border border-white/5">
-          <div class="absolute top-0 left-0 w-1 h-full bg-blue-400/40"></div>
-          <div class="flex justify-between items-start mb-4">
-            <div class="w-12 h-12 bg-blue-400/10 rounded-xl flex items-center justify-center text-blue-400">
-              <span class="material-symbols-outlined text-3xl">hourglass_bottom</span>
-            </div>
-            <span class="text-[10px] font-bold text-blue-400 px-2 py-1 bg-blue-400/10 rounded uppercase tracking-wider">Trials</span>
-          </div>
-          <h3 class="text-3xl font-black font-headline text-on-surface tracking-tighter">${trialShops.length}</h3>
-          <div class="mt-4 flex items-center gap-2 text-xs font-medium text-on-surface-variant">
-            <span>In-funnel Prospects</span>
-          </div>
+        <div class="bg-surface-container p-6 rounded-xl border border-white/5 shadow-xl relative overflow-hidden">
+          <div class="absolute top-0 left-0 w-1 h-full bg-blue-400"></div>
+          <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2 text-blue-400">Traffic Global</p>
+          <h4 class="text-3xl font-black font-headline tracking-tighter">${appointments.length} Sess</h4>
+        </div>
+        <div class="bg-surface-container p-6 rounded-xl border border-white/5 shadow-xl relative overflow-hidden">
+          <div class="absolute top-0 left-0 w-1 h-full bg-white"></div>
+          <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2 text-white">System Uptime</p>
+          <h4 class="text-3xl font-black font-headline tracking-tighter">99.9%</h4>
+        </div>
+      </section>
+
+      <!-- Tiers Snapshot -->
+      <section class="mb-12 fade-in">
+        <h4 class="text-xl font-bold font-headline text-on-surface mb-6">Paket Langganan (Tiers)</h4>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          ${plans.map(p => {
+             const count = activeShops.filter(s => s.plan_id === p.id).length;
+             return `
+              <div class="bg-surface-container rounded-2xl border border-white/5 p-6 hover:border-primary/30 transition-all">
+                <div class="flex justify-between items-center mb-4">
+                  <p class="text-xs font-black text-primary uppercase tracking-[0.2em]">${p.name}</p>
+                  <span class="text-xs font-bold bg-white/5 px-2 py-1 rounded-sm">${count} Toko</span>
+                </div>
+                <h3 class="text-2xl font-black font-headline text-white mb-2 tracking-tighter">
+                  Rp ${(p.price / 1000).toLocaleString()}k <span class="text-[10px] text-on-surface-variant font-medium tracking-normal">/ mo</span>
+                </h3>
+              </div>
+            `;
+          }).join('')}
         </div>
       </section>
 
       <!-- Tenant Management Section -->
-      <section class="bg-surface-container rounded-xl p-1 fade-in border border-white/5 shadow-2xl">
+      <section class="bg-surface-container rounded-2xl p-1 fade-in border border-white/5 shadow-2xl">
         <div class="p-8">
           <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
             <div>
-              <h4 class="text-xl font-bold font-headline text-on-surface">Tenant Management</h4>
-              <p class="text-sm text-on-surface-variant font-medium">Managing your global network of barber shop franchises.</p>
+              <h4 class="text-xl font-bold font-headline text-on-surface">Daftar Toko (Tenants)</h4>
+              <p class="text-sm text-on-surface-variant font-medium">Manajemen jaringan barbershop yang terdaftar di platform.</p>
             </div>
-            <div class="flex items-center gap-4">
-              <p class="text-[10px] uppercase tracking-widest text-outline font-bold bg-white/5 px-3 py-1.5 rounded text-on-surface-variant">
-                Total: ${shops.length} registered
-              </p>
-              ${!isOverview ? `
-                <button id="add-shop-btn-table" class="px-4 py-2 rounded-lg gold-gradient text-on-primary font-bold text-xs flex items-center gap-2 hover:brightness-110 active:scale-95 transition-all">
-                  <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">add_circle</span>
-                  <span>New Tenant</span>
-                </button>
-              ` : ''}
-            </div>
+            <button id="add-shop-btn-table" class="px-5 py-2.5 rounded-lg gold-gradient text-on-primary font-bold text-xs flex items-center gap-2 hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-primary/20">
+              <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+              <span>Daftar Toko Baru</span>
+            </button>
           </div>
           <div class="overflow-x-auto">
             <table class="w-full text-left border-separate border-spacing-y-2">
@@ -374,19 +332,17 @@ export async function renderSuperAdmin(container) {
                   <th class="px-6 py-3">Tenant Identity</th>
                   <th class="px-6 py-3">Identifier (Slug)</th>
                   <th class="px-6 py-3">Status</th>
-                  <th class="px-6 py-3 text-right">Operational Actions</th>
+                  <th class="px-6 py-3 text-right">Aksi</th>
                 </tr>
               </thead>
               <tbody class="text-sm">
-                ${shops.map((shop, index) => {
-                  const plan = plans?.find(p => p.id === shop.plan_id);
+                ${shops.map((shop) => {
                   const statusColors = {
                     'active': 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
                     'trial': 'bg-blue-400/10 text-blue-400 border-blue-400/20',
                     'expired': 'bg-red-400/10 text-red-400 border-red-400/20',
                     'deactivated': 'bg-gray-400/10 text-gray-400 border-gray-400/20'
                   };
-
                   return `
                    <tr class="group hover:bg-white/5 transition-all duration-300">
                     <td class="bg-surface-container-low px-6 py-5 first:rounded-l-lg border-y border-l border-white/5">
@@ -396,7 +352,7 @@ export async function renderSuperAdmin(container) {
                         </div>
                         <div>
                           <p class="font-bold text-on-surface cursor-pointer hover:text-primary transition-colors" onclick="window.handleShopDetail('${shop.id}')">${shop.name}</p>
-                          <p class="text-[10px] text-on-surface-variant font-medium">Registered: ${getTimeAgo(shop.created_at)}</p>
+                          <p class="text-[10px] text-on-surface-variant font-medium">Aktif: ${getTimeAgo(shop.created_at)}</p>
                         </div>
                       </div>
                     </td>
@@ -432,13 +388,13 @@ export async function renderSuperAdmin(container) {
       </section>
     `;
 
-    // Re-bind listeners
     contentArea.querySelectorAll('.manage-btn').forEach(btn => btn.onclick = () => handleManageShop(btn.dataset.id, plans));
     contentArea.querySelectorAll('.delete-shop-btn').forEach(btn => btn.onclick = () => handleDeleteShop(btn.dataset.id));
     contentArea.querySelector('#add-shop-btn-hero')?.addEventListener('click', () => renderAddShopModal(container));
     contentArea.querySelector('#add-shop-btn-table')?.addEventListener('click', () => renderAddShopModal(container));
   }
-  function renderRevenueTab(contentArea, shops, plans) {
+
+  function renderRevenueTab(contentArea, shops, plans, payments, appointments) {
     const activeShops = shops.filter(s => s.status === 'active');
     const mrrHistory = activeShops.map(s => {
       const p = plans?.find(pl => pl.id === s.plan_id);
@@ -448,36 +404,34 @@ export async function renderSuperAdmin(container) {
 
     contentArea.innerHTML = `
       <section class="grid grid-cols-1 lg:grid-cols-2 gap-8 fade-in">
-        <!-- Revenue Trajectory Chart Mockup -->
         <div class="bg-surface-container p-8 rounded-xl border border-white/5 min-h-[400px] flex flex-col shadow-2xl">
           <div class="flex justify-between items-start mb-10">
             <div>
-              <h5 class="text-lg font-bold font-headline text-on-surface">Revenue Trajectory</h5>
-              <p class="text-sm text-on-surface-variant font-medium">Monthly growth across all global nodes</p>
+              <h5 class="text-lg font-bold font-headline text-on-surface">Grafik Pendapatan Platform</h5>
+              <p class="text-sm text-on-surface-variant font-medium">Akumulasi biaya langganan toko bulanan.</p>
             </div>
             <div class="px-3 py-1 bg-emerald-500/10 text-emerald-400 text-[10px] font-bold rounded-full border border-emerald-500/20 uppercase tracking-widest">
-              +24% Growth
+              +MRR Growth
             </div>
           </div>
           <div class="flex-grow flex items-end gap-3 px-4">
-            <div class="w-full bg-primary/10 h-[40%] rounded-t-lg group relative transition-all hover:bg-primary/20"></div>
-            <div class="w-full bg-primary/20 h-[55%] rounded-t-lg group relative transition-all hover:bg-primary/30"></div>
+            <div class="w-full bg-primary/10 h-[20%] rounded-t-lg group relative transition-all hover:bg-primary/20"></div>
+            <div class="w-full bg-primary/20 h-[30%] rounded-t-lg group relative transition-all hover:bg-primary/30"></div>
             <div class="w-full bg-primary/30 h-[45%] rounded-t-lg group relative transition-all hover:bg-primary/40"></div>
             <div class="w-full bg-primary/40 h-[70%] rounded-t-lg group relative transition-all hover:bg-primary/50"></div>
-            <div class="w-full bg-primary/50 h-[65%] rounded-t-lg group relative transition-all hover:bg-primary/60"></div>
+            <div class="w-full bg-primary/50 h-[85%] rounded-t-lg group relative transition-all hover:bg-primary/60"></div>
             <div class="w-full gold-gradient h-[100%] rounded-t-lg group relative shadow-[0_0_30px_rgba(242,202,80,0.15)] hover:brightness-110 transition-all">
               <div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-surface-container-high border border-primary/30 px-3 py-1.5 rounded-lg text-[10px] font-black text-primary shadow-xl whitespace-nowrap">Rp ${ (totalMRR/1000000).toFixed(1) }M Total</div>
             </div>
           </div>
           <div class="flex justify-between mt-6 text-[10px] text-on-surface-variant font-bold uppercase tracking-widest px-2">
-            <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
+            <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Bulan Ini</span>
           </div>
         </div>
 
-        <!-- Node Composition & MRR List -->
         <div class="flex flex-col gap-6">
           <div class="bg-surface-container p-8 rounded-xl border border-white/5 shadow-xl flex-grow">
-            <h5 class="text-lg font-bold font-headline mb-6">Tenant Subscription Split</h5>
+            <h5 class="text-lg font-bold font-headline mb-6">Distribusi Tier Toko</h5>
             <div class="space-y-4">
               ${plans.map(p => {
                 const count = activeShops.filter(s => s.plan_id === p.id).length;
@@ -499,28 +453,16 @@ export async function renderSuperAdmin(container) {
               }).join('')}
             </div>
           </div>
-
-          <div class="bg-surface-container p-6 rounded-xl border border-white/5 shadow-xl">
-            <div class="flex justify-between items-center">
-              <div>
-                <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Global MRR Score</p>
-                <p class="text-3xl font-black font-headline text-primary mt-1">Rp ${totalMRR.toLocaleString('id-ID')}</p>
-              </div>
-              <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary">
-                <span class="material-symbols-outlined">payments</span>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
     `;
   }
 
-  function renderPlansTab(contentArea, plans) {
+  function renderSettingsTab(contentArea, plans) {
     contentArea.innerHTML = `
       <section class="mb-12 text-center fade-in">
-        <h2 class="text-4xl font-black font-headline tracking-tighter text-on-surface mb-3 uppercase italic">SaaS Node Constraints</h2>
-        <p class="text-on-surface-variant max-w-2xl mx-auto font-medium">Configuring feature permissions and operational limits for multi-tenant isolation.</p>
+        <h2 class="text-4xl font-black font-headline tracking-tighter text-on-surface mb-3 uppercase italic">Konfigurasi Sistem Global</h2>
+        <p class="text-on-surface-variant max-w-2xl mx-auto font-medium">Kelola fitur dan batasan operasional untuk setiap tier langganan di platform multi-tenant anda.</p>
       </section>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 fade-in">
@@ -530,7 +472,7 @@ export async function renderSuperAdmin(container) {
               <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl group-hover:bg-primary/10 transition-all"></div>
               <p class="text-xs font-black text-primary uppercase tracking-[0.4em] mb-4">${p.name}</p>
               <h3 class="text-4xl font-black font-headline text-white mb-2 tracking-tighter">
-                Rp ${(p.price / 1000).toLocaleString()}k <span class="text-sm text-on-surface-variant font-medium tracking-normal">/ mo</span>
+                Rp ${(p.price / 1000).toLocaleString()}k
               </h3>
             </div>
             
@@ -542,7 +484,7 @@ export async function renderSuperAdmin(container) {
                 </div>
                 <div class="flex items-center gap-3 text-sm text-gray-300">
                   <span class="material-symbols-outlined text-primary text-xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-                  <span>Max <strong>${p.max_branches || '∞'}</strong> Linked Nodes</span>
+                  <span>Max <strong>${p.max_branches || '∞'}</strong> Kedai Cabang</span>
                 </div>
                 <div class="h-[1px] bg-white/5 my-6"></div>
                 ${(() => {
@@ -564,57 +506,12 @@ export async function renderSuperAdmin(container) {
             <div class="p-8 bg-black/20 border-t border-white/5 mt-auto">
               <button onclick="window.handleEditPlan('${p.id}')" class="w-full py-4 bg-surface-container-high hover:bg-primary/10 hover:text-primary text-white font-black uppercase tracking-widest rounded-xl border border-white/10 transition-all flex items-center justify-center gap-3 text-xs">
                 <span class="material-symbols-outlined text-lg">settings_suggest</span>
-                <span>Configure Logic</span>
+                <span>Edit Fitur Paket</span>
               </button>
             </div>
           </div>
         `).join('')}
       </div>
-    `;
-  }
-
-  function renderAnalyticsTab(contentArea, shops, payments, appointments) {
-    const activeCount = shops.filter(s => s.status === 'active').length;
-    const totalRevenue = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
-
-    contentArea.innerHTML = `
-      <section class="fade-in">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-           <div class="bg-surface-container p-6 rounded-xl border border-white/5 shadow-xl">
-              <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-[0.2em] mb-2 text-primary">Platform Reach</p>
-              <h4 class="text-3xl font-black font-headline">${activeCount} Nodes</h4>
-           </div>
-           <div class="bg-surface-container p-6 rounded-xl border border-white/5 shadow-xl">
-              <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-[0.2em] mb-2 text-emerald-400">Total Capture</p>
-              <h4 class="text-3xl font-black font-headline">Rp ${(totalRevenue/1000000).toFixed(1)}M</h4>
-           </div>
-           <div class="bg-surface-container p-6 rounded-xl border border-white/5 shadow-xl">
-              <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-[0.2em] mb-2 text-blue-400">Global Traffic</p>
-              <h4 class="text-3xl font-black font-headline">${appointments.length} Sess</h4>
-           </div>
-           <div class="bg-surface-container p-6 rounded-xl border border-white/5 shadow-xl">
-              <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-[0.2em] mb-2 text-primary">System Uptime</p>
-              <h4 class="text-3xl font-black font-headline">99.9%</h4>
-           </div>
-        </div>
-
-        <!-- System Map Mockup -->
-        <div class="bg-surface-container p-12 rounded-3xl border border-white/5 shadow-2xl relative overflow-hidden min-h-[500px] flex flex-col items-center justify-center text-center">
-          <div class="absolute inset-0 opacity-[0.03] pointer-events-none" style="background-image: radial-gradient(#f2ca50 1px, transparent 1px); background-size: 40px 40px;"></div>
-          <div class="relative z-10">
-            <div class="w-32 h-32 bg-primary/10 rounded-full flex items-center justify-center text-primary mb-8 animate-pulse mx-auto">
-              <span class="material-symbols-outlined text-6xl">language</span>
-            </div>
-            <h3 class="text-4xl font-black font-headline text-white mb-4 tracking-tighter">Global Operation Map</h3>
-            <p class="text-on-surface-variant max-w-xl font-medium mx-auto mb-10">Initializing real-time spatial analytics for all linked barbershop nodes. Monitoring active connections and regional saturation.</p>
-            <div class="flex items-center justify-center gap-4">
-               <div class="flex items-center gap-2 text-xs font-bold text-emerald-400 uppercase tracking-widest"><span class="w-2 h-2 rounded-full bg-emerald-400"></span> ${activeCount} Online</div>
-               <div class="w-1 h-1 rounded-full bg-white/20"></div>
-               <div class="flex items-center gap-2 text-xs font-bold text-on-surface-variant uppercase tracking-widest"><span class="w-2 h-2 rounded-full bg-white/20"></span> Latency 42ms</div>
-            </div>
-          </div>
-        </div>
-      </section>
     `;
   }
 

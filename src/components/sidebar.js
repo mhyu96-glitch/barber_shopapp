@@ -16,6 +16,9 @@ export function renderSidebar(container) {
   const user = storage.getCurrentUser();
   const role = user?.role || 'barber';
   let activeFeatures = storage.get('active_features', ['dashboard', 'appointments', 'customers', 'services', 'portal']);
+  if (typeof activeFeatures === 'string') {
+    activeFeatures = activeFeatures.replace(/[{}"[\]]/g, '').split(',').map(s => s.trim());
+  }
   if (!Array.isArray(activeFeatures)) activeFeatures = ['dashboard', 'appointments', 'customers', 'services', 'portal'];
   
   const shopPlan = storage.get('shop_plan', 'Trial');

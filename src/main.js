@@ -134,7 +134,7 @@ async function initApp() {
     document.body.appendChild(toggle);
     document.body.appendChild(overlay);
 
-    // 2. Real Session Verification (Fixes Glitch)
+    // 2. Real Session Verification (Local First)
     let session = null;
     try {
       // Use race to prevent hanging if Supabase is unreachable
@@ -147,9 +147,8 @@ async function initApp() {
       console.warn('Auth check skipped/failed:', e);
     }
     
-    if (!session) {
-      storage.setCurrentUser(null);
-    } else {
+    // Do NOT force logout on missing Supabase session to support offline apps
+    if (session) {
       const localUser = storage.getCurrentUser();
       if (!localUser) {
         // Sync in background
