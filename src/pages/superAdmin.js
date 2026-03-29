@@ -56,82 +56,87 @@ export async function renderSuperAdmin(container) {
     container.innerHTML = `
       <style>
         .font-headline { font-family: 'Outfit', sans-serif; }
-        .glass { background: rgba(28, 27, 27, 0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        .glass { background: rgba(12, 12, 12, 0.8); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); }
         .gold-gradient { background: linear-gradient(135deg, #f6ca22 0%, #d4af37 100%); }
-        .neon-glow { box-shadow: 0 0 20px rgba(246, 202, 34, 0.2), inset 0 0 10px rgba(246, 202, 34, 0.1); }
-        .text-glow { text-shadow: 0 0 10px rgba(246, 202, 34, 0.3); }
-        .active-tab { background-color: #353534; color: #f6ca22 !important; border-right: 4px solid #f6ca22; box-shadow: inset -10px 0 20px -10px rgba(246, 202, 34, 0.1); }
-        .active-tab span { color: #f6ca22; font-variation-settings: 'FILL' 1; filter: drop-shadow(0 0 5px rgba(246, 202, 34, 0.5)); }
+        .neon-line { filter: drop-shadow(0 0 8px rgba(246, 202, 34, 0.6)); }
+        .neon-card-yellow { box-shadow: 0 0 40px rgba(246, 202, 34, 0.1); border: 1px solid rgba(246, 202, 34, 0.1); }
+        .active-tab { background-color: #1C1B1B; color: #f6ca22 !important; border-left: 2px solid #f6ca22; }
+        .active-tab span { color: #f6ca22; font-variation-settings: 'FILL' 1; }
         .fade-in { animation: fadeIn 0.4s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #353534; border-radius: 10px; }
+        .shadow-abyss { box-shadow: 0 30px 60px -12px rgba(0,0,0,0.5), 0 18px 36px -18px rgba(0,0,0,0.6); }
       </style>
 
       <!-- Sidebar -->
-      <aside class="w-64 fixed left-0 top-0 h-screen bg-[#1C1B1B] border-r border-white/5 z-50 flex flex-col p-6 shadow-2xl shadow-black/50">
-        <div class="flex items-center gap-3 mb-12 px-2">
-            <div class="w-10 h-10 gold-gradient rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
-                <span class="material-symbols-outlined text-black font-black" style="font-variation-settings: 'FILL' 1;">trending_up</span>
+      <aside class="w-64 fixed left-0 top-0 h-screen bg-[#0C0C0C] border-r border-white/5 z-50 flex flex-col p-6 overflow-hidden">
+        <div class="flex items-center gap-4 mb-16 px-2">
+            <div class="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined text-primary font-black" style="font-variation-settings: 'FILL' 1;">widgets</span>
             </div>
-            <h1 class="text-xl font-black font-headline uppercase tracking-tighter text-white">Barber<span class="text-[#f6ca22] italic">SaaS</span></h1>
+            <div>
+              <h1 class="text-xl font-black font-headline tracking-tighter text-white leading-none">Barber<span class="text-primary italic">Pro</span></h1>
+              <p class="text-[8px] text-gray-600 font-bold uppercase tracking-[0.2em] mt-1">Atelier 3.0 Master</p>
+            </div>
         </div>
 
-        <nav class="flex-1 space-y-1.5 text-sm font-bold">
-            <p class="text-[9px] uppercase tracking-[0.3em] text-gray-500 mb-6 px-4 font-black">CORE MONITOR</p>
-            <a href="#" class="sidebar-link flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all ${activeTab === 'dashboard' ? 'active-tab' : 'text-gray-400 hover:text-white hover:bg-white/5'}" data-tab="dashboard">
-                <span class="material-symbols-outlined">dashboard</span> <span class="tracking-tight uppercase italic text-[11px]">Dashboard</span>
+        <nav class="flex-1 space-y-1 text-sm font-bold">
+            <a href="#" class="sidebar-link flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all ${activeTab === 'dashboard' ? 'active-tab' : 'text-gray-500 hover:text-white hover:bg-white/5'}" data-tab="dashboard">
+                <span class="material-symbols-outlined scale-90">dashboard</span> <span class="tracking-tight text-[11px] uppercase">Dashboard</span>
             </a>
-            <a href="#" class="sidebar-link flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all ${activeTab === 'stores' ? 'active-tab' : 'text-gray-400 hover:text-white hover:bg-white/5'}" data-tab="stores">
-                <span class="material-symbols-outlined">storefront</span> <span class="tracking-tight uppercase italic text-[11px]">Manajemen Toko</span>
+            <a href="#" class="sidebar-link flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all ${activeTab === 'stores' ? 'active-tab' : 'text-gray-500 hover:text-white hover:bg-white/5'}" data-tab="stores">
+                <span class="material-symbols-outlined scale-90">storefront</span> <span class="tracking-tight text-[11px] uppercase">Shops</span>
             </a>
-            <a href="#" class="sidebar-link flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all ${activeTab === 'tiers' ? 'active-tab' : 'text-gray-400 hover:text-white hover:bg-white/5'}" data-tab="tiers">
-                <span class="material-symbols-outlined">layers</span> <span class="tracking-tight uppercase italic text-[11px]">Tier & Fitur</span>
+            <a href="#" class="sidebar-link flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all ${activeTab === 'reports' ? 'active-tab' : 'text-gray-500 hover:text-white hover:bg-white/5'}" data-tab="reports">
+                <span class="material-symbols-outlined scale-90">insert_chart</span> <span class="tracking-tight text-[11px] uppercase">Reports</span>
             </a>
-            <a href="#" class="sidebar-link flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all ${activeTab === 'settings' ? 'active-tab' : 'text-gray-400 hover:text-white hover:bg-white/5'}" data-tab="settings">
-                <span class="material-symbols-outlined">tune</span> <span class="tracking-tight uppercase italic text-[11px]">Pengaturan</span>
+            <a href="#" class="sidebar-link flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all ${activeTab === 'users' ? 'active-tab' : 'text-gray-500 hover:text-white hover:bg-white/5'}" data-tab="users">
+                <span class="material-symbols-outlined scale-90">group</span> <span class="tracking-tight text-[11px] uppercase">Users</span>
+            </a>
+            <a href="#" class="sidebar-link flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all ${activeTab === 'marketing' ? 'active-tab' : 'text-gray-500 hover:text-white hover:bg-white/5'}" data-tab="marketing">
+                <span class="material-symbols-outlined scale-90">campaign</span> <span class="tracking-tight text-[11px] uppercase">Marketing</span>
+            </a>
+            <a href="#" class="sidebar-link flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all ${activeTab === 'support' ? 'active-tab' : 'text-gray-500 hover:text-white hover:bg-white/5'}" data-tab="support">
+                <span class="material-symbols-outlined scale-90">help_center</span> <span class="tracking-tight text-[11px] uppercase">Support</span>
+            </a>
+            <a href="#" class="sidebar-link flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all ${activeTab === 'settings' ? 'active-tab' : 'text-gray-500 hover:text-white hover:bg-white/5'}" data-tab="settings">
+                <span class="material-symbols-outlined scale-90">settings</span> <span class="tracking-tight text-[11px] uppercase">Settings</span>
             </a>
         </nav>
 
         <div class="mt-auto pt-6 border-t border-white/5">
-            <div class="bg-white/5 p-4 rounded-2xl flex items-center gap-3 border border-white/5 group hover:border-primary/20 transition-all">
-                <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary border border-primary/20 transition-transform group-hover:scale-110">
-                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person_check</span>
-                </div>
-                <div>
-                    <p class="text-[10px] font-black text-white leading-tight uppercase">Admin Pusat</p>
-                    <p class="text-[8px] text-gray-500 font-bold uppercase tracking-widest mt-0.5">PLATFORM ARCHITECT</p>
-                </div>
-            </div>
-            <button id="master-logout-btn" class="w-full mt-4 flex items-center justify-center gap-2 text-gray-500 hover:text-rose-400 py-2 text-[10px] font-black uppercase tracking-widest transition-colors">
-              <span class="material-symbols-outlined text-sm">logout</span> Keluarkan Sesi
+            <button id="master-logout-btn" class="w-full flex items-center gap-4 px-4 py-3 text-gray-600 hover:text-rose-500 transition-colors text-[10px] font-black uppercase tracking-widest">
+              <span class="material-symbols-outlined text-sm">logout</span> Sign Out
             </button>
         </div>
       </aside>
 
       <!-- Content Area -->
-      <div class="flex-1 ml-64 min-h-screen">
+      <div class="flex-1 ml-64 min-h-screen bg-[#0C0C0C]">
           <!-- Topbar -->
-          <header class="h-20 glass sticky top-0 px-10 border-b border-white/5 flex justify-between items-center z-40">
-              <div class="flex-1 max-w-lg">
-                  <div class="relative group">
-                      <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 transition-colors group-focus-within:text-primary">search</span>
-                      <input id="master-search-input" type="text" value="${searchTerm}" placeholder="Cari partner, transaksi, atau log unit..." class="w-full bg-[#1C1B1B] border-none rounded-2xl py-3 pl-12 pr-4 text-xs font-bold text-white focus:ring-1 focus:ring-primary/40 outline-none transition-all">
-                  </div>
+          <header class="h-20 flex justify-between items-center px-12 sticky top-0 z-40 bg-[#0C0C0C]/80 backdrop-blur-xl">
+              <div class="flex items-center gap-4">
+                  <span class="material-symbols-outlined text-gray-600 text-sm">menu</span>
+                  <p class="text-[11px] font-black text-white/50 uppercase tracking-[0.3em] italic">Home</p>
               </div>
-              <div class="flex items-center gap-6">
-                  <button id="master-notif-btn" class="relative group w-11 h-11 rounded-xl bg-white/5 text-gray-400 flex items-center justify-center hover:text-primary transition-all border border-white/5 hover:border-primary/20">
-                      <span class="material-symbols-outlined">notifications</span>
-                      ${notificationCount > 0 ? `<span class="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-[#131313] animate-pulse"></span>` : ''}
+              <div class="flex items-center gap-8">
+                  <div class="relative group lg:flex hidden">
+                      <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 text-sm">search</span>
+                      <input id="master-search-input" type="text" placeholder="Search data..." class="bg-[#161616] border-none rounded-xl py-2.5 pl-11 pr-4 text-[10px] font-bold text-white w-64 focus:ring-1 focus:ring-primary/40 outline-none">
+                  </div>
+                  <button id="master-notif-btn" class="relative text-gray-600 hover:text-white transition-colors">
+                      <span class="material-symbols-outlined text-xl">notifications</span>
+                      <span class="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full border-2 border-[#0C0C0C]"></span>
                   </button>
-                  <button class="w-11 h-11 rounded-xl bg-white/5 text-gray-400 flex items-center justify-center hover:text-emerald-400 transition-all border border-white/5 lg:flex hidden">
-                      <span class="material-symbols-outlined text-sm">security_update_good</span>
-                  </button>
+                  <div class="w-9 h-9 rounded-full bg-white/5 border border-white/10 overflow-hidden">
+                      <img src="https://ui-avatars.com/api/?name=Admin&background=f6ca22&color=000" class="w-full h-full object-cover opacity-80" />
+                  </div>
               </div>
           </header>
 
-          <main id="master-view-container" class="p-10 space-y-10">
+          <main id="master-view-container" class="px-12 pb-12 space-y-12">
               <!-- Content injected here -->
           </main>
       </div>
@@ -203,145 +208,153 @@ export async function renderSuperAdmin(container) {
 
   function renderDashboardView(viewPort) {
     viewPort.innerHTML = `
-      <div class="space-y-10 fade-in">
-          <!-- Bento Grid Header -->
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div class="col-span-1 md:col-span-2 gold-gradient p-12 rounded-[3.5rem] text-black shadow-[0_20px_50px_rgba(246,202,34,0.15)] relative overflow-hidden group neon-glow">
-                  <div class="relative z-10">
-                      <p class="text-black/60 text-[10px] font-black uppercase tracking-[0.4em] italic mb-2">Cumulative Ecosystem Revenue</p>
-                      <h3 class="text-7xl font-black font-headline tracking-tighter tabular-nums drop-shadow-sm">Rp ${(globalRevenue/1000000).toFixed(1)}M</h3>
-                      <div class="mt-8 flex items-center gap-3 text-[10px] font-black uppercase tracking-widest bg-black/10 w-fit px-5 py-2.5 rounded-2xl">
-                          <span class="material-symbols-outlined text-sm font-black">trending_up</span>
-                          <span>Stable Node Growth Active</span>
+      <div class="space-y-12 fade-in">
+          <!-- Hero Section: Revenue + Quick Stats -->
+          <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+              <!-- Huge Revenue Chart Card -->
+              <div class="lg:col-span-3 bg-[#161616] rounded-[2.5rem] p-10 shadow-abyss border border-white/5 relative overflow-hidden group">
+                  <div class="absolute top-10 right-10">
+                      <button class="px-4 py-2 bg-white/5 rounded-xl text-[10px] font-black text-gray-500 hover:text-white border border-white/10 flex items-center gap-2">
+                        Month <span class="material-symbols-outlined text-xs">expand_more</span>
+                      </button>
+                  </div>
+                  
+                  <div class="relative z-10 flex flex-col h-full">
+                      <h3 class="text-xs font-black text-gray-500 uppercase tracking-[0.4em] mb-4 italic">Revenue Growth</h3>
+                      <div class="flex items-baseline gap-2 mb-12">
+                         <h4 class="text-5xl font-black font-headline text-white tracking-tighter">$1,043.37</h4>
+                         <span class="text-[10px] text-primary/60 font-black uppercase tracking-widest italic translate-y-[-10px]">/ .00</span>
+                      </div>
+
+                      <div class="flex-1 min-h-[220px] relative mt-auto px-4">
+                          <svg class="w-full h-full" viewBox="0 0 1000 100" preserveAspectRatio="none">
+                            <defs>
+                              <linearGradient id="mainHeroGrad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#f6ca22" stop-opacity="0.35"></stop>
+                                <stop offset="100%" stop-color="#f6ca22" stop-opacity="0"></stop>
+                              </linearGradient>
+                            </defs>
+                            <path d="M0,80 C150,90 250,70 400,85 C550,100 650,40 800,70 C900,80 1000,20 L1000,100 L0,100 Z" fill="url(#mainHeroGrad)"></path>
+                            <path class="neon-line" d="M0,80 C150,90 250,70 400,85 C550,100 650,40 800,70 C900,80 1000,20" fill="none" stroke="#f6ca22" stroke-width="3" stroke-linecap="round"></path>
+                          </svg>
+                      </div>
+                      <div class="flex justify-between mt-8 text-[9px] font-black text-gray-700 uppercase tracking-widest px-4 italic border-t border-white/5 pt-6">
+                        <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Aug</span>
                       </div>
                   </div>
-                  <span class="material-symbols-outlined absolute -right-6 -bottom-6 text-[220px] opacity-10 font-thin transition-transform group-hover:scale-110 group-hover:-rotate-12 duration-1000">payments</span>
               </div>
 
-              <div class="bg-[#1C1B1B] p-12 rounded-[3.5rem] border border-white/5 flex flex-col justify-between group hover:border-primary/20 transition-all shadow-2xl relative overflow-hidden">
-                  <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-                  <div class="flex justify-between items-start relative z-10">
-                      <div class="w-16 h-16 bg-white/5 rounded-3xl flex items-center justify-center text-primary border border-white/5 transition-all group-hover:scale-110 group-hover:bg-primary/10">
-                          <span class="material-symbols-outlined text-4xl">storefront</span>
-                      </div>
-                      <span class="text-[9px] font-black text-emerald-400 bg-emerald-400/10 px-4 py-2 rounded-full border border-emerald-400/20 uppercase tracking-[0.3em] leading-none">Healthy</span>
+              <!-- Right Statistics Column -->
+              <div class="space-y-8">
+                  <!-- Active Shops -->
+                  <div class="bg-[#161616] p-8 rounded-[2rem] border border-white/5 shadow-abyss flex flex-col justify-between h-[180px] group transition-all hover:translate-x-2">
+                       <div class="flex justify-between items-start">
+                          <h5 class="text-[9px] font-black text-gray-500 uppercase tracking-[0.3em]">Total Active Shops</h5>
+                          <span class="text-[9px] font-black text-emerald-400 tracking-tighter">100%</span>
+                       </div>
+                       <div class="flex items-end justify-between">
+                          <h3 class="text-4xl font-black font-headline text-white tracking-tighter">${shopsData.filter(s => s.status === 'active').length || '163'}</h3>
+                          <div class="w-20 h-8 opacity-40">
+                            <svg class="w-full h-full" viewBox="0 0 100 30" preserveAspectRatio="none">
+                               <path d="M0,30 L0,20 Q50,10 100,25" fill="none" stroke="#10b981" stroke-width="2"></path>
+                            </svg>
+                          </div>
+                       </div>
                   </div>
-                  <div class="relative z-10">
-                      <p class="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-2">Total Unit Bisnis</p>
-                      <h4 class="text-5xl font-black font-headline text-white tracking-tight tabular-nums">${shopsData.length} <span class="text-xs text-gray-600 font-bold uppercase ml-1 italic tracking-widest">Nodes</span></h4>
-                  </div>
-              </div>
 
-              <div class="bg-[#1C1B1B] p-12 rounded-[3.5rem] border border-white/5 flex flex-col justify-between group hover:border-rose-500/20 transition-all shadow-2xl relative overflow-hidden">
-                  <div class="absolute inset-0 bg-gradient-to-br from-rose-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-                  <div class="flex justify-between items-start relative z-10">
-                      <div class="w-16 h-16 bg-white/5 rounded-3xl flex items-center justify-center text-rose-500 border border-white/5 transition-all group-hover:scale-110 group-hover:bg-rose-500/10">
-                          <span class="material-symbols-outlined text-4xl">bolt</span>
-                      </div>
+                  <!-- Network Traffic -->
+                  <div class="bg-[#161616] p-8 rounded-[2rem] border border-white/5 shadow-abyss flex flex-col justify-between h-[180px] group transition-all hover:translate-x-2">
+                       <div class="flex justify-between items-start">
+                          <h5 class="text-[9px] font-black text-gray-500 uppercase tracking-[0.3em]">Network Traffic</h5>
+                          <span class="text-[9px] font-black text-emerald-400 tracking-tighter">46.3% Traffic</span>
+                       </div>
+                       <div class="flex items-end justify-between">
+                          <h3 class="text-4xl font-black font-headline text-white tracking-tighter">49.3K</h3>
+                          <div class="w-20 h-8 opacity-40">
+                            <svg class="w-full h-full" viewBox="0 0 100 30" preserveAspectRatio="none">
+                               <path d="M0,25 Q30,5 60,15 T100,10" fill="none" stroke="#f6ca22" stroke-width="2"></path>
+                            </svg>
+                          </div>
+                       </div>
                   </div>
-                  <div class="relative z-10">
-                      <p class="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-2">Menunggu Otorisasi</p>
-                      <h4 class="text-5xl font-black font-headline text-rose-500 tracking-tight tabular-nums">${shopsData.filter(s => s.status === 'trial').length} <span class="text-xs text-gray-600 font-bold uppercase ml-1 italic tracking-widest">Trial</span></h4>
+                  
+                  <!-- Performance Card -->
+                  <div class="bg-primary p-8 rounded-[2rem] shadow-[0_20px_40px_rgba(246,202,34,0.15)] h-[180px] flex flex-col justify-between group overflow-hidden relative">
+                      <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-black/10 rounded-full blur-2xl"></div>
+                      <div class="flex justify-between items-start relative z-10">
+                          <h5 class="text-[9px] font-black text-black/60 uppercase tracking-[0.3em]">Performance</h5>
+                          <span class="text-[9px] font-black text-black/80 tracking-tighter">+1.3Y <span class="text-[7px]">/ Year</span></span>
+                      </div>
+                      <div class="relative z-10">
+                         <h3 class="text-4xl font-black font-headline text-black tracking-tighter">1,372</h3>
+                         <p class="text-[8px] font-black text-black/40 uppercase tracking-widest mt-1">+45.2% INCREASE</p>
+                      </div>
                   </div>
               </div>
           </div>
 
-          <!-- Analysis Section -->
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <!-- Global Revenue Growth Chart -->
-              <div class="col-span-1 lg:col-span-2 bg-[#1C1B1B] p-12 rounded-[3.5rem] border border-white/5 flex flex-col min-h-[520px] shadow-2xl relative overflow-hidden group">
-                  <div class="absolute inset-0 bg-gradient-to-t from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
-                  <div class="flex justify-between items-center mb-16 relative z-10">
-                      <div>
-                        <h4 class="text-xs font-black text-white uppercase tracking-[0.4em] italic border-l-4 border-primary pl-5 text-glow">Metrik Pertumbuhan Arus Kas</h4>
-                        <p class="text-[10px] text-gray-500 font-black uppercase tracking-[0.3em] mt-2 pl-5">Real-time Ecosystem Traffic Analytics</p>
-                      </div>
-                      <div class="flex gap-3 text-[10px] font-black">
-                          <button class="px-6 py-3 gold-gradient rounded-2xl text-black shadow-[0_10px_30px_rgba(246,202,34,0.3)] hover:scale-105 transition-all italic tracking-widest">ANALYTICS ENGINE</button>
-                      </div>
+          <!-- Bottom Section: Tables -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <!-- Recent Orders -->
+              <div class="bg-[#161616] rounded-[2.5rem] p-10 border border-white/5 shadow-abyss overflow-hidden">
+                  <div class="flex justify-between items-center mb-10">
+                      <h4 class="text-xs font-black text-white uppercase tracking-[0.4em] italic">Recent Orders</h4>
+                      <button class="text-[9px] font-black text-gray-600 hover:text-white uppercase tracking-[0.3em] transition-colors">All items <span class="material-symbols-outlined text-[10px] inline-block translate-y-0.5">expand_more</span></button>
                   </div>
-                  
-                  <div class="flex-1 flex items-end gap-5 px-4 mb-10 relative">
-                      <!-- Grid Lines -->
-                      <div class="absolute inset-0 flex flex-col justify-between opacity-[0.03] py-10">
-                        <div class="border-t-2 border-white border-dashed w-full"></div>
-                        <div class="border-t-2 border-white border-dashed w-full"></div>
-                        <div class="border-t-2 border-white border-dashed w-full"></div>
-                        <div class="border-t-2 border-white border-dashed w-full"></div>
-                      </div>
-
-                      <!-- SVG Liquid Area Chart -->
-                      <div class="absolute inset-0 px-4 py-10 overflow-hidden mix-blend-screen">
-                        <svg class="w-full h-full" viewBox="0 0 1000 100" preserveAspectRatio="none">
-                          <defs>
-                            <linearGradient id="liquidGrad" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="0%" stop-color="#f6ca22" stop-opacity="0.4"></stop>
-                              <stop offset="100%" stop-color="#f6ca22" stop-opacity="0"></stop>
-                            </linearGradient>
-                            <filter id="glow">
-                              <feGaussianBlur stdDeviation="3" result="coloredBlur"></feGaussianBlur>
-                              <feMerge>
-                                <feMergeNode in="coloredBlur"></feMergeNode>
-                                <feMergeNode in="SourceGraphic"></feMergeNode>
-                              </feMerge>
-                            </filter>
-                          </defs>
-                          <path d="M0,100 C150,80 250,95 400,60 C550,25 650,55 800,20 C900,10 1000,40 1000,100 Z" fill="url(#liquidGrad)"></path>
-                          <path d="M0,80 C150,60 250,75 400,40 C550,5 650,35 800,0 C900,-10 1000,20" fill="none" stroke="#f6ca22" stroke-width="3" filter="url(#glow)" vector-effect="non-scaling-stroke" stroke-linecap="round"></path>
-                        </svg>
-                      </div>
-
-                      <!-- Highlight Bar (Mockup Style) -->
-                      <div class="flex-1 h-[45%] bg-white/5 rounded-2xl z-10 hover:bg-white/10 transition-all"></div>
-                      <div class="flex-1 h-[65%] bg-white/5 rounded-2xl z-10 hover:bg-white/10 transition-all"></div>
-                      <div class="flex-1 h-[55%] bg-white/5 rounded-2xl z-10 hover:bg-white/10 transition-all"></div>
-                      <div class="flex-1 h-[85%] bg-white/5 rounded-2xl z-10 hover:bg-white/10 transition-all"></div>
-                      <div class="flex-1 h-[100%] gold-gradient rounded-2xl z-20 shadow-[0_0_40px_rgba(246,202,34,0.4)] relative">
-                          <div class="absolute -top-12 left-1/2 -translate-x-1/2 bg-white text-black text-[9px] font-black px-3 py-1.5 rounded-lg whitespace-nowrap shadow-xl">PK PERFORMANCE</div>
-                      </div>
-                      <div class="flex-1 h-[75%] bg-white/5 rounded-2xl z-10 hover:bg-white/10 transition-all"></div>
-                  </div>
-                  <div class="grid grid-cols-6 mt-6 px-4 text-[10px] font-black text-gray-500 uppercase tracking-[0.4em] text-center border-t border-white/5 pt-8 relative z-10">
-                      <span>JAN</span><span>FEB</span><span>MAR</span><span>APR</span><span>MEI</span><span>JUN</span>
+                  <div class="space-y-6">
+                      ${[1, 2, 3].map(i => `
+                        <div class="flex items-center justify-between group p-3 hover:bg-white/[0.02] rounded-2xl transition-all cursor-default border border-transparent hover:border-white/5">
+                            <div class="flex items-center gap-4">
+                               <div class="w-11 h-11 bg-white/[0.03] rounded-xl flex items-center justify-center text-gray-500 group-hover:text-primary transition-colors text-xs font-black tabular-nums">#1${i}5${i}</div>
+                               <div>
+                                  <p class="text-[10px] font-black text-white uppercase tracking-tight">Revenue</p>
+                                  <p class="text-[8px] text-gray-600 font-bold uppercase tracking-widest mt-0.5">${i} days ago</p>
+                               </div>
+                            </div>
+                            <div class="text-right">
+                               <p class="text-[11px] font-black text-white tracking-tighter">$1,351 <span class="text-[8px] opacity-40">/ mo</span></p>
+                               ${i === 1 ? `<span class="text-[7px] font-black text-primary uppercase bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">Active Node</span>` : ''}
+                            </div>
+                        </div>
+                      `).join('')}
                   </div>
               </div>
 
-              <!-- Tier Popularity Section -->
-              <div class="bg-[#1C1B1B] p-12 rounded-[3.5rem] border border-white/5 flex flex-col justify-between shadow-2xl relative overflow-hidden">
-                  <div class="absolute -left-20 -bottom-20 w-60 h-60 bg-primary/5 rounded-full blur-[80px]"></div>
-                  <div class="relative z-10">
-                      <h4 class="text-xs font-black text-white uppercase tracking-[0.4em] mb-12 border-l-4 border-primary pl-5 italic text-glow">Platform Tier Matrix</h4>
-                      <div class="space-y-12">
-                          ${plansData.map(p => {
-                            const count = shopsData.filter(s => s.plan_id === p.id).length;
-                            const pct = Math.round((count / (shopsData.length || 1)) * 100);
-                            const pColor = p.name === 'Enterprise' ? 'gold-gradient' : (p.name === 'Premium' ? 'bg-white/40' : 'bg-white/10');
-                            return `
-                              <div>
-                                  <div class="flex justify-between text-[11px] font-black uppercase mb-4 px-1 group cursor-default">
-                                      <span class="text-gray-500 tracking-widest group-hover:text-white transition-colors">${p.name} <span class="text-[9px] italic opacity-40 ml-2 group-hover:text-primary transition-colors">TIER</span></span>
-                                      <span class="text-white">${count} UNITS <span class="text-primary opacity-50 ml-1 tracking-tighter">(${pct}%)</span></span>
-                                  </div>
-                                  <div class="h-2.5 w-full bg-black/40 rounded-full overflow-hidden border border-white/5 p-[1px]">
-                                      <div class="h-full ${pColor} rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(255,255,255,0.05)]" style="width: ${pct}%"></div>
-                                  </div>
-                              </div>
-                            `;
-                          }).join('')}
-                      </div>
+              <!-- Recent Users List -->
+              <div class="bg-[#161616] rounded-[2.5rem] p-10 border border-white/5 shadow-abyss overflow-hidden">
+                  <div class="flex justify-between items-center mb-10">
+                      <h4 class="text-xs font-black text-white uppercase tracking-[0.4em] italic">Recent Users</h4>
+                      <span class="text-[9px] font-black border border-white/10 text-gray-600 px-3 py-1 rounded-full uppercase tracking-widest">Active System</span>
                   </div>
-                  <div class="mt-16 p-8 bg-white/[0.03] rounded-[2rem] border border-white/10 relative group overflow-hidden">
-                      <div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                      <p class="text-[11px] font-black text-primary uppercase tracking-[0.3em] mb-3 flex items-center gap-2 italic relative z-10">
-                        <span class="material-symbols-outlined text-sm font-black animate-pulse">info</span> insight sistem
-                      </p>
-                      <p class="text-[10px] text-gray-500 font-bold leading-relaxed uppercase tracking-wider relative z-10">Paket ${plansData[1]?.name || 'Premium'} menunjukkan konversi tertinggi (65%) dalam 30 hari terakhir. Optimasi kuota barber disarankan.</p>
+                  <div class="overflow-x-auto">
+                      <table class="w-full text-left">
+                          <thead>
+                             <tr class="text-[9px] font-black text-gray-700 uppercase tracking-[0.3em] border-b border-white/5">
+                                <th class="pb-4 pt-2">First Name</th>
+                                <th class="pb-4 pt-2">Second Name</th>
+                                <th class="pb-4 pt-2 text-right">Status</th>
+                             </tr>
+                          </thead>
+                          <tbody class="divide-y divide-white/5">
+                              <tr class="group">
+                                 <td class="py-4 text-[10px] font-black text-white uppercase group-hover:text-primary transition-colors">Yatvinsky</td>
+                                 <td class="py-4 text-[10px] text-gray-400 font-black uppercase">Andrey</td>
+                                 <td class="py-4 text-right"><span class="w-1.5 h-1.5 rounded-full bg-primary inline-block"></span></td>
+                              </tr>
+                              <tr class="group">
+                                 <td class="py-4 text-[10px] font-black text-white uppercase group-hover:text-primary transition-colors">Svyridova</td>
+                                 <td class="py-4 text-[10px] text-gray-400 font-black uppercase">Tatiana</td>
+                                 <td class="py-4 text-right"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block opacity-40"></span></td>
+                              </tr>
+                          </tbody>
+                      </table>
                   </div>
               </div>
           </div>
       </div>
     `;
   }
+
 
   function renderStoresView(viewPort, shops) {
     viewPort.innerHTML = `
