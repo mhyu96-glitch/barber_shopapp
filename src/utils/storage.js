@@ -221,10 +221,20 @@ export const storage = {
                             this.set('shop_constraints', constraints);
                             console.log(`Synced Shop Plan: ${shopPlData.subscription_plans.name}, Features:`, activeFeatures);
                         } else if (shopPlData) {
-                            // Fallback if joined plan is null but shop exists
-                            this.set('shop_plan', 'Trial');
+                            // 🛰️ FAIL-SAFE: If metadata join fails (RLS), fallback to local feature map based on text 'plan' column
+                            const legacyPlan = (shopPlData.plan || 'trial').toLowerCase();
+                            this.set('shop_plan', legacyPlan.charAt(0).toUpperCase() + legacyPlan.slice(1));
                             this.set('shop_status', shopPlData.status);
-                            this.set('active_features', ['dashboard', 'appointments', 'customers', 'services', 'portal']);
+                            
+                            let activeFeatures = ['dashboard', 'appointments', 'customers', 'services', 'portal'];
+                            
+                            // Elevate features based on legacy plan strings
+                            if (legacyPlan === 'enterprise' || legacyPlan === 'ultimate' || legacyPlan === 'pro') {
+                                activeFeatures = [...activeFeatures, 'queue', 'barbers', 'attendance', 'pos', 'reports', 'inventory'];
+                            }
+                            
+                            this.set('active_features', activeFeatures);
+                            console.warn(`Join failed. Used legacy fail-safe for plan: ${legacyPlan}`);
                         }
                     }
 

@@ -884,7 +884,35 @@ export async function renderSuperAdmin(container) {
     if (!shop) return;
 
     const body = `
-      <div style="padding:10px; color: #fff; font-family: sans-serif;">
+      <style>
+        /* Scoped override for modal inside SuperAdmin */
+        #active-modal .modal {
+          background: #0c0e12 !important;
+          border: 1px solid rgba(245, 158, 11, 0.4) !important;
+          box-shadow: 0 0 50px rgba(0,0,0,0.8), 0 0 20px rgba(245, 158, 11, 0.1) !important;
+          color: #ffffff !important;
+        }
+        #active-modal .modal-header {
+          border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+          padding: 24px 30px !important;
+        }
+        #active-modal .modal-header h3 {
+          color: #f5ae12 !important;
+          font-weight: 900 !important;
+          text-transform: uppercase !important;
+          letter-spacing: 2px !important;
+        }
+        #active-modal .modal-close {
+          color: #94a3b8 !important;
+          background: rgba(255,255,255,0.05) !important;
+        }
+        #active-modal .modal-body {
+          padding: 30px !important;
+          background: radial-gradient(circle at top right, rgba(245, 158, 11, 0.05), transparent) !important;
+        }
+      </style>
+
+      <div style="color: #fff; font-family: 'Plus Jakarta Sans', sans-serif;">
          <!-- Header -->
          <div style="display:flex;align-items:center;gap:18px;margin-bottom:30px;">
             <div style="width:64px;height:64px;border-radius:20px;background:rgba(245,158,11,0.15);border:2px solid rgba(245,158,11,0.3);display:flex;align-items:center;justify-content:center;font-weight:900;color:#f5ae12;font-size:28px;box-shadow:0 12px 30px -10px rgba(245,158,11,0.4);">
@@ -903,7 +931,7 @@ export async function renderSuperAdmin(container) {
             </h5>
             <div id="admin-info-container">
                <div style="display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(255,255,255,0.02);border-radius:16px;border:1px dashed rgba(255,255,255,0.15);">
-                  <i data-lucide="loader-2" class="animate-spin" style="color:#f59e0b;" size="24"></i>
+                  <i data-lucide="loader-2" class="animate-spin" style="color:#f5ae12;" size="24"></i>
                </div>
             </div>
          </div>
@@ -963,22 +991,33 @@ export async function renderSuperAdmin(container) {
           </button>
         </div>
       `;
-      document.getElementById('create-admin-account-btn').onclick = () => renderAdminProvisioning(shopId, shop.name);
+      const btn = document.getElementById('create-admin-account-btn');
+      if (btn) btn.onclick = () => renderAdminProvisioning(shopId, shop.name);
     }
 
     document.querySelector('#update-node-btn').onclick = async () => {
       const status = document.getElementById('edit-shop-status').value;
       const planId = document.getElementById('edit-shop-plan').value || null;
       
-      const { error } = await supabase.from('shops').update({ status, plan_id: planId }).eq('id', shopId);
+      // Get Plan Name for Legacy 'plan' Column Sync
+      const selectedPlan = plansData.find(p => p.id === planId);
+      const planLabel = selectedPlan ? selectedPlan.name.toLowerCase() : 'trial';
+
+      // 🚀 DUAL COLUMN SYNC: Update both ID and legacy text column
+      const { error } = await supabase.from('shops')
+        .update({ 
+          status, 
+          plan_id: planId,
+          plan: planLabel // Synergize legacy text column
+        })
+        .eq('id', shopId);
       
       if (!error) {
         if (status === 'active' && planId) {
-          const plan = plansData.find(p => p.id === planId);
           await supabase.from('subscription_history').insert([{
             shop_id: shopId,
             plan_id: planId,
-            amount: plan?.price || 0,
+            amount: selectedPlan?.price || 0,
             status: 'paid',
             payment_method: 'admin_manual',
             end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
