@@ -59,14 +59,17 @@ export const storage = {
         this.set('currentUser', user);
     },
 
-    logout() {
+    async logout() {
+        try {
+            await supabase.auth.signOut();
+        } catch (e) { console.warn('Supabase signout failed:', e); }
+
         this.remove('currentUser');
         this.remove('shopId');
         this.remove('active_features');
         this.remove('shop_plan');
         this.remove('shop_status');
-        localStorage.removeItem('supabase.auth.token'); // Clear old supabase session
-        // Clear all session specific items
+        localStorage.removeItem('supabase.auth.token'); 
         window.location.hash = 'login';
         window.location.reload();
     },
@@ -96,7 +99,6 @@ export const storage = {
             item.branchId = settings.activeBranchId;
         }
 
-        // Multi-tenant: inject shop_id
         const shopId = getShopId();
         if (shopId && SHOP_SCOPED_TABLES.includes(collection)) {
             item.shopId = shopId;
@@ -105,7 +107,6 @@ export const storage = {
         allItems.push(item);
         this.set(collection, allItems);
 
-        // Async Sync to Supabase
         const dbTable = collection;
         if (SUPABASE_COLLECTIONS.includes(dbTable)) {
             const row = { ...item };
@@ -126,7 +127,6 @@ export const storage = {
             allItems[index] = { ...allItems[index], ...updates, updatedAt: new Date().toISOString() };
             this.set(collection, allItems);
 
-            // Async Sync to Supabase
             const dbTable = collection;
             if (SUPABASE_COLLECTIONS.includes(dbTable)) {
                 const dbUpdates = this.toSnakeCaseObj(updates);
@@ -145,7 +145,6 @@ export const storage = {
         const filtered = allItems.filter(i => i.id !== id);
         this.set(collection, filtered);
 
-        // Async Sync to Supabase
         const dbTable = collection;
         if (SUPABASE_COLLECTIONS.includes(dbTable)) {
             supabase.from(dbTable).delete().eq('id', id).then(({error}) => {
@@ -162,7 +161,6 @@ export const storage = {
         return crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
     },
 
-    // --- Supabase Hybrid Methods ---
     async syncFromSupabase() {
         console.log('Syncing from Supabase...');
         const shopId = getShopId();
@@ -173,7 +171,6 @@ export const storage = {
                 (async () => {
                     for (const col of SUPABASE_COLLECTIONS) {
                         let query = supabase.from(col).select('*');
-                        // Filter by shop_id for shop-scoped tables
                         if (shopId && SHOP_SCOPED_TABLES.includes(col)) {
                             query = query.eq('shop_id', shopId);
                         }
@@ -191,7 +188,6 @@ export const storage = {
                         this.set('settings', this.toCamelCaseObj(settingsData[0]));
                     }
 
-                    // --- NEW: Sync Shop Plan & Features ---
                     if (shopId) {
                         const { data: shopPlData } = await supabase
                             .from('shops')
@@ -226,11 +222,16 @@ export const storage = {
         const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Migration Timeout')), 5000));
         
         try {
+            const user = this.getCurrentUser();
+            if (user?.role === 'superadmin') {
+                console.log('Migration skipped: SuperAdmin context.');
+                return;
+            }
+
             await Promise.race([
                 (async () => {
                     for (const col of SUPABASE_COLLECTIONS) {
-                        const storageKey = col;
-                        const localData = this.get(storageKey, []);
+                        const localData = this.get(col, []);
                         if (localData.length === 0) continue;
 
                         const { count, error } = await supabase.from(col).select('*', { count: 'exact', head: true });
@@ -238,14 +239,11 @@ export const storage = {
                             console.log(`Migrating ${localData.length} items for ${col}...`);
                             const dbData = localData.map(item => {
                                 const row = this.toSnakeCaseObj(item);
-                                
-                                // Filter only allowed columns
                                 const filteredRow = {};
                                 const allowedCols = ALLOWED_COLUMNS[col] || Object.keys(row);
                                 allowedCols.forEach(key => {
                                     if (row[key] !== undefined) filteredRow[key] = row[key];
                                 });
-                                
                                 if (filteredRow.created_at) delete filteredRow.created_at;
                                 return filteredRow;
                             });
@@ -261,13 +259,9 @@ export const storage = {
     },
 
     setupRealtime() {
-        // General sync channel for all tables
         supabase.channel('public-db-changes')
             .on('postgres_changes', { event: '*', schema: 'public' }, (payload) => {
-                // Sync all changes to local storage
                 this.syncFromSupabase();
-
-                // Specific handler for new portal bookings
                 if (payload.table === 'appointments' && payload.eventType === 'INSERT') {
                     const newData = payload.new;
                     if (newData && newData.source === 'portal') {
@@ -283,7 +277,6 @@ export const storage = {
             });
     },
 
-    // Utilities to convert DB snake_case to JS camelCase and vice versa
     toCamelCase(str) {
         return str.replace(/([-_][a-z])/ig, ($1) => $1.toUpperCase().replace('-', '').replace('_', ''));
     },
@@ -303,7 +296,6 @@ export const storage = {
         return result;
     },
 
-    // --- Auth Extensions ---
     async signUp(email, password, fullName, role) {
         const { data, error } = await supabase.auth.signUp({
             email,
@@ -317,8 +309,6 @@ export const storage = {
         });
         
         if (error) return { success: false, error: error.message };
-        
-        // Profiles are handled by Supabase trigger
         return { success: true, user: data.user };
     }
 };

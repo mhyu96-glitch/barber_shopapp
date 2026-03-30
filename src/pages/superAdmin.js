@@ -1,4 +1,5 @@
 import { supabase } from '../utils/supabaseClient.js';
+import { storage } from '../utils/storage.js';
 import { showToast } from '../components/toast.js';
 import { openModal, closeModal } from '../components/modal.js';
 
@@ -196,8 +197,7 @@ export async function renderSuperAdmin(container) {
     });
 
     container.querySelector('#master-logout-btn').onclick = async () => {
-      const { error } = await supabase.auth.signOut();
-      if (!error) window.location.reload();
+      await storage.logout();
     };
 
     container.querySelector('#master-search-input').oninput = (e) => {
@@ -282,8 +282,6 @@ export async function renderSuperAdmin(container) {
                                 <stop offset="100%" stop-color="var(--primary)" stop-opacity="0"></stop>
                               </linearGradient>
                             </defs>
-                            <path d="M0,80 C150,90 250,70 400,85 C550,100 650,40 800,70 C900,80 1000,20 L1000,100 L0,100 Z" fill="url(#mainHeroGrad)"></path>
-                            <path class="neon-line" d="M0,80 C150,90 250,70 400,85 C550,100 650,40 800,70 C900,80 1000,20" fill="none" stroke="var(--primary)" stroke-width="3" stroke-linecap="round"></path>
                           </svg>
                       </div>
                       <div class="flex justify-between mt-8 text-[9px] font-black text-[var(--text-dim)] uppercase tracking-widest px-4 italic border-t border-[var(--border-main)] pt-6">
