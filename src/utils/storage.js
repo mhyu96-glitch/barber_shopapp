@@ -191,20 +191,40 @@ export const storage = {
                     if (shopId) {
                         const { data: shopPlData } = await supabase
                             .from('shops')
-                            .select('*, subscription_plans(features, name, max_barbers, max_branches)')
+                            .select('*, subscription_plans!plan_id(features, name, max_barbers, max_branches)')
                             .eq('id', shopId)
                             .single();
                         
-                        if (shopPlData) {
-                            const features = shopPlData.subscription_plans?.features || [];
+                        if (shopPlData && shopPlData.subscription_plans) {
+                            const dbFeatures = shopPlData.subscription_plans.features || {};
+                            
+                            // 🚀 Feature Translation Engine: Convert JSONB Object to Flat Array
+                            // Sidebar logic expects ['feature1', 'feature2']
+                            let activeFeatures = ['dashboard', 'appointments', 'customers', 'services', 'portal']; // Base set
+                            
+                            if (typeof dbFeatures === 'object' && !Array.isArray(dbFeatures)) {
+                                Object.keys(dbFeatures).forEach(key => {
+                                    if (dbFeatures[key] === true) activeFeatures.push(key);
+                                });
+                            } else if (Array.isArray(dbFeatures)) {
+                                activeFeatures = [...new Set([...activeFeatures, ...dbFeatures])];
+                            }
+
                             const constraints = {
-                                maxBarbers: shopPlData.subscription_plans?.max_barbers || null,
-                                maxBranches: shopPlData.subscription_plans?.max_branches || null
+                                maxBarbers: shopPlData.subscription_plans.max_barbers || null,
+                                maxBranches: shopPlData.subscription_plans.max_branches || null
                             };
-                            this.set('active_features', features);
-                            this.set('shop_plan', shopPlData.subscription_plans?.name || 'Trial');
+                            
+                            this.set('active_features', activeFeatures);
+                            this.set('shop_plan', shopPlData.subscription_plans.name || 'Trial');
                             this.set('shop_status', shopPlData.status);
                             this.set('shop_constraints', constraints);
+                            console.log(`Synced Shop Plan: ${shopPlData.subscription_plans.name}, Features:`, activeFeatures);
+                        } else if (shopPlData) {
+                            // Fallback if joined plan is null but shop exists
+                            this.set('shop_plan', 'Trial');
+                            this.set('shop_status', shopPlData.status);
+                            this.set('active_features', ['dashboard', 'appointments', 'customers', 'services', 'portal']);
                         }
                     }
 

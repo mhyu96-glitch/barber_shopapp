@@ -186,14 +186,6 @@ export function renderSidebar(container) {
 
   // Navigation click handlers
   container.querySelectorAll('.nav-item').forEach(item => {
-    if (item.id === 'logout-btn') {
-      item.addEventListener('click', () => {
-        if (confirm('Apakah Anda yakin ingin keluar?')) {
-          storage.logout();
-        }
-      });
-      return;
-    }
     item.addEventListener('click', () => {
       navigateTo(item.dataset.page);
     });

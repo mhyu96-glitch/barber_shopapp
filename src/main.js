@@ -332,5 +332,28 @@ function sendBrowserNotification(title, body) {
   }
 }
 
+// 🚀 Global Event Delegation for Logout (Persistent & Responsive)
+document.addEventListener('click', async (e) => {
+  const logoutBtn = e.target.closest('#logout-btn') || e.target.closest('#master-logout-btn');
+  if (logoutBtn) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Visual feedback: notify the user that logout is in progress
+    const originalText = logoutBtn.innerHTML;
+    logoutBtn.disabled = true;
+    logoutBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> <span style="margin-left: 8px;">MENINGGALKAN ATELIER...</span>`;
+
+    try {
+      await storage.logout();
+    } catch (err) {
+      console.error('Logout failure:', err);
+      logoutBtn.disabled = false;
+      logoutBtn.innerHTML = originalText;
+      showToast('Gagal keluar. Silakan coba lagi.', 'danger');
+    }
+  }
+});
+
 // Boot
 document.addEventListener('DOMContentLoaded', initApp);
