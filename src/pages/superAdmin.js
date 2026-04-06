@@ -94,7 +94,6 @@ export async function renderSuperAdmin(container) {
           <nav class="flex-1 space-y-1 px-3 py-4 overflow-y-auto custom-scrollbar">
             ${renderNavItem('dashboard', 'activity', 'Dashboard')}
             ${renderNavItem('stores', 'store', 'Manajemen Unit')}
-            ${renderNavItem('tiers', 'layout-grid', 'Tier Management')}
 
             <div class="pt-1.5">
               <button id="reports-menu-toggle" class="flex w-full items-center gap-3 rounded-xl px-4 py-3 transition-all duration-300 group ${activeTab.startsWith('report') ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'}">
@@ -104,8 +103,7 @@ export async function renderSuperAdmin(container) {
               </button>
               
               <div id="reports-submenu" class="mt-2 ml-4 space-y-1 border-l border-slate-700 pl-4 ${isReportMenuOpen ? 'block' : 'hidden'}">
-                <button data-tab="report-purchase" class="report-sub-link flex w-full py-2.5 text-xs font-bold uppercase tracking-widest transition-colors ${activeTab === 'report-purchase' ? 'text-blue-400' : 'text-slate-500 hover:text-slate-200'}">Pembelian</button>
-                <button data-tab="report-subscription" class="report-sub-link flex w-full py-2.5 text-xs font-bold uppercase tracking-widest transition-colors ${activeTab === 'report-subscription' ? 'text-blue-400' : 'text-slate-500 hover:text-slate-200'}">Berlangganan</button>
+                <button data-tab="status-monitor" class="report-sub-link flex w-full py-2.5 text-xs font-bold uppercase tracking-widest transition-colors ${activeTab === 'status-monitor' ? 'text-blue-400' : 'text-slate-500 hover:text-slate-200'}">Status Monitor</button>
               </div>
             </div>
 
@@ -528,7 +526,7 @@ export async function renderSuperAdmin(container) {
                   <tr>
                     <th class="px-8 py-7">Instance Identity</th>
                     <th class="px-8 py-7">Admin Gateway</th>
-                    <th class="px-8 py-7">Active Architecture</th>
+                    <th class="px-8 py-7">Access Level</th>
                     <th class="px-8 py-7">Status</th>
                     <th class="px-8 py-7 text-right">Actions</th>
                   </tr>
@@ -557,10 +555,8 @@ export async function renderSuperAdmin(container) {
                              </div>
                           </td>
                           <td class="px-8 py-7">
-                             <span class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest ${
-                               shop.plan_id ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20 shadow-[0_0_15px_rgba(212,168,67,0.05)]' : 'bg-white/5 text-slate-500 border border-white/5'
-                             }">
-                               <i data-lucide="shield" size="12"></i> ${plan ? plan.name : 'NO ASSET'}
+                             <span class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+                               <i data-lucide="shield-check" size="12"></i> PREMIUM ACCESS
                              </span>
                           </td>
                           <td class="px-8 py-7">
@@ -600,59 +596,15 @@ export async function renderSuperAdmin(container) {
 
   function renderTiersView(viewPort) {
     viewPort.innerHTML = `
-      <div class="max-w-7xl mx-auto space-y-12 fade-in">
-        <div class="space-y-1 text-center md:text-left">
-           <h1 class="text-3xl font-black text-white tracking-tighter uppercase italic leading-none">Matriks <span class="text-amber-500">Arsitektur</span></h1>
-           <p class="text-slate-500 font-bold ml-0.5 text-[10px] uppercase tracking-[0.4em] opacity-80 pl-0.5">Global Asset Configuration & Logic Protocol</p>
+      <div class="max-w-2xl mx-auto py-32 text-center space-y-6 fade-in">
+        <div class="w-20 h-20 bg-amber-500/10 text-amber-500 rounded-[2rem] flex items-center justify-center mx-auto border border-amber-500/20">
+          <i data-lucide="unlocked" size="32"></i>
         </div>
-
-        <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-          ${plansData.map((plan) => {
-            const features = Array.isArray(plan.features) ? plan.features : 
-                            (typeof plan.features === 'object' && plan.features !== null ? Object.keys(plan.features).filter(k => plan.features[k] === true) : []);
-            return `
-              <div class="rounded-[2rem] bg-white/5 border border-white/5 shadow-2xl flex flex-col hover:bg-white/[0.08] transition-all duration-500 group overflow-hidden relative backdrop-blur-sm">
-                <div class="absolute -right-4 top-0 p-6 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
-                  <i data-lucide="layers" size="80"></i>
-                </div>
-                <div class="p-7 flex-1 flex flex-col relative z-10">
-                   <div class="flex justify-between items-start mb-6">
-                      <div class="h-10 w-10 bg-amber-500/10 text-amber-500 rounded-xl flex items-center justify-center border border-amber-500/20">
-                         <i data-lucide="zap" size="20"></i>
-                      </div>
-                      <span class="text-[8px] font-black text-amber-500 uppercase tracking-widest bg-amber-500/10 px-3 py-1.5 rounded-full border border-amber-500/20 shadow-[0_0_20px_rgba(212,168,67,0.1)]">ACTIVE PROTOCOL</span>
-                   </div>
-                   
-                   <h3 class="text-xl font-black text-white uppercase tracking-tighter mb-1 italic">${plan.name}</h3>
-                   <div class="h-0.5 w-8 bg-amber-500 rounded-full mb-6"></div>
-                   
-                   <p class="text-2xl font-black mb-6 tracking-tighter tabular-nums text-white flex items-end gap-1.5">
-                     <span class="text-xs opacity-40 font-bold">Rp</span>
-                     ${(plan.price/1000).toLocaleString('id-ID')}K<span class="text-[9px] text-slate-500 font-black tracking-widest uppercase mb-1"> / bln</span>
-                   </p>
- 
-                   <div class="space-y-3 mb-8 flex-1">
-                     ${features.slice(0, 6).map(f => `
-                       <div class="flex items-center gap-2.5 text-[10px] text-slate-400 font-black uppercase tracking-widest group-hover:text-amber-500 transition-colors">
-                         <div class="h-1 w-1 bg-amber-500/40 rounded-full"></div> ${f.replace(/-/g, ' ')}
-                       </div>
-                     `).join('')}
-                     ${features.length > 6 ? `<p class="text-[8px] text-amber-500/60 font-black uppercase tracking-widest italic pt-1">+ ${(features.length - 6)} Advanced Modules</p>` : ''}
-                   </div>
- 
-                   <button class="w-full py-3.5 rounded-xl bg-amber-500 text-black font-black text-[10px] uppercase tracking-[0.3em] shadow-xl shadow-amber-500/20 hover:brightness-110 active:scale-95 transition-all tier-edit-btn flex items-center justify-center gap-2" data-id="${plan.id}">
-                     <i data-lucide="edit-3" size="12"></i> Configure Architecture
-                   </button>
-                </div>
-              </div>
-            `;
-          }).join('')}
-        </div>
+        <h2 class="text-3xl font-black text-white uppercase tracking-tighter italic">Open Access Protocol</h2>
+        <p class="text-slate-500 font-bold text-xs uppercase tracking-widest leading-relaxed">Tier selection has been deprecated. All units now operate under the <span class="text-amber-500">Premium Architecture</span> by default to ensure maximum reliability and feature availability.</p>
       </div>
     `;
-
     if (window.lucide) window.lucide.createIcons();
-    viewPort.querySelectorAll('.tier-edit-btn').forEach(btn => btn.onclick = () => handleEditPlan(btn.dataset.id));
   }
 
   function renderSettingsView(viewPort) {
@@ -946,14 +898,6 @@ export async function renderSuperAdmin(container) {
                 <option value="deactivated" style="background:#1e293b;color:#fff;" ${shop.status === 'deactivated' ? 'selected' : ''}>UNIT SUSPENDED</option>
               </select>
             </div>
-
-            <div style="display:flex;flex-direction:column;gap:10px;">
-              <label style="font-size:10px;font-weight:900;color:#94a3b8;text-transform:uppercase;letter-spacing:3px;padding-left:6px;">Penugasan Tier Arsitektur</label>
-              <select id="edit-shop-plan" style="width:100%;background:#1e293b;border:1px solid rgba(255,255,255,0.15);border-radius:14px;padding:16px 20px;font-size:13px;font-weight:900;color:#ffffff;outline:none;cursor:pointer;appearance:none;-webkit-appearance:none;transition:all 0.3s;box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
-                <option value="" style="background:#1e293b;color:#fff;">DECOUPLED (MODUL PASIF)</option>
-                ${plansData.map(p => `<option value="${p.id}" style="background:#1e293b;color:#fff;" ${shop.plan_id === p.id ? 'selected' : ''}>${p.name.toUpperCase()} (Rp ${p.price.toLocaleString()})</option>`).join('')}
-              </select>
-            </div>
          </div>
 
          <div style="padding-top:30px;margin-top:30px;border-top:1px solid rgba(255,255,255,0.08);">
@@ -997,33 +941,17 @@ export async function renderSuperAdmin(container) {
 
     document.querySelector('#update-node-btn').onclick = async () => {
       const status = document.getElementById('edit-shop-status').value;
-      const planId = document.getElementById('edit-shop-plan').value || null;
       
-      // Get Plan Name for Legacy 'plan' Column Sync
-      const selectedPlan = plansData.find(p => p.id === planId);
-      const planLabel = selectedPlan ? selectedPlan.name.toLowerCase() : 'trial';
-
-      // 🚀 DUAL COLUMN SYNC: Update both ID and legacy text column
+      // 🚀 UNIFIED SYNC: All shops are now Premium/Full by default
       const { error } = await supabase.from('shops')
         .update({ 
           status, 
-          plan_id: planId,
-          plan: planLabel // Synergize legacy text column
+          plan: 'Premium Access' 
         })
         .eq('id', shopId);
       
       if (!error) {
-        if (status === 'active' && planId) {
-          await supabase.from('subscription_history').insert([{
-            shop_id: shopId,
-            plan_id: planId,
-            amount: selectedPlan?.price || 0,
-            status: 'paid',
-            payment_method: 'admin_manual',
-            end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-          }]);
-        }
-        showToast('Node Berhasil Diperbarui & Sinkronisasi Selesai', 'success');
+        showToast('Node Berhasil Diperbarui & Arsitektur Terbuka', 'success');
         closeModal();
         loadMasterData();
       }
@@ -1090,93 +1018,43 @@ export async function renderSuperAdmin(container) {
           payload.phone = document.getElementById('in-phone').value;
           payload.slug = document.getElementById('in-slug').value;
           if (!payload.name || !payload.slug) return showToast('Nama dan Slug Diperlukan', 'warning');
-          step = 2; render();
+          
+          // 🚀 DIRECT DEPLOY: Skip Tier Selection (Step 2)
+          deployNewUnit();
         };
+
         viewPort.querySelector('#cancel-flow').onclick = () => loadMasterData();
-      } else if (step === 2) {
-        viewPort.innerHTML = `
-          <div class="max-w-5xl mx-auto space-y-10 fade-in py-10">
-             <div class="text-center space-y-2">
-                <div class="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-widest mb-2">
-                  <i data-lucide="layout-grid" size="12"></i> Penugasan Protokol
-                </div>
-                <h2 class="text-4xl font-black text-slate-900 uppercase tracking-tighter">Pilih Tier Layanan</h2>
-                <div class="flex justify-center gap-2 mt-4">
-                  <div class="h-1.5 w-12 bg-blue-600/30 rounded-full"></div>
-                  <div class="h-1.5 w-12 bg-blue-600 rounded-full"></div>
-                </div>
-             </div>
 
-             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                ${plansData.map(p => `
-                   <button class="plan-select-card p-8 bg-white rounded-3xl border-2 ${selectedTier === p.id ? 'border-blue-600 shadow-xl ring-4 ring-blue-50' : 'border-slate-100 hover:border-slate-200'} transition-all text-left flex flex-col justify-between group h-64" data-id="${p.id}">
-                      <div>
-                        <div class="flex justify-between items-start mb-4">
-                           <p class="text-[9px] font-black text-blue-600 uppercase tracking-widest">Service Level</p>
-                           ${selectedTier === p.id ? '<i data-lucide="check-circle-2" class="text-blue-600"></i>' : ''}
-                        </div>
-                        <h4 class="text-3xl font-black text-slate-900 uppercase tracking-tighter mb-2">${p.name}</h4>
-                        <p class="text-xl font-black text-slate-400 tabular-nums tracking-tighter">Rp ${(p.price/1000).toLocaleString()}k <span class="text-[9px] uppercase tracking-widest font-black">/ bln</span></p>
-                      </div>
-                      <div class="pt-4 border-t border-slate-50 w-full">
-                        <p class="text-[10px] font-black uppercase tracking-widest ${selectedTier === p.id ? 'text-blue-600' : 'text-slate-400'}">
-                          ${selectedTier === p.id ? 'TEKNOLOGI TERPILIH' : 'PILIH ARSITEKTUR INI'}
-                        </p>
-                      </div>
-                   </button>
-                `).join('')}
-             </div>
+        async function deployNewUnit() {
+          const viewPort = container.querySelector('#master-view-container');
+          viewPort.innerHTML = `
+            <div class="max-w-2xl mx-auto py-20 text-center space-y-8 fade-in">
+               <div class="inline-flex h-24 w-24 items-center justify-center rounded-[2.5rem] bg-blue-600/10 text-blue-600 border border-blue-600/20 shadow-2xl mb-4">
+                  <i data-lucide="loader-2" class="animate-spin" size="40"></i>
+               </div>
+               <h2 class="text-4xl font-black text-slate-900 uppercase tracking-tighter">Initializing Hub...</h2>
+               <p class="text-slate-500 font-bold uppercase tracking-[0.2em] text-xs">Provisioning Open-Access Architecture</p>
+            </div>
+          `;
+          if (window.lucide) window.lucide.createIcons();
 
-             <div class="flex justify-between items-center pt-10 border-t border-slate-100">
-                <button id="back-to-step1" class="text-[10px] font-black text-slate-400 hover:text-slate-900 uppercase tracking-widest flex items-center gap-2 transition-colors font-black">
-                  <i data-lucide="arrow-left" size="14"></i> KEMBALI
-                </button>
-                ${selectedTier ? `
-                  <button id="final-deploy" class="px-10 py-5 bg-slate-900 text-white font-black uppercase text-[12px] rounded-2xl shadow-xl hover:bg-slate-800 transition-all flex items-center gap-3">
-                    <span>DEPLOY UNIT SEKARANG</span>
-                    <i data-lucide="rocket" size="18"></i>
-                  </button>
-                ` : ''}
-             </div>
-          </div>
-        `;
+          const { data: newShop, error: shopError } = await supabase.from('shops').insert([{
+            name: payload.name, 
+            slug: payload.slug,
+            address: payload.address,
+            phone: payload.phone,
+            status: 'active',
+            plan: 'Premium Access'
+          }]).select().single();
 
-        if (window.lucide) window.lucide.createIcons();
+          if (shopError) {
+            showToast(shopError.message, 'error');
+            step = 1; render();
+            return;
+          }
 
-        viewPort.querySelector('#back-to-step1').onclick = () => { step = 1; render(); };
-        
-        viewPort.querySelectorAll('.plan-select-card').forEach(btn => btn.onclick = () => {
-          selectedTier = btn.dataset.id;
-          render();
-        });
-
-        if (viewPort.querySelector('#final-deploy')) {
-          viewPort.querySelector('#final-deploy').onclick = async () => {
-             const btn = viewPort.querySelector('#final-deploy');
-             btn.disabled = true;
-             btn.innerHTML = `<i data-lucide="loader-2" class="animate-spin" size="18"></i> <span>PENDING...</span>`;
-             if (window.lucide) window.lucide.createIcons();
-             
-             const { data: newShop, error: shopError } = await supabase.from('shops').insert([{
-               name: payload.name, 
-               slug: payload.slug,
-               address: payload.address,
-               phone: payload.phone,
-               status: 'trial',
-               plan_id: selectedTier
-             }]).select().single();
-
-             if (shopError) {
-               showToast(shopError.message, 'error');
-               btn.disabled = false;
-               btn.innerHTML = `<span>RETRY DEPLOY</span> <i data-lucide="rocket" size="18"></i>`;
-               if (window.lucide) window.lucide.createIcons();
-               return;
-             }
-
-             showToast('Unit Berhasil Dideploy ke Network', 'success');
-             step = 3; render();
-          };
+          showToast('Unit Berhasil Dideploy ke Network', 'success');
+          step = 3; render();
         }
       } else if (step === 3) {
         viewPort.innerHTML = `

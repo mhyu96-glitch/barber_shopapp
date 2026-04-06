@@ -33,28 +33,11 @@ export function renderSidebar(container) {
   }
   if (!Array.isArray(activeFeatures)) activeFeatures = ['dashboard', 'appointments', 'customers', 'services', 'portal'];
   
-  const shopPlan = storage.get('shop_plan', 'Trial');
+  const shopPlan = storage.get('shop_plan', 'Premium Access');
   const isSuperAdmin = user?.isSuperAdmin || false;
   const activeBranch = branches.find(b => b.id === activeBranchId) || branches[0];
 
-  const isFeatureEnabled = (page) => {
-    // 🛡️ Always allow core system pages or if super admin
-    if (page === 'dashboard' || page === 'settings' || page === 'signup') return true; 
-    if (isSuperAdmin) return true;
-    
-    return activeFeatures.includes(page);
-  };
-
-  const renderNavItem = (page, icon, label, extraHtml = '', enabled = true) => {
-    if (!enabled) {
-      return `
-        <button class="nav-item locked-feature" onclick="window.showUpgradeToast('${label}')">
-          <i class="${icon}" style="color: var(--text-muted); opacity: 0.5;"></i>
-          <span style="color: var(--text-muted); opacity: 0.5;">${label}</span>
-          <i class="fas fa-lock" style="margin-left: auto; color: var(--primary); font-size: 12px; opacity: 0.8;"></i>
-        </button>
-      `;
-    }
+  const renderNavItem = (page, icon, label, extraHtml = '') => {
     return `
       <button class="nav-item" data-page="${page}">
         <i class="${icon}"></i>
@@ -62,11 +45,6 @@ export function renderSidebar(container) {
         ${extraHtml}
       </button>
     `;
-  };
-
-  // Expose upgrade toast to window for inline onclick handler
-  window.showUpgradeToast = (featureName) => {
-    showToast(`${featureName} terkunci. Upgrade paket berlangganan untuk akses.`, 'warning');
   };
 
   container.innerHTML = `
@@ -77,7 +55,7 @@ export function renderSidebar(container) {
           <h1>${isSuperAdmin ? 'BARBERPRO GLOBAL' : (shopName.length > 14 ? shopName.substring(0, 14) : shopName)}</h1>
           <div class="sidebar-branch-label" style="display: flex; gap: 5px; align-items: center;">
              <span><i class="fas ${isSuperAdmin ? 'fa-server' : 'fa-location-dot'}"></i> ${isSuperAdmin ? 'Platform Control' : (activeBranch?.name || 'Pusat')}</span>
-             <span class="badge" style="background: var(--primary-glow); color: var(--primary); font-size: 8px; border: 0.5px solid var(--primary);">${isSuperAdmin ? 'SaaS MASTER' : shopPlan}</span>
+             <span class="badge" style="background: var(--primary-glow); color: var(--primary); font-size: 8px; border: 0.5px solid var(--primary);">${isSuperAdmin ? 'SaaS MASTER' : 'LICENSE ACTIVE'}</span>
           </div>
         </div>
       </div>
@@ -126,8 +104,8 @@ export function renderSidebar(container) {
           ${pendingPortal > 0 ? `<span class="nav-badge" style="background: var(--info);">${pendingPortal}</span>` : ''}
         </button>
         
-        ${renderNavItem('appointments', 'fas fa-calendar-check', 'Janji Temu', todayAppointments > 0 ? `<span class="nav-badge">${todayAppointments}</span>` : '', isFeatureEnabled('appointments'))}
-        ${renderNavItem('queue', 'fas fa-users-line', 'Antrian', '', isFeatureEnabled('queue'))}
+        ${renderNavItem('appointments', 'fas fa-calendar-check', 'Janji Temu', todayAppointments > 0 ? `<span class="nav-badge">${todayAppointments}</span>` : '')}
+        ${renderNavItem('queue', 'fas fa-users-line', 'Antrian')}
         
         <div class="nav-section-title">Kelola</div>
         <button class="nav-item" data-page="customers">
@@ -135,7 +113,7 @@ export function renderSidebar(container) {
           <span>Pelanggan</span>
         </button>
 
-        ${renderNavItem('barbers', 'fas fa-user-tie', 'Barber', '', isFeatureEnabled('barbers'))}
+        ${renderNavItem('barbers', 'fas fa-user-tie', 'Barber')}
         
         ${(role === 'admin' && !isSuperAdmin) ? `
           <button class="nav-item" data-page="signup">
@@ -149,20 +127,20 @@ export function renderSidebar(container) {
           <span>Layanan & Harga</span>
         </button>
 
-        ${renderNavItem('attendance', 'fas fa-clock-rotate-left', 'Presensi Barber', '', isFeatureEnabled('attendance'))}
+        ${renderNavItem('attendance', 'fas fa-clock-rotate-left', 'Presensi Barber')}
         
         <div class="nav-section-title">Bisnis</div>
-        ${renderNavItem('pos', 'fas fa-cash-register', 'Kasir (POS)', '', isFeatureEnabled('pos'))}
-        ${renderNavItem('payments', 'fas fa-wallet', 'Pembayaran', '', isFeatureEnabled('payments'))}
-        ${renderNavItem('promos', 'fas fa-tags', 'Promo & Diskon', '', isFeatureEnabled('promos'))}
-        ${renderNavItem('reports', 'fas fa-chart-line', 'Laporan', '', isFeatureEnabled('reports'))}
-        ${renderNavItem('expenses', 'fas fa-receipt', 'Pengeluaran', '', isFeatureEnabled('expenses'))}
-        ${renderNavItem('inventory', 'fas fa-boxes-stacked', 'Inventori', '', isFeatureEnabled('inventory'))}
-        ${renderNavItem('memberships', 'fas fa-id-card', 'Membership', '', isFeatureEnabled('memberships'))}
+        ${renderNavItem('pos', 'fas fa-cash-register', 'Kasir (POS)')}
+        ${renderNavItem('payments', 'fas fa-wallet', 'Pembayaran')}
+        ${renderNavItem('promos', 'fas fa-tags', 'Promo & Diskon')}
+        ${renderNavItem('reports', 'fas fa-chart-line', 'Laporan')}
+        ${renderNavItem('expenses', 'fas fa-receipt', 'Pengeluaran')}
+        ${renderNavItem('inventory', 'fas fa-boxes-stacked', 'Inventori')}
+        ${renderNavItem('memberships', 'fas fa-id-card', 'Membership')}
         
         <div class="nav-section-title">Lainnya</div>
-        ${renderNavItem('gallery', 'fas fa-images', 'Galeri Style', '', isFeatureEnabled('gallery'))}
-        ${renderNavItem('logbook', 'fas fa-book', 'Catatan Harian', '', isFeatureEnabled('logbook'))}
+        ${renderNavItem('gallery', 'fas fa-images', 'Galeri Style')}
+        ${renderNavItem('logbook', 'fas fa-book', 'Catatan Harian')}
         
         ${role === 'admin' ? `
           <button class="nav-item" data-page="settings">

@@ -189,52 +189,31 @@ export const storage = {
                     }
 
                     if (shopId) {
-                        const { data: shopPlData } = await supabase
+                        const { data: shopData } = await supabase
                             .from('shops')
-                            .select('*, subscription_plans!plan_id(features, name, max_barbers, max_branches)')
+                            .select('*')
                             .eq('id', shopId)
                             .single();
                         
-                        if (shopPlData && shopPlData.subscription_plans) {
-                            const dbFeatures = shopPlData.subscription_plans.features || {};
-                            
-                            // 🚀 Feature Translation Engine: Convert JSONB Object to Flat Array
-                            // Sidebar logic expects ['feature1', 'feature2']
-                            let activeFeatures = ['dashboard', 'appointments', 'customers', 'services', 'portal']; // Base set
-                            
-                            if (typeof dbFeatures === 'object' && !Array.isArray(dbFeatures)) {
-                                Object.keys(dbFeatures).forEach(key => {
-                                    if (dbFeatures[key] === true) activeFeatures.push(key);
-                                });
-                            } else if (Array.isArray(dbFeatures)) {
-                                activeFeatures = [...new Set([...activeFeatures, ...dbFeatures])];
-                            }
+                        if (shopData) {
+                            // 🚀 THE GREAT UNLOCK: All shops now have full access to all modules
+                            const allFeatures = [
+                                'dashboard', 'appointments', 'customers', 'services', 'portal',
+                                'queue', 'barbers', 'attendance', 'pos', 'reports', 'inventory',
+                                'promos', 'expenses', 'memberships', 'gallery', 'logbook'
+                            ];
 
                             const constraints = {
-                                maxBarbers: shopPlData.subscription_plans.max_barbers || null,
-                                maxBranches: shopPlData.subscription_plans.max_branches || null
+                                maxBarbers: 99, // Unlimited for everyone
+                                maxBranches: 99
                             };
                             
-                            this.set('active_features', activeFeatures);
-                            this.set('shop_plan', shopPlData.subscription_plans.name || 'Trial');
-                            this.set('shop_status', shopPlData.status);
+                            this.set('active_features', allFeatures);
+                            this.set('shop_plan', 'Premium Access'); // Universal plan name
+                            this.set('shop_status', shopData.status);
                             this.set('shop_constraints', constraints);
-                            console.log(`Synced Shop Plan: ${shopPlData.subscription_plans.name}, Features:`, activeFeatures);
-                        } else if (shopPlData) {
-                            // 🛰️ FAIL-SAFE: If metadata join fails (RLS), fallback to local feature map based on text 'plan' column
-                            const legacyPlan = (shopPlData.plan || 'trial').toLowerCase();
-                            this.set('shop_plan', legacyPlan.charAt(0).toUpperCase() + legacyPlan.slice(1));
-                            this.set('shop_status', shopPlData.status);
                             
-                            let activeFeatures = ['dashboard', 'appointments', 'customers', 'services', 'portal'];
-                            
-                            // Elevate features based on legacy plan strings
-                            if (legacyPlan === 'enterprise' || legacyPlan === 'ultimate' || legacyPlan === 'pro') {
-                                activeFeatures = [...activeFeatures, 'queue', 'barbers', 'attendance', 'pos', 'reports', 'inventory'];
-                            }
-                            
-                            this.set('active_features', activeFeatures);
-                            console.warn(`Join failed. Used legacy fail-safe for plan: ${legacyPlan}`);
+                            console.log(`Open-Access Sync: All features unlocked for ${shopData.name}`);
                         }
                     }
 
