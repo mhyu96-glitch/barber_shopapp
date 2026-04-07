@@ -59,7 +59,7 @@ async function syncToSupabase(table, item, isUpdate = false) {
 
 // === State ===
 let currentStep = 0; // 0=home, 1=service, 2=barber, 3=schedule, 4=info, 5=review, 6=success
-let booking = { service: null, barber: null, date: null, time: null, name: '', phone: '', notes: '', promoId: null };
+let booking = { services: [], barber: null, date: null, time: null, name: '', phone: '', notes: '', promoId: null };
 let currentShop = null; // { id, slug, name, ... }
 
 // === Multi-Tenant: Load shop data from Supabase ===
@@ -555,7 +555,7 @@ function renderMapSection() {
 
 // === Start Booking ===
 window.startBooking = function () {
-  booking = { service: null, barber: null, date: null, time: null, name: '', phone: '', notes: '', promoId: null };
+  booking = { services: [], barber: null, date: null, time: null, name: '', phone: '', notes: '', promoId: null };
   currentStep = 1;
   renderWizard();
 };
@@ -628,7 +628,7 @@ window.wizardNext = function () {
   };
   const m = labels[lang] || labels.id;
 
-  if (currentStep === 1 && !booking.service) return alert(m.svc);
+  if (currentStep === 1 && (!booking.services || booking.services.length === 0)) return alert(m.svc);
   if (currentStep === 2 && !booking.barber) return alert(m.barber);
   if (currentStep === 3 && (!booking.date || !booking.time)) return alert(m.time);
   if (currentStep === 4) {
@@ -671,10 +671,11 @@ function renderStep1(container) {
     const showsDiscount = finalPrice < s.price;
 
     return `
-          <div class="service-option ${booking.service?.id === s.id ? 'selected' : ''}" onclick="selectService('${s.id}')">
+          <div class="service-option ${booking.services.some(svc => svc.id === s.id) ? 'selected' : ''}" onclick="selectService('${s.id}')">
             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
               <div style="width: 36px; height: 36px; border-radius: 8px; background: var(--p-accent-glow); display: flex; align-items: center; justify-content: center; color: var(--p-accent);"><i class="fas ${s.icon || 'fa-scissors'}"></i></div>
               <div class="svc-name">${s.name}</div>
+              ${booking.services.some(svc => svc.id === s.id) ? `<i class="fas fa-check-circle" style="margin-left:auto; color: var(--p-accent);"></i>` : ''}
             </div>
             ${s.description ? `<p style="font-size: 12px; color: var(--p-muted); margin-bottom: 8px;">${s.description}</p>` : ''}
             <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -695,11 +696,21 @@ function renderStep1(container) {
 
 window.selectService = function (id) {
   const services = sGetAll('services');
-  booking.service = services.find(s => s.id === id) || null;
-  // Check promo
+  const service = services.find(s => s.id === id);
+  if(!service) return;
+
+  const idx = booking.services.findIndex(s => s.id === id);
+  if(idx === -1) {
+    booking.services.push(service);
+  } else {
+    booking.services.splice(idx, 1);
+  }
+  
+  // Check oldest promo for simplicity or join all promos
   const promos = sGetAll('promos').filter(p => p.active && new Date(p.endDate) >= new Date());
-  const promo = promos.find(p => !p.serviceId || p.serviceId === id);
+  const promo = promos.find(p => !p.serviceId || booking.services.some(s => s.id === p.serviceId));
   booking.promoId = promo?.id || null;
+  
   renderWizardStep();
 };
 
@@ -914,7 +925,16 @@ function renderStep4(container) {
 function renderStep5(container) {
   const promos = sGetAll('promos');
   const promo = promos.find(p => p.id === booking.promoId);
-  let finalPrice = getServicePrice(booking.service);
+  
+  let rawTotal = 0;
+  let totalDuration = 0;
+  
+  booking.services.forEach(s => {
+    rawTotal += getServicePrice(s);
+    totalDuration += (s.duration || 30);
+  });
+
+  let finalPrice = rawTotal;
   let discount = 0;
   if (promo) {
     const d = promo.type === 'percentage' ? finalPrice * promo.discount / 100 : promo.discount;
@@ -938,7 +958,7 @@ function renderStep5(container) {
     <div class="p-card" style="padding: 24px;">
       <div class="review-row">
         <span class="review-label">${t('label_svc')}</span>
-        <span class="review-value">${booking.service?.name || '-'}</span>
+        <span class="review-value">${booking.services.map(s => s.name).join(' + ')}</span>
       </div>
       <div class="review-row">
         <span class="review-label">${t('label_barber')}</span>
@@ -951,6 +971,10 @@ function renderStep5(container) {
       <div class="review-row">
         <span class="review-label">${t('label_time')}</span>
         <span class="review-value">${booking.time}</span>
+      </div>
+      <div class="review-row">
+        <span class="review-label">Total Durasi</span>
+        <span class="review-value">${totalDuration} menit</span>
       </div>
       <div class="review-row">
         <span class="review-label">${t('label_name')}</span>
@@ -992,7 +1016,14 @@ window.submitBooking = function () {
   const completed = appts.filter(a => a.customerPhone === booking.phone && a.status === 'done').length;
   const isLoyaltyFree = (completed + 1) % 10 === 0;
 
-  let finalPrice = booking.service?.price || 0;
+  let totalRawPrice = 0;
+  let totalDuration = 0;
+  booking.services.forEach(s => {
+    totalRawPrice += s.price || 0;
+    totalDuration += (s.duration || 30);
+  });
+
+  let finalPrice = totalRawPrice;
   if (isLoyaltyFree) {
     finalPrice = 0;
   } else if (promo) {
@@ -1011,13 +1042,13 @@ window.submitBooking = function () {
     customerName: booking.name,
     customerId: null,
     customerPhone: booking.phone,
-    serviceName: booking.service?.name,
-    serviceId: booking.service?.id,
+    serviceName: booking.services.map(s => s.name).join(' + '),
+    serviceId: booking.services[0]?.id, // Store primary ID
     barberName: booking.barber?.name,
     barberId: booking.barber?.id,
     date: booking.date,
     time: booking.time,
-    duration: booking.service?.duration || 30,
+    duration: totalDuration,
     status: 'pending',
     paymentStatus: 'unpaid',
     paymentAmount: Math.round(finalPrice),
@@ -1091,7 +1122,7 @@ function renderSuccess(code) {
         <div class="p-card" style="text-align: left; margin-bottom: 20px;">
           <div class="review-row">
             <span class="review-label">Layanan</span>
-            <span class="review-value">${booking.service?.name}</span>
+            <span class="review-value" style="font-size: 12px;">${booking.services.map(s => s.name).join(' + ')}</span>
           </div>
           <div class="review-row">
             <span class="review-label">Barber</span>

@@ -94,7 +94,7 @@ export function renderAppointments(container) {
                   <td><span class="fw-600">${apt.time}</span></td>
                   <td>${apt.customerName}</td>
                   <td>
-                    <div style="display: flex; align-items: center; gap: 4px;">
+                    <div style="display: flex; align-items: center; gap: 4px; white-space: normal;">
                       ${apt.serviceName}
                       ${apt.recurringType ? `<i class="fas fa-redo" style="font-size: 10px; color: var(--accent);" title="${apt.recurringType}"></i>` : ''}
                     </div>
@@ -289,12 +289,18 @@ function showAppointmentForm(editId = null) {
         </div>
       </div>
       <div class="form-row">
-        <div class="form-group">
-          <label>Layanan</label>
-          <select class="form-control" name="serviceId" required>
-            <option value="">Pilih layanan...</option>
-            ${services.map(s => `<option value="${s.id}" ${existing?.serviceId === s.id ? 'selected' : ''}>${s.name} - ${formatter.currency(s.price)}</option>`).join('')}
-          </select>
+        <div class="form-group" style="flex: 1;">
+          <label>Layanan (Bisa pilih lebih dari satu)</label>
+          <div class="service-selection-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; max-height: 150px; overflow-y: auto; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius);">
+            ${services.map(s => {
+              const isChecked = existing?.serviceId === s.id || (existing?.serviceName || '').includes(s.name);
+              return `
+              <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer;">
+                <input type="checkbox" name="serviceIds" value="${s.id}" ${isChecked ? 'checked' : ''} style="width: 16px; height: 16px;" data-name="${s.name}" data-price="${s.price}" data-duration="${s.duration}" />
+                <span>${s.name}</span>
+              </label>
+            `}).join('')}
+          </div>
         </div>
         <div class="form-group">
           <label>Barber</label>
@@ -381,9 +387,11 @@ function showAppointmentForm(editId = null) {
     const form = document.getElementById('appt-form');
     const fd = new FormData(form);
     const data = Object.fromEntries(fd);
-
-    if (!data.customerId || !data.date || !data.time || !data.serviceId || !data.barberId) {
-      showToast('Lengkapi semua field', 'error');
+    
+    // Get all checked services
+    const serviceCheckboxes = Array.from(form.querySelectorAll('input[name="serviceIds"]:checked'));
+    if (!data.customerId || !data.date || !data.time || serviceCheckboxes.length === 0 || !data.barberId) {
+      showToast('Lengkapi semua field (termasuk minimal 1 layanan)', 'error');
       return;
     }
 
@@ -403,22 +411,30 @@ function showAppointmentForm(editId = null) {
 
     const customer = storage.find('customers', data.customerId);
     const barber = storage.find('barbers', data.barberId);
-    const service = storage.find('services', data.serviceId);
+    
+    let totalDuration = 0;
+    let totalPrice = 0;
+    const serviceNames = [];
+    serviceCheckboxes.forEach(cb => {
+      totalDuration += Number(cb.dataset.duration || 30);
+      totalPrice += Number(cb.dataset.price || 0);
+      serviceNames.push(cb.dataset.name);
+    });
 
     const aptData = {
       customerId: data.customerId,
       customerName: customer.name,
       barberId: data.barberId,
       barberName: barber.name,
-      serviceId: data.serviceId,
-      serviceName: service.name,
+      serviceId: serviceCheckboxes[0].value, // Primary ID
+      serviceName: serviceNames.join(' + '),
       date: data.date,
       time: data.time,
-      duration: service.duration,
-      price: service.price,
+      duration: totalDuration,
+      price: totalPrice,
       status: 'scheduled',
       paymentStatus: data.paymentStatus || 'unpaid',
-      paymentAmount: data.paymentStatus === 'paid' ? service.price : (data.paymentStatus === 'dp' ? Number(data.dpAmount || 0) : 0),
+      paymentAmount: data.paymentStatus === 'paid' ? totalPrice : (data.paymentStatus === 'dp' ? Number(data.dpAmount || 0) : 0),
       dpAmount: data.paymentStatus === 'dp' ? Number(data.dpAmount || 0) : 0,
       notes: data.notes || '',
       rating: 0,
