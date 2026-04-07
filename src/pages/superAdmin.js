@@ -1304,6 +1304,8 @@ export async function renderSuperAdmin(container) {
     if (!error) {
       showToast('Node Registry Purged Successfully', 'success');
       loadMasterData();
+    } else {
+      showToast(error.message, 'error');
     }
   }
 
