@@ -1,19 +1,32 @@
 import 'package:flutter/material.dart';
 import '../../core/supabase_service.dart';
+import '../../widgets/atelier_card.dart';
 
 class ServicesScreen extends StatelessWidget {
   const ServicesScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    const goldColor = Color(0xFFD4AF37);
+    const obsidianColor = Color(0xFF0D0D0D);
+
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: obsidianColor,
       appBar: AppBar(
-        title: const Text('Layanan & Harga', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          'CATALOGUE D\'EXCELLENCE', 
+          style: TextStyle(
+            fontWeight: FontWeight.w900, 
+            fontSize: 14, 
+            letterSpacing: 3.0,
+            color: Colors.white
+          )
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -21,58 +34,108 @@ class ServicesScreen extends StatelessWidget {
         future: SupabaseService.getServices(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator(color: goldColor));
           }
           if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}', style: const TextStyle(color: Colors.red)));
+            return Center(
+              child: Text(
+                'COMMUNICATION ERROR: ${snapshot.error}', 
+                style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold, fontSize: 10)
+              )
+            );
           }
           
           final services = snapshot.data ?? [];
           if (services.isEmpty) {
-            return const Center(child: Text('Belum ada layanan tersedia', style: TextStyle(color: Colors.white38)));
+            return Center(
+              child: Text(
+                'REGISTRY EMPTY', 
+                style: TextStyle(color: Colors.white.withOpacity(0.2), fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 2.0)
+              )
+            );
           }
 
           return ListView.builder(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
             itemCount: services.length,
             itemBuilder: (context, index) {
               final service = services[index];
-              final primaryColor = Theme.of(context).primaryColor;
               
-              return Container(
-                margin: const EdgeInsets.only(bottom: 16),
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.03),
-                  borderRadius: BorderRadius.circular(22),
-                  border: Border.all(color: Colors.white.withOpacity(0.05)),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: primaryColor.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(16),
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: AtelierCard(
+                  padding: const EdgeInsets.all(24),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 56,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          color: goldColor.withOpacity(0.05),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: goldColor.withOpacity(0.1)),
+                        ),
+                        child: const Icon(Icons.content_cut_rounded, color: goldColor, size: 24),
                       ),
-                      child: Icon(Icons.content_cut_rounded, color: primaryColor, size: 24),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      const SizedBox(width: 20),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              (service['name'] ?? 'Layanan').toString().toUpperCase(), 
+                              style: const TextStyle(
+                                color: Colors.white, 
+                                fontSize: 16, 
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: -0.5
+                              )
+                            ),
+                            const SizedBox(height: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.05),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                "${service['duration'] ?? 30} MINS SESSION", 
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.4), 
+                                  fontSize: 8, 
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 1.0
+                                )
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text(service['name'] ?? 'Layanan', style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-                          const SizedBox(height: 4),
-                          Text("${service['duration'] ?? 30} menit", style: const TextStyle(color: Colors.white38, fontSize: 13)),
+                          Text(
+                            "Rp",
+                            style: TextStyle(
+                              color: goldColor.withOpacity(0.6), 
+                              fontSize: 9, 
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 2.0
+                            ),
+                          ),
+                          Text(
+                            "${service['price'] ?? 0}",
+                            style: const TextStyle(
+                              color: Colors.white, 
+                              fontSize: 20, 
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: -1.0
+                            ),
+                          ),
                         ],
                       ),
-                    ),
-                    Text(
-                      "Rp ${service['price'] ?? 0}",
-                      style: TextStyle(color: primaryColor, fontSize: 16, fontWeight: FontWeight.w900),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
             },

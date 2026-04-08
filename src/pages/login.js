@@ -47,6 +47,16 @@ export function renderLogin(container) {
       </header>
 
       <form id="login-form" class="space-y-6">
+        <!-- Shop Slug Field (New for Multi-tenancy) -->
+        <div class="space-y-2">
+          <label class="text-[10px] uppercase tracking-[0.2em] text-[#D4AF37] px-1 font-black" for="shop-slug" style="font-family: 'Inter', sans-serif;">Induk Unit (Shop Slug)</label>
+          <div class="relative group">
+            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#d0c5af] text-lg transition-colors group-focus-within:text-[#D4AF37]">hub</span>
+            <input id="shop-slug" class="w-full bg-[#0e0e0e] border-0 border-b border-[#4d4635]/50 py-4 pl-12 pr-4 text-[#e5e2e1] placeholder:text-[#d0c5af]/40 focus:ring-0 focus:border-[#D4AF37] transition-all rounded-t-lg" placeholder="contoh: garuda-studio" type="text" autocomplete="off"/>
+          </div>
+          <p class="text-[9px] text-[#99907c] px-1 italic">Kosongkan jika Anda adalah SuperAdmin Utama.</p>
+        </div>
+
         <!-- Username Field -->
         <div class="space-y-2">
           <label class="text-[10px] uppercase tracking-[0.05em] text-[#d0c5af] px-1" for="username" style="font-family: 'Inter', sans-serif;">Username</label>
@@ -115,17 +125,18 @@ export function renderLogin(container) {
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const username = container.querySelector('#username').value.trim();
-    const password = container.querySelector('#password').value;
-
-    if (!username || !password) return;
-
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Memproses...';
-
     try {
-      // Support both username and real email
-      const email = username.includes('@') ? username : `${username}@barberpro.local`;
+      const shopSlug = container.querySelector('#shop-slug').value.trim().toLowerCase();
+      
+      // Scoped authentication logic:
+      // 1. If shopSlug is present, use specialized multi-tenant email
+      // 2. If empty, fallback to global/SuperAdmin legacy email
+      let email;
+      if (shopSlug) {
+        email = `${username}.${shopSlug}@barberpro.local`;
+      } else {
+        email = username.includes('@') ? username : `${username}@barberpro.local`;
+      }
       
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email,

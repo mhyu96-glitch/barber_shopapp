@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../../core/app_state.dart';
 import '../../core/supabase_service.dart';
 import '../../data/models.dart';
+import '../../widgets/atelier_card.dart';
+import '../../widgets/atelier_button.dart';
+import '../../widgets/atelier_aura.dart';
 import '../appointments/book_appointment_screen.dart';
 import '../services/services_screen.dart';
 import 'reports_screen.dart';
@@ -61,150 +64,192 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = Theme.of(context).primaryColor;
-    final scaffoldBg = Theme.of(context).scaffoldBackgroundColor;
+    final goldColor = const Color(0xFFD4AF37);
     final isAdmin = AppState.isAdmin();
 
     return Scaffold(
-      backgroundColor: scaffoldBg,
       body: RefreshIndicator(
         onRefresh: _loadStats,
+        color: goldColor,
+        backgroundColor: const Color(0xFF1C1B1B),
         child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
             SliverAppBar(
-              expandedHeight: 140,
+              expandedHeight: 160,
               floating: false,
               pinned: true,
-              backgroundColor: scaffoldBg,
+              backgroundColor: const Color(0xFF0D0D0D),
               elevation: 0,
               flexibleSpace: FlexibleSpaceBar(
-                titlePadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                titlePadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                 title: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                     Text(_formattedDate, style: TextStyle(fontSize: 10, color: Colors.white.withOpacity(0.4), letterSpacing: 0.5)),
-                     Text(isAdmin ? "Dashboard Admin" : "Dashboard Barber", style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: -0.5)),
+                     Text(
+                       _formattedDate.toUpperCase(), 
+                       style: TextStyle(fontSize: 9, color: goldColor.withOpacity(0.6), fontWeight: FontWeight.w900, letterSpacing: 2.0)
+                     ),
+                     const SizedBox(height: 2),
+                     Text(
+                       isAdmin ? "ATELIER COMMAND" : "BARBER WORKSPACE", 
+                       style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: -1.0)
+                     ),
                   ],
                 ),
               ),
               actions: [
-                Container(
-                  margin: const EdgeInsets.only(right: 20, top: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.03),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white.withOpacity(0.05)),
-                  ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 16),
                   child: IconButton(
-                    icon: const Icon(Icons.notifications_rounded, size: 20, color: Colors.white70),
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Belum ada notifikasi baru")),
-                      );
-                    },
+                    icon: Icon(Icons.notifications_none_rounded, color: goldColor.withOpacity(0.8)),
+                    onPressed: () {},
                   ),
                 ),
               ],
             ),
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 10),
                     
-                    // --- Revenue Analytics Card (Only for Admin) ---
-                    if (isAdmin) _buildPremiumRevenueCard(primaryColor),
-                    
-                    const SizedBox(height: 24),
-                    
-                    // --- Attendance Status Card ---
-                    _buildAttendanceCard(primaryColor, isAdmin),
-                    
+                    // --- Aura Real-time Tracking (NEW) ---
+                    Center(
+                      child: StreamBuilder<List<Appointment>>(
+                        stream: SupabaseService.getAppointmentsStream(
+                          barberId: isAdmin ? null : AppState.currentUserProfile.value?['id']
+                        ),
+                        builder: (context, snapshot) {
+                          final appointments = snapshot.data ?? [];
+                          final doneCount = appointments.where((a) => a.status == 'done').length;
+                          final totalCount = appointments.length;
+                          
+                          double progress = 0.0;
+                          String label = "0";
+                          String subLabel = "QUEUE CLEAR";
+                          
+                          if (isAdmin) {
+                            // Admin shows revenue progress vs a conceptual 10M daily goal
+                            const double dailyGoal = 10000000;
+                            progress = (_stats['revenue_today'] ?? 0.0) / dailyGoal;
+                            label = "${(progress * 100).toInt()}%";
+                            subLabel = "REVENUE TARGET";
+                          } else {
+                            // Barber shows task completion
+                            progress = totalCount > 0 ? doneCount / totalCount : 0.0;
+                            label = "$doneCount/$totalCount";
+                            subLabel = "TASKS COMPLETED";
+                          }
+
+                          return AtelierAura(
+                            progress: progress.clamp(0.0, 1.0),
+                            label: label,
+                            subLabel: subLabel,
+                            size: 200,
+                          );
+                        },
+                      ),
+                    ),
+
                     const SizedBox(height: 32),
                     
-                    // --- Quick Actions ---
-                    const Text("Aksi Cepat", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white70)),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _buildModernAction(context, Icons.add_circle_outline_rounded, "Janji", primaryColor, () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => const BookAppointmentScreen()));
-                        }),
-                        _buildModernAction(context, Icons.person_add_rounded, "Pelanggan", Colors.blueAccent, () {
-                          AppState.selectedIndex.value = 2;
-                        }),
-                        if (isAdmin) ...[
-                          _buildModernAction(context, Icons.inventory_2_outlined, "Layanan", Colors.purpleAccent, () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => const ServicesScreen()));
+                    // --- Revenue Analytics (Only for Admin) ---
+                    if (isAdmin) _buildAtelierRevenueCard(goldColor),
+                    
+                    const SizedBox(height: 28),
+                    
+                    // --- Attendance Quick Action ---
+                    _buildAtelierAttendanceCard(goldColor, isAdmin),
+                    
+                    const SizedBox(height: 40),
+                    
+                    // --- Quick Actions Grid ---
+                    Text(
+                      "OPERATIONAL CONTROLS", 
+                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.white.withOpacity(0.3), letterSpacing: 2.5)
+                    ),
+                    const SizedBox(height: 20),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _buildAtelierAction(Icons.add_task_rounded, "JANJI TEMU", goldColor, () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => const BookAppointmentScreen()));
                           }),
-                          _buildModernAction(context, Icons.analytics_outlined, "Laporan", Colors.greenAccent, () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => const ReportsScreen()));
+                          const SizedBox(width: 16),
+                          _buildAtelierAction(Icons.person_outline_rounded, "PELANGGAN", Colors.blueAccent, () {
+                            AppState.selectedIndex.value = 2;
                           }),
-                          _buildModernAction(context, Icons.person_add_alt_1_rounded, "Tambah Staf", Colors.orangeAccent, () {
-                            Navigator.pushNamed(context, '/signup');
-                          }),
-                        ] else ...[
-                           // Fill space with hidden icons or just wrap in a smaller row
-                           const Spacer(),
-                           const Spacer(),
+                          if (isAdmin) ...[
+                            const SizedBox(width: 16),
+                            _buildAtelierAction(Icons.grid_view_rounded, "LAYANAN", Colors.purpleAccent, () {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => const ServicesScreen()));
+                            }),
+                            const SizedBox(width: 16),
+                            _buildAtelierAction(Icons.analytics_outlined, "LAPORAN", Colors.greenAccent, () {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => const ReportsScreen()));
+                            }),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
 
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 44),
                     
-                    // --- Stats Grid ---
-                    const Text("Statistik Performa", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white70)),
-                    const SizedBox(height: 16),
+                    // --- Detailed Performance Metrics ---
+                    Text(
+                      "PERFORMANCE METRICS", 
+                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.white.withOpacity(0.3), letterSpacing: 2.5)
+                    ),
+                    const SizedBox(height: 20),
                     Row(
                       children: [
-                        Expanded(child: _buildFrostedStat("Selesai", "${_stats['total_done']}", Icons.check_circle_rounded, primaryColor)),
-                        const SizedBox(width: 12),
-                        Expanded(child: _buildFrostedStat("Pelanggan", "${_stats['total_customers']}", Icons.people_rounded, Colors.blueAccent)),
+                        Expanded(child: _buildMetricCard("COMPLETED", "${_stats['total_done']}", Icons.auto_awesome_rounded, goldColor)),
+                        const SizedBox(width: 16),
+                        Expanded(child: _buildMetricCard("CLIENTS", "${_stats['total_customers']}", Icons.face_retouching_natural_rounded, Colors.blueAccent)),
                       ],
                     ),
 
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 44),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(isAdmin ? "Semua Antrian" : "Antrian Anda", style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white70)),
-                        GestureDetector(
-                          onTap: () {
-                            AppState.selectedIndex.value = 1; // Tab Jadwal
-                          },
-                          child: Text("Lihat Semua", style: TextStyle(fontSize: 12, color: primaryColor, fontWeight: FontWeight.bold))
+                        Text(
+                          isAdmin ? "GLOBAL QUEUE" : "PERSONAL QUEUE", 
+                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.white.withOpacity(0.3), letterSpacing: 2.5)
+                        ),
+                        TextButton(
+                          onPressed: () => AppState.selectedIndex.value = 1,
+                          child: Text("VIEW ALL", style: TextStyle(fontSize: 11, color: goldColor, fontWeight: FontWeight.w900, letterSpacing: 1.0))
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
                     
-                    // Premium Queue List from Supabase Real-time
+                    // Real-time Queue list
                     StreamBuilder<List<Appointment>>(
                       stream: SupabaseService.getAppointmentsStream(
                         barberId: isAdmin ? null : AppState.currentUserProfile.value?['id']
                       ),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState == ConnectionState.waiting) {
-                          return const Center(child: CircularProgressIndicator());
-                        }
-                        if (snapshot.hasError) {
-                          return Text('Error: ${snapshot.error}', style: const TextStyle(color: Colors.red));
+                          return const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator()));
                         }
                         final appointments = snapshot.data ?? [];
                         if (appointments.isEmpty) {
-                          return const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 20),
-                            child: Center(child: Text("Belum ada antrian", style: TextStyle(color: Colors.white38))),
+                          return AtelierCard(
+                            padding: const EdgeInsets.all(32),
+                            child: Center(
+                              child: Text("NO ACTIVE APPOINTMENTS", style: TextStyle(color: Colors.white.withOpacity(0.2), fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 1.5))
+                            )
                           );
                         }
                         return Column(
-                          children: appointments.take(5).map((apt) => _buildPremiumQueueItem(
+                          children: appointments.take(5).map((apt) => _buildAtelierQueueItem(
                             context, 
                             apt.customerName, 
                             apt.time, 
@@ -226,80 +271,49 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildPremiumRevenueCard(Color primary) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1A),
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.5), blurRadius: 40, offset: const Offset(0, 20)),
-        ],
+  Widget _buildAtelierRevenueCard(Color gold) {
+    return AtelierCard(
+      gradient: LinearGradient(
+        colors: [const Color(0xFF1C1B1B), const Color(0xFF131313).withOpacity(0.8)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
       ),
-      child: Stack(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Positioned(
-            right: -20,
-            top: -20,
-            child: Container(
-              width: 150,
-              height: 150,
-              decoration: BoxDecoration(
-                color: primary.withOpacity(0.1),
-                shape: BoxShape.circle,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "ESTIMATED DAILY REVENUE", 
+                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: gold.withOpacity(0.5), letterSpacing: 2.0)
               ),
-            ),
+              Icon(Icons.auto_graph_rounded, color: gold.withOpacity(0.3), size: 20),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.all(28),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          const SizedBox(height: 16),
+          _isLoading 
+            ? const SizedBox(height: 44, child: Center(child: CircularProgressIndicator(strokeWidth: 2)))
+            : Text(
+                "IDR ${NumberFormat("#,###", "id_ID").format(_stats['revenue_today'])}", 
+                style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: -1.5)
+              ),
+          const SizedBox(height: 20),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.greenAccent.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Colors.greenAccent.withOpacity(0.1)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("ESTIMASI PENDAPATAN HARI INI", style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.white.withOpacity(0.4), letterSpacing: 1.5)),
-                        const SizedBox(height: 8),
-                        _isLoading 
-                          ? const SizedBox(height: 38, width: 38, child: CircularProgressIndicator(strokeWidth: 2))
-                          : Text("Rp ${_stats['revenue_today'].toInt()}", style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: -1)),
-                      ],
-                    ),
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: primary.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Icon(Icons.account_balance_wallet_rounded, color: primary, size: 24),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.greenAccent.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Row(
-                        children: [
-                          Icon(Icons.trending_up, size: 14, color: Colors.greenAccent),
-                          SizedBox(width: 6),
-                          Text("+15.4%", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.greenAccent)),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text("dari minggu lalu", style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.3))),
-                  ],
-                ),
+                const Icon(Icons.arrow_upward_rounded, size: 14, color: Colors.greenAccent),
+                const SizedBox(width: 6),
+                const Text("+12.5%", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.greenAccent, letterSpacing: 0.5)),
+                const SizedBox(width: 8),
+                Text("vs last week", style: TextStyle(fontSize: 11, color: Colors.white.withOpacity(0.3))),
               ],
             ),
           ),
@@ -308,205 +322,165 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildAttendanceCard(Color primary, bool isAdmin) {
+  Widget _buildAtelierAttendanceCard(Color gold, bool isAdmin) {
     if (isAdmin) {
       return GestureDetector(
         onTap: () => Navigator.pushNamed(context, '/attendance-report'),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-          decoration: BoxDecoration(
-            color: primary.withOpacity(0.05),
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: primary.withOpacity(0.1)),
-          ),
+        child: AtelierGlassCard(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
           child: Row(
             children: [
-              Icon(Icons.assignment_ind_rounded, color: primary),
-              const SizedBox(width: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(color: gold.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+                child: Icon(Icons.badge_outlined, color: gold, size: 22),
+              ),
+              const SizedBox(width: 20),
               const Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Laporan Kehadiran", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                    Text("Pantau absensi barber hari ini", style: TextStyle(color: Colors.white38, fontSize: 12)),
+                    Text("STAFF ATTENDANCE", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Colors.white, letterSpacing: 1.0)),
+                    SizedBox(height: 2),
+                    Text("Monitor barber presence today", style: TextStyle(color: Colors.white38, fontSize: 11, fontWeight: FontWeight.w500)),
                   ],
                 ),
               ),
-              Icon(Icons.chevron_right_rounded, color: Colors.white24),
+              Icon(Icons.chevron_right_rounded, color: gold.withOpacity(0.5)),
             ],
           ),
         ),
       );
     }
 
-    // Barber Card
     final bool isCheckedIn = _todayAttendance != null;
     final bool isCheckedOut = _todayAttendance?.checkOut != null;
     
-    String status = "Belum Absen";
-    Color statusColor = Colors.white38;
+    String statusStr = "OFF DUTY";
+    Color statusColor = Colors.white24;
     if (isCheckedIn) {
-      status = isCheckedOut ? "Sudah Pulang" : "Sedang Bekerja";
-      statusColor = isCheckedOut ? Colors.greenAccent : primary;
+      statusStr = isCheckedOut ? "COMPLETED" : "ON DUTY";
+      statusColor = isCheckedOut ? Colors.greenAccent : gold;
     }
 
     return GestureDetector(
       onTap: () => Navigator.pushNamed(context, '/attendance'),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.03),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.white.withOpacity(0.05)),
-        ),
+      child: AtelierGlassCard(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: statusColor.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(Icons.timer_outlined, color: statusColor, size: 20),
+              decoration: BoxDecoration(color: statusColor.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+              child: Icon(Icons.schedule_rounded, color: statusColor, size: 22),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 20),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Status Kehadiran", style: TextStyle(color: Colors.white38, fontSize: 12, fontWeight: FontWeight.bold)),
-                  Text(status, style: TextStyle(color: statusColor, fontWeight: FontWeight.w900, fontSize: 18, letterSpacing: -0.5)),
+                  Text("SHIFT STATUS", style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2.0)),
+                  const SizedBox(height: 2),
+                  Text(statusStr, style: TextStyle(color: statusColor, fontWeight: FontWeight.w900, fontSize: 20, letterSpacing: -0.5)),
                 ],
               ),
             ),
-            Icon(Icons.arrow_forward_ios_rounded, color: Colors.white10, size: 14),
+            const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white10, size: 16),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildModernAction(BuildContext context, IconData icon, String label, Color color, VoidCallback onTap) {
+  Widget _buildAtelierAction(IconData icon, String label, Color color, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Column(
         children: [
-          Container(
-            width: 68,
-            height: 68,
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.08),
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: color.withOpacity(0.15)),
-            ),
-            child: Icon(icon, color: color, size: 26),
+          AtelierCard(
+            width: 76,
+            height: 76,
+            padding: EdgeInsets.zero,
+            color: color.withOpacity(0.05),
+            border: Border.all(color: color.withOpacity(0.1)),
+            child: Center(child: Icon(icon, color: color, size: 28)),
           ),
-          const SizedBox(height: 10),
-          Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white70)),
+          const SizedBox(height: 12),
+          Text(label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 1.0)),
         ],
       ),
     );
   }
 
-  Widget _buildFrostedStat(String label, String value, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.03),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
-      ),
+  Widget _buildMetricCard(String label, String value, IconData icon, Color color) {
+    return AtelierCard(
+      padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, color: color, size: 18),
-          ),
-          const SizedBox(height: 16),
-          Text(value, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
-          Text(label, style: TextStyle(fontSize: 11, color: Colors.white.withOpacity(0.3), fontWeight: FontWeight.w600, letterSpacing: 0.5)),
+          Icon(icon, color: color, size: 20),
+          const SizedBox(height: 24),
+          Text(value, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: -1.0)),
+          const SizedBox(height: 4),
+          Text(label, style: TextStyle(fontSize: 10, color: Colors.white.withOpacity(0.3), fontWeight: FontWeight.w800, letterSpacing: 2.0)),
         ],
       ),
     );
   }
 
-  Widget _formatTime(String? iso) {
-    if (iso == null) return const Text("--:--", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 15));
-    try {
-      if (iso.contains('T')) {
-        final dt = DateTime.parse(iso).toLocal();
-        return Text(DateFormat('HH:mm').format(dt), style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor, fontSize: 15));
-      }
-      // If it's already HH:mm:ss
-      return Text(iso.substring(0, 5), style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor, fontSize: 15));
-    } catch (e) {
-      return const Text("--:--", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 15));
-    }
-  }
-
-  Widget _buildPremiumQueueItem(BuildContext context, String name, String time, String sub, bool isInProcess) {
-    final primaryColor = Theme.of(context).primaryColor;
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.02),
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: Colors.white.withOpacity(0.03)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: isInProcess ? [primaryColor, primaryColor.withOpacity(0.7)] : [Colors.white10, Colors.white.withOpacity(0.05)],
+  Widget _buildAtelierQueueItem(BuildContext context, String name, String time, String sub, bool isActive) {
+    final gold = const Color(0xFFD4AF37);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: AtelierCard(
+        padding: const EdgeInsets.all(20),
+        child: Row(
+          children: [
+            Container(
+              width: 54,
+              height: 54,
+              decoration: BoxDecoration(
+                color: isActive ? gold : Colors.white.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(16),
               ),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Center(
-              child: Text(
-                name.isNotEmpty ? name.substring(0, 1) : "?",
-                style: TextStyle(color: isInProcess ? Colors.black : Colors.white38, fontWeight: FontWeight.bold, fontSize: 18),
+              child: Center(
+                child: Text(
+                  name.isNotEmpty ? name.substring(0, 1).toUpperCase() : "?",
+                  style: TextStyle(color: isActive ? Colors.black : Colors.white38, fontWeight: FontWeight.w900, fontSize: 22),
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            const SizedBox(width: 20),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(name, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 17, color: Colors.white, letterSpacing: -0.5)),
+                  const SizedBox(height: 4),
+                  Text(sub, style: TextStyle(fontSize: 13, color: Colors.white.withOpacity(0.3), fontWeight: FontWeight.w500)),
+                ],
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white)),
-                const SizedBox(height: 2),
-                Text(sub, style: TextStyle(fontSize: 13, color: Colors.white.withOpacity(0.3))),
+                Text(time, style: TextStyle(fontWeight: FontWeight.w900, color: gold, fontSize: 17, letterSpacing: -0.5)),
+                const SizedBox(height: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: isActive ? Colors.greenAccent.withOpacity(0.1) : Colors.white10,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    isActive ? "ACTIVE" : "PENDING",
+                    style: TextStyle(fontSize: 8, color: isActive ? Colors.greenAccent : Colors.white24, fontWeight: FontWeight.w900, letterSpacing: 1.5),
+                  ),
+                ),
               ],
             ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(time, style: TextStyle(fontWeight: FontWeight.bold, color: primaryColor, fontSize: 15)),
-              const SizedBox(height: 4),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: isInProcess ? Colors.greenAccent.withOpacity(0.1) : Colors.white.withOpacity(0.05),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  isInProcess ? "DALAM PROSES" : "MENUNGGU",
-                  style: TextStyle(fontSize: 8, color: isInProcess ? Colors.greenAccent : Colors.white24, fontWeight: FontWeight.w900, letterSpacing: 1),
-                ),
-              ),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

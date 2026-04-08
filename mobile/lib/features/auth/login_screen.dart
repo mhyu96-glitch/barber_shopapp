@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import '../../core/app_state.dart';
 import '../../core/supabase_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../navigation/main_navigation.dart';
+import '../../widgets/atelier_card.dart';
+import '../../widgets/atelier_button.dart';
+import '../../widgets/atelier_text_field.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -40,7 +42,6 @@ class _LoginScreenState extends State<LoginScreen> {
           AppState.currentUserProfile.value = profile;
           AppState.currentBarberName.value = profile['full_name'] ?? 'Barber';
           
-          // Multi-tenant: save context
           final sId = profile['shop_id'] as String?;
           AppState.shopId.value = sId;
           AppState.branchId.value = profile['branch_id'] as String?;
@@ -82,10 +83,9 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF131313),
       body: Stack(
         children: [
-          // Background subtle texture simulation
+          // Elegant dark gradient background
           Positioned.fill(
             child: Container(
               decoration: const BoxDecoration(
@@ -93,9 +93,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   begin: Alignment.bottomLeft,
                   end: Alignment.topRight,
                   colors: [
-                    Color(0xFF0E0E0E),
+                    Color(0xFF0D0D0D),
                     Color(0xFF131313),
-                    Color(0x800E0E0E),
+                    Color(0xFF0D0D0D),
                   ],
                 ),
               ),
@@ -105,330 +105,147 @@ class _LoginScreenState extends State<LoginScreen> {
           SafeArea(
             child: Center(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Brand Header
+                    // Brand Identity
                     const Text(
                       "BarberPro Studio",
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: 'Epilogue',
-                        fontSize: 32,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -1.0,
+                        fontSize: 36,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: -1.5,
                         color: Color(0xFFD4AF37),
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
+                    Text(
                       "THE PRIVATE ATELIER EXPERIENCE",
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: 'Inter',
                         fontSize: 10,
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: 2.0,
-                        color: Color(0xFFD0C5AF),
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 3.0,
+                        color: Colors.white.withOpacity(0.4),
                       ),
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 48),
 
-                    // Login Card
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1C1B1B),
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black45,
-                            blurRadius: 48,
-                            offset: Offset(0, 24),
-                          )
-                        ],
-                      ),
+                    // Authentication Interface
+                    AtelierCard(
+                      padding: const EdgeInsets.all(28),
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Hero Image Section
-                          ClipRRect(
-                            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                            child: SizedBox(
-                              height: 120,
-                              width: double.infinity,
-                              child: Stack(
-                                fit: StackFit.expand,
+                          const Text(
+                            "Welcome Back",
+                            style: TextStyle(
+                              fontFamily: 'Epilogue',
+                              fontSize: 26,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            "Sign in to access your atelier workspace.",
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 14,
+                              color: Colors.white.withOpacity(0.5),
+                            ),
+                          ),
+                          const SizedBox(height: 40),
+                          
+                          AtelierTextField(
+                            controller: _usernameController,
+                            label: "Identity / Username",
+                            hintText: "Enter your username",
+                            prefixIcon: Icons.person_outline_rounded,
+                          ),
+                          const SizedBox(height: 24),
+                          
+                          AtelierTextField(
+                            controller: _passwordController,
+                            label: "Security Protocol",
+                            hintText: "••••••••",
+                            prefixIcon: Icons.lock_outline_rounded,
+                            obscureText: true,
+                          ),
+                          
+                          if (_errorMessage != null) ...[
+                            const SizedBox(height: 24),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                              decoration: BoxDecoration(
+                                color: Colors.redAccent.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.redAccent.withOpacity(0.2)),
+                              ),
+                              child: Row(
                                 children: [
-                                  ColorFiltered(
-                                    colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
-                                    child: Image.network(
-                                      'https://lh3.googleusercontent.com/aida-public/AB6AXuDEGX40XkCtazrNZ9Mx5YeBA7BB64tt8WqUi42O3x45Fdt3HxsGfdsEFBbEAq79FRGm1eyQ9oZVdna3o627PR1IcoydRAbh8vwO2iSFHmQimcXcwrAaIJkRbSmyugWFV9xR4rMtkbMBkDtcMjh77JIuPSa9ZusDDLqkL6o3i4z24eqaMQp9XHM8a27w9VAFIBSWytbhnZbdLWECoOKD2yMDEEuV9ZiGR0_-tmLCQXexTkPM35m6qPhe_Z2kIec3wOy1xKiEv1cWQ_M',
-                                      fit: BoxFit.cover,
-                                      opacity: const AlwaysStoppedAnimation(0.4),
-                                      errorBuilder: (context, error, stackTrace) => Container(color: const Color(0xFF1C1B1B)),
-                                    ),
-                                  ),
-                                  Container(
-                                    decoration: const BoxDecoration(
-                                      gradient: LinearGradient(
-                                        begin: Alignment.topCenter,
-                                        end: Alignment.bottomCenter,
-                                        colors: [Colors.transparent, Color(0xFF1C1B1B)],
-                                      ),
+                                  const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 18),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      _errorMessage!,
+                                      style: const TextStyle(color: Colors.redAccent, fontSize: 13, fontWeight: FontWeight.w600),
                                     ),
                                   ),
                                 ],
                               ),
                             ),
+                          ],
+                          
+                          const SizedBox(height: 40),
+                          
+                          AtelierButton(
+                            label: "Access Atelier",
+                            onPressed: _handleLogin,
+                            isLoading: _isLoading,
+                            icon: Icons.chevron_right_rounded,
                           ),
                           
-                          // Form Content
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(32, 8, 32, 40),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  "Welcome Back",
-                                  style: TextStyle(
-                                    fontFamily: 'Epilogue',
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFFE5E2E1),
-                                  ),
+                          const SizedBox(height: 32),
+                          
+                          Center(
+                            child: TextButton(
+                              onPressed: () {},
+                              child: RichText(
+                                text: TextSpan(
+                                  text: "New Operator? ",
+                                  style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 13),
+                                  children: const [
+                                    TextSpan(
+                                      text: "CONTACT ADMIN",
+                                      style: TextStyle(color: Color(0xFFD4AF37), fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 1.0),
+                                    )
+                                  ]
                                 ),
-                                const SizedBox(height: 4),
-                                const Text(
-                                  "Sign in to your professional workspace.",
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Color(0xFFD0C5AF),
-                                  ),
-                                ),
-                                const SizedBox(height: 32),
-                                
-                                // Username
-                                // Username
-                                const Padding(
-                                  padding: EdgeInsets.only(left: 4, bottom: 8),
-                                  child: Text(
-                                    "IDENTITY / USERNAME",
-                                    style: TextStyle(
-                                      fontFamily: 'Inter',
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w700,
-                                      letterSpacing: 1.5,
-                                      color: Color(0xFFD4AF37),
-                                    ),
-                                  ),
-                                ),
-                                TextField(
-                                  controller: _usernameController,
-                                  style: const TextStyle(color: Color(0xFFE5E2E1), fontWeight: FontWeight.bold),
-                                  keyboardType: TextInputType.visiblePassword, // Disables most autocorrect
-                                  autocorrect: false,
-                                  enableSuggestions: false,
-                                  textCapitalization: TextCapitalization.none,
-                                  decoration: InputDecoration(
-                                    hintText: 'Enter your username',
-                                    hintStyle: const TextStyle(color: Colors.white10),
-                                    prefixIcon: const Icon(Icons.person_outline_rounded, color: Color(0xFFD4AF37), size: 20),
-                                    filled: true,
-                                    fillColor: const Color(0xFF0E0E0E),
-                                    contentPadding: const EdgeInsets.symmetric(vertical: 22, horizontal: 16),
-                                    border: OutlineInputBorder(
-                                      borderSide: const BorderSide(color: Color(0x3399907C)),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderSide: const BorderSide(color: Color(0x3399907C)),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderSide: const BorderSide(color: Color(0xFFD4AF37), width: 1.5),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 24),
-                                
-                                // Password
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 4, bottom: 8, right: 4),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      const Text(
-                                        "SECURITY PROTOCOL",
-                                        style: TextStyle(
-                                          fontFamily: 'Inter',
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.w700,
-                                          letterSpacing: 1.5,
-                                          color: Color(0xFFD4AF37),
-                                        ),
-                                      ),
-                                      Text(
-                                        "RECOVER ACCESS?",
-                                        style: TextStyle(
-                                          fontFamily: 'Inter',
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.w600,
-                                          color: const Color(0xFF99907C).withOpacity(0.6),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                TextField(
-                                  controller: _passwordController,
-                                  obscureText: true,
-                                  autocorrect: false,
-                                  enableSuggestions: false,
-                                  textCapitalization: TextCapitalization.none,
-                                  style: const TextStyle(color: Color(0xFFE5E2E1), letterSpacing: 3.0),
-                                  decoration: InputDecoration(
-                                    hintText: '••••••••',
-                                    hintStyle: const TextStyle(color: Colors.white10, letterSpacing: 0),
-                                    prefixIcon: const Icon(Icons.lock_outline_rounded, color: Color(0xFFD4AF37), size: 20),
-                                    filled: true,
-                                    fillColor: const Color(0xFF0E0E0E),
-                                    contentPadding: const EdgeInsets.symmetric(vertical: 22, horizontal: 16),
-                                    border: OutlineInputBorder(
-                                      borderSide: const BorderSide(color: Color(0x3399907C)),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderSide: const BorderSide(color: Color(0x3399907C)),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderSide: const BorderSide(color: Color(0xFFD4AF37), width: 1.5),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                ),
-                                
-                                if (_errorMessage != null) ...[
-                                  const SizedBox(height: 16),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0x1AFFB4AB),
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(color: const Color(0x33FFB4AB)),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        const Icon(Icons.error_outline, color: Color(0xFFFFB4AB), size: 16),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            _errorMessage!,
-                                            style: const TextStyle(color: Color(0xFFFFB4AB), fontSize: 12, fontWeight: FontWeight.w500),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                                
-                                const SizedBox(height: 32),
-                                
-                                // Submit Button
-                                Container(
-                                  width: double.infinity,
-                                  height: 64,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12),
-                                    gradient: const LinearGradient(
-                                      colors: [Color(0xFFFFD700), Color(0xFFD4AF37)],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: const Color(0xFFD4AF37).withOpacity(0.35),
-                                        blurRadius: 24,
-                                        offset: const Offset(0, 8),
-                                      ),
-                                    ],
-                                  ),
-                                  child: ElevatedButton(
-                                    onPressed: _isLoading ? null : _handleLogin,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.transparent,
-                                      shadowColor: Colors.transparent,
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                    ),
-                                    child: _isLoading
-                                        ? const SizedBox(
-                                            height: 24,
-                                            width: 24,
-                                            child: CircularProgressIndicator(strokeWidth: 3, color: Color(0xFF412D00)))
-                                        : const Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                "ACCESS ATELIER",
-                                                style: TextStyle(
-                                                  fontFamily: 'Epilogue',
-                                                  fontWeight: FontWeight.w900,
-                                                  color: Color(0xFF412D00),
-                                                  fontSize: 14,
-                                                  letterSpacing: 2.0,
-                                                ),
-                                              ),
-                                              SizedBox(width: 8),
-                                              Icon(Icons.chevron_right, color: Color(0xFF412D00)),
-                                            ],
-                                          ),
-                                  ),
-                                ),
-                                
-                                const SizedBox(height: 48),
-                                const Divider(color: Color(0x1A99907C)),
-                                const SizedBox(height: 32),
-                                
-                                Center(
-                                  child: TextButton(
-                                    onPressed: () {},
-                                    child: RichText(
-                                      text: const TextSpan(
-                                        text: "New Operator? ",
-                                        style: TextStyle(color: Color(0xFFD0C5AF), fontSize: 12),
-                                        children: [
-                                          TextSpan(
-                                            text: "CONTACT ADMINISTRATION",
-                                            style: TextStyle(color: Color(0xFFD4AF37), fontWeight: FontWeight.w900, fontSize: 11, letterSpacing: 0.5),
-                                          )
-                                        ]
-                                      ),
-                                    ),
-                                  ),
-                                )
-                              ],
+                              ),
                             ),
-                          ),
+                          )
                         ],
                       ),
                     ),
                     
-                    const SizedBox(height: 48),
+                    const SizedBox(height: 60),
                     
-                    // Footer
-                    const Text(
-                      "BARBERPRO STUDIO v2.4\n© 2024 THE PRIVATE ATELIER EXPERIENCE.",
+                    Text(
+                      "BARBERPRO STUDIO v2.5\nPRECISION IN EVERY CUT.",
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: 'Inter',
                         fontSize: 9,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 2.0,
-                        color: Color(0x4D99907C),
-                        height: 2.0,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 2.5,
+                        color: Colors.white.withOpacity(0.2),
+                        height: 2.2,
                       ),
                     ),
                   ],

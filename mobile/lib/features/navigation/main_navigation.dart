@@ -42,43 +42,55 @@ class _MainNavigationState extends State<MainNavigation> {
       final serviceName = booking['service_name'] ?? 'Layanan';
       final time = booking['time'] ?? '';
 
-      // Show native notification
       NotificationService.showBookingNotification(
         customerName: customerName,
         serviceName: serviceName,
         time: time,
       );
 
-      // Show in-app SnackBar
       if (mounted) {
+        final gold = const Color(0xFFD4AF37);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.notifications_active, color: Colors.white),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text('📲 Booking Baru!',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      Text('$customerName - $serviceName ($time)',
-                          style: const TextStyle(fontSize: 12)),
-                    ],
+            content: Container(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(color: gold.withOpacity(0.1), shape: BoxShape.circle),
+                    child: Icon(Icons.notifications_active_rounded, color: gold, size: 20),
                   ),
-                ),
-              ],
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text('NEW APPOINTMENT',
+                            style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontSize: 11, letterSpacing: 1.5)),
+                        const SizedBox(height: 2),
+                        Text('$customerName - $serviceName ($time)',
+                            style: TextStyle(fontSize: 13, color: Colors.white.withOpacity(0.7), fontWeight: FontWeight.w500)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-            backgroundColor: const Color(0xFFFFAB00),
+            backgroundColor: const Color(0xFF1C1B1B),
+            elevation: 10,
             behavior: SnackBarBehavior.floating,
-            duration: const Duration(seconds: 5),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(color: gold.withOpacity(0.1)),
+            ),
+            duration: const Duration(seconds: 6),
             action: SnackBarAction(
-              label: 'LIHAT',
-              textColor: Colors.black,
+              label: 'VIEW',
+              textColor: gold,
               onPressed: () {
-                AppState.selectedIndex.value = 1; // Go to Appointments tab
+                AppState.selectedIndex.value = 1;
               },
             ),
           ),
@@ -95,6 +107,9 @@ class _MainNavigationState extends State<MainNavigation> {
 
   @override
   Widget build(BuildContext context) {
+    final gold = const Color(0xFFD4AF37);
+    final backgroundDark = const Color(0xFF0D0D0D);
+
     return ValueListenableBuilder<int>(
       valueListenable: AppState.selectedIndex,
       builder: (context, selectedIndex, child) {
@@ -104,44 +119,59 @@ class _MainNavigationState extends State<MainNavigation> {
             children: _screens,
           ),
           bottomNavigationBar: Container(
+            height: 90 + MediaQuery.of(context).padding.bottom,
             decoration: BoxDecoration(
-              border: Border(top: BorderSide(color: Colors.white.withOpacity(0.1), width: 0.5)),
+              color: backgroundDark,
+              border: Border(
+                top: BorderSide(
+                  color: Colors.white.withOpacity(0.05),
+                  width: 0.5,
+                ),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.5),
+                  blurRadius: 20,
+                  offset: const Offset(0, -10),
+                ),
+              ],
             ),
             child: BottomNavigationBar(
               currentIndex: selectedIndex,
               onTap: (index) => AppState.selectedIndex.value = index,
               type: BottomNavigationBarType.fixed,
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-              selectedItemColor: Theme.of(context).primaryColor,
-              unselectedItemColor: Colors.white38,
-              selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10),
-              unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal, fontSize: 10),
-              items: const [
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.home_outlined),
-                  activeIcon: Icon(Icons.home_rounded),
-                  label: 'BERANDA',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.calendar_month_outlined),
-                  activeIcon: Icon(Icons.calendar_month_rounded),
-                  label: 'JADWAL',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.group_outlined),
-                  activeIcon: Icon(Icons.group_rounded),
-                  label: 'PELANGGAN',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.person_outline_rounded),
-                  activeIcon: Icon(Icons.person_rounded),
-                  label: 'PROFIL',
-                ),
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              selectedItemColor: gold,
+              unselectedItemColor: Colors.white.withOpacity(0.2),
+              selectedFontSize: 9,
+              unselectedFontSize: 9,
+              selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.5),
+              unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700, letterSpacing: 1.5),
+              items: [
+                _buildNavItem(Icons.grid_view_outlined, Icons.grid_view_rounded, 'COMMAND'),
+                _buildNavItem(Icons.calendar_today_outlined, Icons.calendar_today_rounded, 'SCHEDULE'),
+                _buildNavItem(Icons.people_outline_rounded, Icons.people_rounded, 'CLIENTS'),
+                _buildNavItem(Icons.account_circle_outlined, Icons.account_circle_rounded, 'PROFILE'),
               ],
             ),
           ),
         );
       },
+    );
+  }
+
+  BottomNavigationBarItem _buildNavItem(IconData icon, IconData activeIcon, String label) {
+    return BottomNavigationBarItem(
+      icon: Padding(
+        padding: const EdgeInsets.only(bottom: 6, top: 12),
+        child: Icon(icon, size: 22),
+      ),
+      activeIcon: Padding(
+        padding: const EdgeInsets.only(bottom: 6, top: 12),
+        child: Icon(activeIcon, size: 24),
+      ),
+      label: label,
     );
   }
 }

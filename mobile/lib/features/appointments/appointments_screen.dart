@@ -2,36 +2,44 @@ import 'package:flutter/material.dart';
 import '../../core/app_state.dart';
 import '../../core/supabase_service.dart';
 import '../../data/models.dart';
+import '../../widgets/atelier_card.dart';
+import '../../widgets/atelier_button.dart';
 import 'book_appointment_screen.dart';
+import 'package:intl/intl.dart';
 
 class AppointmentsScreen extends StatelessWidget {
   const AppointmentsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = Theme.of(context).primaryColor;
-    final backgroundDark = Theme.of(context).scaffoldBackgroundColor;
+    final gold = const Color(0xFFD4AF37);
+    final backgroundDark = const Color(0xFF0D0D0D);
     final isAdmin = AppState.isAdmin();
     
     return Scaffold(
       backgroundColor: backgroundDark,
       body: SafeArea(
         child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
-            // --- Header ---
+            // --- Elaborate Header ---
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.calendar_month_rounded, color: primaryColor, size: 32),
-                        const SizedBox(width: 12),
                         Text(
-                          isAdmin ? 'Daftar Janji' : 'Jadwal Anda',
-                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+                          "PRECISION PLANNING",
+                          style: TextStyle(fontSize: 9, color: gold.withOpacity(0.5), fontWeight: FontWeight.w900, letterSpacing: 2.0),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          isAdmin ? 'GLOBAL SCHEDULE' : 'YOUR SCHEDULE',
+                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: -0.5),
                         ),
                       ],
                     ),
@@ -43,12 +51,19 @@ class AppointmentsScreen extends StatelessWidget {
                         );
                       },
                       child: Container(
-                        padding: const EdgeInsets.all(8),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                         decoration: BoxDecoration(
-                          color: primaryColor,
+                          color: gold.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: gold.withOpacity(0.2)),
                         ),
-                        child: const Icon(Icons.add, color: Colors.white),
+                        child: Row(
+                          children: [
+                            Icon(Icons.add_rounded, color: gold, size: 18),
+                            const SizedBox(width: 8),
+                            Text("NEW", style: TextStyle(color: gold, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.0)),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -56,59 +71,57 @@ class AppointmentsScreen extends StatelessWidget {
               ),
             ),
 
-            // --- Calendar Section ---
+            // --- Premium Calendar Control ---
             SliverToBoxAdapter(
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 16),
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.05),
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _buildNavButton(Icons.chevron_left),
-                        const Text(
-                          "Maret 2026",
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-                        ),
-                        _buildNavButton(Icons.chevron_right),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    _buildCalendarGrid(primaryColor),
-                  ],
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: AtelierCard(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _buildAtelierNavButton(Icons.chevron_left_rounded, gold),
+                          Text(
+                            "APRIL 2026",
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: gold, letterSpacing: 2.0),
+                          ),
+                          _buildAtelierNavButton(Icons.chevron_right_rounded, gold),
+                        ],
+                      ),
+                      const SizedBox(height: 28),
+                      _buildAtelierCalendarGrid(gold),
+                    ],
+                  ),
                 ),
               ),
             ),
 
-            // --- List Header ---
+            // --- List Controls Segment ---
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 32, 24, 16),
+                padding: const EdgeInsets.fromLTRB(24, 44, 24, 20),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      "Jadwal Hari Ini",
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                    Text(
+                      "TODAY'S APPOINTMENTS",
+                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.white.withOpacity(0.3), letterSpacing: 2.0),
                     ),
                     StreamBuilder<List<Appointment>>(
                       stream: SupabaseService.getAppointmentsStream(),
                       builder: (context, snapshot) {
                         final count = snapshot.data?.length ?? 0;
                         return Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: primaryColor.withOpacity(0.1),
+                            color: Colors.white.withOpacity(0.05),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            "$count Janji",
-                            style: TextStyle(color: primaryColor, fontSize: 11, fontWeight: FontWeight.bold),
+                            "$count SLOTS USED",
+                            style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1.0),
                           ),
                         );
                       }
@@ -118,29 +131,34 @@ class AppointmentsScreen extends StatelessWidget {
               ),
             ),
 
-            // --- Appointment Cards from Supabase ---
+            // --- Elegant Appointment Stream ---
             StreamBuilder<List<Appointment>>(
               stream: SupabaseService.getAppointmentsStream(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const SliverToBoxAdapter(child: Center(child: CircularProgressIndicator()));
+                  return const SliverToBoxAdapter(child: Center(child: Padding(padding: EdgeInsets.all(40), child: CircularProgressIndicator())));
                 }
                 final appointments = snapshot.data ?? [];
                 if (appointments.isEmpty) {
-                  return const SliverToBoxAdapter(
+                  return SliverToBoxAdapter(
                     child: Padding(
-                      padding: EdgeInsets.all(40.0),
-                      child: Center(child: Text("Belum ada janji temu", style: TextStyle(color: Colors.white38))),
+                      padding: const EdgeInsets.all(40.0),
+                      child: Center(
+                        child: Text(
+                          "NO RESERVATIONS FOUND", 
+                          style: TextStyle(color: Colors.white.withOpacity(0.15), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 2.0)
+                        )
+                      ),
                     ),
                   );
                 }
                 return SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
                   sliver: SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (context, index) {
                         final apt = appointments[index];
-                        return _buildAppointmentCard(
+                        return _buildAtelierAppointmentCard(
                           context,
                           appointment: apt,
                         );
@@ -151,46 +169,31 @@ class AppointmentsScreen extends StatelessWidget {
                 );
               },
             ),
-            const SliverToBoxAdapter(child: SizedBox(height: 100)),
+            const SliverToBoxAdapter(child: SizedBox(height: 120)),
           ],
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      floatingActionButton: isAdmin ? Padding(
-        padding: const EdgeInsets.only(bottom: 20, right: 10),
-        child: FloatingActionButton.extended(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const BookAppointmentScreen()),
-            );
-          },
-          backgroundColor: Colors.blue.shade600,
-          icon: const Icon(Icons.add, color: Colors.white),
-          label: const Text("Buat Janji Baru", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-        ),
-      ) : null,
     );
   }
 
-  Widget _buildNavButton(IconData icon) {
+  Widget _buildAtelierNavButton(IconData icon, Color gold) {
     return Container(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(10),
+        color: Colors.white.withOpacity(0.03),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withOpacity(0.05)),
       ),
-      child: Icon(icon, color: Colors.white60, size: 20),
+      child: Icon(icon, color: gold, size: 20),
     );
   }
 
-  Widget _buildCalendarGrid(Color primary) {
+  Widget _buildAtelierCalendarGrid(Color gold) {
     final now = DateTime.now();
     final firstDayOfMonth = DateTime(now.year, now.month, 1);
     final lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
     final daysInMonth = lastDayOfMonth.day;
-    final firstWeekday = firstDayOfMonth.weekday % 7; // 0 for Sunday
+    final firstWeekday = firstDayOfMonth.weekday % 7;
     
     const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
     
@@ -201,18 +204,19 @@ class AppointmentsScreen extends StatelessWidget {
           children: days
               .map((day) => Text(
                     day,
-                    style: const TextStyle(color: Colors.white38, fontSize: 11, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: Colors.white.withOpacity(0.2), fontSize: 11, fontWeight: FontWeight.w900),
                   ))
               .toList(),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 20),
         GridView.builder(
           shrinkWrap: true,
+          padding: EdgeInsets.zero,
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 7,
-            mainAxisSpacing: 8,
-            crossAxisSpacing: 8,
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
           ),
           itemCount: daysInMonth + firstWeekday,
           itemBuilder: (context, index) {
@@ -225,16 +229,17 @@ class AppointmentsScreen extends StatelessWidget {
             return Container(
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: isSelected ? primary : Colors.transparent,
+                color: isSelected ? gold : Colors.transparent,
                 borderRadius: BorderRadius.circular(12),
-                boxShadow: isSelected ? [BoxShadow(color: primary.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 4))] : null,
-                border: isToday && !isSelected ? Border.all(color: primary.withOpacity(0.5)) : null,
+                boxShadow: isSelected ? [BoxShadow(color: gold.withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 6))] : null,
+                border: isToday && !isSelected ? Border.all(color: gold.withOpacity(0.3)) : null,
               ),
               child: Text(
                 day.toString(),
                 style: TextStyle(
-                  color: isSelected ? Colors.black : Colors.white,
-                  fontWeight: isSelected || isToday ? FontWeight.bold : FontWeight.normal,
+                  color: isSelected ? Colors.black : Colors.white.withOpacity(isSelected || isToday ? 1.0 : 0.4),
+                  fontWeight: FontWeight.w900,
+                  fontSize: 13,
                 ),
               ),
             );
@@ -244,49 +249,44 @@ class AppointmentsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAppointmentCard(
+  Widget _buildAtelierAppointmentCard(
     BuildContext context, {
     required Appointment appointment,
-    double opacity = 1.0,
   }) {
     final isAdmin = AppState.isAdmin();
-    final primaryColor = Theme.of(context).primaryColor;
+    final gold = const Color(0xFFD4AF37);
     
-    return Opacity(
-      opacity: opacity,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.03),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white.withOpacity(0.05)),
-        ),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: AtelierCard(
+        padding: const EdgeInsets.all(20),
         child: Row(
           children: [
             Column(
               children: [
-                Text(appointment.time, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.white)),
-                Text(appointment.status.toUpperCase(), style: TextStyle(fontSize: 8, color: appointment.status == 'confirmed' ? Colors.greenAccent : primaryColor, fontWeight: FontWeight.bold)),
+                Text(appointment.time, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: Colors.white, letterSpacing: -0.5)),
+                const SizedBox(height: 4),
+                Text(
+                  appointment.status.toUpperCase(), 
+                  style: TextStyle(fontSize: 8, color: appointment.status == 'confirmed' ? Colors.greenAccent : gold, fontWeight: FontWeight.w900, letterSpacing: 1.0)
+                ),
               ],
             ),
-            const VerticalDivider(width: 32, indent: 4, endIndent: 4),
+            const SizedBox(width: 20),
+            Container(width: 1, height: 40, color: Colors.white.withOpacity(0.05)),
+            const SizedBox(width: 20),
             Container(
-              width: 50,
-              height: 50,
+              width: 52,
+              height: 52,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [primaryColor.withOpacity(0.2), primaryColor.withOpacity(0.05)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(15),
-                border: Border.all(color: primaryColor.withOpacity(0.1)),
+                color: gold.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: gold.withOpacity(0.1)),
               ),
               child: Center(
                 child: Text(
                   appointment.customerName.isNotEmpty ? appointment.customerName.substring(0, 1).toUpperCase() : "?",
-                  style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold, fontSize: 20),
+                  style: TextStyle(color: gold, fontWeight: FontWeight.w900, fontSize: 20),
                 ),
               ),
             ),
@@ -295,149 +295,59 @@ class AppointmentsScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(appointment.customerName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white)),
-                  Text(appointment.serviceName, style: const TextStyle(color: Colors.white60, fontSize: 13)),
+                  Text(appointment.customerName, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Colors.white, letterSpacing: -0.5)),
+                  const SizedBox(height: 2),
+                  Text(appointment.serviceName, style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 12, fontWeight: FontWeight.w500)),
                 ],
               ),
             ),
             if (isAdmin) 
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (appointment.status == 'done')
-                    IconButton(
-                      icon: const Icon(Icons.receipt_long_rounded, color: Colors.greenAccent, size: 20),
-                      onPressed: () => _showReceiptDialog(context, appointment),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                      tooltip: "Cetak Nota",
-                    ),
-                  const SizedBox(width: 8),
-                  TextButton(
-                    onPressed: () {
-                      _showStatusDialog(context, appointment);
-                    },
-                    child: const Text("UBAH", style: TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.w900, fontSize: 10)),
-                  ),
-                ],
+              IconButton(
+                icon: Icon(Icons.tune_rounded, color: gold.withOpacity(0.6), size: 18),
+                onPressed: () => _showAtelierStatusDialog(context, appointment),
               )
             else
-              const Icon(Icons.more_vert, color: Colors.white38),
+              const Icon(Icons.chevron_right_rounded, color: Colors.white12),
           ],
         ),
       ),
     );
   }
 
-  void _showStatusDialog(BuildContext context, Appointment apt) {
+  void _showAtelierStatusDialog(BuildContext context, Appointment apt) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1A1A1A),
-        title: Text("Ubah Status: ${apt.customerName}", style: const TextStyle(color: Colors.white, fontSize: 16)),
+        backgroundColor: const Color(0xFF1C1B1B),
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24), side: BorderSide(color: Colors.white.withOpacity(0.05))),
+        title: Text(
+          "PROTOCOL UPDATE: ${apt.customerName.toUpperCase()}", 
+          style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1.5)
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _statusOption(context, apt.id, 'scheduled', 'Menunggu', Colors.orange),
-            _statusOption(context, apt.id, 'confirmed', 'Konfirmasi', Colors.green),
-            _statusOption(context, apt.id, 'done', 'Selesai', Colors.blue),
-            _statusOption(context, apt.id, 'cancelled', 'Batal', Colors.red),
+            const SizedBox(height: 12),
+            _atelierStatusOption(context, apt.id, 'scheduled', 'PENDING', Colors.orangeAccent),
+            _atelierStatusOption(context, apt.id, 'confirmed', 'CONFIRMED', Colors.greenAccent),
+            _atelierStatusOption(context, apt.id, 'done', 'COMPLETED', Colors.blueAccent),
+            _atelierStatusOption(context, apt.id, 'cancelled', 'CANCELLED', Colors.redAccent),
           ],
         ),
       ),
     );
   }
 
-  Widget _statusOption(BuildContext context, String id, String status, String label, Color color) {
+  Widget _atelierStatusOption(BuildContext context, String id, String status, String label, Color color) {
     return ListTile(
-      title: Text(label, style: TextStyle(color: color, fontWeight: FontWeight.bold)),
+      visualDensity: VisualDensity.compact,
+      title: Text(label, style: TextStyle(color: color, fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 1.5)),
+      trailing: Icon(Icons.circle, color: color.withOpacity(0.2), size: 12),
       onTap: () async {
         await SupabaseService.updateAppointmentStatus(id, status);
         if (context.mounted) Navigator.pop(context);
       },
-    );
-  }
-
-  void _showReceiptDialog(BuildContext context, Appointment apt) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1A1A1A),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.check_circle_rounded, color: Colors.greenAccent, size: 48),
-            const SizedBox(height: 16),
-            const Text("KWITANSI PEMBAYARAN", style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2)),
-            const Divider(height: 32, color: Colors.white12),
-            _receiptRow("Layanan", apt.serviceName),
-            _receiptRow("Pelanggan", apt.customerName),
-            _receiptRow("Barber", apt.barberName),
-            _receiptRow("Waktu", apt.time),
-            const Divider(height: 32, color: Colors.white12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text("TOTAL", style: TextStyle(fontWeight: FontWeight.bold)),
-                Text("Rp ${apt.paymentAmount}", style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.greenAccent, fontSize: 18)),
-              ],
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  // Simulate sharing
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text("Kwitansi dikirim ke WhatsApp!"),
-                      backgroundColor: Colors.green.shade700,
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.share, size: 18),
-                label: const Text("BAGIKAN NOTA"),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _receiptRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: const TextStyle(color: Colors.white38, fontSize: 12)),
-          Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 12)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLunchBreak(Color primary) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Row(
-        children: [
-          Expanded(child: Divider(color: primary.withOpacity(0.2), height: 1, endIndent: 16)),
-          Text(
-            "ISTIRAHAT SIANG",
-            style: TextStyle(color: primary, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2),
-          ),
-          Expanded(child: Divider(color: primary.withOpacity(0.2), height: 1, indent: 16)),
-        ],
-      ),
     );
   }
 }

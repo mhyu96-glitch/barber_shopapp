@@ -159,8 +159,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // 2. Create auth user
-      const email = `${username.toLowerCase()}@barberpro.local`;
+      // 2. Create auth user with scoped email for multi-tenancy support
+      const email = `${username.toLowerCase()}.${shopSlug}@barberpro.local`;
       const { data: authData, error: authErr } = await supabase.auth.signUp({
         email,
         password,

@@ -3,6 +3,8 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:typed_data';
 import '../../core/app_state.dart';
 import '../../core/supabase_service.dart';
+import '../../widgets/atelier_card.dart';
+import '../../widgets/atelier_button.dart';
 import 'barber_list_screen.dart';
 import 'add_edit_barber_screen.dart';
 import '../services/services_screen.dart';
@@ -65,21 +67,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _avatarUrl = url;
             _isUploading = false;
           });
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Foto profil berhasil diperbarui")));
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Profile updated successfully")));
         }
       }
     } catch (e) {
       if (mounted) {
         setState(() => _isUploading = false);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Gagal mengunggah foto: $e"), backgroundColor: Colors.redAccent));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Upload failed: $e"), backgroundColor: Colors.redAccent));
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = Theme.of(context).primaryColor;
-    final backgroundDark = Theme.of(context).scaffoldBackgroundColor;
+    final gold = const Color(0xFFD4AF37);
+    final backgroundDark = const Color(0xFF0D0D0D);
     final role = AppState.currentRole.value;
     final isAdmin = role == UserRole.admin;
 
@@ -87,21 +89,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
       backgroundColor: backgroundDark,
       body: SafeArea(
         child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
-            // --- Header ---
+            // --- Elaborate Header ---
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(24),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const SizedBox(width: 40),
                     Text(
-                      role == UserRole.admin ? 'Profil Admin' : (role == UserRole.barber ? 'Profil Barber' : 'Profil Pelanggan'),
-                      style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                      "MEMBER PROFILE",
+                      style: TextStyle(fontFamily: 'Epilogue', fontSize: 10, fontWeight: FontWeight.w900, color: gold.withOpacity(0.5), letterSpacing: 2.5),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.settings_outlined, color: Colors.white),
+                      icon: Icon(Icons.settings_outlined, color: Colors.white.withOpacity(0.3), size: 20),
                       onPressed: () {},
                     ),
                   ],
@@ -109,25 +111,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
 
-            // --- Profile Info ---
+            // --- Premium Profile Showcase ---
             SliverToBoxAdapter(
               child: Column(
                 children: [
                    Stack(
                     children: [
                       Container(
+                        padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(color: primaryColor.withOpacity(0.2), width: 4),
+                          border: Border.all(color: gold.withOpacity(0.2), width: 1),
                         ),
                         child: CircleAvatar(
-                          radius: 64,
-                          backgroundColor: primaryColor.withOpacity(0.1),
+                          radius: 70,
+                          backgroundColor: Colors.white.withOpacity(0.02),
                           backgroundImage: _avatarUrl != null 
                             ? NetworkImage(_avatarUrl!) 
                             : NetworkImage(isAdmin 
-                                ? 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=200' 
-                                : 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200'),
+                                ? 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400' 
+                                : 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400'),
                         ),
                       ),
                       if (_isUploading)
@@ -135,68 +138,62 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: Center(child: CircularProgressIndicator()),
                         ),
                       Positioned(
-                        bottom: 0,
-                        right: 0,
+                        bottom: 4,
+                        right: 4,
                         child: GestureDetector(
                           onTap: _isUploading ? null : _pickAndUploadImage,
                           child: Container(
-                            padding: const EdgeInsets.all(8),
+                            padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: primaryColor,
+                              color: gold,
                               shape: BoxShape.circle,
                               border: Border.all(color: backgroundDark, width: 3),
+                              boxShadow: [BoxShadow(color: gold.withOpacity(0.3), blurRadius: 10)],
                             ),
-                            child: const Icon(Icons.camera_alt_rounded, color: Colors.black, size: 20),
+                            child: const Icon(Icons.camera_alt_rounded, color: Colors.black, size: 18),
                           ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
                   Text(
-                    role == UserRole.admin ? "Administrator" : (role == UserRole.barber ? AppState.currentBarberName.value : "John Doe"),
-                    style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                    role == UserRole.admin ? "ADMINISTRATOR" : (role == UserRole.barber ? AppState.currentBarberName.value.toUpperCase() : "JOHN DOE"),
+                    style: const TextStyle(fontFamily: 'Epilogue', color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900, letterSpacing: -0.5),
                   ),
-                  const SizedBox(height: 8),
-                  if (!isAdmin) Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.stars, color: primaryColor, size: 16),
-                      const SizedBox(width: 4),
-                      Text(
-                        "Anggota Gold",
-                        style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold, fontSize: 14),
-                      ),
-                    ],
-                  ),
-                  Text(
-                    role == UserRole.admin 
-                      ? "Owner ${AppState.shopName.value}" 
-                      : (role == UserRole.barber 
-                          ? "Barber Profesional" 
-                          : "Anggota sejak Jan 2023"),
-                    style: const TextStyle(color: Colors.white38, fontSize: 13),
+                  const SizedBox(height: 4),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: gold.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: gold.withOpacity(0.2)),
+                    ),
+                    child: Text(
+                      role == UserRole.admin 
+                        ? "ELITE OWNER" 
+                        : (role == UserRole.barber 
+                            ? "SENIOR BARBER" 
+                            : "GOLD MEMBER"),
+                      style: TextStyle(color: gold, fontWeight: FontWeight.w900, fontSize: 10, letterSpacing: 1.0),
+                    ),
                   ),
                 ],
               ),
             ),
 
-            // --- Admin Controls / Stats ---
+            // --- Action Cards ---
             if (isAdmin) 
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.fromLTRB(24, 40, 24, 24),
                   child: Column(
                     children: [
-                      _buildAdminAction(context, Icons.person_add_alt_1_rounded, "Tambah Barber Baru", primaryColor, () {
+                      _buildAtelierAdminAction(context, Icons.person_add_alt_1_rounded, "RECRUIT NEW BARBER", gold, () {
                         Navigator.push(context, MaterialPageRoute(builder: (context) => const AddEditBarberScreen()));
                       }),
-                      const SizedBox(height: 12),
-                      _buildAdminAction(context, Icons.key_rounded, "Buat Akun Baru", Colors.blueAccent, () {
-                        Navigator.pushNamed(context, '/signup');
-                      }),
-                      const SizedBox(height: 12),
-                      _buildAdminAction(context, Icons.content_cut_rounded, "Kelola Layanan", Colors.purpleAccent, () {
+                      const SizedBox(height: 16),
+                      _buildAtelierAdminAction(context, Icons.content_cut_rounded, "SERVICE CATALOG", Colors.blueAccent, () {
                         Navigator.push(context, MaterialPageRoute(builder: (context) => const ServicesScreen()));
                       }),
                     ],
@@ -206,99 +203,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
             else 
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.fromLTRB(24, 40, 24, 24),
                   child: Row(
                     children: [
-                      _buildStatCard("24", "Total Kunjungan", primaryColor),
-                      const SizedBox(width: 12),
-                      _buildStatCard("1,250", "Poin Loyalitas", primaryColor),
+                      _buildAtelierStatCard("24", "TOTAL SESSIONS", gold),
+                      const SizedBox(width: 16),
+                      _buildAtelierStatCard("1,250", "LOYALTY XP", gold),
                     ],
                   ),
                 ),
               ),
 
-            // --- Upcoming Appointment (Only for Customer) ---
-            if (!isAdmin) SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text("Janji Mendatang", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 12),
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.05),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.white.withOpacity(0.05)),
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: primaryColor,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: const Column(
-                              children: [
-                                Text("Mar", style: TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.bold)),
-                                Text("23", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          const Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("Potong Rambut Eksekutif", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                                Text("dengan Marcus pukul 14:30", style: TextStyle(color: Colors.white60, fontSize: 13)),
-                              ],
-                            ),
-                          ),
-                          Icon(Icons.calendar_month_rounded, color: primaryColor),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // --- Settings Menu ---
+            // --- Menu Registry ---
             SliverPadding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
                   const SizedBox(height: 12),
-                  Text(isAdmin ? "Manajemen Sistem" : "Pengaturan", style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 12),
+                  Text(
+                    "REGISTRY & DEPLOYMENT", 
+                    style: TextStyle(color: Colors.white.withOpacity(0.2), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2.0)
+                  ),
+                  const SizedBox(height: 20),
                   if (isAdmin) ...[
-                    _buildMenuItem(context, Icons.analytics_outlined, "Laporan Keuangan", primaryColor, onTap: () {
+                    _buildAtelierMenuItem(context, Icons.analytics_outlined, "ANALYTICS COMMAND", gold, onTap: () {
                       Navigator.push(context, MaterialPageRoute(builder: (context) => const ReportsScreen()));
                     }),
-                    _buildMenuItem(context, Icons.people_outline_rounded, "Daftar Barber", primaryColor, onTap: () {
+                    _buildAtelierMenuItem(context, Icons.people_outline_rounded, "COMMAND ROSTER", gold, onTap: () {
                       Navigator.push(context, MaterialPageRoute(builder: (context) => const BarberListScreen()));
                     }),
-                    _buildMenuItem(context, Icons.history_rounded, "Log Aktivitas", primaryColor),
                   ] else ...[
-                    _buildMenuItem(context, Icons.calendar_month, "Janji Saya", primaryColor),
-                    _buildMenuItem(context, Icons.payments, "Metode Pembayaran", primaryColor),
-                    _buildMenuItem(context, Icons.content_cut, "Barber Favorit", primaryColor),
+                    _buildAtelierMenuItem(context, Icons.calendar_month, "HISTORY LOG", gold),
+                    _buildAtelierMenuItem(context, Icons.payments_outlined, "VAULT SETTINGS", gold),
                   ],
-                  _buildMenuItem(context, Icons.print_rounded, "Pengaturan Printer", primaryColor, onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const PrinterSettingsScreen()),
-                    );
+                  _buildAtelierMenuItem(context, Icons.print_rounded, "PRINTER PROTOCOL", gold, onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const PrinterSettingsScreen()));
                   }),
-                  _buildMenuItem(context, Icons.notifications, "Notifikasi", primaryColor, badge: "2"),
-                  _buildMenuItem(context, Icons.manage_accounts, "Pengaturan Akun", primaryColor),
-                  const SizedBox(height: 24),
-                  _buildLogoutButton(context),
-                  const SizedBox(height: 100),
+                  _buildAtelierMenuItem(context, Icons.notifications_none_rounded, "COMMUNICATION HUB", gold, badge: "2"),
+                  const SizedBox(height: 40),
+                  _buildAtelierLogoutButton(context),
+                  const SizedBox(height: 120),
                 ]),
               ),
             ),
@@ -308,98 +252,80 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildAdminAction(BuildContext context, IconData icon, String label, Color color, VoidCallback onTap) {
+  Widget _buildAtelierAdminAction(BuildContext context, IconData icon, String label, Color color, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        width: double.infinity,
+      child: AtelierCard(
         padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: color.withOpacity(0.1)),
-        ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(14)),
+              decoration: BoxDecoration(color: color.withOpacity(0.08), borderRadius: BorderRadius.circular(14)),
               child: Icon(icon, color: color, size: 24),
             ),
             const SizedBox(width: 20),
-            Text(label, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(label, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 1.0)),
             const Spacer(),
-            const Icon(Icons.add_rounded, color: Colors.white24),
+            Icon(Icons.add_rounded, color: Colors.white.withOpacity(0.1)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildStatCard(String value, String label, Color primary) {
+  Widget _buildAtelierStatCard(String value, String label, Color gold) {
     return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: primary.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: primary.withOpacity(0.1)),
-        ),
+      child: AtelierCard(
+        padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            Text(value, style: TextStyle(color: primary, fontSize: 24, fontWeight: FontWeight.bold)),
-            Text(label, style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+            Text(value, style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900, letterSpacing: -1.0)),
+            const SizedBox(height: 4),
+            Text(label, style: TextStyle(color: gold.withOpacity(0.5), fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1.0)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildMenuItem(BuildContext context, IconData icon, String title, Color primary, {String? badge, VoidCallback? onTap}) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.03),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: ListTile(
-        onTap: onTap ?? () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => SettingsDetailScreen(title: title, icon: icon),
-            ),
-          );
-        },
-        leading: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: primary.withOpacity(0.1),
-            shape: BoxShape.circle,
+  Widget _buildAtelierMenuItem(BuildContext context, IconData icon, String title, Color gold, {String? badge, VoidCallback? onTap}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: AtelierCard(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+        child: ListTile(
+          onTap: onTap ?? () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsDetailScreen(title: title, icon: icon)));
+          },
+          leading: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(color: gold.withOpacity(0.05), shape: BoxShape.circle),
+            child: Icon(icon, color: gold, size: 18),
           ),
-          child: Icon(icon, color: primary, size: 20),
-        ),
-        title: Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 14)),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (badge != null)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(color: primary, borderRadius: BorderRadius.circular(10)),
-                child: Text(badge, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-              ),
-            const SizedBox(width: 8),
-            const Icon(Icons.chevron_right, color: Colors.white24),
-          ],
+          title: Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 1.0)),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (badge != null)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(color: gold, borderRadius: BorderRadius.circular(20)),
+                  child: Text(badge, style: const TextStyle(color: Colors.black, fontSize: 10, fontWeight: FontWeight.w900)),
+                ),
+              const SizedBox(width: 12),
+              Icon(Icons.chevron_right_rounded, color: Colors.white.withOpacity(0.1), size: 20),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildLogoutButton(BuildContext context) {
-    return ElevatedButton.icon(
+  Widget _buildAtelierLogoutButton(BuildContext context) {
+    return AtelierButton(
+      label: "TERMINATE SESSION",
+      isSecondary: true,
       onPressed: () async {
         await SupabaseService.signOut();
         AppState.currentUserProfile.value = null;
@@ -407,16 +333,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
         }
       },
-      icon: const Icon(Icons.logout_rounded, color: Colors.redAccent),
-      label: const Text("KELUAR AKUN", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.white.withOpacity(0.05),
-        minimumSize: const Size(double.infinity, 60),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: Colors.redAccent.withOpacity(0.2)),
-        ),
-      ),
     );
   }
 }
