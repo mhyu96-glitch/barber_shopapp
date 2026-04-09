@@ -125,6 +125,14 @@ export function renderLogin(container) {
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    const username = container.querySelector('#username').value.trim();
+    const password = container.querySelector('#password').value;
+
+    if (!username || !password) return;
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Memproses...';
+
     try {
       const shopSlug = container.querySelector('#shop-slug').value.trim().toLowerCase();
       
