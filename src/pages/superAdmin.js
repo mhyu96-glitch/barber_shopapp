@@ -9,6 +9,12 @@ export async function renderSuperAdmin(container) {
         <p>Manajemen seluruh tenant dan langganan BarberPro</p>
       </div>
       <div class="header-actions">
+        <button id="add-user-btn" class="btn btn-primary" style="background: var(--primary); color: white; border: none;">
+          <i class="fas fa-user-plus"></i> Tambah User
+        </button>
+        <button id="add-shop-btn" class="btn btn-primary" style="background: #22c55e; color: white; border: none;">
+          <i class="fas fa-plus"></i> Tambah Toko
+        </button>
         <button id="refresh-btn" class="btn btn-secondary">
           <i class="fas fa-sync-alt"></i> Refresh Data
         </button>
@@ -43,6 +49,15 @@ export async function renderSuperAdmin(container) {
           <p>Masa Trial</p>
         </div>
       </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
+          <i class="fas fa-times-circle"></i>
+        </div>
+        <div class="stat-info">
+          <h3 id="expired-shops-stat">-</h3>
+          <p>Kedaluwarsa</p>
+        </div>
+      </div>
     </div>
 
     <div class="card fade-in" style="margin-top: 24px;">
@@ -74,7 +89,12 @@ export async function renderSuperAdmin(container) {
   `;
 
   const refreshBtn = container.querySelector('#refresh-btn');
+  const addShopBtn = container.querySelector('#add-shop-btn');
+  const addUserBtn = container.querySelector('#add-user-btn');
+
   refreshBtn.addEventListener('click', loadShops);
+  addShopBtn.addEventListener('click', () => renderAddShopModal());
+  addUserBtn.addEventListener('click', () => renderAddUserModal());
 
   loadShops();
 
@@ -93,6 +113,7 @@ export async function renderSuperAdmin(container) {
       container.querySelector('#total-shops-stat').textContent = shops.length;
       container.querySelector('#active-shops-stat').textContent = shops.filter(s => s.status === 'active').length;
       container.querySelector('#trial-shops-stat').textContent = shops.filter(s => s.status === 'trial').length;
+      container.querySelector('#expired-shops-stat').textContent = shops.filter(s => ['expired', 'deactivated'].includes(s.status)).length;
 
       // 3. Render Table
       if (shops.length === 0) {
@@ -159,6 +180,186 @@ export async function renderSuperAdmin(container) {
       console.error('Error loading shops:', err);
       showToast('Gagal memuat data toko.', 'danger');
     }
+  }
+
+
+
+  function slugify(text) {
+    return text.toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim();
+  }
+
+  function renderAddShopModal() {
+    const body = `
+      <div style="padding: 10px 0;">
+        <h3 style="font-size: 14px; color: var(--primary); margin-bottom: 16px;">DATA TOKO BARU</h3>
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label style="display: block; font-size: 11px; margin-bottom: 4px;">NAMA BARBERSHOP</label>
+          <input type="text" id="new-shop-name" class="form-control" placeholder="Contoh: Garuda Barbershop" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
+        </div>
+        <div class="form-group" style="margin-bottom: 15px;">
+          <label style="display: block; font-size: 11px; margin-bottom: 4px;">SHOP SLUG (id toko)</label>
+          <input type="text" id="new-shop-slug" class="form-control" placeholder="garuda-barber" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
+        </div>
+        
+        <h3 style="font-size: 14px; color: var(--primary); margin-bottom: 16px; border-top: 1px solid #eee; pt-15; margin-top:15px;">AKUN OWNER/ADMIN</h3>
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label style="display: block; font-size: 11px; margin-bottom: 4px;">NAMA LENGKAP</label>
+          <input type="text" id="new-owner-name" class="form-control" placeholder="Wahyu Pratama" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
+        </div>
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label style="display: block; font-size: 11px; margin-bottom: 4px;">USERNAME ADMIN</label>
+          <input type="text" id="new-admin-user" class="form-control" placeholder="admin_garuda" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
+        </div>
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label style="display: block; font-size: 11px; margin-bottom: 4px;">PASSWORD</label>
+          <input type="password" id="new-admin-pass" class="form-control" placeholder="Min 6 karakter" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
+        </div>
+      </div>
+    `;
+
+    const footer = `
+      <div style="display: flex; gap: 10px; width: 100%;">
+        <button class="btn btn-secondary" style="flex: 1;" onclick="closeModal()">Batal</button>
+        <button id="confirm-add-shop" class="btn" style="flex: 2; background: #22c55e; color: white;">Daftarkan Toko & Admin</button>
+      </div>
+    `;
+
+    openModal('Tambah Barbershop & Admin', body, footer, { maxWidth: '450px' });
+
+    const nameInput = document.getElementById('new-shop-name');
+    const slugInput = document.getElementById('new-shop-slug');
+    nameInput.oninput = () => { slugInput.value = slugify(nameInput.value); };
+
+    document.getElementById('confirm-add-shop').onclick = async (e) => {
+      const btn = e.target;
+      const shopName = nameInput.value.trim();
+      const shopSlug = slugInput.value.trim();
+      const ownerName = document.getElementById('new-owner-name').value.trim();
+      const username = document.getElementById('new-admin-user').value.trim().toLowerCase();
+      const password = document.getElementById('new-admin-pass').value;
+
+      if (!shopName || !shopSlug || !ownerName || !username || password.length < 6) {
+        showToast('Mohon lengkapi semua data.', 'danger');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+
+      try {
+        // 1. Create Auth
+        const email = `${username}.${shopSlug}@barberpro.local`;
+        const { data: authData, error: authErr } = await supabase.auth.signUp({
+          email, password, options: { data: { full_name: ownerName, role: 'admin', username } }
+        });
+        if (authErr) throw authErr;
+
+        // 2. Create Shop
+        const { data: newShop, error: shopErr } = await supabase.from('shops').insert([{ 
+          slug: shopSlug, name: shopName, owner_id: authData.user.id, status: 'trial' 
+        }]).select().single();
+        if (shopErr) throw shopErr;
+
+        // 3. Create Settings & Profile
+        await supabase.from('settings').insert([{ shop_id: newShop.id, shop_name: shopName }]);
+        await supabase.from('profiles').upsert({ id: authData.user.id, full_name: ownerName, username, role: 'admin', shop_id: newShop.id });
+
+        showToast('Toko & Admin berhasil didaftarkan!', 'success');
+        closeModal();
+        loadShops();
+      } catch (err) {
+        showToast('Gagal: ' + err.message, 'danger');
+        btn.disabled = false;
+        btn.innerHTML = 'Daftarkan Toko & Admin';
+      }
+    };
+  }
+
+  async function renderAddUserModal() {
+    // Fetch shops for dropdown
+    const { data: shops } = await supabase.from('shops').select('id, name, slug').order('name');
+    
+    const body = `
+      <div style="padding: 10px 0;">
+        <div class="form-group" style="margin-bottom: 15px;">
+          <label style="display: block; font-size: 11px; margin-bottom: 4px;">PILIH BARBERSHOP</label>
+          <select id="user-shop-select" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
+            ${shops.map(s => `<option value="${s.id}" data-slug="${s.slug}">${s.name}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom: 15px;">
+          <label style="display: block; font-size: 11px; margin-bottom: 4px;">POSISI / ROLE</label>
+          <select id="user-role-select" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
+            <option value="barber">Kapster / Barber</option>
+            <option value="staff">Kasir / Staff</option>
+            <option value="admin">Admin Tambahan</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label style="display: block; font-size: 11px; margin-bottom: 4px;">NAMA LENGKAP USER</label>
+          <input type="text" id="new-user-fullname" class="form-control" placeholder="Budi Santoso" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
+        </div>
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label style="display: block; font-size: 11px; margin-bottom: 4px;">USERNAME LOGIN</label>
+          <input type="text" id="new-user-username" class="form-control" placeholder="budi_garuda" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
+        </div>
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label style="display: block; font-size: 11px; margin-bottom: 4px;">PASSWORD</label>
+          <input type="password" id="new-user-pass" class="form-control" placeholder="Min 6 karakter" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
+        </div>
+      </div>
+    `;
+
+    const footer = `
+      <div style="display: flex; gap: 10px; width: 100%;">
+        <button class="btn btn-secondary" style="flex: 1;" onclick="closeModal()">Batal</button>
+        <button id="confirm-add-user" class="btn" style="flex: 2; background: var(--primary); color: white;">Buat Akun User</button>
+      </div>
+    `;
+
+    openModal('Tambah User Baru', body, footer, { maxWidth: '400px' });
+
+    document.getElementById('confirm-add-user').onclick = async (e) => {
+      const btn = e.target;
+      const shopSelect = document.getElementById('user-shop-select');
+      const shopId = shopSelect.value;
+      const shopSlug = shopSelect.options[shopSelect.selectedIndex].dataset.slug;
+      const role = document.getElementById('user-role-select').value;
+      const fullName = document.getElementById('new-user-fullname').value.trim();
+      const username = document.getElementById('new-user-username').value.trim().toLowerCase();
+      const password = document.getElementById('new-user-pass').value;
+
+      if (!fullName || !username || password.length < 6) {
+        showToast('Mohon lengkapi semua data.', 'danger');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+
+      try {
+        const email = `${username}.${shopSlug}@barberpro.local`;
+        const { data: authData, error: authErr } = await supabase.auth.signUp({
+          email, password, options: { data: { full_name: fullName, role, username, shop_id: shopId } }
+        });
+        if (authErr) throw authErr;
+
+        await supabase.from('profiles').upsert({
+          id: authData.user.id, full_name: fullName, username, role, shop_id: shopId
+        });
+
+        showToast(`User ${role.toUpperCase()} berhasil ditambahkan!`, 'success');
+        closeModal();
+      } catch (err) {
+        showToast('Gagal: ' + err.message, 'danger');
+        btn.disabled = false;
+        btn.innerHTML = 'Buat Akun User';
+      }
+    };
   }
 
   async function handleManageShop(shopId) {
