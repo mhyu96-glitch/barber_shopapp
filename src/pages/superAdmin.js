@@ -1,5 +1,8 @@
 import { supabase } from '../utils/supabaseClient.js';
 import { showToast } from '../components/toast.js';
+import { openModal, closeModal } from '../components/modal.js';
+
+window.closeModal = closeModal;
 
 export async function renderSuperAdmin(container) {
   container.innerHTML = `
