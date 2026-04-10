@@ -601,6 +601,12 @@ body.sidebar-collapsed .sidebar-collapse-btn {
   box-shadow: var(--shadow-accent);
 }
 
+.brass-gradient {
+  background: linear-gradient(145deg, #f0c27b 0%, #d4a843 50%, #8b6b23 100%) !important;
+  color: #2c1e00 !important;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.2);
+}
+
 .btn-primary:hover {
   background: linear-gradient(135deg, var(--accent-light), var(--accent));
   transform: translateY(-1px);

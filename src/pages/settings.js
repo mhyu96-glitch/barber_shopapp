@@ -67,6 +67,62 @@ export function renderSettings(container) {
             </button>
           </form>
         </div>
+        
+        <!-- Payment Settings (Multi-Bank & QRIS) -->
+        <div class="card">
+          <h3 style="margin-bottom: 18px;"><i class="fas fa-credit-card" style="color: var(--accent);"></i> Informasi Pembayaran</h3>
+          
+          <div class="card-section">
+            <div class="card-section-title">Daftar Rekening Bank</div>
+            <div id="bank-accounts-list" style="display: grid; gap: 10px; margin-bottom: 16px;">
+              ${(settings.bankAccounts || []).length > 0 ? settings.bankAccounts.map((b, idx) => `
+                <div class="card-glass" style="padding: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border);">
+                  <div style="flex: 1;">
+                    <div class="fw-700 text-sm">${b.name}</div>
+                    <div class="text-xs text-accent" style="font-family: monospace;">${b.number}</div>
+                    <div class="text-[10px] text-muted">a.n. ${b.holder}</div>
+                  </div>
+                  <button class="btn btn-ghost btn-sm text-danger" onclick="window.__removeBank(${idx})">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              `).join('') : '<p class="text-xs text-muted italic">Belum ada rekening terdaftar.</p>'}
+            </div>
+            
+            <div style="background: var(--bg-input); padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border);">
+              <div class="text-[10px] uppercase fw-700 text-muted mb-sm">Tambah Rekening Baru</div>
+              <div style="display: grid; gap: 8px;">
+                <input type="text" id="new-bank-name" class="form-control" placeholder="Nama Bank (e.g. BCA, BRI)" />
+                <input type="text" id="new-bank-number" class="form-control" placeholder="Nomor Rekening" />
+                <input type="text" id="new-bank-holder" class="form-control" placeholder="Nama Pemilik" />
+                <button class="btn btn-secondary btn-sm" id="add-bank-btn">
+                  <i class="fas fa-plus"></i> Tambah Rekening
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-section" style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 18px;">
+            <div class="card-section-title">QRIS Toko</div>
+            <p class="text-xs text-muted mb-md">QRIS ini akan ditampilkan di POS (Kasir) saat pelanggan memilih metode pembayaran QRIS.</p>
+            <div style="display: flex; align-items: center; gap: 16px;">
+              <div id="qris-preview" style="width: 100px; height: 100px; background: white; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border);">
+                ${settings.qrisImage ? `<img src="${settings.qrisImage}" style="max-width: 100%; max-height: 100%; object-fit: contain;" />` : '<i class="fas fa-qrcode" style="color: #ccc; font-size: 30px;"></i>'}
+              </div>
+              <div style="flex: 1;">
+                <button class="btn btn-secondary btn-sm" onclick="document.getElementById('qris-upload-input').click()">
+                  <i class="fas fa-upload"></i> Unggah QRIS
+                </button>
+                <input type="file" id="qris-upload-input" accept="image/*" style="display: none;" />
+                ${settings.qrisImage ? `
+                  <button class="btn btn-ghost btn-sm text-danger mt-xs" id="remove-qris-btn">
+                    <i class="fas fa-trash"></i> Hapus
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+        </div>
 
         <!-- Thermal Printer Settings -->
         <div class="card">
@@ -600,6 +656,55 @@ export function renderSettings(container) {
     delete data.printerLogo;
     storage.set('settings', data);
     showToast('Logo dihapus', 'info');
+    renderSettings(container);
+  });
+
+  // --- Payment Methods Logics ---
+  container.querySelector('#add-bank-btn')?.addEventListener('click', () => {
+    const name = container.querySelector('#new-bank-name').value.trim();
+    const number = container.querySelector('#new-bank-number').value.trim();
+    const holder = container.querySelector('#new-bank-holder').value.trim();
+    
+    if (!name || !number || !holder) {
+      showToast('Mohon lengkapi semua kolom rekening!', 'warning');
+      return;
+    }
+    
+    const data = storage.get('settings', {});
+    if (!data.bankAccounts) data.bankAccounts = [];
+    data.bankAccounts.push({ name, number, holder });
+    storage.set('settings', data);
+    showToast('Rekening ditambahkan!', 'success');
+    renderSettings(container);
+  });
+
+  window.__removeBank = (idx) => {
+    const data = storage.get('settings', {});
+    data.bankAccounts.splice(idx, 1);
+    storage.set('settings', data);
+    showToast('Rekening dihapus', 'info');
+    renderSettings(container);
+  };
+
+  container.querySelector('#qris-upload-input')?.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const data = storage.get('settings', {});
+      data.qrisImage = event.target.result;
+      storage.set('settings', data);
+      showToast('QRIS diunggah!', 'success');
+      renderSettings(container);
+    };
+    reader.readAsDataURL(file);
+  });
+
+  container.querySelector('#remove-qris-btn')?.addEventListener('click', () => {
+    const data = storage.get('settings', {});
+    delete data.qrisImage;
+    storage.set('settings', data);
+    showToast('QRIS dihapus', 'info');
     renderSettings(container);
   });
 }
