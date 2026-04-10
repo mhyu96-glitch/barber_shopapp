@@ -13,6 +13,11 @@ import { supabase } from '../utils/supabaseClient.js';
 let calendarYear, calendarMonth;
 
 export function renderDashboard(container) {
+  const user = storage.getCurrentUser();
+  const isSuperAdmin = user?.isSuperAdmin || false;
+  const isBarber = user?.role === 'barber';
+  const barberId = user?.barberId;
+
   const now = new Date();
   calendarYear = now.getFullYear();
   calendarMonth = now.getMonth();
@@ -60,10 +65,6 @@ export function renderDashboard(container) {
   const todayMMDD = `${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   const birthdayCustomers = customers.filter(c => c.birthday && c.birthday.slice(5) === todayMMDD);
 
-  const user = storage.getCurrentUser();
-  const isSuperAdmin = user?.isSuperAdmin || false;
-  const isBarber = user?.role === 'barber';
-  const barberId = user?.barberId;
 
   container.innerHTML = `
     <div id="platform-announcements-container"></div>
