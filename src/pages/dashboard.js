@@ -45,6 +45,8 @@ export function renderDashboard(container) {
   const isSuperAdmin = user?.isSuperAdmin || false;
 
   container.innerHTML = `
+    <div id="platform-announcements-container"></div>
+
     ${isSuperAdmin ? `
       <div class="card" style="background: var(--accent-subtle); border: 1px dashed var(--accent); margin-bottom: 24px; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; border-radius: var(--radius-md);">
         <div style="display: flex; align-items: center; gap: 12px;">
@@ -219,6 +221,9 @@ export function renderDashboard(container) {
   
   // Render Attendance Widget
   renderAttendanceWidget(container.querySelector('#dashboard-attendance-container'));
+
+  // Load Platform Announcements
+  loadPlatformNotices(container.querySelector('#platform-announcements-container'));
 
   // Event listeners
   container.querySelector('#quick-add-appt')?.addEventListener('click', () => navigateTo('appointments'));
@@ -788,6 +793,36 @@ function renderAIAdvisor(appointments, customers, settings) {
       </div>
     </div>
   `;
+}
+
+async function loadPlatformNotices(container) {
+  if (!container) return;
+  try {
+    const { data: notices } = await supabase
+      .from('platform_notices')
+      .select('*')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false });
+
+    if (!notices || notices.length === 0) return;
+
+    container.innerHTML = notices.map(n => `
+      <div class="card notice-banner fade-in" style="margin-bottom: 24px; border-left: 4px solid var(--${n.type}); background: var(--${n.type}-bg); overflow: hidden; position: relative;">
+        <div style="display: flex; gap: 16px; align-items: flex-start; padding: 16px 20px;">
+          <div style="font-size: 24px; color: var(--${n.type}); margin-top: 2px;">
+            <i class="fas ${n.type === 'danger' ? 'fa-exclamation-triangle' : n.type === 'warning' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+          </div>
+          <div style="flex: 1;">
+            <div class="fw-700" style="color: var(--text-primary); margin-bottom: 4px;">${n.title}</div>
+            <div class="text-sm" style="color: var(--text-secondary); line-height: 1.5;">${n.message}</div>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+  } catch (err) {
+    console.warn('Failed to load platform notices:', err);
+  }
 }
 
 async function renderAttendanceWidget(container) {

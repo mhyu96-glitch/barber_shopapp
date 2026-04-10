@@ -723,6 +723,35 @@ textarea.form-control {
   }
 }
 
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  :root {
+    --sidebar-width: 0px;
+    --sidebar-collapsed: 0px;
+    --header-height: auto;
+  }
+}
+
+/* SuperAdmin Responsive Utilities */
+.super-admin-header.sticky-header {
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .super-admin-header.sticky-header .header-actions {
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+  }
+  .super-admin-header.sticky-header button {
+    flex: 1 1 calc(50% - 10px);
+    min-width: 120px;
+  }
+}
+
 /* ========================================
    Tables
    ======================================== */
