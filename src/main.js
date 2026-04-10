@@ -87,8 +87,9 @@ export function navigateTo(page) {
 
   const sidebar = document.getElementById('sidebar');
   const mainContent = document.getElementById('main-content');
+  const noSidebarPages = ['login', 'feedback', 'super-admin'];
   
-  if (publicPages.includes(page)) {
+  if (noSidebarPages.includes(page)) {
     if (sidebar) sidebar.style.display = 'none';
     if (mainContent) {
       mainContent.style.marginLeft = '0';
