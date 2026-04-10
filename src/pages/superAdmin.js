@@ -16,37 +16,37 @@ function renderMainLayout(container) {
 
   container.innerHTML = `
     <div class="super-admin-layout fade-in">
-      <div class="super-admin-header sticky-header" style="background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 12px 30px; margin: -24px -30px 24px -30px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-sm); z-index: 100;">
-        <div class="header-content">
-          <h1 style="font-size: 18px; font-weight: 800; margin: 0; color: var(--accent); letter-spacing: -0.5px;">Master Dashboard Platform</h1>
-          <p style="font-size: 11px; color: var(--text-muted); margin: 0; font-weight: 500;">Kendali penuh platform & manajemen tenant</p>
+      <div class="super-admin-header sticky-header" style="background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 16px 30px; margin: -24px -30px 24px -30px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-sm); z-index: 100;">
+        <div class="header-content" style="padding-left: 10px;">
+          <h1 style="font-size: 19px; font-weight: 800; margin: 0; color: var(--accent); letter-spacing: -0.5px; text-transform: uppercase;">Master Platform</h1>
+          <p style="font-size: 11px; color: var(--text-muted); margin: 0; font-weight: 500; opacity: 0.8;">Manajemen operasional tenant & sistem global</p>
         </div>
-        <div class="header-actions" style="display: flex; gap: 10px; align-items: center;">
-           <button id="theme-toggle-btn" class="btn btn-secondary btn-sm" title="Ganti Tema" style="width: 38px; height: 38px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 10px;">
+        <div class="header-actions" style="display: flex; gap: 12px; align-items: center;">
+           <button id="theme-toggle-btn" class="btn btn-secondary btn-sm" title="Ganti Tema" style="width: 40px; height: 40px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: var(--bg-input);">
             <i class="fas fa-${currentTheme === 'dark' ? 'sun' : 'moon'}"></i>
           </button>
           
-          <div style="width: 1px; height: 20px; background: var(--border); margin: 0 4px;" class="hide-mobile"></div>
+          <div style="width: 1px; height: 24px; background: var(--border); margin: 0 4px;" class="hide-mobile"></div>
           
-          <div class="btn-group" style="display: flex; background: var(--bg-input); padding: 4px; border-radius: 12px; border: 1px solid var(--border);">
-            <button id="btn-tab-tenants" class="btn ${activeTab === 'tenants' ? 'btn-primary' : 'btn-ghost'} btn-sm" style="border-radius: 8px; font-size: 12px; padding: 6px 14px;">
+          <div class="btn-group" style="display: flex; background: var(--bg-sidebar); padding: 5px; border-radius: 14px; border: 1px solid var(--border); box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);">
+            <button id="btn-tab-tenants" class="btn ${activeTab === 'tenants' ? 'btn-primary' : 'btn-ghost'} btn-sm" style="border-radius: 10px; font-size: 12px; padding: 7px 16px; font-weight: 700;">
               <i class="fas fa-store"></i> <span class="hide-mobile">Tenant</span>
             </button>
-            <button id="btn-tab-reports" class="btn ${activeTab === 'reports' ? 'btn-primary' : 'btn-ghost'} btn-sm" style="border-radius: 8px; font-size: 12px; padding: 6px 14px;">
+            <button id="btn-tab-reports" class="btn ${activeTab === 'reports' ? 'btn-primary' : 'btn-ghost'} btn-sm" style="border-radius: 10px; font-size: 12px; padding: 7px 16px; font-weight: 700;">
               <i class="fas fa-chart-pie"></i> <span class="hide-mobile">Laporan</span>
             </button>
-            <button id="btn-tab-broadcast" class="btn ${activeTab === 'broadcast' ? 'btn-primary' : 'btn-ghost'} btn-sm" style="border-radius: 8px; font-size: 12px; padding: 6px 14px;">
+            <button id="btn-tab-broadcast" class="btn ${activeTab === 'broadcast' ? 'btn-primary' : 'btn-ghost'} btn-sm" style="border-radius: 10px; font-size: 12px; padding: 7px 16px; font-weight: 700;">
               <i class="fas fa-bullhorn"></i> <span class="hide-mobile">Pengumuman</span>
             </button>
           </div>
 
-          <div style="width: 1px; height: 20px; background: var(--border); margin: 0 4px;" class="hide-mobile"></div>
+          <div style="width: 1px; height: 24px; background: var(--border); margin: 0 4px;" class="hide-mobile"></div>
 
-          <button id="add-shop-btn" class="btn btn-primary btn-sm" style="border-radius: 10px; font-weight: 700;">
-            <i class="fas fa-plus"></i> <span class="hide-mobile">Registrasi Baru</span>
+          <button id="add-shop-btn" class="btn btn-primary btn-sm" style="border-radius: 12px; font-weight: 800; padding: 0 18px; height: 40px; box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.2);">
+            <i class="fas fa-plus-circle"></i> <span class="hide-mobile">Registrasi Baru</span>
           </button>
           
-          <button id="master-logout-btn" class="btn btn-secondary btn-sm" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.15); width: 38px; height: 38px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 10px;">
+          <button id="master-logout-btn" class="btn btn-secondary btn-sm" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.15); width: 40px; height: 40px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: var(--bg-input);">
             <i class="fas fa-sign-out-alt"></i>
           </button>
         </div>
@@ -92,26 +92,26 @@ async function renderActiveTab(container) {
 // ==========================================
 async function renderTenantsList(container) {
   container.innerHTML = `
-    <div class="stats-grid fade-in" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 15px;">
-       <div class="card stat-card" style="display: flex; align-items: center; gap: 16px; padding: 20px;">
-        <div class="stat-icon" style="background: var(--accent-subtle); color: var(--accent); width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 20px;"><i class="fas fa-store"></i></div>
+    <div class="stats-grid fade-in" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 20px;">
+       <div class="card stat-card" style="display: flex; align-items: center; gap: 16px; padding: 22px; border-left: 4px solid var(--accent); background: linear-gradient(to right, rgba(var(--accent-rgb), 0.05), transparent);">
+        <div class="stat-icon" style="background: var(--accent-subtle); color: var(--accent); width: 52px; height: 52px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);"><i class="fas fa-store"></i></div>
         <div class="stat-info">
-          <h3 id="stat-total" style="font-size: 24px; font-weight: 800; margin: 0;">-</h3>
-          <p style="font-size: 12px; color: var(--text-muted); margin: 0; font-weight: 600;">Total Barbershop</p>
+          <h3 id="stat-total" style="font-size: 26px; font-weight: 800; margin: 0; letter-spacing: -1px;">-</h3>
+          <p style="font-size: 11px; color: var(--text-muted); margin: 0; font-weight: 600; text-transform: uppercase; opacity: 0.7;">Total Barbershop</p>
         </div>
       </div>
-      <div class="card stat-card" style="display: flex; align-items: center; gap: 16px; padding: 20px; border-left: 3px solid #22c55e;">
-        <div class="stat-icon" style="background: rgba(34, 197, 94, 0.1); color: #22c55e; width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 20px;"><i class="fas fa-check-circle"></i></div>
+      <div class="card stat-card" style="display: flex; align-items: center; gap: 16px; padding: 22px; border-left: 4px solid #22c55e; background: linear-gradient(to right, rgba(34, 197, 94, 0.05), transparent);">
+        <div class="stat-icon" style="background: rgba(34, 197, 94, 0.1); color: #22c55e; width: 52px; height: 52px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);"><i class="fas fa-check-circle"></i></div>
         <div class="stat-info">
-          <h3 id="stat-active" style="font-size: 24px; font-weight: 800; margin: 0;">-</h3>
-          <p style="font-size: 12px; color: var(--text-muted); margin: 0; font-weight: 600;">Toko Aktif</p>
+          <h3 id="stat-active" style="font-size: 26px; font-weight: 800; margin: 0; letter-spacing: -1px;">-</h3>
+          <p style="font-size: 11px; color: var(--text-muted); margin: 0; font-weight: 600; text-transform: uppercase; opacity: 0.7;">Toko Aktif</p>
         </div>
       </div>
-      <div class="card stat-card" style="display: flex; align-items: center; gap: 16px; padding: 20px; border-left: 3px solid #ef4444;">
-        <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 20px;"><i class="fas fa-times-circle"></i></div>
+      <div class="card stat-card" style="display: flex; align-items: center; gap: 16px; padding: 22px; border-left: 4px solid #ef4444; background: linear-gradient(to right, rgba(239, 68, 68, 0.05), transparent);">
+        <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; width: 52px; height: 52px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);"><i class="fas fa-times-circle"></i></div>
         <div class="stat-info">
-          <h3 id="stat-expired" style="font-size: 24px; font-weight: 800; margin: 0;">-</h3>
-          <p style="font-size: 12px; color: var(--text-muted); margin: 0; font-weight: 600;">Kedaluwarsa</p>
+          <h3 id="stat-expired" style="font-size: 26px; font-weight: 800; margin: 0; letter-spacing: -1px;">-</h3>
+          <p style="font-size: 11px; color: var(--text-muted); margin: 0; font-weight: 600; text-transform: uppercase; opacity: 0.7;">Kedaluwarsa</p>
         </div>
       </div>
     </div>
@@ -169,9 +169,9 @@ async function loadTenants(container) {
             </div>
           </div>
         </td>
-        <td><span class="status-badge status-${shop.status || 'trial'}">${(shop.status || 'trial').toUpperCase()}</span></td>
-        <td><div style="font-size: 12px; color: var(--accent); font-weight: 600;">${shop.plan_id ? 'PRO UNLIMITED' : 'BASIC TIER'}</div></td>
-        <td style="font-size: 12px; color: var(--text-muted);">${new Date(shop.created_at).toLocaleDateString('id-ID')}</td>
+        <td><span class="status-badge status-${shop.status || 'trial'}" style="padding: 4px 10px; border-radius: 10px; font-weight: 700;">${(shop.status || 'trial').toUpperCase()}</span></td>
+        <td><div style="font-size: 11px; color: var(--accent); font-weight: 700; background: rgba(var(--accent-rgb), 0.1); padding: 2px 8px; border-radius: 6px; display: inline-block;">${shop.plan_id ? 'PRO UNLIMITED' : 'BASIC TIER'}</div></td>
+        <td style="font-size: 12px; color: var(--text-muted); font-weight: 500;">${new Date(shop.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
         <td>
           <div class="flex gap-2">
             <button class="btn-icon edit-shop-btn" data-id="${shop.id}" title="Edit Info"><i class="fas fa-edit"></i></button>

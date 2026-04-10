@@ -4,9 +4,15 @@ import { showToast } from '../components/toast.js';
 
 export function renderLogin(container) {
   // Clear sidebar and main layout classes for login
-  document.getElementById('sidebar').style.display = 'none';
-  document.getElementById('main-content').style.marginLeft = '0';
-  document.getElementById('main-content').style.width = '100%';
+  const sidebar = document.getElementById('sidebar');
+  const mainContent = document.getElementById('main-content');
+  
+  if (sidebar) sidebar.style.display = 'none';
+  if (mainContent) {
+    mainContent.style.marginLeft = '0';
+    mainContent.style.width = '100%';
+    mainContent.style.padding = '0';
+  }
 
   // Clean up existing global styles that might conflict
   document.body.className = '';
@@ -25,10 +31,10 @@ export function renderLogin(container) {
   <!-- Brand Header (Above Card) -->
   <div class="mb-12 text-center">
     <h1 class="text-4xl font-extrabold tracking-tighter text-[#D4AF37]" style="font-family: 'Epilogue', sans-serif;">
-        BarberPro Studio
+        BarberPro Enterprise
     </h1>
     <p class="text-[10px] uppercase tracking-[0.2em] text-[#d0c5af] mt-2" style="font-family: 'Inter', sans-serif;">
-        The Private Atelier Experience
+        Elite Business Management Suite
     </p>
   </div>
 
@@ -89,10 +95,9 @@ export function renderLogin(container) {
           <label class="text-sm text-[#d0c5af]" for="remember">Keep me signed in</label>
         </div>
 
-        <!-- Login Button -->
         <div class="pt-4">
-          <button id="login-btn" class="w-full brass-gradient py-4 rounded-lg font-bold text-[#412d00] shadow-lg shadow-[#D4AF37]/10 hover:shadow-[#D4AF37]/20 hover:scale-[1.01] active:scale-[0.98] transition-all duration-200" type="submit" style="font-family: 'Epilogue', sans-serif;">
-              SIGN IN TO ATELIER
+          <button id="login-btn" class="w-full brass-gradient py-4 rounded-lg font-bold text-[#412d00] shadow-lg shadow-[#D4AF37]/10 hover:shadow-[#D4AF37]/20 hover:scale-[1.01] active:scale-[0.98] transition-all duration-200 uppercase" type="submit" style="font-family: 'Epilogue', sans-serif;">
+              Sign In to BarberPro
           </button>
         </div>
       </form>

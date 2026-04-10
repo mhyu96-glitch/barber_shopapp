@@ -85,6 +85,26 @@ export function navigateTo(page) {
   container.innerHTML = '';
   container.className = 'page-container fade-in';
 
+  const sidebar = document.getElementById('sidebar');
+  const mainContent = document.getElementById('main-content');
+  
+  if (publicPages.includes(page)) {
+    if (sidebar) sidebar.style.display = 'none';
+    if (mainContent) {
+      mainContent.style.marginLeft = '0';
+      mainContent.style.width = '100%';
+      mainContent.style.padding = '0';
+    }
+  } else {
+    // Show sidebar for app pages
+    if (sidebar) sidebar.style.display = 'flex';
+    if (mainContent) {
+      mainContent.style.marginLeft = '';
+      mainContent.style.width = '';
+      mainContent.style.padding = '';
+    }
+  }
+
   routes[page].render(container);
   document.title = `${routes[page].title} - BarberPro`;
 
