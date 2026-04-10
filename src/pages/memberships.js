@@ -58,10 +58,35 @@ export function renderMemberships(container) {
       </div>
 
       <div class="card">
-        <h3 style="margin-bottom: 20px;"><i class="fas fa-users" style="color: var(--info);"></i> Penggunaan Aktif</h3>
-        <div class="queue-list">
-          <!-- This will show customers who have active packages -->
-          <p class="text-sm text-muted">Fitur saldo paket aktif akan terintegrasi dengan data pelanggan.</p>
+        <div class="flex-between mb-md">
+            <h3 style="margin: 0;"><i class="fas fa-users" style="color: var(--info);"></i> Penggunaan Aktif</h3>
+            <span class="badge badge-info">${storage.getAll('customerMemberships').filter(m => m.status === 'active').length} Member Aktif</span>
+        </div>
+        <div class="queue-list" id="active-memberships-list">
+          ${(() => {
+            const activeMembs = storage.getAll('customerMemberships').filter(m => m.status === 'active');
+            if (activeMembs.length === 0) return '<div class="text-center py-20 text-muted">Belum ada member aktif</div>';
+            
+            return activeMembs.map(m => {
+                const customer = storage.find('customers', m.customer_id) || { name: 'Unknown' };
+                const pack = storage.find('membershipPackages', m.package_id) || { name: 'Unknown Package' };
+                const isExpired = m.expiry_date && new Date(m.expiry_date) < new Date();
+                
+                return `
+                    <div class="queue-item" style="${isExpired ? 'opacity: 0.6; background: rgba(var(--danger-rgb), 0.05);' : ''}">
+                        <div style="flex: 1;">
+                            <div class="fw-700">${customer.name}</div>
+                            <div class="text-xs text-muted">${pack.name}</div>
+                            <div class="text-xs mt-xs" style="color: var(--accent); font-weight: 600;">Sisa: ${m.remaining_sessions} Sesi</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <span class="badge ${isExpired ? 'badge-danger' : 'badge-success'}">${isExpired ? 'Expired' : 'Aktif'}</span>
+                            <div class="text-xs text-muted mt-xs">${m.expiry_date ? 'Hingga: ' + m.expiry_date : 'Selamanya'}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+          })()}
         </div>
       </div>
     </div>
@@ -106,6 +131,10 @@ function showPackageForm(editId = null) {
           <input type="number" class="form-control" name="price" value="${existing?.price || 0}" min="0" required />
         </div>
       </div>
+      <div class="form-group">
+        <label>Masa Berlaku (Hari) <small class="text-muted">(Kosongkan jika selamanya)</small></label>
+        <input type="number" class="form-control" name="validDays" value="${existing?.validDays || ''}" placeholder="e.g., 180" />
+      </div>
     </form>
   `;
 
@@ -126,6 +155,7 @@ function showPackageForm(editId = null) {
             serviceName: service ? service.name : 'Semua Layanan',
             sessions: parseInt(fd.get('sessions')),
             price: parseInt(fd.get('price')),
+            validDays: fd.get('validDays') ? parseInt(fd.get('validDays')) : null,
         };
 
         if (editId) {

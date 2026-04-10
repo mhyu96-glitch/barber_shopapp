@@ -8,6 +8,7 @@ import { dateUtils } from '../utils/dateUtils.js';
 import { formatter } from '../utils/formatter.js';
 import { openModal, closeModal, confirmDialog } from '../components/modal.js';
 import { showToast } from '../components/toast.js';
+import { ocrService } from '../utils/ocrService.js';
 
 let expenseFilter = 'month';
 
@@ -174,6 +175,20 @@ function showExpenseForm() {
 
     const body = `
     <form id="expense-form">
+      <div id="ocr-status" style="display: none; padding: 12px; background: rgba(var(--accent-rgb), 0.1); border: 1px dashed var(--accent); border-radius: 8px; margin-bottom: 16px; align-items: center; gap: 10px;">
+          <i class="fas fa-spinner fa-spin text-accent"></i>
+          <span class="text-sm fw-600">AI sedang membaca struk...</span>
+      </div>
+
+      <div class="form-group" style="background: var(--bg-sidebar); padding: 12px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 20px;">
+        <label style="margin-bottom: 8px; display: block;">Sudah punya struk/nota?</label>
+        <input type="file" id="receipt-upload" accept="image/*" style="display: none;" />
+        <button type="button" class="btn btn-secondary btn-sm btn-block" onclick="document.getElementById('receipt-upload').click()">
+          <i class="fas fa-camera"></i> Scan Nota (AI)
+        </button>
+        <p class="text-xs text-muted mt-sm" style="margin-bottom: 0;">AI akan otomatis mengisi jumlah & tanggal dari foto nota Anda.</p>
+      </div>
+
       <div class="form-group">
         <label>Tanggal</label>
         <input type="date" class="form-control" name="date" value="${today}" required />
@@ -207,6 +222,31 @@ function showExpenseForm() {
   `;
 
     openModal('Tambah Pengeluaran', body, footer);
+
+    const uploadBtn = document.getElementById('receipt-upload');
+    const ocrStatus = document.getElementById('ocr-status');
+    const form = document.getElementById('expense-form');
+
+    uploadBtn.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        ocrStatus.style.display = 'flex';
+        try {
+            const result = await ocrService.scanReceipt(file);
+            console.log('Result:', result);
+            
+            if (result.amount > 0) form.amount.value = result.amount;
+            if (result.date) form.date.value = result.date;
+            if (result.description) form.description.value = `[AI Scan] ${result.description}`;
+
+            showToast('OCR Berhasil! Silakan periksa kembali datanya.', 'success');
+        } catch (err) {
+            showToast(err.message, 'error');
+        } finally {
+            ocrStatus.style.display = 'none';
+        }
+    });
 
     document.getElementById('save-expense-btn').addEventListener('click', () => {
         const form = document.getElementById('expense-form');

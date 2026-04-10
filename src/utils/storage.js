@@ -5,8 +5,8 @@
 import { supabase } from './supabaseClient.js';
 
 const STORAGE_PREFIX = 'barberpro_';
-const SUPABASE_COLLECTIONS = ['services', 'barbers', 'customers', 'appointments', 'payments', 'gallery', 'promos', 'holidays', 'inventory', 'expenses', 'attendance', 'profiles', 'settings'];
-const SHOP_SCOPED_TABLES = ['services', 'barbers', 'customers', 'appointments', 'payments', 'inventory', 'expenses', 'attendance', 'profiles', 'settings'];
+const SUPABASE_COLLECTIONS = ['services', 'barbers', 'customers', 'appointments', 'payments', 'gallery', 'promos', 'holidays', 'inventory', 'expenses', 'attendance', 'profiles', 'settings', 'feedbacks', 'membershipPackages', 'customerMemberships', 'loyalty_logs'];
+const SHOP_SCOPED_TABLES = ['services', 'barbers', 'customers', 'appointments', 'payments', 'inventory', 'expenses', 'attendance', 'profiles', 'settings', 'feedbacks', 'membershipPackages', 'customerMemberships', 'loyalty_logs'];
 
 export function getShopId() {
   try {
@@ -18,14 +18,18 @@ export function getShopId() {
 const ALLOWED_COLUMNS = {
     services: ['id', 'name', 'price', 'duration', 'description', 'icon', 'category', 'consumables', 'shop_id'],
     barbers: ['id', 'name', 'phone', 'specialization', 'rating', 'total_ratings', 'work_days', 'work_start', 'work_end', 'avatar', 'bio', 'base_salary', 'commission_rate', 'shop_id'],
-    customers: ['id', 'name', 'phone', 'email', 'avatar', 'total_appointments', 'total_spent', 'last_visit', 'notes', 'tags', 'loyalty_points', 'member_since', 'shop_id'],
+    customers: ['id', 'name', 'phone', 'email', 'avatar', 'total_appointments', 'total_spent', 'last_visit', 'notes', 'tags', 'loyalty_points', 'loyalty_tier', 'member_since', 'shop_id'],
     appointments: ['id', 'barber_id', 'customer_id', 'service_id', 'date', 'time', 'status', 'total_price', 'price', 'source', 'notes', 'shop_id'],
-    payments: ['id', 'appointment_id', 'amount', 'method', 'status', 'reference', 'date', 'customer_id', 'customer_name', 'shop_id'],
+    payments: ['id', 'appointment_id', 'barber_id', 'commission_amount', 'amount', 'method', 'status', 'reference', 'date', 'customer_id', 'customer_name', 'shop_id'],
     inventory: ['id', 'name', 'category', 'stock', 'unit', 'min_stock', 'price', 'last_restock', 'shop_id'],
     expenses: ['id', 'date', 'category', 'amount', 'description', 'barber_id', 'is_recurring', 'shop_id'],
     attendance: ['id', 'profile_id', 'date', 'check_in', 'check_out', 'status', 'notes', 'shop_id'],
-    profiles: ['id', 'full_name', 'username', 'role', 'avatar_url', 'shop_id'],
-    settings: ['id', 'shop_name', 'address', 'phone', 'email', 'currency', 'opening_hours', 'active_branch_id', 'branches', 'shop_id']
+    profiles: ['id', 'full_name', 'username', 'role', 'avatar_url', 'barber_id', 'shop_id'],
+    settings: ['id', 'shop_name', 'address', 'phone', 'email', 'currency', 'opening_hours', 'google_review_link', 'active_branch_id', 'branches', 'shop_id'],
+    feedbacks: ['id', 'appointment_id', 'barber_id', 'customer_name', 'rating', 'comment', 'date', 'shop_id'],
+    membershipPackages: ['id', 'name', 'serviceId', 'serviceName', 'sessions', 'price', 'validDays', 'shop_id'],
+    customerMemberships: ['id', 'customer_id', 'package_id', 'remaining_sessions', 'purchase_date', 'expiry_date', 'status', 'shop_id'],
+    loyalty_logs: ['id', 'customer_id', 'points', 'type', 'description', 'date', 'shop_id']
 };
 
 export const storage = {

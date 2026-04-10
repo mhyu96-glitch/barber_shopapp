@@ -29,6 +29,7 @@ import { renderLogin } from './pages/login.js';
 import { renderSignup } from './pages/signup.js';
 import { renderPOS } from './pages/pos.js';
 import { renderSuperAdmin } from './pages/superAdmin.js';
+import { renderFeedbackPublic } from './pages/feedback_public.js';
 
 // Initialize sample data (disabled for Supabase real DB)
 // initSampleData();
@@ -58,6 +59,7 @@ const routes = {
   signup: { render: renderSignup, title: 'Tambah Staf' },
   pos: { render: renderPOS, title: 'Kasir (POS)' },
   'super-admin': { render: renderSuperAdmin, title: 'Master Platform' },
+  feedback: { render: renderFeedbackPublic, title: 'Feedback Pelanggan' },
 };
 
 let currentPage = 'dashboard';
@@ -66,7 +68,8 @@ let currentPage = 'dashboard';
 export function navigateTo(page) {
   // Session check
   const user = storage.getCurrentUser();
-  if (!user && page !== 'login') {
+  const publicPages = ['login', 'feedback'];
+  if (!user && !publicPages.includes(page)) {
     window.location.hash = 'login';
     return;
   }

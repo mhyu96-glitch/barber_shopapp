@@ -119,17 +119,20 @@ function showServiceForm(editId = null) {
         <p class="text-xs text-muted mb-md">Pilih produk yang akan otomatis berkurang stoknya saat layanan ini selesai.</p>
         <div id="consumables-list">
           ${(existing?.consumables || []).map((c, i) => `
-            <div class="form-row mb-sm" style="align-items: flex-end;">
+            <div class="form-row mb-sm" style="align-items: flex-end; gap: 8px;">
               <div class="form-group mb-0" style="flex: 2;">
                 <label class="text-xs">Produk</label>
                 <select class="form-control form-control-sm" name="consumable_id_${i}">
                   ${storage.getAll('inventory').map(p => `<option value="${p.id}" ${c.id === p.id ? 'selected' : ''}>${p.name}</option>`).join('')}
                 </select>
               </div>
-              <div class="form-group mb-0">
+              <div class="form-group mb-0" style="width: 80px;">
                 <label class="text-xs">Jumlah</label>
                 <input type="number" class="form-control form-control-sm" name="consumable_qty_${i}" value="${c.qty}" />
               </div>
+              <button type="button" class="btn btn-ghost btn-xs text-danger" onclick="this.parentElement.remove()" style="margin-bottom: 6px;">
+                <i class="fas fa-times"></i>
+              </button>
             </div>
           `).join('')}
         </div>
@@ -192,6 +195,7 @@ window.__addConsumableRow = function () {
   const div = document.createElement('div');
   div.className = 'form-row mb-sm';
   div.style.alignItems = 'flex-end';
+  div.style.gap = '8px';
   div.innerHTML = `
       <div class="form-group mb-0" style="flex: 2;">
         <label class="text-xs">Produk</label>
@@ -199,10 +203,13 @@ window.__addConsumableRow = function () {
           ${products.map(p => `<option value="${p.id}">${p.name}</option>`).join('')}
         </select>
       </div>
-      <div class="form-group mb-0">
+      <div class="form-group mb-0" style="width: 80px;">
         <label class="text-xs">Jumlah</label>
         <input type="number" class="form-control form-control-sm" name="consumable_qty_${idx}" value="1" />
       </div>
+      <button type="button" class="btn btn-ghost btn-xs text-danger" onclick="this.parentElement.remove()" style="margin-bottom: 6px;">
+        <i class="fas fa-times"></i>
+      </button>
     `;
   list.appendChild(div);
 };

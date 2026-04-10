@@ -22,15 +22,34 @@ export function renderDashboard(container) {
   const todayStr = now.toISOString().split('T')[0];
 
   // Stats
-  const todayAppts = appointments.filter(a => a.date === todayStr && a.status !== 'cancelled');
+  const rawPayments = storage.getAll('payments');
+
+  // Filter context for barbers
+  const todayAppts = appointments.filter(a => {
+    const isToday = a.date === todayStr && a.status !== 'cancelled';
+    return isBarber ? (isToday && a.barberId === barberId) : isToday;
+  });
+
   const weekStart = new Date(now); weekStart.setDate(now.getDate() - now.getDay());
   const weekAppts = appointments.filter(a => {
     const d = new Date(a.date);
-    return d >= weekStart && d <= now && a.status !== 'cancelled';
+    const isWeek = d >= weekStart && d <= now && a.status !== 'cancelled';
+    return isBarber ? (isWeek && a.barberId === barberId) : isWeek;
   });
-  const monthRevenue = appointments
-    .filter(a => a.date.startsWith(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`) && a.status === 'done')
-    .reduce((sum, a) => sum + (a.paymentAmount || 0), 0);
+
+  // Role-based financial calculations
+  let monthDisplayValue = 0;
+  let monthLabels = isBarber ? 'Komisi Bulan Ini' : 'Pendapatan Bulan Ini';
+
+  if (isBarber) {
+    monthDisplayValue = rawPayments
+      .filter(p => p.date?.startsWith(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`) && p.barberId === barberId)
+      .reduce((sum, p) => sum + (p.commissionAmount || 0), 0);
+  } else {
+    monthDisplayValue = appointments
+      .filter(a => a.date?.startsWith(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`) && a.status === 'done')
+      .reduce((sum, a) => sum + (a.paymentAmount || 0), 0);
+  }
 
   // Upcoming (not done/cancelled)
   const upcoming = appointments
@@ -43,6 +62,8 @@ export function renderDashboard(container) {
 
   const user = storage.getCurrentUser();
   const isSuperAdmin = user?.isSuperAdmin || false;
+  const isBarber = user?.role === 'barber';
+  const barberId = user?.barberId;
 
   container.innerHTML = `
     <div id="platform-announcements-container"></div>
@@ -76,7 +97,7 @@ export function renderDashboard(container) {
         <div class="stat-icon gold"><i class="fas fa-calendar-check"></i></div>
         <div class="stat-info">
           <h3>${todayAppts.length}</h3>
-          <p>Janji Hari Ini</p>
+          <p>${isBarber ? 'Jadwal Saya' : 'Janji Hari Ini'}</p>
         </div>
       </div>
       <div class="card stat-card">
@@ -89,15 +110,15 @@ export function renderDashboard(container) {
       <div class="card stat-card">
         <div class="stat-icon green"><i class="fas fa-money-bill-wave"></i></div>
         <div class="stat-info">
-          <h3>${formatter.currency(monthRevenue)}</h3>
-          <p>Pendapatan Bulan Ini</p>
+          <h3>${formatter.currency(monthDisplayValue)}</h3>
+          <p>${monthLabels}</p>
         </div>
       </div>
       <div class="card stat-card">
         <div class="stat-icon purple"><i class="fas fa-users"></i></div>
         <div class="stat-info">
           <h3>${customers.length}</h3>
-          <p>Total Pelanggan</p>
+          <p>${isBarber ? 'Total Pelanggan Shop' : 'Total Pelanggan'}</p>
         </div>
       </div>
     </div>
@@ -197,6 +218,30 @@ export function renderDashboard(container) {
           `}
         </div>
 
+        <!-- Latest Feedback -->
+        <div class="card">
+          <div class="flex-between mb-md">
+            <span class="fw-700">Feedback Terbaru</span>
+            <span class="text-xs text-muted" style="cursor: pointer;" onclick="showToast('Fitur laporan lengkap feedback segera hadir!', 'info')">Lihat Semua</span>
+          </div>
+          ${(storage.getAll('feedbacks') || []).length > 0 ? `
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              ${(storage.getAll('feedbacks') || []).sort((a, b) => b.id.localeCompare(a.id)).slice(0, 3).map(f => `
+                <div style="padding: 10px; border-radius: 8px; background: ${f.rating <= 2 ? 'rgba(var(--danger-rgb), 0.08)' : 'var(--bg-input)'}; border-left: 3px solid ${f.rating <= 2 ? 'var(--danger)' : 'var(--success)'};">
+                  <div class="flex-between mb-xs">
+                    <span class="fw-600 text-xs">${f.rating} ⭐</span>
+                    <span class="text-xs text-muted">${f.date}</span>
+                  </div>
+                  <p class="text-xs" style="font-style: italic; line-height: 1.4;">"${f.comment || 'Tanpa komentar'}"</p>
+                  ${f.rating <= 2 ? `<div class="text-xs fw-700 text-danger mt-sm"><i class="fas fa-triangle-exclamation"></i> PERLU PERHATIAN</div>` : ''}
+                </div>
+              `).join('')}
+            </div>
+          ` : `
+            <div class="text-center py-20 text-muted text-xs">Belum ada feedback</div>
+          `}
+        </div>
+
         <!-- Quick Actions -->
         <div class="card">
           <span class="fw-700" style="display: block; margin-bottom: 12px;">Aksi Cepat</span>
@@ -209,6 +254,9 @@ export function renderDashboard(container) {
             </button>
             <button class="btn btn-wa btn-sm" id="quick-send-reminders">
               <i class="fab fa-whatsapp"></i> Kirim Reminder
+            </button>
+            <button class="btn btn-secondary btn-sm" id="quick-nightly-report" style="background: var(--bg-primary); color: var(--accent); border: 1px solid var(--accent-glow);">
+              <i class="fas fa-moon"></i> Laporan Malam (WA)
             </button>
           </div>
         </div>
@@ -227,6 +275,9 @@ export function renderDashboard(container) {
 
   // Event listeners
   container.querySelector('#quick-add-appt')?.addEventListener('click', () => navigateTo('appointments'));
+  container.querySelector('#quick-add-customer')?.addEventListener('click', () => navigateTo('customers'));
+  container.querySelector('#quick-send-reminders')?.addEventListener('click', () => sendTodayReminders());
+  container.querySelector('#quick-nightly-report')?.addEventListener('click', () => sendNightlyReport());
   container.querySelector('#quick-add-customer')?.addEventListener('click', () => navigateTo('customers'));
   container.querySelector('#quick-send-reminders')?.addEventListener('click', () => {
     sendTodayReminders();
@@ -380,6 +431,31 @@ function require_modal() {
       import('../components/modal.js').then(m => m.openModal(title, body));
     }
   };
+}
+
+function sendNightlyReport() {
+  const now = new Date();
+  const todayStr = now.toISOString().split('T')[0];
+  const apps = storage.getAll('appointments').filter(a => a.date === todayStr && a.status === 'done');
+  const revenue = apps.reduce((s, a) => s + (a.paymentAmount || 0), 0);
+  const barbers = storage.getAll('barbers');
+  
+  // Find top barber today
+  const bStats = barbers.map(b => ({
+    name: b.name,
+    rev: apps.filter(a => a.barberId === b.id).reduce((s, a) => s + (a.paymentAmount || 0), 0)
+  })).sort((a,b) => b.rev - a.rev);
+
+  const msg = `*LAPORAN HARIAN - ${storage.get('settings', {}).shopName || 'BarberPro'}*\n` +
+    `📅 Tanggal: ${todayStr}\n\n` +
+    `📈 *RINGKASAN:* \n` +
+    `- Total Janji Selesai: ${apps.length}\n` +
+    `- Total Omset: *${formatter.currency(revenue)}*\n` +
+    `- Top Barber Today: ${bStats[0]?.rev > 0 ? `${bStats[0].name} (${formatter.currency(bStats[0].rev)})` : '-'}\n\n` +
+    `Tetap semangat dan terus berikan yang terbaik! 💪✂️`;
+
+  const ownerPhone = storage.get('settings', {}).phone || '';
+  window.open(`https://wa.me/${ownerPhone.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
 function sendTodayReminders() {
@@ -653,7 +729,7 @@ function renderPeakHoursHeatmap(appointments) {
   `;
 }
 
-// === Barber Performance ===
+// === Staff Leaderboard (Gamification) ===
 function renderBarberPerformance(appointments) {
   const barbers = storage.getAll('barbers');
   const now = new Date();
@@ -664,30 +740,50 @@ function renderBarberPerformance(appointments) {
     const revenue = monthAppts.reduce((s, a) => s + (a.paymentAmount || 0), 0);
     const rated = monthAppts.filter(a => a.rating > 0);
     const avgRating = rated.length > 0 ? (rated.reduce((s, a) => s + a.rating, 0) / rated.length) : (b.rating || 0);
-    return { ...b, monthCuts: monthAppts.length, monthRevenue: revenue, avgRating };
-  }).sort((a, b) => b.monthRevenue - a.monthRevenue);
+    
+    // Performance Score logic (70% revenue weight, 30% rating weight)
+    const normalizedRevenue = Math.min(revenue / 5000000, 1); 
+    const normalizedRating = avgRating / 5;
+    const score = (normalizedRevenue * 0.7) + (normalizedRating * 0.3);
+    
+    return { ...b, monthCuts: monthAppts.length, monthRevenue: revenue, avgRating, score };
+  }).sort((a, b) => b.score - a.score);
 
-  const maxRev = Math.max(...stats.map(s => s.monthRevenue), 1);
+  if (stats.length === 0) return '';
+
+  const podium = [stats[1], stats[0], stats[2]].filter(b => b); // Reorder for visualization: 2nd, 1st, 3rd
 
   return `
-    <div class="card">
-      <h3 style="font-size: 15px; margin-bottom: 14px;">
-        <i class="fas fa-trophy" style="color: var(--warning);"></i> Performa Barber (Bulan Ini)
-      </h3>
-      <div style="display: flex; flex-direction: column; gap: 12px;">
-        ${stats.map((b, i) => `
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="width: 28px; height: 28px; border-radius: 50%; background: ${i === 0 ? 'var(--accent)' : 'var(--bg-input)'}; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: ${i === 0 ? '#0f1117' : 'var(--text-muted)'}; flex-shrink: 0;">${i + 1}</div>
-            <div style="flex: 1; min-width: 0;">
-              <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                <span class="fw-600 text-sm">${b.name}</span>
-                <span class="text-sm" style="color: var(--accent);">${formatter.currency(b.monthRevenue)}</span>
+    <div class="card" style="position: relative; overflow: hidden;">
+      <div class="flex-between mb-lg">
+        <h3 style="font-size: 16px;"><i class="fas fa-trophy" style="color: var(--warning);"></i> Staff Leaderboard</h3>
+        <span class="badge badge-gold">Bulan Ini</span>
+      </div>
+
+      <div class="podium-container">
+        ${podium.map((b, i) => {
+          const rank = b === stats[0] ? 1 : b === stats[1] ? 2 : 3;
+          return `
+            <div class="podium-item rank-${rank}" style="width: 33%;">
+              <div class="rank-badge">${rank}</div>
+              <img src="${b.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + b.name}" class="barber-avatar-l" />
+              <div class="fw-700 text-xs text-center" style="margin-bottom: 4px;">${b.name.split(' ')[0]}</div>
+              <div class="podium-rank podium-rank-${rank}">
+                <div class="text-xs fw-800" style="color: rgba(255,255,255,0.7);">${formatter.currency(b.monthRevenue).split(',')[0]}</div>
               </div>
-              <div style="height: 6px; background: var(--bg-input); border-radius: 3px; overflow: hidden;">
-                <div style="height: 100%; width: ${(b.monthRevenue / maxRev) * 100}%; background: linear-gradient(90deg, var(--accent-dark), var(--accent-light)); border-radius: 3px; transition: width 0.5s ease;"></div>
-              </div>
-              <div class="text-sm text-muted" style="margin-top: 2px;">${b.monthCuts} potong · ${'⭐'.repeat(Math.round(b.avgRating))} ${b.avgRating.toFixed(1)}</div>
             </div>
+          `;
+        }).join('')}
+      </div>
+
+      <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 8px;">
+        ${stats.slice(3, 6).map((b, i) => `
+          <div class="flex-between" style="padding: 10px 14px; background: var(--bg-input); border-radius: 8px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span class="text-xs fw-700 text-muted" style="width: 14px;">${i + 4}</span>
+              <span class="text-sm fw-600">${b.name}</span>
+            </div>
+            <div class="text-xs fw-700" style="color: var(--accent);">${formatter.currency(b.monthRevenue)}</div>
           </div>
         `).join('')}
       </div>

@@ -47,6 +47,21 @@ export function renderReports(container) {
   const completedAppts = periodAppts.filter(a => a.status === 'done').length;
   const cancelledAppts = periodAppts.filter(a => a.status === 'cancelled').length;
   const totalRevenue = periodPayments.reduce((s, p) => s + (p.amount || 0), 0);
+  const totalCommission = periodPayments.reduce((s, p) => s + (p.commissionAmount || 0), 0);
+  const expenses = storage.getAll('expenses');
+  const totalExpenses = expenses
+    .filter(e => {
+        if (reportPeriod === 'today') return e.date === todayStr;
+        if (reportPeriod === 'month') return e.date?.startsWith(todayStr.substring(0, 7));
+        if (reportPeriod === 'week') {
+            const weekAgo = new Date(now); weekAgo.setDate(weekAgo.getDate() - 7);
+            return e.date >= weekAgo.toISOString().split('T')[0];
+        }
+        return true;
+    })
+    .reduce((s, e) => s + (e.amount || 0), 0);
+  
+  const netProfit = totalRevenue - totalCommission - totalExpenses;
   const avgRevenue = completedAppts > 0 ? Math.round(totalRevenue / completedAppts) : 0;
 
   // Service breakdown
@@ -255,26 +270,46 @@ export function renderReports(container) {
     </div>
 
     <!-- Summary Stats -->
-    <div class="stats-grid stagger" style="grid-template-columns: repeat(5, 1fr);">
+    <div class="stats-grid stagger" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 20px;">
+      <div class="card stat-card" style="border-bottom: 4px solid var(--success);">
+        <div class="stat-icon green"><i class="fas fa-money-bill-trend-up"></i></div>
+        <div class="stat-info">
+            <p class="text-xs text-muted">Total Pendapatan</p>
+            <h3>${formatter.currency(totalRevenue)}</h3>
+        </div>
+      </div>
+      <div class="card stat-card" style="border-bottom: 4px solid var(--danger);">
+        <div class="stat-icon red"><i class="fas fa-file-invoice-dollar"></i></div>
+        <div class="stat-info">
+            <p class="text-xs text-muted">Beban (Komisi + Biaya)</p>
+            <h3>${formatter.currency(totalCommission + totalExpenses)}</h3>
+        </div>
+      </div>
+      <div class="card stat-card" style="border-bottom: 4px solid var(--accent); background: var(--bg-card-alt);">
+        <div class="stat-icon gold"><i class="fas fa-scale-balanced"></i></div>
+        <div class="stat-info">
+            <p class="text-xs text-muted">Laba Bersih (Net Profit)</p>
+            <h3 style="color: ${netProfit >= 0 ? 'var(--success)' : 'var(--danger)'}">${formatter.currency(netProfit)}</h3>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-grid stagger" style="grid-template-columns: repeat(4, 1fr); margin-top: 0;">
       <div class="card stat-card">
         <div class="stat-icon gold"><i class="fas fa-calendar-check"></i></div>
         <div class="stat-info"><h3>${totalAppts}</h3><p>Total Janji</p></div>
       </div>
       <div class="card stat-card">
-        <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+        <div class="stat-icon blue"><i class="fas fa-check-circle"></i></div>
         <div class="stat-info"><h3>${completedAppts}</h3><p>Selesai</p></div>
       </div>
-      <div class="card stat-card">
+       <div class="card stat-card">
         <div class="stat-icon red"><i class="fas fa-times-circle"></i></div>
         <div class="stat-info"><h3>${cancelledAppts}</h3><p>Batal</p></div>
       </div>
       <div class="card stat-card">
-        <div class="stat-icon blue"><i class="fas fa-money-bill-wave"></i></div>
-        <div class="stat-info"><h3>${formatter.currency(totalRevenue)}</h3><p>Total Pendapatan</p></div>
-      </div>
-      <div class="card stat-card">
         <div class="stat-icon purple"><i class="fas fa-calculator"></i></div>
-        <div class="stat-info"><h3>${formatter.currency(avgRevenue)}</h3><p>Rata-rata / Transaksi</p></div>
+        <div class="stat-info"><h3>${formatter.currency(avgRevenue)}</h3><p>Rata-rata Tiket</p></div>
       </div>
     </div>
 

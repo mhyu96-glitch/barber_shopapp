@@ -86,6 +86,11 @@ export function renderCustomers(container) {
                       <button class="btn btn-ghost btn-sm" title="WhatsApp" onclick="window.__waCustomer('${c.id}')">
                         <i class="fab fa-whatsapp" style="color: #25d366;"></i>
                       </button>
+                      ${(c.lastVisit && new Date(c.lastVisit) < new Date(new Date() - 30 * 24 * 60 * 60 * 1000)) ? `
+                        <button class="btn btn-primary btn-sm" title="Kangen Potong" onclick="window.__waKangen('${c.id}')" style="background: var(--warning); color: #000; padding: 4px 8px; font-size: 10px; font-weight: 700;">
+                          <i class="fas fa-history"></i> KANGEN
+                        </button>
+                      ` : ''}
                       <button class="btn btn-ghost btn-sm" title="Edit" onclick="window.__editCustomer('${c.id}')">
                         <i class="fas fa-edit" style="color: var(--info);"></i>
                       </button>
@@ -122,6 +127,13 @@ export function renderCustomers(container) {
   window.__waCustomer = (id) => {
     const c = storage.find('customers', id);
     if (c) whatsapp.sendCustom(c.phone, `Halo ${c.name}! Ada yang bisa kami bantu? 😊\n- BarberPro Studio`);
+  };
+  window.__waKangen = (id) => {
+    const c = storage.find('customers', id);
+    if (c) {
+        const msg = `Halo ${c.name}! Kami kangen Anda di BarberPro Studio. 👋\n\nSudah lebih dari sebulan nih sejak kunjungan terakhir Anda. Yuk, luangkan waktu sejenak untuk merapikan rambut agar tetap tampil pede! ✂️\n\nBooking sekarang untuk amankan jam favorit Anda: ${window.location.origin}/portal\n\nSampai jumpa! 💈`;
+        whatsapp.sendCustom(c.phone, msg);
+    }
   };
   window.__deleteCustomer = (id) => {
     confirmDialog('Yakin ingin menghapus pelanggan ini?', () => {
@@ -286,20 +298,29 @@ function showCustomerDetail(id) {
   if (!customer) return;
 
   const appointments = storage.getAll('appointments').filter(a => a.customerId === id).sort((a, b) => b.date.localeCompare(a.date));
-  const tier = formatter.loyaltyTier(customer.totalVisits || 0);
-  const points = formatter.loyaltyPoints(customer.totalVisits || 0);
-  const freeCount = formatter.freeHaircuts(customer.totalVisits || 0);
-
+  const points = customer.loyalty_points || 0;
+  const tier = formatter.loyaltyTier(points);
+  
   const body = `
     <div style="text-align: center; margin-bottom: 20px;">
       <div style="width: 64px; height: 64px; border-radius: 50%; background: ${customer.avatar ? `url(${customer.avatar}) center/cover` : 'var(--accent-subtle)'}; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-size: ${customer.avatar ? '0' : '22px'}; font-weight: 700; color: var(--accent); border: 2px solid var(--accent);">
         ${customer.avatar ? '' : formatter.initials(customer.name)}
       </div>
-      <h3>${customer.name}</h3>
-      <p class="text-muted">${formatter.phoneDisplay(customer.phone)}</p>
-      <span class="loyalty-badge ${tier.class}" style="margin-top: 6px;">
-        <i class="fas ${tier.icon}"></i> ${tier.name} • ${points} Poin
-      </span>
+      <h3 style="margin-bottom: 4px;">${customer.name}</h3>
+      <p class="text-sm text-muted">${formatter.phoneDisplay(customer.phone)}</p>
+      
+      <div style="display: inline-flex; flex-direction: column; align-items: center; margin-top: 10px; width: 100%; max-width: 240px;">
+         <span class="loyalty-badge ${tier.class}" style="margin-bottom: 8px; font-weight: 800; padding: 4px 12px; border-radius: 20px;">
+            <i class="fas ${tier.icon}"></i> ${tier.name.toUpperCase()} • ${points} Poin
+         </span>
+         
+         ${tier.next ? `
+            <div style="width: 100%; background: var(--bg-input); height: 6px; border-radius: 3px; position: relative; margin-top: 4px;">
+               <div style="position: absolute; left: 0; top: 0; height: 100%; background: var(--accent); border-radius: 3px; width: ${Math.round((points / tier.next) * 100)}%;"></div>
+            </div>
+            <div class="text-xs text-muted mt-xs">Hanya butuh ${tier.next - points} poin lagi ke level berikutnya!</div>
+         ` : '<div class="text-xs fw-700 text-accent">Luar biasa! Anda berada di level tertinggi! 💎</div>'}
+      </div>
     </div>
 
     <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 18px;">
@@ -366,6 +387,36 @@ function showCustomerDetail(id) {
         `}
       </div>
     </div>
+
+    ${(() => {
+        const membership = storage.getAll('customerMemberships')
+            .find(m => m.customer_id === id && m.status === 'active' && m.remaining_sessions > 0);
+        
+        if (!membership) return '';
+        const pack = storage.find('membershipPackages', membership.package_id);
+        
+        return `
+            <div class="card" style="background: rgba(var(--accent-rgb), 0.1); border: 1px solid var(--accent); margin-bottom: 20px;">
+                <div class="flex-between mb-sm">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-star text-accent"></i>
+                        <h4 style="margin: 0;">Membership Aktif</h4>
+                    </div>
+                </div>
+                <div class="fw-700" style="font-size: 16px;">${pack?.name || 'Paket Aktif'}</div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 10px;">
+                    <div>
+                        <div class="text-xs text-muted">Sisa Sesi</div>
+                        <div class="fw-800" style="font-size: 20px; color: var(--accent);">${membership.remaining_sessions}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs text-muted">Berlaku Hingga</div>
+                        <div class="fw-600">${membership.expiry_date || 'Selamanya'}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    })()}
 
     <h4 style="margin-bottom: 10px;">Riwayat Kunjungan</h4>
     ${appointments.length > 0 ? `

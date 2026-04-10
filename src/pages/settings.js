@@ -37,6 +37,10 @@ export function renderSettings(container) {
               <label>No. HP / WhatsApp Toko</label>
               <input type="text" class="form-control" name="phone" value="${settings.phone || ''}" />
             </div>
+            <div class="form-group">
+              <label>Link Review Google Maps <small class="text-muted">(Untuk sistem Feedback Bintang 5)</small></label>
+              <input type="url" class="form-control" name="googleReviewLink" placeholder="https://g.page/r/your-id/review" value="${settings.googleReviewLink || ''}" />
+            </div>
             <div class="form-row">
               <div class="form-group">
                 <label>Jam Buka</label>
@@ -334,15 +338,15 @@ export function renderSettings(container) {
   // Save settings
   container.querySelector('#save-settings-btn').addEventListener('click', () => {
     const fd = new FormData(document.getElementById('settings-form'));
-    const closedDays = fd.getAll('closedDays').map(Number);
     const data = {
       ...settings,
       shopName: fd.get('shopName'),
       address: fd.get('address'),
       phone: fd.get('phone'),
+      googleReviewLink: fd.get('googleReviewLink'),
       openTime: fd.get('openTime'),
       closeTime: fd.get('closeTime'),
-      closedDays,
+      closedDays: fd.getAll('closedDays').map(Number)
     };
     storage.set('settings', data);
     showToast('Pengaturan disimpan!', 'success');

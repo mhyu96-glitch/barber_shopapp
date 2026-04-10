@@ -40,15 +40,15 @@ export const formatter = {
         return str.slice(0, len) + '...';
     },
 
-    loyaltyTier(visits) {
-        if (visits >= 50) return { name: 'Platinum', class: 'loyalty-platinum', icon: 'fa-gem' };
-        if (visits >= 20) return { name: 'Gold', class: 'loyalty-gold', icon: 'fa-crown' };
-        if (visits >= 10) return { name: 'Silver', class: 'loyalty-silver', icon: 'fa-medal' };
-        return { name: 'Bronze', class: 'loyalty-bronze', icon: 'fa-award' };
+    loyaltyTier(points = 0) {
+        if (points >= 3000) return { name: 'Platinum', class: 'loyalty-platinum', icon: 'fa-gem', next: null };
+        if (points >= 1500) return { name: 'Gold', class: 'loyalty-gold', icon: 'fa-crown', next: 3000 };
+        if (points >= 500) return { name: 'Silver', class: 'loyalty-silver', icon: 'fa-medal', next: 1500 };
+        return { name: 'Bronze', class: 'loyalty-bronze', icon: 'fa-award', next: 500 };
     },
 
-    loyaltyPoints(visits) {
-        return visits * 10; // 10 points per visit
+    loyaltyPoints(amount) {
+        return Math.floor(amount / 1000);
     },
 
     freeHaircuts(visits) {
