@@ -16,35 +16,37 @@ function renderMainLayout(container) {
 
   container.innerHTML = `
     <div class="super-admin-layout fade-in">
-      <div class="super-admin-header sticky-header" style="background: var(--bg-secondary); border-bottom: 1px solid var(--border); padding: 15px 30px; margin: -24px -30px 24px -30px; display: flex; justify-content: space-between; align-items: center; gap: 20px;">
+      <div class="super-admin-header sticky-header" style="background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 12px 30px; margin: -24px -30px 24px -30px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-sm); z-index: 100;">
         <div class="header-content">
-          <h1 style="font-size: 20px; font-weight: 800; margin: 0;">Master Dashboard Platform</h1>
-          <p style="font-size: 11px; color: var(--text-secondary); margin: 0;">Kendali penuh platform & manajemen tenant</p>
+          <h1 style="font-size: 18px; font-weight: 800; margin: 0; color: var(--accent); letter-spacing: -0.5px;">Master Dashboard Platform</h1>
+          <p style="font-size: 11px; color: var(--text-muted); margin: 0; font-weight: 500;">Kendali penuh platform & manajemen tenant</p>
         </div>
-        <div class="header-actions" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-           <button id="theme-toggle-btn" class="btn btn-secondary" title="Ganti Tema" style="width: 42px; height: 42px; padding: 0; display: flex; align-items: center; justify-content: center;">
+        <div class="header-actions" style="display: flex; gap: 10px; align-items: center;">
+           <button id="theme-toggle-btn" class="btn btn-secondary btn-sm" title="Ganti Tema" style="width: 38px; height: 38px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 10px;">
             <i class="fas fa-${currentTheme === 'dark' ? 'sun' : 'moon'}"></i>
           </button>
           
-          <div style="width: 1px; height: 24px; background: var(--border); margin: 0 4px;" class="hide-mobile"></div>
+          <div style="width: 1px; height: 20px; background: var(--border); margin: 0 4px;" class="hide-mobile"></div>
           
-          <button id="btn-tab-tenants" class="btn ${activeTab === 'tenants' ? 'btn-primary' : 'btn-secondary'}">
-            <i class="fas fa-store"></i> <span class="hide-mobile">Tenant</span>
-          </button>
-          <button id="btn-tab-reports" class="btn ${activeTab === 'reports' ? 'btn-primary' : 'btn-secondary'}">
-            <i class="fas fa-chart-pie"></i> <span class="hide-mobile">Laporan</span>
-          </button>
-          <button id="btn-tab-broadcast" class="btn ${activeTab === 'broadcast' ? 'btn-primary' : 'btn-secondary'}">
-            <i class="fas fa-bullhorn"></i> <span class="hide-mobile">Pengumuman</span>
-          </button>
+          <div class="btn-group" style="display: flex; background: var(--bg-input); padding: 4px; border-radius: 12px; border: 1px solid var(--border);">
+            <button id="btn-tab-tenants" class="btn ${activeTab === 'tenants' ? 'btn-primary' : 'btn-ghost'} btn-sm" style="border-radius: 8px; font-size: 12px; padding: 6px 14px;">
+              <i class="fas fa-store"></i> <span class="hide-mobile">Tenant</span>
+            </button>
+            <button id="btn-tab-reports" class="btn ${activeTab === 'reports' ? 'btn-primary' : 'btn-ghost'} btn-sm" style="border-radius: 8px; font-size: 12px; padding: 6px 14px;">
+              <i class="fas fa-chart-pie"></i> <span class="hide-mobile">Laporan</span>
+            </button>
+            <button id="btn-tab-broadcast" class="btn ${activeTab === 'broadcast' ? 'btn-primary' : 'btn-ghost'} btn-sm" style="border-radius: 8px; font-size: 12px; padding: 6px 14px;">
+              <i class="fas fa-bullhorn"></i> <span class="hide-mobile">Pengumuman</span>
+            </button>
+          </div>
 
-          <div style="width: 1px; height: 24px; background: var(--border); margin: 0 4px;" class="hide-mobile"></div>
+          <div style="width: 1px; height: 20px; background: var(--border); margin: 0 4px;" class="hide-mobile"></div>
 
-          <button id="add-shop-btn" class="btn" style="background: #22c55e; color: #fff; border: none; font-weight: 600;">
+          <button id="add-shop-btn" class="btn btn-primary btn-sm" style="border-radius: 10px; font-weight: 700;">
             <i class="fas fa-plus"></i> <span class="hide-mobile">Registrasi Baru</span>
           </button>
           
-          <button id="master-logout-btn" class="btn btn-secondary" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.2); width: 42px; height: 42px; padding: 0; display: flex; align-items: center; justify-content: center;">
+          <button id="master-logout-btn" class="btn btn-secondary btn-sm" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.15); width: 38px; height: 38px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 10px;">
             <i class="fas fa-sign-out-alt"></i>
           </button>
         </div>
@@ -90,18 +92,27 @@ async function renderActiveTab(container) {
 // ==========================================
 async function renderTenantsList(container) {
   container.innerHTML = `
-    <div class="stats-grid fade-in" style="margin-top: 10px;">
-       <div class="stat-card">
-        <div class="stat-icon" style="background: var(--accent-subtle); color: var(--accent);"><i class="fas fa-store"></i></div>
-        <div class="stat-info"><h3 id="stat-total">-</h3><p>Total Barbershop</p></div>
+    <div class="stats-grid fade-in" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 15px;">
+       <div class="card stat-card" style="display: flex; align-items: center; gap: 16px; padding: 20px;">
+        <div class="stat-icon" style="background: var(--accent-subtle); color: var(--accent); width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 20px;"><i class="fas fa-store"></i></div>
+        <div class="stat-info">
+          <h3 id="stat-total" style="font-size: 24px; font-weight: 800; margin: 0;">-</h3>
+          <p style="font-size: 12px; color: var(--text-muted); margin: 0; font-weight: 600;">Total Barbershop</p>
+        </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon" style="background: rgba(34, 197, 94, 0.1); color: #22c55e;"><i class="fas fa-check-circle"></i></div>
-        <div class="stat-info"><h3 id="stat-active">-</h3><p>Toko Aktif</p></div>
+      <div class="card stat-card" style="display: flex; align-items: center; gap: 16px; padding: 20px; border-left: 3px solid #22c55e;">
+        <div class="stat-icon" style="background: rgba(34, 197, 94, 0.1); color: #22c55e; width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 20px;"><i class="fas fa-check-circle"></i></div>
+        <div class="stat-info">
+          <h3 id="stat-active" style="font-size: 24px; font-weight: 800; margin: 0;">-</h3>
+          <p style="font-size: 12px; color: var(--text-muted); margin: 0; font-weight: 600;">Toko Aktif</p>
+        </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;"><i class="fas fa-times-circle"></i></div>
-        <div class="stat-info"><h3 id="stat-expired">-</h3><p>Kedaluwarsa</p></div>
+      <div class="card stat-card" style="display: flex; align-items: center; gap: 16px; padding: 20px; border-left: 3px solid #ef4444;">
+        <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 20px;"><i class="fas fa-times-circle"></i></div>
+        <div class="stat-info">
+          <h3 id="stat-expired" style="font-size: 24px; font-weight: 800; margin: 0;">-</h3>
+          <p style="font-size: 12px; color: var(--text-muted); margin: 0; font-weight: 600;">Kedaluwarsa</p>
+        </div>
       </div>
     </div>
 

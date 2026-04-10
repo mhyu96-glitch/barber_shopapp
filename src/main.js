@@ -3,7 +3,6 @@
 // SPA Router + App Initialization
 // ========================================
 
-import './styles/index.css';
 import { supabase } from './utils/supabaseClient.js';
 import { storage } from './utils/storage.js';
 import { initSampleData } from './utils/sampleData.js';
