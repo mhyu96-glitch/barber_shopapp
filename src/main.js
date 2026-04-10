@@ -94,7 +94,8 @@ export function navigateTo(page) {
     if (mainContent) {
       mainContent.style.marginLeft = '0';
       mainContent.style.width = '100%';
-      mainContent.style.padding = '0';
+      // Only force zero padding for login/feedback, let super-admin use its internal padding
+      mainContent.style.padding = (page === 'super-admin') ? '' : '0';
     }
   } else {
     // Show sidebar for app pages

@@ -15,8 +15,8 @@ function renderMainLayout(container) {
   const currentTheme = localStorage.getItem('barberpro_theme') || 'dark';
 
   container.innerHTML = `
-    <div class="super-admin-layout fade-in">
-      <div class="super-admin-header sticky-header" style="background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 16px 30px; margin: -24px -30px 24px -30px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-sm); z-index: 100;">
+    <div class="super-admin-layout fade-in" style="max-width: 1400px; margin: 0 auto; padding: 0 40px; min-height: 100vh;">
+      <div class="super-admin-header sticky-header" style="background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 16px 30px; margin: 0 -40px 24px -40px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-sm); z-index: 100; border-radius: 0 0 16px 16px;">
         <div class="header-content" style="padding-left: 10px;">
           <h1 style="font-size: 19px; font-weight: 800; margin: 0; color: var(--accent); letter-spacing: -0.5px; text-transform: uppercase;">Master Platform</h1>
           <p style="font-size: 11px; color: var(--text-muted); margin: 0; font-weight: 500; opacity: 0.8;">Manajemen operasional tenant & sistem global</p>
@@ -52,7 +52,7 @@ function renderMainLayout(container) {
         </div>
       </div>
 
-      <div id="sub-page-container">
+      <div id="sub-page-container" style="padding-bottom: 40px;">
         <!-- Content injected here -->
       </div>
     </div>
