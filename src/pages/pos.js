@@ -42,9 +42,9 @@ export function renderPOS(container) {
     selectedPaymentDetail = '';
 
     container.innerHTML = `
-    <div class="pos-container" style="display: grid; grid-template-columns: 1fr 380px; gap: 20px; height: calc(100vh - 80px); overflow: hidden;">
+    <div class="pos-container" style="display: grid; grid-template-columns: 1fr 420px; gap: 20px; height: calc(100vh - 80px); overflow: hidden;">
         
-        <!-- Left: Service Selection -->
+        <!-- Left: Service Selection ... -->
         <div class="pos-main card" style="display: flex; flex-direction: column; overflow: hidden;">
             <div class="pos-header" style="padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                 <h2 style="margin: 0; white-space: nowrap;"><i class="fas fa-cash-register text-accent"></i> Kasir / POS</h2>
@@ -56,16 +56,16 @@ export function renderPOS(container) {
                 </div>
             </div>
 
-            <!-- Search Bar -->
+            <!-- Search Bar ... (omitted for brevity during view, but keep in file) -->
             <div style="padding: 12px 20px; border-bottom: 1px solid var(--border); background: rgba(var(--accent-rgb), 0.03);">
                 <div style="position: relative;">
                     <i class="fas fa-search" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px;"></i>
-                    <input type="text" id="pos-search-input" class="form-control" placeholder="Ketik nama layanan... (contoh: potong, cukur, creambath)" 
+                    <input type="text" id="pos-search-input" class="form-control" placeholder="Ketik nama layanan..." 
                         style="padding-left: 40px; height: 44px; font-size: 15px; background: var(--bg-primary); border: 2px solid var(--border); border-radius: var(--radius-md);" />
                 </div>
             </div>
 
-            <!-- Active Appointments to Settle -->
+            <!-- Active Appointments ... -->
             ${appointments.length > 0 ? `
             <div class="pos-appointments" style="padding: 12px 20px; background: rgba(var(--accent-rgb), 0.05); border-bottom: 1px solid var(--border);">
                 <p class="text-xs fw-700 text-muted" style="margin-bottom: 8px; letter-spacing: 1px;">JANJI TEMU AKTIF</p>
@@ -105,29 +105,29 @@ export function renderPOS(container) {
         <!-- Right: Cart & Checkout -->
         <div class="pos-luxury-sidebar shadow-premium" style="border-radius: var(--radius-xl); overflow: hidden; height: 100%;">
             <!-- Header -->
-            <div style="padding: 24px 20px; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center;">
-                <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="padding: 20px; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 10px;">
                     <div style="width: 32px; height: 32px; border-radius: 8px; background: var(--accent-subtle); display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-accent);">
-                        <i class="fas fa-list-ul text-accent" style="font-size: 14px;"></i>
+                        <i class="fas fa-receipt text-accent" style="font-size: 14px;"></i>
                     </div>
-                    <h3 style="margin: 0; font-size: 16px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-primary);">Ringkasan Order</h3>
+                    <h3 style="margin: 0; font-size: 15px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-primary);">Ringkasan Order</h3>
                 </div>
                 <div style="text-align: right;">
                     <div class="text-[9px] fw-800 text-muted uppercase tracking-widest">Order ID</div>
-                    <div class="text-[11px] fw-900 text-accent">#POS-${Date.now().toString().slice(-5)}</div>
+                    <div class="text-[11px] fw-900 text-accent" style="letter-spacing: -0.5px;">#POS-${Date.now().toString().slice(-5)}</div>
                 </div>
             </div>
             
-            <div id="pos-cart-list" style="flex: 1; overflow-y: auto; padding: 20px; scrollbar-width: none;">
+            <div id="pos-cart-list" style="flex: 1; overflow-y: auto; padding: 16px; scrollbar-width: none;">
                 <div class="text-center py-40" id="empty-cart-msg" style="opacity: 0.3;">
                     <i class="fas fa-shopping-basket" style="display: block; font-size: 40px; margin-bottom: 16px;"></i>
                     <span class="text-[10px] fw-800 uppercase tracking-widest text-muted">Belum Ada Pesanan</span>
                 </div>
             </div>
             
-            <div style="padding: 0 20px 20px;">
+            <div style="padding: 0 16px 16px;">
                 <!-- Barber Selection (Rounded Style) -->
-                <div class="form-group mb-lg">
+                <div class="form-group mb-md">
                     <label class="text-[9px] uppercase tracking-widest fw-900 text-muted mb-xs block">Pilih Barber / Stylist</label>
                     <div class="luxury-select-wrapper">
                         <i class="fas fa-user-circle"></i>
@@ -138,45 +138,36 @@ export function renderPOS(container) {
                     </div>
                 </div>
 
-                <!-- Payment Summary Card (Integrated Style) -->
-                <div class="pos-luxury-card mb-lg shadow-sm">
-                    <div class="pos-summary-row mb-md">
+                <!-- Payment Summary Card -->
+                <div class="pos-luxury-card mb-md shadow-sm">
+                    <div class="pos-summary-row mb-sm">
                         <span class="text-xs text-muted fw-600">Subtotal Layanan</span>
                         <span class="fw-700 text-sm" id="pos-subtotal">${formatter.currency(0)}</span>
                     </div>
-                    <div class="pos-summary-row mb-md" id="row-tier-discount" style="display: none; color: #f87171;">
+                    <div class="pos-summary-row mb-sm" id="row-tier-discount" style="display: none; color: #f87171;">
                         <span class="text-xs fw-600">Discounts & Promo</span>
                         <span class="fw-700 text-sm" id="val-tier-discount">-${formatter.currency(0)}</span>
                     </div>
-                    <div class="pos-summary-row mb-md">
+                    <div class="pos-summary-row mb-sm">
                         <span class="text-xs text-muted fw-600">Pajak (PPN 11%)</span>
                         <span class="fw-700 text-sm" id="pos-tax">${formatter.currency(0)}</span>
                     </div>
 
-                    <div style="height: 1px; background: var(--border-light); margin: 16px 0; border: none;"></div>
+                    <div style="height: 1px; background: var(--border-light); margin: 12px 0; border: none; opacity: 0.5;"></div>
 
                     <div class="pos-summary-row align-center">
                         <div>
                             <div class="text-[10px] fw-900 text-accent uppercase tracking-widest">Total Akhir</div>
                             <div class="text-[9px] text-muted italic">Terhitung secara otomatis</div>
                         </div>
-                        <span class="fw-900 text-accent text-3xl" id="pos-total">${formatter.currency(0)}</span>
+                        <span class="fw-900 text-accent text-3xl" id="pos-total" style="letter-spacing: -1px;">${formatter.currency(0)}</span>
                     </div>
                 </div>
 
-                <!-- Dynamic Payment Detail Display -->
-                <div id="pos-payment-detail-card" style="display: none; margin-bottom: 20px; padding: 12px; border-radius: var(--radius-md); background: var(--bg-input); border-left: 4px solid var(--accent);">
-                    <div class="flex-between mb-xs">
-                        <span class="text-[9px] uppercase fw-900 text-accent">Info Pembayaran</span>
-                        <button class="btn btn-ghost btn-xs text-muted" onclick="document.getElementById('pos-payment-detail-card').style.display='none'; selectedPaymentDetail='';"><i class="fas fa-times"></i></button>
-                    </div>
-                    <div id="pos-payment-detail" class="text-xs fw-700 text-primary"></div>
-                </div>
-
-                <!-- Payment Methods (Modern Tiles) -->
-                <div class="form-group mb-xl">
+                <!-- Metode Pembayaran -->
+                <div class="form-group mb-lg">
                     <label class="text-[9px] uppercase tracking-widest fw-900 text-muted mb-xs block">Metode Pembayaran</label>
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;" id="pos-methods-container">
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;" id="pos-methods-container">
                         <button class="pos-payment-tile active" data-method="cash">
                             <div class="pos-circle-icon"><i class="fas fa-money-bill-wave"></i></div>
                             <span class="text-[10px] fw-900 uppercase tracking-wider">Tunai</span>
@@ -189,19 +180,15 @@ export function renderPOS(container) {
                             <div class="pos-circle-icon"><i class="fas fa-qrcode"></i></div>
                             <span class="text-[10px] fw-900 uppercase tracking-wider">QRIS</span>
                         </button>
-                        <button class="pos-payment-tile" data-method="membership" id="btn-method-membership" style="display: none;">
-                            <div class="pos-circle-icon"><i class="fas fa-star"></i></div>
-                            <span class="text-[10px] fw-900 uppercase tracking-wider">Paket</span>
-                        </button>
                     </div>
                 </div>
 
                 <button class="btn btn-primary btn-block shadow-accent brass-gradient" id="pos-checkout-btn" disabled 
-                    style="height: 60px; border-radius: 16px; font-size: 16px; font-weight: 900; border: none; letter-spacing: 1px;">
+                    style="height: 56px; border-radius: 14px; font-size: 15px; font-weight: 900; border: none; letter-spacing: 1px;">
                     <i class="fas fa-print mr-sm"></i> BAYAR & CETAK
                 </button>
 
-                <div class="luxury-footer-text mt-lg">
+                <div class="luxury-footer-text mt-md">
                     ORDER PROCESSED AT ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • REF: POS-X1
                 </div>
             </div>
