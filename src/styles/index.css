@@ -697,13 +697,13 @@ body.sidebar-collapsed .sidebar-collapse-btn {
   border-left: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  width: 420px !important;
+  width: 380px !important;
 }
 
 .pos-luxury-card {
   background: rgba(0, 0, 0, 0.2);
   border-radius: var(--radius-lg);
-  padding: 20px;
+  padding: 18px;
   border: 1px solid rgba(255, 255, 255, 0.03);
 }
 

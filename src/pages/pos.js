@@ -42,62 +42,37 @@ export function renderPOS(container) {
     selectedPaymentDetail = '';
 
     container.innerHTML = `
-    <div class="pos-container" style="display: grid; grid-template-columns: 1fr 420px; gap: 20px; height: calc(100vh - 80px); overflow: hidden;">
+    <div class="pos-container" style="display: grid; grid-template-columns: 1fr 380px; gap: 16px; height: calc(100vh - 80px); overflow: hidden;">
         
         <!-- Left: Service Selection ... -->
-        <div class="pos-main card" style="display: flex; flex-direction: column; overflow: hidden;">
-            <div class="pos-header" style="padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                <h2 style="margin: 0; white-space: nowrap;"><i class="fas fa-cash-register text-accent"></i> Kasir / POS</h2>
-                <div style="display: flex; gap: 10px; align-items: center; flex: 1; justify-content: flex-end;">
-                    <select id="pos-customer-select" class="form-control" style="width: 220px;">
-                        <option value="walk-in">Walk-In (Tamu)</option>
-                        ${customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
-                    </select>
-                </div>
+        <div class="pos-main card" style="display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius-xl);">
+            <div class="pos-header" style="padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: rgba(var(--accent-rgb), 0.02);">
+                <h2 style="margin: 0; font-size: 16px; display: flex; align-items: center; gap: 10px;"><i class="fas fa-cash-register text-accent"></i> Kasir / POS</h2>
+                <select id="pos-customer-select" class="form-control" style="width: 180px; height: 36px; font-size: 13px;">
+                    <option value="walk-in">Walk-In (Tamu)</option>
+                    ${customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+                </select>
             </div>
 
-            <!-- Search Bar ... (omitted for brevity during view, but keep in file) -->
-            <div style="padding: 12px 20px; border-bottom: 1px solid var(--border); background: rgba(var(--accent-rgb), 0.03);">
+            <!-- Search Bar -->
+            <div style="padding: 10px 16px; border-bottom: 1px solid var(--border);">
                 <div style="position: relative;">
-                    <i class="fas fa-search" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px;"></i>
-                    <input type="text" id="pos-search-input" class="form-control" placeholder="Ketik nama layanan..." 
-                        style="padding-left: 40px; height: 44px; font-size: 15px; background: var(--bg-primary); border: 2px solid var(--border); border-radius: var(--radius-md);" />
+                    <i class="fas fa-search" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 13px;"></i>
+                    <input type="text" id="pos-search-input" class="form-control" placeholder="Cari layanan..." 
+                        style="padding-left: 36px; height: 40px; font-size: 14px; border-radius: var(--radius-md);" />
                 </div>
             </div>
 
-            <!-- Active Appointments ... -->
-            ${appointments.length > 0 ? `
-            <div class="pos-appointments" style="padding: 12px 20px; background: rgba(var(--accent-rgb), 0.05); border-bottom: 1px solid var(--border);">
-                <p class="text-xs fw-700 text-muted" style="margin-bottom: 8px; letter-spacing: 1px;">JANJI TEMU AKTIF</p>
-                <div style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px;">
-                    ${appointments.map(a => `
-                        <div class="card-glass pos-appt-card" data-id="${a.id}" style="min-width: 180px; padding: 10px 14px; cursor: pointer; border: 1px solid var(--border); border-radius: var(--radius-md); transition: 0.2s;">
-                            <div class="fw-700 text-sm">${a.customerName}</div>
-                            <div class="text-xs text-muted">${a.serviceName} - ${a.time}</div>
-                            <div class="text-xs text-accent fw-600">${formatter.currency(a.price || 0)}</div>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-            ` : ''}
-
-            <!-- Service Catalog -->
-            <div class="pos-catalog" id="pos-catalog" style="flex: 1; overflow-y: auto; padding: 20px;">
-                <div id="pos-service-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px;">
+            <div class="pos-catalog" id="pos-catalog" style="flex: 1; overflow-y: auto; padding: 16px;">
+                <div id="pos-service-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;">
                     ${services.map(s => `
                         <div class="card service-item-card clickable" data-id="${s.id}" data-name="${(s.name || '').toLowerCase()}" 
-                            style="text-align: center; padding: 18px 12px; transition: 0.2s; border: 1px solid var(--border); cursor: pointer;">
-                            <div style="font-size: 28px; color: var(--accent); margin-bottom: 8px;"><i class="fas fa-cut"></i></div>
-                            <div class="fw-700" style="font-size: 14px;">${s.name}</div>
-                            <div class="text-sm text-success fw-600" style="margin-top: 4px;">${formatter.currency(s.price)}</div>
+                            style="text-align: center; padding: 14px 10px; border: 1px solid var(--border); cursor: pointer; transition: 0.2s;">
+                            <div style="font-size: 24px; color: var(--accent); margin-bottom: 6px;"><i class="fas fa-cut"></i></div>
+                            <div class="fw-700" style="font-size: 13px;">${s.name}</div>
+                            <div class="text-xs text-success fw-700" style="margin-top: 2px;">${formatter.currency(s.price)}</div>
                         </div>
                     `).join('')}
-                    <button class="pos-category btn btn-ghost" data-category="paket"><i class="fas fa-ticket"></i> Paket</button>
-                </div>
-                <div id="pos-items" class="pos-grid"></div>
-                <div id="pos-no-results" style="display: none; text-align: center; padding: 40px; color: var(--text-muted);">
-                    <i class="fas fa-search" style="font-size: 32px; display: block; margin-bottom: 12px; opacity: 0.3;"></i>
-                    Layanan tidak ditemukan
                 </div>
             </div>
         </div>
@@ -105,33 +80,33 @@ export function renderPOS(container) {
         <!-- Right: Cart & Checkout -->
         <div class="pos-luxury-sidebar shadow-premium" style="border-radius: var(--radius-xl); overflow: hidden; height: 100%;">
             <!-- Header -->
-            <div style="padding: 20px; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 32px; height: 32px; border-radius: 8px; background: var(--accent-subtle); display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-accent);">
-                        <i class="fas fa-receipt text-accent" style="font-size: 14px;"></i>
+            <div style="padding: 16px; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="width: 28px; height: 28px; border-radius: 6px; background: var(--accent-subtle); display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-accent);">
+                        <i class="fas fa-receipt text-accent" style="font-size: 12px;"></i>
                     </div>
-                    <h3 style="margin: 0; font-size: 15px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-primary);">Ringkasan Order</h3>
+                    <h3 style="margin: 0; font-size: 13px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-primary);">Rekap Order</h3>
                 </div>
                 <div style="text-align: right;">
-                    <div class="text-[9px] fw-800 text-muted uppercase tracking-widest">Order ID</div>
-                    <div class="text-[11px] fw-900 text-accent" style="letter-spacing: -0.5px;">#POS-${Date.now().toString().slice(-5)}</div>
+                    <div class="text-[8px] fw-800 text-muted uppercase tracking-widest">Order ID</div>
+                    <div class="text-[10px] fw-900 text-accent">#POS-${Date.now().toString().slice(-5)}</div>
                 </div>
             </div>
             
-            <div id="pos-cart-list" style="flex: 1; overflow-y: auto; padding: 16px; scrollbar-width: none;">
-                <div class="text-center py-40" id="empty-cart-msg" style="opacity: 0.3;">
-                    <i class="fas fa-shopping-basket" style="display: block; font-size: 40px; margin-bottom: 16px;"></i>
-                    <span class="text-[10px] fw-800 uppercase tracking-widest text-muted">Belum Ada Pesanan</span>
+            <div id="pos-cart-list" style="flex: 1; overflow-y: auto; padding: 12px; scrollbar-width: none;">
+                <div class="text-center py-20" id="empty-cart-msg" style="opacity: 0.2;">
+                    <i class="fas fa-shopping-basket" style="display: block; font-size: 32px; margin-bottom: 12px;"></i>
+                    <span class="text-[9px] fw-800 uppercase tracking-widest">Kosong</span>
                 </div>
             </div>
             
-            <div style="padding: 0 16px 16px;">
-                <!-- Barber Selection (Rounded Style) -->
-                <div class="form-group mb-md">
-                    <label class="text-[9px] uppercase tracking-widest fw-900 text-muted mb-xs block">Pilih Barber / Stylist</label>
-                    <div class="luxury-select-wrapper">
-                        <i class="fas fa-user-circle"></i>
-                        <select id="pos-barber-select" class="form-control" style="background: transparent; border: none; padding: 0; height: auto; font-weight: 700; font-size: 13px;">
+            <div style="padding: 0 12px 14px;">
+                <!-- Barber Selection -->
+                <div class="form-group mb-sm">
+                    <label class="text-[8px] uppercase tracking-widest fw-900 text-muted mb-[4px] block">Barber / Stylist</label>
+                    <div class="luxury-select-wrapper" style="padding: 8px 12px; gap: 8px;">
+                        <i class="fas fa-user-circle" style="font-size: 14px;"></i>
+                        <select id="pos-barber-select" class="form-control" style="background: transparent; border: none; padding: 0; height: auto; font-weight: 700; font-size: 12px;">
                             <option value="">Pilih Barber...</option>
                             ${storage.getAll('barbers').map(b => `<option value="${b.id}">${b.name}</option>`).join('')}
                         </select>
@@ -139,57 +114,55 @@ export function renderPOS(container) {
                 </div>
 
                 <!-- Payment Summary Card -->
-                <div class="pos-luxury-card mb-md shadow-sm">
-                    <div class="pos-summary-row mb-sm">
-                        <span class="text-xs text-muted fw-600">Subtotal Layanan</span>
-                        <span class="fw-700 text-sm" id="pos-subtotal">${formatter.currency(0)}</span>
+                <div class="pos-luxury-card mb-sm shadow-sm">
+                    <div class="pos-summary-row mb-xs">
+                        <span class="text-[11px] text-muted fw-600">Subtotal</span>
+                        <span class="fw-700 text-xs" id="pos-subtotal">${formatter.currency(0)}</span>
                     </div>
-                    <div class="pos-summary-row mb-sm" id="row-tier-discount" style="display: none; color: #f87171;">
-                        <span class="text-xs fw-600">Discounts & Promo</span>
-                        <span class="fw-700 text-sm" id="val-tier-discount">-${formatter.currency(0)}</span>
+                    <div class="pos-summary-row mb-xs" id="row-tier-discount" style="display: none; color: #f87171;">
+                        <span class="text-[11px] fw-600">Diskon</span>
+                        <span class="fw-700 text-xs" id="val-tier-discount">-${formatter.currency(0)}</span>
                     </div>
-                    <div class="pos-summary-row mb-sm">
-                        <span class="text-xs text-muted fw-600">Pajak (PPN 11%)</span>
-                        <span class="fw-700 text-sm" id="pos-tax">${formatter.currency(0)}</span>
+                    <div class="pos-summary-row mb-xs">
+                        <span class="text-[11px] text-muted fw-600">Pajak (11%)</span>
+                        <span class="fw-700 text-xs" id="pos-tax">${formatter.currency(0)}</span>
                     </div>
 
-                    <div style="height: 1px; background: var(--border-light); margin: 12px 0; border: none; opacity: 0.5;"></div>
+                    <div style="height: 1px; background: var(--border-light); margin: 10px 0; border: none; opacity: 0.3;"></div>
 
                     <div class="pos-summary-row align-center">
                         <div>
-                            <div class="text-[10px] fw-900 text-accent uppercase tracking-widest">Total Akhir</div>
-                            <div class="text-[9px] text-muted italic">Terhitung secara otomatis</div>
+                            <div class="text-[9px] fw-900 text-accent uppercase tracking-widest">Total Akhir</div>
                         </div>
-                        <span class="fw-900 text-accent text-3xl" id="pos-total" style="letter-spacing: -1px;">${formatter.currency(0)}</span>
+                        <span class="fw-900 text-accent text-2xl" id="pos-total" style="letter-spacing: -0.5px;">${formatter.currency(0)}</span>
                     </div>
                 </div>
 
                 <!-- Metode Pembayaran -->
-                <div class="form-group mb-lg">
-                    <label class="text-[9px] uppercase tracking-widest fw-900 text-muted mb-xs block">Metode Pembayaran</label>
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;" id="pos-methods-container">
-                        <button class="pos-payment-tile active" data-method="cash">
-                            <div class="pos-circle-icon"><i class="fas fa-money-bill-wave"></i></div>
-                            <span class="text-[10px] fw-900 uppercase tracking-wider">Tunai</span>
+                <div class="form-group mb-md">
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;" id="pos-methods-container">
+                        <button class="pos-payment-tile active" data-method="cash" style="padding: 10px 4px; border-radius: 12px;">
+                            <div class="pos-circle-icon" style="width: 32px; height: 32px; font-size: 14px;"><i class="fas fa-money-bill-wave"></i></div>
+                            <span class="text-[9px] fw-900 uppercase">Tunai</span>
                         </button>
-                        <button class="pos-payment-tile" data-method="transfer">
-                            <div class="pos-circle-icon"><i class="fas fa-university"></i></div>
-                            <span class="text-[10px] fw-900 uppercase tracking-wider">Bank</span>
+                        <button class="pos-payment-tile" data-method="transfer" style="padding: 10px 4px; border-radius: 12px;">
+                            <div class="pos-circle-icon" style="width: 32px; height: 32px; font-size: 14px;"><i class="fas fa-university"></i></div>
+                            <span class="text-[9px] fw-900 uppercase">Bank</span>
                         </button>
-                        <button class="pos-payment-tile" data-method="qris">
-                            <div class="pos-circle-icon"><i class="fas fa-qrcode"></i></div>
-                            <span class="text-[10px] fw-900 uppercase tracking-wider">QRIS</span>
+                        <button class="pos-payment-tile" data-method="qris" style="padding: 10px 4px; border-radius: 12px;">
+                            <div class="pos-circle-icon" style="width: 32px; height: 32px; font-size: 14px;"><i class="fas fa-qrcode"></i></div>
+                            <span class="text-[9px] fw-900 uppercase">QRIS</span>
                         </button>
                     </div>
                 </div>
 
                 <button class="btn btn-primary btn-block shadow-accent brass-gradient" id="pos-checkout-btn" disabled 
-                    style="height: 56px; border-radius: 14px; font-size: 15px; font-weight: 900; border: none; letter-spacing: 1px;">
-                    <i class="fas fa-print mr-sm"></i> BAYAR & CETAK
+                    style="height: 48px; border-radius: 12px; font-size: 14px; font-weight: 900; border: none; letter-spacing: 1px;">
+                    <i class="fas fa-print mr-xs"></i> BAYAR & CETAK
                 </button>
 
-                <div class="luxury-footer-text mt-md">
-                    ORDER PROCESSED AT ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • REF: POS-X1
+                <div class="luxury-footer-text mt-sm" style="font-size: 8px; opacity: 0.4;">
+                    PROCESSED AT ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • REF: POS-X1
                 </div>
             </div>
         </div>
