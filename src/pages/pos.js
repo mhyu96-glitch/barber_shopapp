@@ -138,6 +138,15 @@ export function renderPOS(container) {
                     </div>
                 </div>
 
+                <!-- Payment Detail Display (Transfer/QRIS info) -->
+                <div id="pos-payment-detail-card" style="display: none; margin-bottom: 10px; padding: 10px; border-radius: var(--radius-md); background: var(--bg-input); border-left: 3px solid var(--accent);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <span class="text-[8px] uppercase fw-900 text-accent">Info Pembayaran</span>
+                        <button class="btn btn-ghost btn-xs text-muted" onclick="document.getElementById('pos-payment-detail-card').style.display='none'; selectedPaymentDetail='';"><i class="fas fa-times" style="font-size: 10px;"></i></button>
+                    </div>
+                    <div id="pos-payment-detail" class="text-xs fw-700 text-primary"></div>
+                </div>
+
                 <!-- Metode Pembayaran -->
                 <div class="form-group mb-md">
                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;" id="pos-methods-container">
