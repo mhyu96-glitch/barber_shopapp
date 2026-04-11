@@ -103,83 +103,83 @@ export function renderPOS(container) {
         </div>
 
         <!-- Right: Cart & Checkout -->
-        <div class="pos-sidebar card-glass" style="display: flex; flex-direction: column; overflow: hidden; background: rgba(26, 29, 39, 0.8); backdrop-filter: blur(20px); border: 1px solid var(--border-accent); box-shadow: var(--shadow-lg);">
-            <div style="padding: 20px; border-bottom: 1px solid var(--border-light); background: linear-gradient(to right, rgba(212, 168, 67, 0.1), transparent);">
-                <h3 style="margin: 0; display: flex; align-items: center; gap: 10px; color: var(--accent);">
-                   <i class="fas fa-receipt"></i> Ringkasan Order
+        <div class="pos-sidebar glass-panel shadow-premium" style="display: flex; flex-direction: column; overflow: hidden; border-radius: var(--radius-lg); margin-top: 0; height: 100%;">
+            <div style="padding: 24px 20px; border-bottom: 1px solid var(--border-light); background: linear-gradient(135deg, rgba(212, 168, 67, 0.15), transparent);">
+                <h3 style="margin: 0; display: flex; align-items: center; gap: 12px; color: #fff; font-size: 1.1rem; letter-spacing: 1.5px; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                   <i class="fas fa-receipt text-accent"></i> RINGKASAN ORDER
                 </h3>
             </div>
             
-            <div id="pos-cart-list" style="flex: 1; overflow-y: auto; padding: 16px; scrollbar-width: none;">
-                <div class="text-center text-muted py-40" id="empty-cart-msg">
-                    <i class="fas fa-shopping-basket" style="display: block; font-size: 32px; margin-bottom: 12px; opacity: 0.2;"></i>
-                    Keranjang kosong
+            <div id="pos-cart-list" style="flex: 1; overflow-y: auto; padding: 20px; scrollbar-width: none;">
+                <div class="text-center py-40" id="empty-cart-msg" style="color: rgba(255,255,255,0.3);">
+                    <i class="fas fa-shopping-basket" style="display: block; font-size: 44px; margin-bottom: 16px;"></i>
+                    <span class="text-xs fw-600 uppercase tracking-widest">Keranjang Kosong</span>
                 </div>
             </div>
             
-            <!-- Dynamic Payment Detail Display (Hidden by default) -->
-            <div id="pos-payment-detail-card" style="display: none; margin: 0 16px 16px; padding: 12px; border-radius: var(--radius-md); background: rgba(var(--accent-rgb), 0.08); border: 1px solid var(--accent-subtle);">
+            <!-- Dynamic Payment Detail Display -->
+            <div id="pos-payment-detail-card" style="display: none; margin: 0 20px 20px; padding: 14px; border-radius: var(--radius-md); background: rgba(212, 168, 67, 0.1); border: 1px solid var(--border-accent); animation: slideUp 0.3s ease;">
                 <div class="flex-between mb-xs">
-                    <span class="text-[10px] uppercase fw-800 text-accent">Detail Pembayaran</span>
-                    <button class="btn btn-ghost btn-xs text-muted" onclick="document.getElementById('pos-payment-detail-card').style.display='none'; selectedPaymentDetail='';"><i class="fas fa-sync"></i></button>
+                    <span class="text-[10px] uppercase fw-900 text-accent" style="letter-spacing: 1px;">INFO PEMBAYARAN</span>
+                    <button class="btn btn-ghost btn-xs text-secondary" style="background: rgba(0,0,0,0.2);" onclick="document.getElementById('pos-payment-detail-card').style.display='none'; selectedPaymentDetail='';"><i class="fas fa-sync"></i></button>
                 </div>
-                <div id="pos-payment-detail" class="text-xs fw-600"></div>
+                <div id="pos-payment-detail" class="text-xs fw-700 text-white"></div>
             </div>
 
-            <div class="pos-totals" style="padding: 20px; border-top: 1px solid var(--border-light); background: rgba(15, 17, 23, 0.4);">
-                <div class="pos-summary-row" style="margin-bottom: 8px;">
-                    <span class="text-muted fw-600">SUBTOTAL</span>
-                    <span class="fw-700" id="pos-subtotal">${formatter.currency(0)}</span>
+            <div class="pos-totals" style="padding: 24px; background: rgba(0, 0, 0, 0.2); border-top: 1px solid var(--border-light);">
+                <div class="pos-summary-row" style="margin-bottom: 12px;">
+                    <span class="text-white opacity-60 fw-700 text-[10px] tracking-widest">SUBTOTAL</span>
+                    <span class="fw-800 text-white text-md" id="pos-subtotal">${formatter.currency(0)}</span>
                 </div>
-                <div class="pos-summary-row" id="row-tier-discount" style="display: none; color: var(--success); font-size: 0.9rem; margin-bottom: 8px;">
-                    <span class="fw-600" id="label-tier-discount">Diskon Tier</span>
-                    <span class="fw-700" id="val-tier-discount">-${formatter.currency(0)}</span>
+                <div class="pos-summary-row" id="row-tier-discount" style="display: none; color: var(--success); font-size: 0.9rem; margin-bottom: 12px;">
+                    <span class="fw-700 text-[10px] tracking-widest opacity-80" id="label-tier-discount">DISKON</span>
+                    <span class="fw-800" id="val-tier-discount">-${formatter.currency(0)}</span>
                 </div>
-                <div class="pos-summary-row" style="padding-top: 12px; border-top: 1px dashed var(--border-light); margin-top: 8px;">
-                    <span class="fw-800 text-lg">TOTAL</span>
-                    <span class="fw-900 text-accent text-xl" id="pos-total">${formatter.currency(0)}</span>
+                <div class="pos-summary-row" style="padding-top: 16px; border-top: 2px dashed rgba(255,255,255,0.1); margin-top: 8px;">
+                    <span class="fw-900 text-xs text-white opacity-80 tracking-widest">TOTAL AKHIR</span>
+                    <span class="fw-900 text-accent text-3xl" id="pos-total" style="text-shadow: 0 0 20px var(--accent-glow);">${formatter.currency(0)}</span>
                 </div>
                 
-                <div id="pos-membership-alert" class="mt-md" style="display: none;"></div>
+                <div id="pos-membership-alert" class="mt-lg" style="display: none;"></div>
 
                 <!-- Barber Selection -->
-                <div class="form-group mt-lg mb-md">
-                    <label class="text-[10px] uppercase tracking-wider fw-800 text-muted mb-xs block">Barber / Stylist</label>
-                    <select id="pos-barber-select" class="form-control" style="background: var(--bg-input); border-color: var(--border);">
-                        <option value="">Pilih Barber...</option>
-                        ${storage.getAll('barbers').map(b => `<option value="${b.id}">${b.name}</option>`).join('')}
+                <div class="form-group mt-xl mb-lg">
+                    <label class="text-[10px] uppercase tracking-widest fw-900 text-white opacity-60 mb-xs block">BARBER / STYLIST</label>
+                    <select id="pos-barber-select" class="form-control" style="background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.1); color: #fff; height: 50px; font-weight: 600;">
+                        <option value="" style="background: #1a1d27;">Pilih Barber...</option>
+                        ${storage.getAll('barbers').map(b => `<option value="${b.id}" style="background: #1a1d27;">${b.name}</option>`).join('')}
                     </select>
                 </div>
 
                 <!-- Payment Methods -->
-                <div class="form-group mb-lg">
-                    <label class="text-[10px] uppercase tracking-wider fw-800 text-muted mb-xs block">Metode Pembayaran</label>
-                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;" id="pos-methods-container">
-                        <button class="pos-method active" data-method="cash" title="Tunai"
-                            style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 4px; border: 1.5px solid var(--accent); background: var(--accent-subtle); border-radius: var(--radius-md); cursor: pointer; transition: 0.2s;">
-                            <i class="fas fa-money-bill-wave text-success" style="font-size: 16px;"></i>
-                            <span class="text-[9px] fw-800 uppercase">Tunai</span>
+                <div class="form-group mb-xl">
+                    <label class="text-[10px] uppercase tracking-widest fw-900 text-white opacity-60 mb-xs block">METODE PEMBAYARAN</label>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;" id="pos-methods-container">
+                        <button class="pos-method active" data-method="cash"
+                            style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 14px 4px; border: 2px solid var(--accent); background: rgba(212, 168, 67, 0.15); border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s;">
+                            <i class="fas fa-wallet text-success" style="font-size: 20px;"></i>
+                            <span class="text-[9px] fw-900 uppercase text-white">Tunai</span>
                         </button>
-                        <button class="pos-method" data-method="transfer" title="Transfer Bank"
-                            style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 4px; border: 1.5px solid var(--border); background: var(--bg-input); border-radius: var(--radius-md); cursor: pointer; transition: 0.2s;">
-                            <i class="fas fa-landmark text-info" style="font-size: 16px;"></i>
-                            <span class="text-[9px] fw-800 uppercase">Transfer</span>
+                        <button class="pos-method" data-method="transfer"
+                            style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 14px 4px; border: 1.5px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s;">
+                            <i class="fas fa-university text-info" style="font-size: 20px;"></i>
+                            <span class="text-[9px] fw-900 uppercase text-secondary">Bank</span>
                         </button>
-                        <button class="pos-method" data-method="membership" id="btn-method-membership" title="Paket Membership"
-                            style="display: none; flex-direction: column; align-items: center; gap: 4px; padding: 10px 4px; border: 1.5px solid var(--border); background: var(--bg-input); border-radius: var(--radius-md); cursor: pointer; transition: 0.2s;">
-                            <i class="fas fa-gem text-accent" style="font-size: 16px;"></i>
-                            <span class="text-[9px] fw-800 uppercase">Paket</span>
+                        <button class="pos-method" data-method="membership" id="btn-method-membership"
+                            style="display: none; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 14px 4px; border: 1.5px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s;">
+                            <i class="fas fa-star text-accent" style="font-size: 20px;"></i>
+                            <span class="text-[9px] fw-900 uppercase text-secondary">Paket</span>
                         </button>
-                        <button class="pos-method" data-method="qris" title="Scan QRIS"
-                            style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 4px; border: 1.5px solid var(--border); background: var(--bg-input); border-radius: var(--radius-md); cursor: pointer; transition: 0.2s;">
-                            <i class="fas fa-qrcode" style="font-size: 16px; color: #c084fc;"></i>
-                            <span class="text-[9px] fw-800 uppercase">QRIS</span>
+                        <button class="pos-method" data-method="qris"
+                            style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 14px 4px; border: 1.5px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s;">
+                            <i class="fas fa-qrcode" style="font-size: 20px; color: #c084fc;"></i>
+                            <span class="text-[9px] fw-900 uppercase text-secondary">QRIS</span>
                         </button>
                     </div>
                 </div>
 
-                <button class="btn btn-primary btn-block py-16 brass-gradient" id="pos-checkout-btn" disabled 
-                    style="height: 60px; font-size: 16px; font-weight: 900; box-shadow: var(--shadow-accent); border: none; color: #412d00;">
+                <button class="btn btn-primary btn-block brass-gradient shadow-accent" id="pos-checkout-btn" disabled 
+                    style="height: 68px; font-size: 18px; font-weight: 900; border: none; letter-spacing: 2px; text-transform: uppercase;">
                     BAYAR & CETAK <i class="fas fa-print ml-sm"></i>
                 </button>
             </div>

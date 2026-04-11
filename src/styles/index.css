@@ -668,6 +668,29 @@ body.sidebar-collapsed .sidebar-collapse-btn {
   border-radius: var(--radius-sm);
 }
 
+/* --- Text Utility Classes --- */
+.text-primary { color: var(--text-primary) !important; }
+.text-secondary { color: var(--text-secondary) !important; }
+.text-muted { color: var(--text-muted) !important; }
+.text-accent { color: var(--accent) !important; }
+.text-success { color: var(--success) !important; }
+.text-danger { color: var(--danger) !important; }
+.text-warning { color: var(--warning) !important; }
+.text-info { color: var(--info) !important; }
+.text-white { color: #ffffff !important; }
+
+/* --- Spacing & UI --- */
+.glass-panel {
+  background: rgba(26, 29, 39, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.shadow-premium {
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+}
+
 /* ========================================
    Forms
    ======================================== */
