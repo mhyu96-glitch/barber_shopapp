@@ -112,13 +112,20 @@ export function renderReports(container) {
 
     const payrollData = barbers.map(b => {
       const barberAppts = monthAppts.filter(a => a.barberId === b.id);
-      const totalCommission = barberAppts.reduce((sum, a) => {
+      let totalCommission = 0;
+      if (b.commissionType === 'fixed') {
+        totalCommission = barberAppts.length * (b.commissionFixed || 0);
+      } else {
         const comm = (b.commissionRate || 10) / 100;
-        return sum + ((a.paymentAmount || 0) * comm);
-      }, 0);
+        totalCommission = barberAppts.reduce((sum, a) => sum + ((a.paymentAmount || 0) * comm), 0);
+      }
+      const commLabel = b.commissionType === 'fixed' 
+        ? `Rp ${(b.commissionFixed || 0).toLocaleString('id-ID')}/trx`
+        : `${b.commissionRate || 10}%`;
       return {
         ...b,
         commission: totalCommission,
+        commLabel,
         totalEarnings: (b.baseSalary || 0) + totalCommission,
         appointments: barberAppts.length
       };
@@ -150,6 +157,7 @@ export function renderReports(container) {
                                 <th>Barber</th>
                                 <th>Gaji Pokok</th>
                                 <th>Total Janji</th>
+                                <th>Tipe Komisi</th>
                                 <th>Komisi (${monthStr})</th>
                                 <th>Total Diterima</th>
                                 <th>Aksi</th>
@@ -164,6 +172,7 @@ export function renderReports(container) {
                                     </td>
                                     <td>${formatter.currency(p.baseSalary || 0)}</td>
                                     <td>${p.appointments} potong</td>
+                                    <td><span class="badge badge-info" style="font-size: 11px;">${p.commLabel}</span></td>
                                     <td class="text-success fw-600">+ ${formatter.currency(p.commission)}</td>
                                     <td class="fw-700" style="color: var(--accent); font-size: 1.1em;">${formatter.currency(p.totalEarnings)}</td>
                                     <td>
@@ -237,7 +246,7 @@ export function renderReports(container) {
         `Kepada: *${p.name}*\n` +
         `--------------------------\n` +
         `Gaji Pokok: ${formatter.currency(p.baseSalary || 0)}\n` +
-        `Komisi (${p.appointments} janji): ${formatter.currency(p.commission)}\n` +
+        `Komisi [${p.commLabel}] (${p.appointments} trx): ${formatter.currency(p.commission)}\n` +
         `--------------------------\n` +
         `*TOTAL DITERIMA: ${formatter.currency(p.totalEarnings)}*\n\n` +
         `Silakan hubungi kasir untuk pengambilan. Terima kasih! ✂️`;

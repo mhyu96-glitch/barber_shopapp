@@ -197,8 +197,21 @@ function showBarberForm(editId = null) {
           <input type="number" class="form-control" name="baseSalary" value="${existing?.baseSalary || 0}" min="0" />
         </div>
         <div class="form-group">
-          <label>Komisi (%)</label>
+          <label>Tipe Komisi</label>
+          <select class="form-control" name="commissionType" id="commission-type-select">
+            <option value="percent" ${(existing?.commissionType || 'percent') === 'percent' ? 'selected' : ''}>Persen (%)</option>
+            <option value="fixed" ${existing?.commissionType === 'fixed' ? 'selected' : ''}>Rupiah Tetap (Rp)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group" id="commission-percent-group" style="display: ${existing?.commissionType === 'fixed' ? 'none' : 'block'};">
+          <label>Komisi per Transaksi (%)</label>
           <input type="number" class="form-control" name="commissionRate" value="${existing?.commissionRate || 10}" min="0" max="100" />
+        </div>
+        <div class="form-group" id="commission-fixed-group" style="display: ${existing?.commissionType === 'fixed' ? 'block' : 'none'};">
+          <label>Komisi per Transaksi (Rp)</label>
+          <input type="number" class="form-control" name="commissionFixed" value="${existing?.commissionFixed || 5000}" min="0" step="1000" />
         </div>
       </div>
       <div class="form-group">
@@ -215,10 +228,23 @@ function showBarberForm(editId = null) {
 
   openModal(editId ? 'Edit Barber' : 'Tambah Barber', body, footer);
 
+  // Dynamic toggle for commission type
+  const typeSelect = document.getElementById('commission-type-select');
+  const percentGroup = document.getElementById('commission-percent-group');
+  const fixedGroup = document.getElementById('commission-fixed-group');
+  if (typeSelect) {
+    typeSelect.addEventListener('change', () => {
+      const isFixed = typeSelect.value === 'fixed';
+      percentGroup.style.display = isFixed ? 'none' : 'block';
+      fixedGroup.style.display = isFixed ? 'block' : 'none';
+    });
+  }
+
   document.getElementById('save-barber-btn').addEventListener('click', () => {
     const form = document.getElementById('barber-form');
     const fd = new FormData(form);
     const workDays = fd.getAll('workDays').map(Number);
+    const commissionType = fd.get('commissionType') || 'percent';
     const data = {
       name: fd.get('name'),
       phone: fd.get('phone'),
@@ -229,7 +255,9 @@ function showBarberForm(editId = null) {
       breakEnd: fd.get('breakEnd'),
       workDays,
       baseSalary: parseInt(fd.get('baseSalary')) || 0,
-      commissionRate: parseInt(fd.get('commissionRate')) || 0,
+      commissionType,
+      commissionRate: commissionType === 'percent' ? (parseInt(fd.get('commissionRate')) || 0) : 0,
+      commissionFixed: commissionType === 'fixed' ? (parseInt(fd.get('commissionFixed')) || 0) : 0,
       bio: fd.get('bio'),
     };
 

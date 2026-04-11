@@ -480,8 +480,17 @@ async function handleCheckout(container) {
 
     const barberId = container.querySelector('#pos-barber-select').value;
     const barber = barberId ? storage.find('barbers', barberId) : null;
-    const commissionRate = barber ? (barber.commissionRate || 0) : 0;
-    const commissionAmount = Math.round(total * (commissionRate / 100));
+    
+    // Dual commission: percent or fixed
+    let commissionAmount = 0;
+    if (barber) {
+        if (barber.commissionType === 'fixed') {
+            commissionAmount = barber.commissionFixed || 0;
+        } else {
+            const commissionRate = barber.commissionRate || 0;
+            commissionAmount = Math.round(total * (commissionRate / 100));
+        }
+    }
 
     const methodLabel = selectedPaymentMethod === 'cash' ? 'Tunai' :
                         selectedPaymentMethod === 'transfer' ? 'Transfer' : 

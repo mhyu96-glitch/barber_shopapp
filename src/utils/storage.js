@@ -17,7 +17,7 @@ export function getShopId() {
 
 const ALLOWED_COLUMNS = {
     services: ['id', 'name', 'price', 'duration', 'description', 'icon', 'category', 'consumables', 'shop_id'],
-    barbers: ['id', 'name', 'phone', 'specialization', 'rating', 'total_ratings', 'work_days', 'work_start', 'work_end', 'avatar', 'bio', 'base_salary', 'commission_rate', 'shop_id'],
+    barbers: ['id', 'name', 'phone', 'specialization', 'rating', 'total_ratings', 'work_days', 'work_start', 'work_end', 'avatar', 'bio', 'base_salary', 'commission_rate', 'commission_type', 'commission_fixed', 'shop_id'],
     customers: ['id', 'name', 'phone', 'email', 'avatar', 'total_appointments', 'total_spent', 'last_visit', 'notes', 'tags', 'loyalty_points', 'loyalty_tier', 'member_since', 'shop_id'],
     appointments: ['id', 'barber_id', 'customer_id', 'service_id', 'date', 'time', 'status', 'total_price', 'price', 'source', 'notes', 'shop_id'],
     payments: ['id', 'appointment_id', 'barber_id', 'commission_amount', 'amount', 'method', 'status', 'reference', 'date', 'customer_id', 'customer_name', 'shop_id'],
