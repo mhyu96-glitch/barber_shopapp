@@ -103,85 +103,107 @@ export function renderPOS(container) {
         </div>
 
         <!-- Right: Cart & Checkout -->
-        <div class="pos-sidebar glass-panel shadow-premium" style="display: flex; flex-direction: column; overflow: hidden; border-radius: var(--radius-lg); margin-top: 0; height: 100%;">
-            <div style="padding: 24px 20px; border-bottom: 1px solid var(--border-light); background: linear-gradient(135deg, rgba(212, 168, 67, 0.15), transparent);">
-                <h3 style="margin: 0; display: flex; align-items: center; gap: 12px; color: #fff; font-size: 1.1rem; letter-spacing: 1.5px; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
-                   <i class="fas fa-receipt text-accent"></i> RINGKASAN ORDER
-                </h3>
+        <div class="pos-luxury-sidebar shadow-premium" style="border-radius: var(--radius-xl); overflow: hidden; height: 100%;">
+            <!-- Header -->
+            <div style="padding: 24px 20px; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 32px; height: 32px; border-radius: 8px; background: var(--accent-subtle); display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-accent);">
+                        <i class="fas fa-list-ul text-accent" style="font-size: 14px;"></i>
+                    </div>
+                    <h3 style="margin: 0; font-size: 16px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-primary);">Ringkasan Order</h3>
+                </div>
+                <div style="text-align: right;">
+                    <div class="text-[9px] fw-800 text-muted uppercase tracking-widest">Order ID</div>
+                    <div class="text-[11px] fw-900 text-accent">#POS-${Date.now().toString().slice(-5)}</div>
+                </div>
             </div>
             
             <div id="pos-cart-list" style="flex: 1; overflow-y: auto; padding: 20px; scrollbar-width: none;">
-                <div class="text-center py-40" id="empty-cart-msg" style="color: rgba(255,255,255,0.3);">
-                    <i class="fas fa-shopping-basket" style="display: block; font-size: 44px; margin-bottom: 16px;"></i>
-                    <span class="text-xs fw-600 uppercase tracking-widest">Keranjang Kosong</span>
+                <div class="text-center py-40" id="empty-cart-msg" style="opacity: 0.3;">
+                    <i class="fas fa-shopping-basket" style="display: block; font-size: 40px; margin-bottom: 16px;"></i>
+                    <span class="text-[10px] fw-800 uppercase tracking-widest text-muted">Belum Ada Pesanan</span>
                 </div>
             </div>
             
-            <!-- Dynamic Payment Detail Display -->
-            <div id="pos-payment-detail-card" style="display: none; margin: 0 20px 20px; padding: 14px; border-radius: var(--radius-md); background: rgba(212, 168, 67, 0.1); border: 1px solid var(--border-accent); animation: slideUp 0.3s ease;">
-                <div class="flex-between mb-xs">
-                    <span class="text-[10px] uppercase fw-900 text-accent" style="letter-spacing: 1px;">INFO PEMBAYARAN</span>
-                    <button class="btn btn-ghost btn-xs text-secondary" style="background: rgba(0,0,0,0.2);" onclick="document.getElementById('pos-payment-detail-card').style.display='none'; selectedPaymentDetail='';"><i class="fas fa-sync"></i></button>
-                </div>
-                <div id="pos-payment-detail" class="text-xs fw-700 text-white"></div>
-            </div>
-
-            <div class="pos-totals" style="padding: 24px; background: rgba(0, 0, 0, 0.2); border-top: 1px solid var(--border-light);">
-                <div class="pos-summary-row" style="margin-bottom: 12px;">
-                    <span class="text-white opacity-60 fw-700 text-[10px] tracking-widest">SUBTOTAL</span>
-                    <span class="fw-800 text-white text-md" id="pos-subtotal">${formatter.currency(0)}</span>
-                </div>
-                <div class="pos-summary-row" id="row-tier-discount" style="display: none; color: var(--success); font-size: 0.9rem; margin-bottom: 12px;">
-                    <span class="fw-700 text-[10px] tracking-widest opacity-80" id="label-tier-discount">DISKON</span>
-                    <span class="fw-800" id="val-tier-discount">-${formatter.currency(0)}</span>
-                </div>
-                <div class="pos-summary-row" style="padding-top: 16px; border-top: 2px dashed rgba(255,255,255,0.1); margin-top: 8px;">
-                    <span class="fw-900 text-xs text-white opacity-80 tracking-widest">TOTAL AKHIR</span>
-                    <span class="fw-900 text-accent text-3xl" id="pos-total" style="text-shadow: 0 0 20px var(--accent-glow);">${formatter.currency(0)}</span>
-                </div>
-                
-                <div id="pos-membership-alert" class="mt-lg" style="display: none;"></div>
-
-                <!-- Barber Selection -->
-                <div class="form-group mt-xl mb-lg">
-                    <label class="text-[10px] uppercase tracking-widest fw-900 text-white opacity-60 mb-xs block">BARBER / STYLIST</label>
-                    <select id="pos-barber-select" class="form-control" style="background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.1); color: #fff; height: 50px; font-weight: 600;">
-                        <option value="" style="background: #1a1d27;">Pilih Barber...</option>
-                        ${storage.getAll('barbers').map(b => `<option value="${b.id}" style="background: #1a1d27;">${b.name}</option>`).join('')}
-                    </select>
+            <div style="padding: 0 20px 20px;">
+                <!-- Barber Selection (Rounded Style) -->
+                <div class="form-group mb-lg">
+                    <label class="text-[9px] uppercase tracking-widest fw-900 text-muted mb-xs block">Pilih Barber / Stylist</label>
+                    <div class="luxury-select-wrapper">
+                        <i class="fas fa-user-circle"></i>
+                        <select id="pos-barber-select" class="form-control" style="background: transparent; border: none; padding: 0; height: auto; font-weight: 700; font-size: 13px;">
+                            <option value="">Pilih Barber...</option>
+                            ${storage.getAll('barbers').map(b => `<option value="${b.id}">${b.name}</option>`).join('')}
+                        </select>
+                    </div>
                 </div>
 
-                <!-- Payment Methods -->
+                <!-- Payment Summary Card (Integrated Style) -->
+                <div class="pos-luxury-card mb-lg shadow-sm">
+                    <div class="pos-summary-row mb-md">
+                        <span class="text-xs text-muted fw-600">Subtotal Layanan</span>
+                        <span class="fw-700 text-sm" id="pos-subtotal">${formatter.currency(0)}</span>
+                    </div>
+                    <div class="pos-summary-row mb-md" id="row-tier-discount" style="display: none; color: #f87171;">
+                        <span class="text-xs fw-600">Discounts & Promo</span>
+                        <span class="fw-700 text-sm" id="val-tier-discount">-${formatter.currency(0)}</span>
+                    </div>
+                    <div class="pos-summary-row mb-md">
+                        <span class="text-xs text-muted fw-600">Pajak (PPN 11%)</span>
+                        <span class="fw-700 text-sm" id="pos-tax">${formatter.currency(0)}</span>
+                    </div>
+
+                    <div style="height: 1px; background: var(--border-light); margin: 16px 0; border: none;"></div>
+
+                    <div class="pos-summary-row align-center">
+                        <div>
+                            <div class="text-[10px] fw-900 text-accent uppercase tracking-widest">Total Akhir</div>
+                            <div class="text-[9px] text-muted italic">Terhitung secara otomatis</div>
+                        </div>
+                        <span class="fw-900 text-accent text-3xl" id="pos-total">${formatter.currency(0)}</span>
+                    </div>
+                </div>
+
+                <!-- Dynamic Payment Detail Display -->
+                <div id="pos-payment-detail-card" style="display: none; margin-bottom: 20px; padding: 12px; border-radius: var(--radius-md); background: var(--bg-input); border-left: 4px solid var(--accent);">
+                    <div class="flex-between mb-xs">
+                        <span class="text-[9px] uppercase fw-900 text-accent">Info Pembayaran</span>
+                        <button class="btn btn-ghost btn-xs text-muted" onclick="document.getElementById('pos-payment-detail-card').style.display='none'; selectedPaymentDetail='';"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div id="pos-payment-detail" class="text-xs fw-700 text-primary"></div>
+                </div>
+
+                <!-- Payment Methods (Modern Tiles) -->
                 <div class="form-group mb-xl">
-                    <label class="text-[10px] uppercase tracking-widest fw-900 text-white opacity-60 mb-xs block">METODE PEMBAYARAN</label>
-                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;" id="pos-methods-container">
-                        <button class="pos-method active" data-method="cash"
-                            style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 14px 4px; border: 2px solid var(--accent); background: rgba(212, 168, 67, 0.15); border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s;">
-                            <i class="fas fa-wallet text-success" style="font-size: 20px;"></i>
-                            <span class="text-[9px] fw-900 uppercase text-white">Tunai</span>
+                    <label class="text-[9px] uppercase tracking-widest fw-900 text-muted mb-xs block">Metode Pembayaran</label>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;" id="pos-methods-container">
+                        <button class="pos-payment-tile active" data-method="cash">
+                            <div class="pos-circle-icon"><i class="fas fa-money-bill-wave"></i></div>
+                            <span class="text-[10px] fw-900 uppercase tracking-wider">Tunai</span>
                         </button>
-                        <button class="pos-method" data-method="transfer"
-                            style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 14px 4px; border: 1.5px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s;">
-                            <i class="fas fa-university text-info" style="font-size: 20px;"></i>
-                            <span class="text-[9px] fw-900 uppercase text-secondary">Bank</span>
+                        <button class="pos-payment-tile" data-method="transfer">
+                            <div class="pos-circle-icon"><i class="fas fa-university"></i></div>
+                            <span class="text-[10px] fw-900 uppercase tracking-wider">Bank</span>
                         </button>
-                        <button class="pos-method" data-method="membership" id="btn-method-membership"
-                            style="display: none; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 14px 4px; border: 1.5px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s;">
-                            <i class="fas fa-star text-accent" style="font-size: 20px;"></i>
-                            <span class="text-[9px] fw-900 uppercase text-secondary">Paket</span>
+                        <button class="pos-payment-tile" data-method="qris">
+                            <div class="pos-circle-icon"><i class="fas fa-qrcode"></i></div>
+                            <span class="text-[10px] fw-900 uppercase tracking-wider">QRIS</span>
                         </button>
-                        <button class="pos-method" data-method="qris"
-                            style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 14px 4px; border: 1.5px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s;">
-                            <i class="fas fa-qrcode" style="font-size: 20px; color: #c084fc;"></i>
-                            <span class="text-[9px] fw-900 uppercase text-secondary">QRIS</span>
+                        <button class="pos-payment-tile" data-method="membership" id="btn-method-membership" style="display: none;">
+                            <div class="pos-circle-icon"><i class="fas fa-star"></i></div>
+                            <span class="text-[10px] fw-900 uppercase tracking-wider">Paket</span>
                         </button>
                     </div>
                 </div>
 
-                <button class="btn btn-primary btn-block brass-gradient shadow-accent" id="pos-checkout-btn" disabled 
-                    style="height: 68px; font-size: 18px; font-weight: 900; border: none; letter-spacing: 2px; text-transform: uppercase;">
-                    BAYAR & CETAK <i class="fas fa-print ml-sm"></i>
+                <button class="btn btn-primary btn-block shadow-accent brass-gradient" id="pos-checkout-btn" disabled 
+                    style="height: 60px; border-radius: 16px; font-size: 16px; font-weight: 900; border: none; letter-spacing: 1px;">
+                    <i class="fas fa-print mr-sm"></i> BAYAR & CETAK
                 </button>
+
+                <div class="luxury-footer-text mt-lg">
+                    ORDER PROCESSED AT ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • REF: POS-X1
+                </div>
             </div>
         </div>
     </div>
@@ -242,18 +264,9 @@ export function renderPOS(container) {
     });
 
     // --- Payment Method Selection ---
-    container.querySelectorAll('.pos-method').forEach(btn => {
+    container.querySelectorAll('.pos-payment-tile').forEach(btn => {
         btn.onclick = () => {
             const method = btn.dataset.method;
-
-            // Visual toggle
-            container.querySelectorAll('.pos-method').forEach(b => {
-                b.style.borderColor = 'var(--border)';
-                b.style.background = 'transparent';
-            });
-            btn.style.borderColor = 'var(--accent)';
-            btn.style.background = 'rgba(var(--accent-rgb), 0.15)';
-
             selectedPaymentMethod = method;
             selectedPaymentDetail = '';
             
@@ -262,6 +275,8 @@ export function renderPOS(container) {
             } else if (method === 'qris') {
                 showQRISModal(paymentDetailEl);
             }
+            
+            updatePaymentView(container);
         };
     });
 
@@ -309,7 +324,8 @@ export function renderPOS(container) {
             }
         }
 
-        const total = subtotal - discount;
+        const tax = Math.round((subtotal - discount) * 0.11);
+        const total = subtotal - discount + tax;
         
         container.querySelector('#pos-subtotal').textContent = formatter.currency(subtotal);
         const discRow = container.querySelector('#row-tier-discount');
@@ -321,6 +337,7 @@ export function renderPOS(container) {
             discRow.style.display = 'none';
         }
 
+        container.querySelector('#pos-tax').textContent = formatter.currency(tax);
         container.querySelector('#pos-total').textContent = formatter.currency(total);
         container.querySelector('#pos-checkout-btn').disabled = cart.length === 0;
 

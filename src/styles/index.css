@@ -681,14 +681,94 @@ body.sidebar-collapsed .sidebar-collapse-btn {
 
 /* --- Spacing & UI --- */
 .glass-panel {
-  background: rgba(26, 29, 39, 0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
 }
 
 .shadow-premium {
-  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-lg);
+}
+
+/* --- Luxury POS Components --- */
+.pos-luxury-sidebar {
+  background: var(--bg-card);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+
+.pos-luxury-card {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+[data-theme='light'] .pos-luxury-card {
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.pos-payment-tile {
+  background: var(--bg-input);
+  border: 2px solid transparent;
+  border-radius: var(--radius-lg);
+  aspect-ratio: 1/1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.pos-payment-tile.active {
+  border-color: var(--accent);
+  background: var(--accent-subtle);
+}
+
+.pos-circle-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  background: var(--bg-card);
+  color: var(--text-secondary);
+}
+
+.pos-payment-tile.active .pos-circle-icon {
+  background: var(--accent);
+  color: var(--text-inverse);
+}
+
+.luxury-select-wrapper {
+  background: var(--bg-input);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--border);
+}
+
+.luxury-select-wrapper i {
+  color: var(--accent);
+  font-size: 16px;
+}
+
+.luxury-footer-text {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  text-align: center;
+  opacity: 0.6;
 }
 
 /* ========================================
