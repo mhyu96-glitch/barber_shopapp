@@ -867,8 +867,22 @@ function renderTimeSlots() {
 
     // Barber Specific Availability
     const b = booking.barber;
-    const isWithinBarberHours = b && b.workStart && b.workEnd ? (t >= b.workStart && t < b.workEnd) : true;
-    const isOnBreak = b && b.breakStart && b.breakEnd ? (t >= b.breakStart && t < b.breakEnd) : false;
+    let isWithinBarberHours = true;
+    let isOnBreak = false;
+    
+    if (b) {
+      const wStart = b.workStart && b.workStart !== 'undefined' && b.workStart !== 'null' ? b.workStart : null;
+      const wEnd = b.workEnd && b.workEnd !== 'undefined' && b.workEnd !== 'null' ? b.workEnd : null;
+      const bStart = b.breakStart && b.breakStart !== 'undefined' && b.breakStart !== 'null' ? b.breakStart : null;
+      const bEnd = b.breakEnd && b.breakEnd !== 'undefined' && b.breakEnd !== 'null' ? b.breakEnd : null;
+      
+      if (wStart && wEnd && wEnd !== '00:00') {
+         isWithinBarberHours = (t >= wStart && t <= wEnd);
+      }
+      if (bStart && bEnd) {
+         isOnBreak = (t >= bStart && t < bEnd);
+      }
+    }
 
     const unavailable = isPast || isFull || !isWithinBarberHours || isOnBreak;
 
