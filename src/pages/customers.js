@@ -47,7 +47,7 @@ export function renderCustomers(container) {
               <th>Status Loyalitas</th>
               <th>Member Sejak</th>
               <th>Total Kontribusi</th>
-              <th>Aksi</th>
+              <th style="text-align: right; padding-right: 20px;">Aksi</th>
             </tr>
           </thead>
           <tbody>
@@ -56,60 +56,58 @@ export function renderCustomers(container) {
     const points = formatter.loyaltyPoints(c.totalVisits || 0);
     const freeCount = formatter.freeHaircuts(c.totalVisits || 0);
     return `
-                <tr>
+                <tr style="transition: all 0.2s;">
                    <td style="padding-left: 20px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                      <div style="width: 44px; height: 44px; border-radius: 50%; background: ${c.avatar ? `url(${c.avatar}) center/cover` : 'var(--accent-subtle)'}; display: flex; align-items: center; justify-content: center; color: var(--accent); font-weight: 800; font-size: ${c.avatar ? '0' : '15px'}; flex-shrink: 0; border: 2px solid var(--border-accent);">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                      <div style="width: 36px; height: 36px; border-radius: 50%; background: ${c.avatar ? `url(${c.avatar}) center/cover` : 'var(--accent-subtle)'}; display: flex; align-items: center; justify-content: center; color: var(--accent); font-weight: 700; font-size: ${c.avatar ? '0' : '14px'}; flex-shrink: 0; border: 1px solid var(--border-accent);">
                         ${c.avatar ? '' : formatter.initials(c.name)}
                       </div>
-                      <div style="display: flex; flex-direction: column; gap: 2px;">
-                        <div class="fw-800 text-primary" style="text-transform: capitalize; font-size: 14px;">${c.name}</div>
-                        ${c.birthday ? `<div class="text-[10px] uppercase tracking-widest text-muted fw-700"><i class="fas fa-cake-candles text-accent mr-[2px]"></i> ${dateUtils.formatDate(c.birthday, 'short')}</div>` : ''}
+                      <div style="display: flex; flex-direction: column;">
+                        <div class="fw-700 text-primary" style="text-transform: capitalize; font-size: 14px;">${c.name}</div>
+                        ${c.birthday ? `<div class="text-[10px] text-muted fw-600 mt-[2px]"><i class="fas fa-cake-candles text-accent" style="margin-right: 3px;"></i>${dateUtils.formatDate(c.birthday, 'short')}</div>` : ''}
                       </div>
                     </div>
                   </td>
                   <td>
-                     <div class="fw-700 text-primary" style="font-size: 14px; letter-spacing: 0.5px;">${formatter.phoneDisplay(c.phone)}</div>
+                     <div class="text-primary fw-600" style="font-size: 13px;">${formatter.phoneDisplay(c.phone)}</div>
                   </td>
                   <td>
-                     <div style="display: inline-flex; align-items: center; justify-content: center; background: var(--bg-input); padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border);">
-                       <span class="fw-900 text-accent" style="font-size: 16px;">${c.totalVisits || 0}</span>
-                       <span class="text-[10px] text-muted fw-800 ml-[4px] uppercase">Kali</span>
-                     </div>
+                     <div class="fw-700 text-primary" style="font-size: 15px;">${c.totalVisits || 0} <span class="fw-600 text-muted" style="font-size: 11px;">kali</span></div>
                   </td>
                   <td>
-                     <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
-                       <span class="loyalty-badge ${tier.class}" style="padding: 4px 10px; font-size: 11px;">
+                     <div style="display: flex; align-items: center; gap: 8px;">
+                       <span class="loyalty-badge ${tier.class}" style="padding: 2px 8px; font-size: 11px; margin: 0;">
                          <i class="fas ${tier.icon}"></i> ${tier.name}
                        </span>
-                       <div class="text-[11px] fw-700 text-muted">
-                         <span class="text-primary fw-800">${points}</span> Poin ${freeCount > 0 ? ` <span style="color: var(--success); margin-left: 4px;">• ${freeCount} Gratis</span>` : ''}
+                       <div class="text-[11px] fw-600 text-muted" style="white-space: nowrap;">
+                         <span class="fw-800 text-primary">${points}</span> Pt
+                         ${freeCount > 0 ? `<span style="color: var(--success); margin-left: 4px;" title="${freeCount} Gratis"><i class="fas fa-gift"></i></span>` : ''}
                        </div>
                      </div>
                   </td>
                   <td>
-                    <div class="text-sm fw-600 text-muted" style="text-transform: capitalize;">${c.firstVisit ? dateUtils.membershipDuration(c.firstVisit) : '-'}</div>
+                    <div class="fw-600 text-secondary" style="font-size: 13px; text-transform: capitalize;">${c.firstVisit ? dateUtils.membershipDuration(c.firstVisit) : '-'}</div>
                   </td>
                   <td>
-                    <div class="fw-800 text-primary" style="font-size: 14px;">${formatter.currency(c.totalSpent || 0)}</div>
+                    <div class="fw-700 text-primary" style="font-size: 14px;">${formatter.currency(c.totalSpent || 0)}</div>
                   </td>
-                  <td>
-                    <div style="display: flex; gap: 6px; align-items: center;">
-                      <button class="btn btn-ghost btn-sm" title="Lihat Profil" onclick="window.__viewCustomer('${c.id}')" style="background: var(--accent-subtle); color: var(--accent); padding: 6px 10px; border-radius: 6px;">
+                  <td style="text-align: right; padding-right: 20px;">
+                    <div style="display: inline-flex; gap: 4px; align-items: center;">
+                      <button class="btn btn-ghost btn-sm" title="Lihat Profil" onclick="window.__viewCustomer('${c.id}')" style="color: var(--text-secondary);">
                         <i class="fas fa-eye"></i>
                       </button>
-                      <button class="btn btn-ghost btn-sm" title="Hubungi WA" onclick="window.__waCustomer('${c.id}')" style="color: #25d366; background: rgba(37, 211, 102, 0.1); padding: 6px 10px; border-radius: 6px;">
+                      <button class="btn btn-ghost btn-sm" title="Hubungi WA" onclick="window.__waCustomer('${c.id}')" style="color: #25d366;">
                         <i class="fab fa-whatsapp"></i>
                       </button>
                       ${(c.lastVisit && new Date(c.lastVisit) < new Date(new Date() - 30 * 24 * 60 * 60 * 1000)) ? `
-                        <button class="btn btn-primary btn-sm" title="Tawari Promo (Sudah >30 Hari)" onclick="window.__waKangen('${c.id}')" style="background: var(--warning); color: #000; padding: 6px 10px; border-radius: 6px; font-size: 11px; letter-spacing: 0.5px;">
-                          <i class="fas fa-history"></i> KANGEN
+                        <button class="btn btn-ghost btn-sm" title="Tawari Promo (Sudah >30 Hari)" onclick="window.__waKangen('${c.id}')" style="color: var(--warning);">
+                          <i class="fas fa-history"></i>
                         </button>
                       ` : ''}
-                      <button class="btn btn-ghost btn-sm" title="Edit Data" onclick="window.__editCustomer('${c.id}')" style="background: var(--info-bg); color: var(--info); padding: 6px 10px; border-radius: 6px;">
+                      <button class="btn btn-ghost btn-sm" title="Edit Data" onclick="window.__editCustomer('${c.id}')" style="color: var(--info);">
                         <i class="fas fa-edit"></i>
                       </button>
-                      <button class="btn btn-ghost btn-sm" title="Hapus Pelanggan" onclick="window.__deleteCustomer('${c.id}')" style="background: var(--danger-bg); color: var(--danger); padding: 6px 10px; border-radius: 6px;">
+                      <button class="btn btn-ghost btn-sm" title="Hapus Pelanggan" onclick="window.__deleteCustomer('${c.id}')" style="color: var(--danger);">
                         <i class="fas fa-trash"></i>
                       </button>
                     </div>
