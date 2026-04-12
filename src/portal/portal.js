@@ -840,8 +840,8 @@ function renderTimeSlots() {
 
     // Barber Specific Availability
     const b = booking.barber;
-    const isWithinBarberHours = b ? (t >= b.workStart && t < b.workEnd) : true;
-    const isOnBreak = b ? (t >= b.breakStart && t < b.breakEnd) : false;
+    const isWithinBarberHours = b && b.workStart && b.workEnd ? (t >= b.workStart && t < b.workEnd) : true;
+    const isOnBreak = b && b.breakStart && b.breakEnd ? (t >= b.breakStart && t < b.breakEnd) : false;
 
     const unavailable = isPast || isFull || !isWithinBarberHours || isOnBreak;
 
