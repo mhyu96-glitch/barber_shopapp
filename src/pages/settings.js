@@ -394,8 +394,9 @@ export function renderSettings(container) {
   // Save settings
   container.querySelector('#save-settings-btn').addEventListener('click', () => {
     const fd = new FormData(document.getElementById('settings-form'));
+    const current = storage.get('settings', {}); // Always read LATEST from storage
     const data = {
-      ...settings,
+      ...current,
       shopName: fd.get('shopName'),
       address: fd.get('address'),
       phone: fd.get('phone'),
