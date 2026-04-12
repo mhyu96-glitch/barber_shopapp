@@ -37,16 +37,16 @@ export function renderCustomers(container) {
     </div>
 
     ${customers.length > 0 ? `
-      <div class="table-container">
-        <table>
+      <div class="table-container" style="background: var(--bg-card); box-shadow: var(--shadow-sm); border: 1px solid var(--border-light);">
+        <table style="width: 100%;">
           <thead>
             <tr>
-              <th>Pelanggan</th>
-              <th>No. HP</th>
-              <th>Kunjungan</th>
-              <th>Loyalitas</th>
-              <th>Berlangganan</th>
-              <th>Total Bayar</th>
+              <th style="padding-left: 20px;">Pelanggan</th>
+              <th>No. Handphone</th>
+              <th>Volume Kunjungan</th>
+              <th>Status Loyalitas</th>
+              <th>Member Sejak</th>
+              <th>Total Kontribusi</th>
               <th>Aksi</th>
             </tr>
           </thead>
@@ -57,45 +57,60 @@ export function renderCustomers(container) {
     const freeCount = formatter.freeHaircuts(c.totalVisits || 0);
     return `
                 <tr>
-                  <td>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                      <div style="width: 38px; height: 38px; border-radius: 50%; background: ${c.avatar ? `url(${c.avatar}) center/cover` : 'var(--accent-subtle)'}; display: flex; align-items: center; justify-content: center; color: var(--accent); font-weight: 700; font-size: ${c.avatar ? '0' : '13px'}; flex-shrink: 0; border: 1px solid var(--border-accent);">
+                   <td style="padding-left: 20px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                      <div style="width: 44px; height: 44px; border-radius: 50%; background: ${c.avatar ? `url(${c.avatar}) center/cover` : 'var(--accent-subtle)'}; display: flex; align-items: center; justify-content: center; color: var(--accent); font-weight: 800; font-size: ${c.avatar ? '0' : '15px'}; flex-shrink: 0; border: 2px solid var(--border-accent);">
                         ${c.avatar ? '' : formatter.initials(c.name)}
                       </div>
-                      <div>
-                        <div class="fw-600">${c.name}</div>
-                        ${c.birthday ? `<div class="text-sm text-muted">🎂 ${dateUtils.formatDate(c.birthday, 'short')}</div>` : ''}
+                      <div style="display: flex; flex-direction: column; gap: 2px;">
+                        <div class="fw-800 text-primary" style="text-transform: capitalize; font-size: 14px;">${c.name}</div>
+                        ${c.birthday ? `<div class="text-[10px] uppercase tracking-widest text-muted fw-700"><i class="fas fa-cake-candles text-accent mr-[2px]"></i> ${dateUtils.formatDate(c.birthday, 'short')}</div>` : ''}
                       </div>
                     </div>
                   </td>
-                  <td>${formatter.phoneDisplay(c.phone)}</td>
-                  <td><span class="fw-700">${c.totalVisits || 0}x</span></td>
                   <td>
-                    <span class="loyalty-badge ${tier.class}">
-                      <i class="fas ${tier.icon}"></i> ${tier.name}
-                    </span>
-                    <div class="text-sm text-muted mt-sm">${points} poin ${freeCount > 0 ? `• ${freeCount} gratis` : ''}</div>
+                     <div class="fw-700 text-primary" style="font-size: 14px; letter-spacing: 0.5px;">${formatter.phoneDisplay(c.phone)}</div>
                   </td>
-                  <td>${c.firstVisit ? dateUtils.membershipDuration(c.firstVisit) : '-'}</td>
-                  <td class="fw-600">${formatter.currency(c.totalSpent || 0)}</td>
                   <td>
-                    <div style="display: flex; gap: 4px;">
-                      <button class="btn btn-ghost btn-sm" title="Detail" onclick="window.__viewCustomer('${c.id}')">
+                     <div style="display: inline-flex; align-items: center; justify-content: center; background: var(--bg-input); padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border);">
+                       <span class="fw-900 text-accent" style="font-size: 16px;">${c.totalVisits || 0}</span>
+                       <span class="text-[10px] text-muted fw-800 ml-[4px] uppercase">Kali</span>
+                     </div>
+                  </td>
+                  <td>
+                     <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                       <span class="loyalty-badge ${tier.class}" style="padding: 4px 10px; font-size: 11px;">
+                         <i class="fas ${tier.icon}"></i> ${tier.name}
+                       </span>
+                       <div class="text-[11px] fw-700 text-muted">
+                         <span class="text-primary fw-800">${points}</span> Poin ${freeCount > 0 ? ` <span style="color: var(--success); margin-left: 4px;">• ${freeCount} Gratis</span>` : ''}
+                       </div>
+                     </div>
+                  </td>
+                  <td>
+                    <div class="text-sm fw-600 text-muted" style="text-transform: capitalize;">${c.firstVisit ? dateUtils.membershipDuration(c.firstVisit) : '-'}</div>
+                  </td>
+                  <td>
+                    <div class="fw-800 text-primary" style="font-size: 14px;">${formatter.currency(c.totalSpent || 0)}</div>
+                  </td>
+                  <td>
+                    <div style="display: flex; gap: 6px; align-items: center;">
+                      <button class="btn btn-ghost btn-sm" title="Lihat Profil" onclick="window.__viewCustomer('${c.id}')" style="background: var(--accent-subtle); color: var(--accent); padding: 6px 10px; border-radius: 6px;">
                         <i class="fas fa-eye"></i>
                       </button>
-                      <button class="btn btn-ghost btn-sm" title="WhatsApp" onclick="window.__waCustomer('${c.id}')">
-                        <i class="fab fa-whatsapp" style="color: #25d366;"></i>
+                      <button class="btn btn-ghost btn-sm" title="Hubungi WA" onclick="window.__waCustomer('${c.id}')" style="color: #25d366; background: rgba(37, 211, 102, 0.1); padding: 6px 10px; border-radius: 6px;">
+                        <i class="fab fa-whatsapp"></i>
                       </button>
                       ${(c.lastVisit && new Date(c.lastVisit) < new Date(new Date() - 30 * 24 * 60 * 60 * 1000)) ? `
-                        <button class="btn btn-primary btn-sm" title="Kangen Potong" onclick="window.__waKangen('${c.id}')" style="background: var(--warning); color: #000; padding: 4px 8px; font-size: 10px; font-weight: 700;">
+                        <button class="btn btn-primary btn-sm" title="Tawari Promo (Sudah >30 Hari)" onclick="window.__waKangen('${c.id}')" style="background: var(--warning); color: #000; padding: 6px 10px; border-radius: 6px; font-size: 11px; letter-spacing: 0.5px;">
                           <i class="fas fa-history"></i> KANGEN
                         </button>
                       ` : ''}
-                      <button class="btn btn-ghost btn-sm" title="Edit" onclick="window.__editCustomer('${c.id}')">
-                        <i class="fas fa-edit" style="color: var(--info);"></i>
+                      <button class="btn btn-ghost btn-sm" title="Edit Data" onclick="window.__editCustomer('${c.id}')" style="background: var(--info-bg); color: var(--info); padding: 6px 10px; border-radius: 6px;">
+                        <i class="fas fa-edit"></i>
                       </button>
-                      <button class="btn btn-ghost btn-sm" title="Hapus" onclick="window.__deleteCustomer('${c.id}')">
-                        <i class="fas fa-trash" style="color: var(--danger);"></i>
+                      <button class="btn btn-ghost btn-sm" title="Hapus Pelanggan" onclick="window.__deleteCustomer('${c.id}')" style="background: var(--danger-bg); color: var(--danger); padding: 6px 10px; border-radius: 6px;">
+                        <i class="fas fa-trash"></i>
                       </button>
                     </div>
                   </td>
