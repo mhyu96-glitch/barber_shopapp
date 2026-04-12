@@ -36,26 +36,32 @@ export function renderGallery(container) {
         </button>
       </div>
 
-      <div style="display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;">
+      <div style="display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap;">
         ${CATEGORIES.map(c => `
-          <button class="btn ${activeCategory === c ? 'btn-primary' : 'btn-secondary'} btn-sm" data-cat="${c}">
+          <button class="btn ${activeCategory === c ? 'btn-primary' : 'btn-ghost'}" data-cat="${c}" style="border-radius: 20px; padding: 6px 16px; font-size: 13px; font-weight: 700; ${activeCategory === c ? 'box-shadow: 0 4px 10px rgba(212, 168, 67, 0.2);' : 'border: 1px solid var(--border); color: var(--text-secondary);'}">
             ${c}
           </button>
         `).join('')}
       </div>
 
       ${filtered.length > 0 ? `
-        <div class="gallery-grid">
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px;">
           ${filtered.map(g => {
-            const bg = STYLE_IMAGES[g.name] || 'linear-gradient(135deg, var(--bg-card-hover), var(--bg-card))';
+            const bg = STYLE_IMAGES[g.name] || 'linear-gradient(135deg, #1f1f1f, #333333)';
             return `
-              <div class="gallery-item" onclick="window.__viewGallery('${g.id}')">
-                <div style="width: 100%; height: 100%; background: ${bg}; display: flex; align-items: center; justify-content: center;">
-                  <i class="fas fa-scissors" style="font-size: 36px; opacity: 0.3; color: #fff;"></i>
-                </div>
-                <div class="gallery-label">
-                  <div>${g.name}</div>
-                  <div style="font-size: 11px; opacity: 0.7;">${g.category || ''}</div>
+              <div style="background: var(--bg-card); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); border: 1px solid var(--border-light); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-6px)'; this.style.boxShadow='var(--shadow-md)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-sm)';" onclick="window.__viewGallery('${g.id}')">
+                
+                <div style="width: 100%; aspect-ratio: 4/3; background: ${bg}; display: flex; align-items: center; justify-content: center; position: relative;">
+                  <div style="position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.85));"></div>
+                  
+                  <i class="fas fa-cut" style="font-size: 42px; color: rgba(255,255,255,0.25); z-index: 1;"></i>
+                  
+                  <div style="position: absolute; bottom: 12px; left: 16px; right: 16px; z-index: 2; display: flex; justify-content: space-between; align-items: flex-end;">
+                     <div>
+                        <div class="fw-800" style="color: #ffffff; font-size: 16px; text-shadow: 0 2px 4px rgba(0,0,0,0.4);">${g.name}</div>
+                     </div>
+                     <span style="background: rgba(255,255,255,0.2); color: #fff; backdrop-filter: blur(4px); padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase;">${g.category || ''}</span>
+                  </div>
                 </div>
               </div>
             `;
