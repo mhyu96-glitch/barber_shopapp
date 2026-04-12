@@ -486,41 +486,61 @@ function showAppointmentDetail(id) {
   if (!apt) return;
 
   const body = `
-    <div style="display: flex; flex-direction: column; gap: 14px;">
-      <div class="flex-between">
-        <span class="text-muted">Pelanggan</span>
-        <span class="fw-600">${apt.customerName}</span>
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <!-- Main Status Card -->
+      <div style="background: var(--bg-card); border-radius: var(--radius-md); padding: 16px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--accent-subtle); display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 16px;">
+            <i class="fas fa-calendar-check"></i>
+          </div>
+          <div>
+            <h4 style="margin: 0; font-size: 15px; font-weight: 700; color: var(--text-primary); text-transform: uppercase;">${apt.customerName}</h4>
+            <div class="text-[11px] fw-600 text-muted">${dateUtils.formatDate(apt.date, 'long')}</div>
+          </div>
+        </div>
+        <div style="text-align: right;">
+          <span class="badge ${getStatusBadge(apt.status)}" style="font-size: 10px; padding: 4px 8px;">${getStatusLabel(apt.status)}</span>
+        </div>
       </div>
-      <div class="flex-between">
-        <span class="text-muted">Tanggal</span>
-        <span>${dateUtils.formatDate(apt.date, 'long')}</span>
+
+      <!-- Detail Grid -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div style="background: var(--bg-input); border-radius: var(--radius-sm); padding: 12px 14px; border: 1px solid var(--border);">
+          <div class="text-[10px] uppercase text-muted tracking-widest fw-700 mb-[4px]"><i class="fas fa-clock text-accent"></i> Jam Shift</div>
+          <div class="fw-800 text-primary text-md">${apt.time}</div>
+        </div>
+        <div style="background: var(--bg-input); border-radius: var(--radius-sm); padding: 12px 14px; border: 1px solid var(--border);">
+          <div class="text-[10px] uppercase text-muted tracking-widest fw-700 mb-[4px]"><i class="fas fa-user-tie text-accent"></i> Barber</div>
+          <div class="fw-700 text-primary text-sm" style="text-transform: capitalize;">${apt.barberName}</div>
+        </div>
       </div>
-      <div class="flex-between">
-        <span class="text-muted">Jam</span>
-        <span class="fw-600">${apt.time}</span>
+
+      <!-- Service Detail -->
+      <div style="background: var(--bg-input); border-radius: var(--radius-sm); padding: 16px; border: 1px solid var(--border);">
+        <div class="text-[10px] uppercase text-muted tracking-widest fw-700 mb-[8px]"><i class="fas fa-cut text-accent"></i> Detail Layanan</div>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; border-bottom: 1px dashed var(--border-light); padding-bottom: 12px;">
+          <div class="fw-600" style="color: var(--text-primary); font-size: 13px; text-transform: capitalize;">${apt.serviceName}</div>
+          <div class="fw-800 text-primary text-md" style="letter-spacing: -0.5px;">${formatter.currency(apt.price)}</div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span class="text-muted text-[11px] fw-600">Status Pembayaran:</span>
+          <span class="badge ${getPayBadge(apt.paymentStatus)}">${apt.paymentStatus === 'paid' ? `LUNAS` : apt.paymentStatus === 'dp' ? `DP (${formatter.currency(apt.dpAmount)})` : 'BELUM BAYAR'}</span>
+        </div>
       </div>
-      <div class="flex-between">
-        <span class="text-muted">Layanan</span>
-        <span>${apt.serviceName}</span>
-      </div>
-      <div class="flex-between">
-        <span class="text-muted">Barber</span>
-        <span>${apt.barberName}</span>
-      </div>
-      <div class="flex-between">
-        <span class="text-muted">Harga</span>
-        <span class="fw-700">${formatter.currency(apt.price)}</span>
-      </div>
-      <div class="flex-between">
-        <span class="text-muted">Status</span>
-        <span class="badge ${getStatusBadge(apt.status)}">${getStatusLabel(apt.status)}</span>
-      </div>
-      <div class="flex-between">
-        <span class="text-muted">Pembayaran</span>
-        <span class="badge ${getPayBadge(apt.paymentStatus)}">${apt.paymentStatus === 'paid' ? `Lunas ${formatter.currency(apt.price)}` : apt.paymentStatus === 'dp' ? `DP ${formatter.currency(apt.dpAmount)}` : 'Belum Bayar'}</span>
-      </div>
-      ${apt.notes ? `<div><span class="text-muted">Catatan:</span> <span>${apt.notes}</span></div>` : ''}
-      ${apt.rating > 0 ? `<div class="flex-between"><span class="text-muted">Rating</span><span>${'⭐'.repeat(apt.rating)}</span></div>` : ''}
+
+      ${apt.notes ? `
+        <div style="background: rgba(245, 158, 11, 0.08); border-left: 3px solid var(--warning); padding: 10px 14px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-size: 12px;">
+          <div class="fw-800 text-warning mb-[2px] text-[10px] uppercase tracking-widest"><i class="fas fa-sticky-note"></i> Catatan Khusus</div>
+          <div class="text-primary fw-600">${apt.notes}</div>
+        </div>
+      ` : ''}
+
+      ${apt.rating > 0 ? `
+        <div style="text-align: center; padding-top: 8px;">
+          <div class="text-[10px] text-muted mb-[4px] uppercase fw-700 tracking-widest">Rating Kepuasan</div>
+          <div style="color: #fbbf24; font-size: 18px; letter-spacing: 2px;">${'⭐'.repeat(apt.rating)}${'<i class="far fa-star"></i>'.repeat(5 - apt.rating)}</div>
+        </div>
+      ` : ''}
     </div>
   `;
 
