@@ -70,79 +70,90 @@ export function renderAppointments(container) {
 
     <div id="appointments-list">
       ${filtered.length > 0 ? `
-        <div class="table-container">
-          <table>
+        <div class="table-container" style="background: var(--bg-card); box-shadow: var(--shadow-sm); border: 1px solid var(--border-light);">
+          <table style="width: 100%;">
             <thead>
               <tr>
-                <th>Tanggal</th>
+                <th style="padding-left: 20px;">Tanggal</th>
                 <th>Jam</th>
                 <th>Pelanggan</th>
-                <th>Layanan</th>
-                <th>Barber</th>
+                <th>Layanan & Harga</th>
+                <th>Stylist</th>
                 <th>Status</th>
-                <th>Bayar</th>
                 <th>Aksi</th>
               </tr>
             </thead>
             <tbody>
               ${filtered.map(apt => `
                 <tr>
-                  <td>
-                    <div class="fw-600">${dateUtils.formatDate(apt.date, 'short')}</div>
-                    <div class="text-sm text-muted">${dateUtils.formatDate(apt.date, 'dayshort')}</div>
-                  </td>
-                  <td><span class="fw-600">${apt.time}</span></td>
-                  <td>${apt.customerName}</td>
-                  <td>
-                    <div style="display: flex; align-items: center; gap: 4px; white-space: normal;">
-                      ${apt.serviceName}
-                      ${apt.recurringType ? `<i class="fas fa-redo" style="font-size: 10px; color: var(--accent);" title="${apt.recurringType}"></i>` : ''}
+                  <td style="padding-left: 20px; width: 80px;">
+                    <div style="background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-sm); text-align: center; padding: 6px 4px; display: inline-block; min-width: 56px;">
+                      <div class="text-[9px] uppercase tracking-widest fw-800 text-muted" style="border-bottom: 1px solid var(--border-light); padding-bottom: 2px; margin-bottom: 4px;">${dateUtils.formatDate(apt.date, 'dayshort')}</div>
+                      <div class="fw-900 text-primary" style="font-size: 16px; line-height: 1;">${apt.date.split('-')[2]}</div>
+                      <div class="text-[9px] uppercase fw-800 text-accent mt-[2px]">${dateUtils.formatDate(apt.date, 'short').split(' ')[1]}</div>
                     </div>
-                    <div class="text-sm text-muted">${formatter.currency(apt.price)}</div>
                   </td>
-                  <td>${apt.barberName}</td>
+                  <td><span class="fw-800 text-primary" style="font-size: 15px; letter-spacing: -0.5px;">${apt.time}</span></td>
                   <td>
-                    <span class="badge ${getStatusBadge(apt.status)}">
-                      ${getStatusLabel(apt.status)}
-                    </span>
+                    <div class="fw-700 text-primary" style="text-transform: capitalize; font-size: 14px;">${apt.customerName}</div>
                   </td>
                   <td>
-                    <span class="badge ${getPayBadge(apt.paymentStatus)}">
-                      ${apt.paymentStatus === 'paid' ? 'Lunas' : apt.paymentStatus === 'dp' ? 'DP' : 'Belum'}
-                    </span>
+                    <div style="display: flex; flex-direction: column; gap: 2px;">
+                      <div style="display: flex; align-items: center; gap: 6px;">
+                        <span class="fw-600 text-primary" style="text-transform: capitalize; font-size: 13px;">${apt.serviceName}</span>
+                        ${apt.recurringType ? `<i class="fas fa-redo text-accent" style="font-size: 10px;" title="${apt.recurringType}"></i>` : ''}
+                      </div>
+                      <div class="text-[11px] fw-800 text-accent">${formatter.currency(apt.price)}</div>
+                    </div>
                   </td>
                   <td>
-                    <div style="display: flex; gap: 4px;">
+                    <div class="fw-600 text-muted" style="text-transform: capitalize; font-size: 13px; display: flex; align-items: center; gap: 6px;">
+                      <div style="width: 20px; height: 20px; border-radius: 50%; background: var(--accent-subtle); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 9px;"><i class="fas fa-cut"></i></div>
+                      ${apt.barberName}
+                    </div>
+                  </td>
+                  <td>
+                    <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start;">
+                      <span class="badge ${getStatusBadge(apt.status)}" style="font-size: 10px; padding: 4px 8px;">
+                        ${getStatusLabel(apt.status)}
+                      </span>
+                      <span class="badge ${getPayBadge(apt.paymentStatus)}" style="font-size: 9px; padding: 2px 6px; opacity: 0.9;">
+                        ${apt.paymentStatus === 'paid' ? 'LUNAS' : apt.paymentStatus === 'dp' ? 'DP' : 'BELUM BAYAR'}
+                      </span>
+                    </div>
+                  </td>
+                  <td>
+                    <div style="display: flex; gap: 6px; align-items: center;">
                       ${apt.status === 'pending' ? `
-                        <button class="btn btn-ghost btn-sm" title="Terima" onclick="window.__approvePortalAppt('${apt.id}')">
-                          <i class="fas fa-check" style="color: var(--success);"></i>
+                        <button class="btn btn-ghost btn-sm" title="Terima" onclick="window.__approvePortalAppt('${apt.id}')" style="background: var(--success-bg); color: var(--success); padding: 6px 10px; border-radius: 6px;">
+                          <i class="fas fa-check"></i>
                         </button>
-                        <button class="btn btn-ghost btn-sm" title="Tolak" onclick="window.__rejectPortalAppt('${apt.id}')">
-                          <i class="fas fa-times" style="color: var(--danger);"></i>
+                        <button class="btn btn-ghost btn-sm" title="Tolak" onclick="window.__rejectPortalAppt('${apt.id}')" style="background: var(--danger-bg); color: var(--danger); padding: 6px 10px; border-radius: 6px;">
+                          <i class="fas fa-times"></i>
                         </button>
                       ` : ''}
                       ${apt.status !== 'done' && apt.status !== 'cancelled' && apt.status !== 'rejected' && apt.status !== 'pending' ? `
-                        <button class="btn btn-ghost btn-sm" title="WhatsApp" onclick="window.__waAppt('${apt.id}')">
-                          <i class="fab fa-whatsapp" style="color: #25d366;"></i>
+                        <button class="btn btn-ghost btn-sm" title="WhatsApp Pelanggan" onclick="window.__waAppt('${apt.id}')" style="color: #25d366; background: rgba(37, 211, 102, 0.1); padding: 6px 10px; border-radius: 6px;">
+                          <i class="fab fa-whatsapp"></i>
                         </button>
                         ${apt.status === 'scheduled' ? `
-                          <button class="btn btn-ghost btn-sm" title="Konfirmasi" onclick="window.__confirmAppt('${apt.id}')">
-                            <i class="fas fa-check" style="color: var(--success);"></i>
+                          <button class="btn btn-ghost btn-sm" title="Konfirmasi Kedatangan" onclick="window.__confirmAppt('${apt.id}')" style="color: var(--success); padding: 6px 10px; border-radius: 6px;">
+                            <i class="fas fa-calendar-check"></i>
                           </button>
                         ` : ''}
-                        <button class="btn btn-ghost btn-sm" title="Selesai" onclick="window.__doneAppt('${apt.id}')">
-                          <i class="fas fa-check-double" style="color: var(--info);"></i>
+                        <button class="btn btn-ghost btn-sm" title="Tandai Selesai" onclick="window.__doneAppt('${apt.id}')" style="color: var(--info); padding: 6px 10px; border-radius: 6px;">
+                          <i class="fas fa-check-double"></i>
                         </button>
-                        <button class="btn btn-ghost btn-sm" title="Batal" onclick="window.__cancelAppt('${apt.id}')">
-                          <i class="fas fa-times" style="color: var(--danger);"></i>
+                        <button class="btn btn-ghost btn-sm" title="Batalkan Pesanan" onclick="window.__cancelAppt('${apt.id}')" style="color: var(--text-muted); padding: 6px 10px; border-radius: 6px;">
+                          <i class="fas fa-ban"></i>
                         </button>
                       ` : ''}
-                      <button class="btn btn-ghost btn-sm" title="Detail" onclick="window.__editAppt('${apt.id}')">
+                      <button class="btn btn-ghost btn-sm" title="Lihat Detail" onclick="window.__editAppt('${apt.id}')" style="background: var(--accent-subtle); color: var(--accent); padding: 6px 10px; border-radius: 6px;">
                         <i class="fas fa-eye"></i>
                       </button>
                       ${apt.status === 'done' ? `
-                        <button class="btn btn-ghost btn-sm" title="Struk" onclick="window.__invoiceAppt('${apt.id}')">
-                          <i class="fas fa-file-invoice" style="color: var(--accent);"></i>
+                        <button class="btn btn-ghost btn-sm" title="Cetak Struk" onclick="window.__invoiceAppt('${apt.id}')" style="background: var(--bg-input); color: var(--text-primary); padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border);">
+                          <i class="fas fa-print"></i>
                         </button>
                       ` : ''}
                     </div>
