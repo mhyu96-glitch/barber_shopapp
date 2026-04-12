@@ -44,34 +44,37 @@ export async function renderSignup(container) {
       </button>
     </div>
 
-    <div class="card" style="max-width: 600px; margin: 20px auto;">
-      <div class="card-body">
-        <form id="signup-form">
-          <div class="form-group">
-            <label>Nama Lengkap</label>
-            <input type="text" id="signup-fullname" class="form-control" placeholder="Contoh: Budi Santoso" required>
+    <div class="card" style="max-width: 500px; margin: 30px auto; border: 1px solid var(--border-accent); border-radius: var(--radius-lg); box-shadow: var(--shadow-md);">
+      <div style="padding: 24px;">
+        <h3 style="margin-top: 0; margin-bottom: 24px; font-size: 18px; color: var(--text-primary); border-bottom: 1px solid var(--border-light); padding-bottom: 12px;">
+          <i class="fas fa-id-card text-accent mr-[8px]"></i> Profil & Akses Staf
+        </h3>
+        <form id="signup-form" style="display: flex; flex-direction: column; gap: 18px;">
+          <div class="form-group" style="margin: 0;">
+            <label style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px;">Nama Lengkap</label>
+            <input type="text" id="signup-fullname" class="form-control" placeholder="Contoh: Budi Santoso" style="height: 48px; font-size: 15px; font-weight: 600;" required>
           </div>
-          <div class="form-group">
-            <label>Username</label>
-            <input type="text" id="signup-username" class="form-control" placeholder="Contoh: budi_barber" required>
-            <small style="color: var(--text-muted);">Username digunakan untuk login staf.</small>
+          <div class="form-group" style="margin: 0;">
+            <label style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px;">Username Login</label>
+            <input type="text" id="signup-username" class="form-control" placeholder="Contoh: budi_barber" style="height: 48px; font-size: 15px; font-weight: 600; text-transform: lowercase;" required>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;"><i class="fas fa-info-circle"></i> Gunakan huruf kecil tanpa spasi untuk login.</div>
           </div>
-          <div class="form-group">
-            <label>Password Akun</label>
-            <input type="password" id="signup-password" class="form-control" placeholder="Minimal 6 karakter" required minlength="6">
+          <div class="form-group" style="margin: 0;">
+            <label style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px;">Password Akun</label>
+            <input type="password" id="signup-password" class="form-control" placeholder="Minimal 6 karakter" style="height: 48px; font-size: 15px; font-weight: 600; letter-spacing: 2px;" required minlength="6">
           </div>
-          <div class="form-group">
-            <label>Peran (Role)</label>
-            <select id="signup-role" class="form-control" required>
-              <option value="barber">Barber (Tukang Cukur)</option>
-              <option value="admin">Administrator (Akses Penuh)</option>
+          <div class="form-group" style="margin: 0;">
+            <label style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px;">Peran Akses (Role)</label>
+            <select id="signup-role" class="form-control" style="height: 48px; font-size: 15px; font-weight: 600; cursor: pointer; border: 1px solid var(--border-accent); background: var(--bg-primary);" required>
+              <option value="barber">✂️ Barber (Fokus Booking & Jadwal)</option>
+              <option value="admin">👑 Administrator (Akses Penuh)</option>
             </select>
           </div>
           
-          <div id="signup-message" style="margin: 15px 0; padding: 10px; border-radius: var(--radius-sm); display: none;"></div>
+          <div id="signup-message" style="margin: 4px 0; padding: 12px; border-radius: var(--radius-sm); display: none; font-size: 13px; font-weight: 600;"></div>
           
-          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;" id="submit-signup">
-            <i class="fas fa-save"></i> Daftarkan Staf Sekarang
+          <button type="submit" class="btn btn-primary" style="width: 100%; height: 50px; border-radius: var(--radius-sm); font-size: 15px; margin-top: 8px; box-shadow: var(--shadow-accent); font-weight: 800;" id="submit-signup">
+            <i class="fas fa-save"></i> DAFTARKAN STAF SEKARANG
           </button>
         </form>
       </div>
