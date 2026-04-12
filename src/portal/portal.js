@@ -495,7 +495,7 @@ window.renderHome = function () {
                     <div style="font-weight: 600; font-size: 14px;">${s.name}</div>
                     <div style="font-size: 12px; color: var(--p-muted);">${s.duration} menit</div>
                   </div>
-                  <div style="font-weight: 700; color: var(--p-accent);">Rp ${s.price.toLocaleString('id')}</div>
+                  <div style="font-weight: 700; color: var(--p-accent);">Rp ${(s.price || 0).toLocaleString('id')}</div>
                 </div>
               </div>
             `).join('')}
@@ -657,17 +657,22 @@ function renderStep1(container) {
     <p style="color: var(--p-muted); font-size: 13px; margin-bottom: 16px;">${t('step_svc_sub')}</p>
     <div class="service-grid">
       ${services.map(s => {
-    const promo = promos.find(p => !p.serviceId || p.serviceId === s.id);
+    // Only apply promo if it targets ALL services (serviceId is null/undefined) or this specific service
+    const promo = promos.find(p => (p.serviceId === s.id) || (p.serviceId === null || p.serviceId === undefined));
     const hhPrice = getServicePrice(s);
     const isHH = hhPrice !== s.price;
 
     let discountedPrice = s.price;
     if (promo) {
-      discountedPrice = promo.type === 'percentage' ? s.price * (1 - promo.discount / 100) : s.price - promo.discount;
+      if (promo.type === 'percentage') {
+        discountedPrice = Math.round(s.price * (1 - promo.discount / 100));
+      } else {
+        discountedPrice = Math.max(0, s.price - promo.discount);
+      }
     }
 
     // Use the lower of the two: Promo price or Happy Hour price
-    const finalPrice = Math.min(Math.round(promo ? discountedPrice : s.price), hhPrice);
+    const finalPrice = Math.max(0, Math.min(Math.round(promo ? discountedPrice : s.price), hhPrice));
     const showsDiscount = finalPrice < s.price;
 
     return `
@@ -708,7 +713,7 @@ window.selectService = function (id) {
   
   // Check oldest promo for simplicity or join all promos
   const promos = sGetAll('promos').filter(p => p.active && new Date(p.endDate) >= new Date());
-  const promo = promos.find(p => !p.serviceId || booking.services.some(s => s.id === p.serviceId));
+  const promo = promos.find(p => (p.serviceId === null || p.serviceId === undefined) || booking.services.some(s => s.id === p.serviceId));
   booking.promoId = promo?.id || null;
   
   renderWizardStep();
