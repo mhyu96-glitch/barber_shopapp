@@ -48,7 +48,7 @@ export function renderPOS(container) {
         <div class="pos-main card" style="display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius-xl);">
             <div class="pos-header" style="padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: rgba(var(--accent-rgb), 0.02);">
                 <h2 style="margin: 0; font-size: 16px; display: flex; align-items: center; gap: 10px;"><i class="fas fa-cash-register text-accent"></i> Kasir / POS</h2>
-                <select id="pos-customer-select" class="form-control" style="width: 180px; height: 36px; font-size: 13px;">
+                <select id="pos-customer-select" class="form-control" style="width: 160px; height: 32px; font-size: 12px; padding: 0 10px; padding-right: 28px;">
                     <option value="walk-in">Walk-In (Tamu)</option>
                     ${customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
                 </select>
@@ -104,9 +104,9 @@ export function renderPOS(container) {
                 <!-- Barber Selection -->
                 <div class="form-group mb-sm">
                     <label class="text-[8px] uppercase tracking-widest fw-900 text-muted mb-[4px] block">Barber / Stylist</label>
-                    <div class="luxury-select-wrapper" style="padding: 8px 12px; gap: 8px;">
-                        <i class="fas fa-user-circle" style="font-size: 14px;"></i>
-                        <select id="pos-barber-select" class="form-control" style="background: transparent; border: none; padding: 0; height: auto; font-weight: 700; font-size: 12px;">
+                    <div class="luxury-select-wrapper" style="padding: 4px 10px; gap: 6px; min-height: 32px;">
+                        <i class="fas fa-user-circle" style="font-size: 13px;"></i>
+                        <select id="pos-barber-select" class="form-control" style="background: transparent; border: none; padding: 0; padding-right: 28px; height: auto; font-weight: 600; font-size: 12px; margin: 0; outline: none; box-shadow: none;">
                             <option value="">Pilih Barber...</option>
                             ${storage.getAll('barbers').map(b => `<option value="${b.id}">${b.name}</option>`).join('')}
                         </select>
