@@ -430,6 +430,74 @@ body {
     font-size: 13px;
 }
 
+/* ===== CALENDAR GRID ===== */
+.calendar-widget {
+    background: var(--p-card);
+    border: 1px solid var(--p-border);
+    border-radius: var(--p-radius);
+    padding: 16px;
+    margin-bottom: 24px;
+}
+.calendar-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--p-muted);
+    margin-bottom: 12px;
+}
+.calendar-grid-body {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+}
+.cal-cell {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--p-radius-sm);
+    border: 2px solid transparent;
+    background: transparent;
+    color: var(--p-text);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    transition: all 0.2s;
+    padding: 0;
+}
+.cal-cell-month {
+    font-size: 9px;
+    line-height: 1;
+    margin-top: 2px;
+    color: var(--p-muted);
+}
+.cal-cell:hover:not(.empty):not(.unavailable) {
+    background: var(--p-card-hover);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+.cal-cell.selected {
+    background: linear-gradient(135deg, var(--p-accent), var(--p-accent-dk));
+    color: #0f1117;
+    border-color: transparent;
+    box-shadow: 0 4px 10px var(--p-accent-glow);
+    transform: scale(1.05);
+}
+.cal-cell.selected .cal-cell-month {
+    color: rgba(0,0,0,0.6);
+}
+.cal-cell.empty {
+    cursor: default;
+}
+.cal-cell.unavailable {
+    opacity: 0.25;
+    cursor: not-allowed;
+    text-decoration: line-through;
+}
+
 /* ===== TIME GRID ===== */
 .date-picker-row {
     display: flex;
