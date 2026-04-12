@@ -780,14 +780,41 @@ function renderStep3(container) {
     <h3 style="margin-bottom: 4px;">${t('step_schedule')}</h3>
     <p style="color: var(--p-muted); font-size: 13px; margin-bottom: 16px;">${t('step_schedule_sub')}</p>
     
-    <div class="date-picker-row">
-      ${dates.map(d => `
-        <button class="date-btn ${booking.date === d.dateStr ? 'selected' : ''}" onclick="selectDate('${d.dateStr}')">
-          <div class="date-day">${DAYS_SHORT[d.date.getDay()]}</div>
-          <div class="date-num">${d.date.getDate()}</div>
-          <div class="date-month">${MONTHS_SHORT[d.date.getMonth()]}</div>
-        </button>
-      `).join('')}
+    <div class="calendar-widget">
+      <div class="calendar-header">
+        <div>Min</div><div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div>
+      </div>
+      <div class="calendar-grid-body">
+        ${(() => {
+          let html = '';
+          const firstDate = new Date(); // Start calendar from today
+          const firstDay = firstDate.getDay();
+          
+          // Empty cells for padding
+          for(let i=0; i<firstDay; i++) {
+            html += '<div class="cal-cell empty"></div>';
+          }
+          
+          // Generate 14 days
+          const start = new Date();
+          const end = new Date();
+          end.setDate(end.getDate() + 14);
+          
+          for(let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
+            const dStr = d.toISOString().split('T')[0];
+            const isAvailable = dates.find(x => x.dateStr === dStr);
+            
+            if(isAvailable) {
+              html += `<button class="cal-cell ${booking.date === dStr ? 'selected' : ''}" onclick="selectDate('${dStr}')">
+                ${d.getDate()}<div class="cal-cell-month">${MONTHS_SHORT[d.getMonth()]}</div>
+              </button>`;
+            } else {
+              html += `<button class="cal-cell unavailable" disabled>${d.getDate()}<div class="cal-cell-month">${MONTHS_SHORT[d.getMonth()]}</div></button>`;
+            }
+          }
+          return html;
+        })()}
+      </div>
     </div>
 
     <div id="time-slots-container"></div>
