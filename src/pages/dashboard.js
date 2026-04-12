@@ -56,6 +56,11 @@ export function renderDashboard(container) {
       .reduce((sum, a) => sum + (a.paymentAmount || 0), 0);
   }
 
+  // Today revenue
+  const todayRevenue = rawPayments
+    .filter(p => p.date === todayStr)
+    .reduce((sum, p) => sum + (p.amount || 0), 0);
+
   // Upcoming (not done/cancelled)
   const upcoming = appointments
     .filter(a => a.date >= todayStr && a.status !== 'done' && a.status !== 'cancelled')
@@ -65,6 +70,17 @@ export function renderDashboard(container) {
   const todayMMDD = `${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   const birthdayCustomers = customers.filter(c => c.birthday && c.birthday.slice(5) === todayMMDD);
 
+  // Dynamic greeting
+  const hour = now.getHours();
+  const greetEmoji = hour < 11 ? '☀️' : hour < 15 ? '🌤️' : hour < 18 ? '🌅' : '🌙';
+  const greetText = hour < 11 ? 'Selamat Pagi' : hour < 15 ? 'Selamat Siang' : hour < 18 ? 'Selamat Sore' : 'Selamat Malam';
+  const userName = user?.fullName || user?.username || 'Boss';
+  const firstName = userName.split(' ')[0];
+
+  // Motivational subtitle
+  const greetSub = todayAppts.length > 0 
+    ? `Ada ${todayAppts.length} janji hari ini. Semangat! 💪`
+    : `Belum ada janji hari ini. Waktunya promosi! 🚀`;
 
   container.innerHTML = `
     <div id="platform-announcements-container"></div>
@@ -84,9 +100,15 @@ export function renderDashboard(container) {
       </div>
     ` : ''}
 
-    <div class="page-header">
-      <h2>Dashboard</h2>
-      <p>${dateUtils.formatDate(now, 'day')}, ${dateUtils.formatDate(now, 'long')}</p>
+    <div class="page-header" style="margin-bottom: 20px;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="font-size: 32px; line-height: 1;">${greetEmoji}</div>
+        <div>
+          <h2 style="margin: 0; font-size: 22px;">${greetText}, <span class="text-accent">${firstName}</span>!</h2>
+          <p class="text-sm text-muted" style="margin-top: 2px;">${greetSub}</p>
+        </div>
+      </div>
+      <p class="text-xs text-muted" style="margin-top: 8px; opacity: 0.6;">${dateUtils.formatDate(now, 'day')}, ${dateUtils.formatDate(now, 'long')}</p>
     </div>
 
     <!-- Attendance Widget (Dynamic by Role) -->
@@ -94,6 +116,13 @@ export function renderDashboard(container) {
 
     <!-- Stats -->
     <div class="stats-grid stagger">
+      <div class="card stat-card" style="border-bottom: 3px solid var(--success);">
+        <div class="stat-icon green"><i class="fas fa-cash-register"></i></div>
+        <div class="stat-info">
+          <h3>${formatter.currency(todayRevenue)}</h3>
+          <p>Omset Hari Ini</p>
+        </div>
+      </div>
       <div class="card stat-card">
         <div class="stat-icon gold"><i class="fas fa-calendar-check"></i></div>
         <div class="stat-info">
