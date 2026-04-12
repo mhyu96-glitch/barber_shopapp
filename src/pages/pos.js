@@ -100,7 +100,7 @@ export function renderPOS(container) {
                 </div>
             </div>
             
-            <div style="padding: 0 12px 14px;">
+            <div style="padding: 0 12px; overflow-y: auto; flex-shrink: 1; scrollbar-width: none;">
                 <!-- Barber Selection -->
                 <div class="form-group mb-sm">
                     <label class="text-[8px] uppercase tracking-widest fw-900 text-muted mb-[4px] block">Barber / Stylist</label>
@@ -148,7 +148,7 @@ export function renderPOS(container) {
                 </div>
 
                 <!-- Metode Pembayaran -->
-                <div class="form-group mb-md">
+                <div class="form-group mb-sm">
                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;" id="pos-methods-container">
                         <button class="pos-payment-tile active" data-method="cash" style="padding: 10px 4px; border-radius: 12px;">
                             <div class="pos-circle-icon" style="width: 32px; height: 32px; font-size: 14px;"><i class="fas fa-money-bill-wave"></i></div>
@@ -164,12 +164,14 @@ export function renderPOS(container) {
                         </button>
                     </div>
                 </div>
+            </div>
 
+            <!-- Sticky Footer: Always visible -->
+            <div style="padding: 8px 12px 12px; border-top: 1px solid var(--border-light); flex-shrink: 0;">
                 <button class="btn btn-primary btn-block shadow-accent brass-gradient" id="pos-checkout-btn" disabled 
                     style="height: 48px; border-radius: 12px; font-size: 14px; font-weight: 900; border: none; letter-spacing: 1px;">
                     <i class="fas fa-print mr-xs"></i> BAYAR & CETAK
                 </button>
-
                 <div class="luxury-footer-text mt-sm" style="font-size: 8px; opacity: 0.4;">
                     PROCESSED AT ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • REF: POS-X1
                 </div>
