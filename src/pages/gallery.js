@@ -36,9 +36,9 @@ export function renderGallery(container) {
         </button>
       </div>
 
-      <div style="display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap;">
+      <div style="display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; align-items: center; padding: 4px; background: var(--bg-card); border-radius: 30px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-light); width: fit-content;">
         ${CATEGORIES.map(c => `
-          <button class="btn ${activeCategory === c ? 'btn-primary' : 'btn-ghost'}" data-cat="${c}" style="border-radius: 20px; padding: 6px 16px; font-size: 13px; font-weight: 700; ${activeCategory === c ? 'box-shadow: 0 4px 10px rgba(212, 168, 67, 0.2);' : 'border: 1px solid var(--border); color: var(--text-secondary);'}">
+          <button class="btn" data-cat="${c}" style="border-radius: 20px; padding: 6px 20px; font-size: 13px; font-weight: ${activeCategory === c ? '800' : '600'}; background: ${activeCategory === c ? 'var(--text-primary)' : 'transparent'}; color: ${activeCategory === c ? 'var(--bg-card)' : 'var(--text-secondary)'}; border: none; transition: all 0.2s ease; outline: none; margin: 0;">
             ${c}
           </button>
         `).join('')}
