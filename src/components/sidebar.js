@@ -37,11 +37,13 @@ export function renderSidebar(container) {
   const isSuperAdmin = user?.isSuperAdmin || false;
   const activeBranch = branches.find(b => b.id === activeBranchId) || branches[0];
 
-  const renderNavItem = (page, icon, label, extraHtml = '') => {
+  const renderNavItem = (page, icon, label, colorHex = '#a0aec0', extraHtml = '') => {
     return `
       <button class="nav-item" data-page="${page}">
-        <i class="${icon}"></i>
-        <span>${label}</span>
+        <div style="background: ${colorHex}15; color: ${colorHex}; border-radius: 8px; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 14px; box-shadow: 0 2px 4px ${colorHex}10;">
+          <i class="${icon}"></i>
+        </div>
+        <span style="font-weight: 600;">${label}</span>
         ${extraHtml}
       </button>
     `;
@@ -75,89 +77,71 @@ export function renderSidebar(container) {
         <!-- MASTER MENU -->
         <div class="nav-section-title">CONTROL CENTER</div>
         <button class="nav-item active" data-page="super-admin">
-          <i class="fas fa-rocket"></i>
-          <span>Dashboard Master</span>
+          <div style="background: #e74c3c15; color: #e74c3c; border-radius: 8px; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 14px;"><i class="fas fa-rocket"></i></div>
+          <span style="font-weight: 600;">Dashboard Master</span>
         </button>
         <button class="nav-item" data-page="super-admin" onclick="window.location.hash='super-admin'; setTimeout(()=>document.querySelector('[data-tab=shops]')?.click(), 100)">
-          <i class="fas fa-store"></i>
-          <span>Manajemen Tenant</span>
+          <div style="background: #3498db15; color: #3498db; border-radius: 8px; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 14px;"><i class="fas fa-store"></i></div>
+          <span style="font-weight: 600;">Manajemen Tenant</span>
         </button>
         <button class="nav-item" data-page="super-admin" onclick="window.location.hash='super-admin'; setTimeout(()=>document.querySelector('[data-tab=revenue]')?.click(), 100)">
-          <i class="fas fa-money-bill-trend-up"></i>
-          <span>Laporan Pendapatan</span>
+          <div style="background: #2ecc7115; color: #2ecc71; border-radius: 8px; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 14px;"><i class="fas fa-money-bill-trend-up"></i></div>
+          <span style="font-weight: 600;">Laporan Pendapatan</span>
         </button>
         <button class="nav-item" data-page="super-admin" onclick="window.location.hash='super-admin'; setTimeout(()=>document.querySelector('[data-tab=plans]')?.click(), 100)">
-          <i class="fas fa-gem"></i>
-          <span>Pengaturan Paket</span>
+          <div style="background: #9b59b615; color: #9b59b6; border-radius: 8px; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 14px;"><i class="fas fa-gem"></i></div>
+          <span style="font-weight: 600;">Pengaturan Paket</span>
         </button>
         <div class="nav-section-title">SYSTEM</div>
         <button class="nav-item" data-page="settings">
-          <i class="fas fa-cog"></i>
-          <span>Pengaturan Global</span>
+          <div style="background: #7f8c8d15; color: #7f8c8d; border-radius: 8px; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 14px;"><i class="fas fa-cog"></i></div>
+          <span style="font-weight: 600;">Pengaturan Global</span>
         </button>
       ` : `
         <!-- SHOP STAFF MENU -->
         <div class="nav-section-title">Menu Utama</div>
         <button class="nav-item active" data-page="dashboard">
-          <i class="fas fa-th-large"></i>
-          <span>Dashboard</span>
+          <div style="background: #3498db15; color: #3498db; border-radius: 8px; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 14px;"><i class="fas fa-th-large"></i></div>
+          <span style="font-weight: 600;">Dashboard</span>
           ${pendingPortal > 0 ? `<span class="nav-badge" style="background: var(--info);">${pendingPortal}</span>` : ''}
         </button>
         
-        ${renderNavItem('appointments', 'fas fa-calendar-check', 'Janji Temu', todayAppointments > 0 ? `<span class="nav-badge">${todayAppointments}</span>` : '')}
-        ${renderNavItem('queue', 'fas fa-users-line', 'Antrian')}
+        ${renderNavItem('appointments', 'fas fa-calendar-check', 'Janji Temu', '#9b59b6', todayAppointments > 0 ? `<span class="nav-badge">${todayAppointments}</span>` : '')}
+        ${renderNavItem('queue', 'fas fa-users-line', 'Antrian', '#00cec9')}
         
         <div class="nav-section-title">Kelola</div>
-        <button class="nav-item" data-page="customers">
-          <i class="fas fa-user-group"></i>
-          <span>Pelanggan</span>
-        </button>
-
-        ${renderNavItem('barbers', 'fas fa-user-tie', 'Barber')}
+        ${renderNavItem('customers', 'fas fa-user-group', 'Pelanggan', '#1abc9c')}
+        ${renderNavItem('barbers', 'fas fa-user-tie', 'Barber', '#34495e')}
         
-        ${(role === 'admin' && !isSuperAdmin) ? `
-          <button class="nav-item" data-page="signup">
-            <i class="fas fa-user-plus"></i>
-            <span>Tambah Staf</span>
-          </button>
-        ` : ''}
-
-        <button class="nav-item" data-page="services">
-          <i class="fas fa-list-check"></i>
-          <span>Layanan & Harga</span>
-        </button>
-
-        ${renderNavItem('attendance', 'fas fa-clock-rotate-left', 'Presensi Barber')}
+        ${(role === 'admin' && !isSuperAdmin) ? renderNavItem('signup', 'fas fa-user-plus', 'Tambah Staf', '#2ecc71') : ''}
+        
+        ${renderNavItem('services', 'fas fa-list-check', 'Layanan & Harga', '#e67e22')}
+        ${renderNavItem('attendance', 'fas fa-clock-rotate-left', 'Presensi Barber', '#e84393')}
         
         <div class="nav-section-title">Bisnis</div>
-        ${renderNavItem('pos', 'fas fa-cash-register', 'Kasir (POS)')}
-        ${renderNavItem('promos', 'fas fa-tags', 'Promo & Diskon')}
-        ${renderNavItem('reports', 'fas fa-chart-line', 'Laporan')}
-        ${renderNavItem('expenses', 'fas fa-receipt', 'Pengeluaran')}
-        ${renderNavItem('inventory', 'fas fa-boxes-stacked', 'Inventori')}
-        ${renderNavItem('memberships', 'fas fa-id-card', 'Membership')}
+        ${renderNavItem('pos', 'fas fa-cash-register', 'Kasir (POS)', '#f1c40f')}
+        ${renderNavItem('promos', 'fas fa-tags', 'Promo & Diskon', '#fd79a8')}
+        ${renderNavItem('reports', 'fas fa-chart-line', 'Laporan', '#0984e3')}
+        ${renderNavItem('expenses', 'fas fa-receipt', 'Pengeluaran', '#d63031')}
+        ${renderNavItem('inventory', 'fas fa-boxes-stacked', 'Inventori', '#636e72')}
+        ${renderNavItem('memberships', 'fas fa-id-card', 'Membership', '#00b894')}
         
         <div class="nav-section-title">Lainnya</div>
-        ${renderNavItem('gallery', 'fas fa-images', 'Galeri Style')}
-        ${renderNavItem('logbook', 'fas fa-book', 'Catatan Harian')}
+        ${renderNavItem('gallery', 'fas fa-images', 'Galeri Style', '#a29bfe')}
+        ${renderNavItem('logbook', 'fas fa-book', 'Catatan Harian', '#fdcb6e')}
         
-        ${role === 'admin' ? `
-          <button class="nav-item" data-page="settings">
-            <i class="fas fa-cog"></i>
-            <span>Pengaturan</span>
-          </button>
-        ` : ''}
+        ${role === 'admin' ? renderNavItem('settings', 'fas fa-cog', 'Pengaturan', '#b2bec3') : ''}
       `}
 
       <div style="margin-top: auto; padding-top: 20px;">
-        <button class="nav-item text-danger" id="logout-btn" style="color: var(--danger);">
-          <i class="fas fa-sign-out-alt"></i>
-          <span>Keluar</span>
+        <button class="nav-item" id="logout-btn" style="color: var(--danger);">
+          <div style="background: #e74c3c15; color: #e74c3c; border-radius: 8px; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 14px;"><i class="fas fa-sign-out-alt"></i></div>
+          <span style="font-weight: 700;">Keluar Sistem</span>
         </button>
       </div>
     </nav>
     <div style="padding: 14px; border-top: 1px solid var(--border); text-align: center;">
-      <small style="color: var(--text-muted); font-size: 11px;">BarberPro v2.0</small>
+      <small style="color: var(--text-muted); font-size: 11px;">BarberPro v2.5</small>
     </div>
   `;
 
