@@ -131,7 +131,6 @@ export function renderSidebar(container) {
         
         <div class="nav-section-title">Bisnis</div>
         ${renderNavItem('pos', 'fas fa-cash-register', 'Kasir (POS)')}
-        ${renderNavItem('payments', 'fas fa-wallet', 'Pembayaran')}
         ${renderNavItem('promos', 'fas fa-tags', 'Promo & Diskon')}
         ${renderNavItem('reports', 'fas fa-chart-line', 'Laporan')}
         ${renderNavItem('expenses', 'fas fa-receipt', 'Pengeluaran')}
