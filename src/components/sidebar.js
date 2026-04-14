@@ -7,18 +7,20 @@ import { storage } from '../utils/storage.js';
 import { showToast } from './toast.js';
 
 export function renderSidebar(container) {
-  // 🛡️ Master Redirect: Prevent global sidebar from rendering in SuperAdmin Dashboard
-  if (window.location.hash === '#super-admin') {
+  const hash = window.location.hash.replace('#', '');
+  
+  // 🛡️ Master Redirect: Prevent global sidebar from rendering on specific layouts
+  if (hash === 'super-admin' || hash === 'login' || hash === 'feedback' || hash === 'register-shop') {
     container.style.display = 'none';
     const mainContent = document.getElementById('main-content');
     if (mainContent) {
       mainContent.style.marginLeft = '0';
-      mainContent.style.padding = '0';
+      mainContent.style.padding = (hash === 'super-admin') ? '' : '0';
     }
     return;
   }
   
-  container.style.display = 'flex'; // Reset display if coming from SuperAdmin
+  container.style.display = 'flex'; // Reset display for valid app routes
   const todayAppointments = getTodayAppointmentCount();
   const pendingPortal = getPendingPortalCount();
   const settings = storage.get('settings', {});
