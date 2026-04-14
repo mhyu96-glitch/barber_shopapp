@@ -138,11 +138,14 @@
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
                         <path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.34V5.33C17 4.6 16.4 4 15.67 4z"/>
                     </svg>
+                    <button onclick="document.getElementById('preview-frame').contentWindow.location.reload()" style="background: none; border: none; color: white; cursor: pointer; padding: 0; display: flex; align-items: center;" title="Reload Page">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                    </button>
                 </div>
             </div>
 
             <div class="error-msg" id="error">
-                <p>⚠️ Samsung Preview siap. Pastikan server Flutter Web berjalan di port <b>9000</b>.</p>
+                <p>⚠️ Samsung Preview siap. Jalankan <b>run_mobile.bat</b> dan pilih <b>Opsi 2</b>.</p>
             </div>
 
             <!-- This iFrames the local Flutter web server -->
