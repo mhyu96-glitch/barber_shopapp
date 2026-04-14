@@ -199,7 +199,7 @@ export function renderLogin(container) {
         }
 
         // Restore layout and redirect
-        document.getElementById('sidebar').style.display = 'block';
+        document.getElementById('sidebar').style.display = 'flex';
         document.getElementById('main-content').style.marginLeft = '';
         document.getElementById('main-content').style.width = '';
         

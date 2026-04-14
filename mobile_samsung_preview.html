@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BarberPro - Live Samsung S24 Ultra Preview</title>
+    <style>
+        body {
+            background-color: #0f0f0f;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: white;
+            flex-direction: column;
+        }
+
+        .container {
+            position: relative;
+            text-align: center;
+        }
+
+        /* Premium Samsung Galaxy S24 Ultra Frame */
+        .samsung-frame {
+            width: 412px;
+            height: 890px;
+            background: #000;
+            border-radius: 24px; /* Flatter corners for S24 Ultra */
+            position: relative;
+            padding: 10px;
+            box-shadow: 
+                0 0 0 2px #444, 
+                0 0 0 6px #222, 
+                0 30px 60px rgba(0, 0, 0, 0.9);
+            border: 1px solid #555;
+            overflow: hidden;
+        }
+
+        /* Professional Punch Hole Camera */
+        .punch-hole {
+            width: 12px;
+            height: 12px;
+            background: #0a0a0a;
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 50%;
+            z-index: 100;
+            box-shadow: inset 0 0 3px rgba(255, 255, 255, 0.2);
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 14px;
+            background: #fff;
+        }
+
+        .status-bar {
+            position: absolute;
+            top: 18px;
+            width: calc(100% - 40px);
+            left: 20px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: 500;
+            z-index: 99;
+            pointer-events: none;
+            color: #fff;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .icons {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .instructions {
+            margin-top: 30px;
+            max-width: 500px;
+            line-height: 1.6;
+            color: #aaa;
+            text-align: center;
+        }
+
+        .error-msg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            width: 80%;
+            z-index: 1;
+            color: #666;
+        }
+
+        .back-nav {
+            margin-bottom: 20px;
+        }
+
+        .back-nav a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .back-nav a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="back-nav">
+        <a href="mobile_iphone_preview.html">← Tukar ke iPhone Preview</a>
+    </div>
+
+    <div class="container">
+        <div class="samsung-frame">
+            <div class="punch-hole"></div>
+            <div class="status-bar">
+                <span id="clock">12:45</span>
+                <div class="icons">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                        <path d="M12.01 21.49L23.64 7c-.45-.34-4.88-4-11.64-4S.81 6.66.36 7l11.63 14.49.01.01.01-.01z" fill-opacity=".3"/>
+                        <path d="M0 0h24v24H0V0z" fill="none"/>
+                        <path d="M4.64 12.38L12.01 21.5l7.37-9.12C19.05 12.15 16.03 10 12.01 10s-7.04 2.15-7.37 2.38z"/>
+                    </svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                        <path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.34V5.33C17 4.6 16.4 4 15.67 4z"/>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="error-msg" id="error">
+                <p>⚠️ Samsung Preview siap. Pastikan server Flutter Web berjalan di port <b>9000</b>.</p>
+            </div>
+
+            <!-- This iFrames the local Flutter web server -->
+            <iframe src="http://127.0.0.1:9000" id="preview-frame"></iframe>
+        </div>
+    </div>
+
+    <div class="instructions">
+        <h3>Cara Menggunakan Samsung S24 Ultra Preview:</h3>
+        <ol style="text-align: left; display: inline-block;">
+            <li>Jalankan aplikasi Flutter Anda (mode Web).</li>
+            <li>Pastikan server berjalan di <b>http://127.0.0.1:9000</b>.</li>
+            <li>Refresh halaman ini untuk melihat tampilan aplikasi.</li>
+        </ol>
+    </div>
+
+    <script>
+        // Update clock
+        function updateClock() {
+            const now = new Date();
+            const h = now.getHours().toString().padStart(2, '0');
+            const m = now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('clock').innerText = `${h}:${m}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Check if iframe loaded
+        document.getElementById('preview-frame').onload = function () {
+            document.getElementById('error').style.display = 'none';
+        }
+    </script>
+</body>
+
+</html>

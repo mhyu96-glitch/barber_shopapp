@@ -99,7 +99,10 @@ export function navigateTo(page) {
     }
   } else {
     // Show sidebar for app pages
-    if (sidebar) sidebar.style.display = 'flex';
+    if (sidebar) {
+      sidebar.style.display = 'flex';
+      renderSidebar(sidebar);
+    }
     if (mainContent) {
       mainContent.style.marginLeft = '';
       mainContent.style.width = '';

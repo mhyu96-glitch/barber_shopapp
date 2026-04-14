@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_thermal_printer/flutter_thermal_printer.dart';
-import 'package:flutter_thermal_printer/utils/printer.dart';
+import '../../core/printer_service.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import '../../core/printer_service.dart';
 import '../../core/app_state.dart';
 
 class PrinterSettingsScreen extends StatefulWidget {
@@ -16,9 +14,8 @@ class PrinterSettingsScreen extends StatefulWidget {
 }
 
 class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
-  final PrinterService _printerService = PrinterService();
   bool _isScanning = false;
-  Printer? _connectedPrinter;
+  dynamic _connectedPrinter;
 
   @override
   void initState() {
@@ -61,7 +58,7 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
     }
   }
 
-  Future<void> _savePrinter(Printer printer) async {
+  Future<void> _savePrinter(dynamic printer) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('printer_name', printer.name ?? "Thermal Printer");
     await prefs.setString('printer_address', printer.address ?? "");
@@ -72,7 +69,7 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
 
   void _startScan() {
     setState(() => _isScanning = true);
-    _printerService.startScan();
+    printerService.startScan();
     Future.delayed(const Duration(seconds: 10), () {
       if (mounted) setState(() => _isScanning = false);
     });
@@ -259,8 +256,8 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
 
           // --- Device List ---
           Expanded(
-            child: StreamBuilder<List<Printer>>(
-              stream: _printerService.devicesStream,
+            child: StreamBuilder<List<dynamic>>(
+              stream: printerService.devicesStream,
               builder: (context, snapshot) {
                 final devices = snapshot.data ?? [];
                 if (devices.isEmpty) {
@@ -316,9 +313,9 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
     );
   }
 
-  Future<void> _connectAndSave(Printer printer) async {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Menghubungkan ke ${printer.name}...")));
-    final connected = await _printerService.connect(printer);
+  Future<void> _connectAndSave(dynamic printer) async {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Menghubungkan ke ${printer.name ?? 'Device'}...")));
+    final connected = await printerService.connect(printer);
     if (connected) {
       await _savePrinter(printer);
       setState(() => _connectedPrinter = printer);
@@ -345,7 +342,7 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
     }
 
     try {
-      await _printerService.printReceipt(
+      await printerService.printReceipt(
         printer: _connectedPrinter!,
         shopName: "TEST PRINT BARBERPRO",
         customerName: "Tes Pelanggan",

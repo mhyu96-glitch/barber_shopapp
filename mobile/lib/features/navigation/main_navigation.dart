@@ -33,7 +33,7 @@ class _MainNavigationState extends State<MainNavigation> {
   }
 
   Future<void> _initNotifications() async {
-    await NotificationService.initialize();
+    await notificationService.initialize();
   }
 
   void _subscribeToBookings() {
@@ -42,7 +42,7 @@ class _MainNavigationState extends State<MainNavigation> {
       final serviceName = booking['service_name'] ?? 'Layanan';
       final time = booking['time'] ?? '';
 
-      NotificationService.showBookingNotification(
+      notificationService.showBookingNotification(
         customerName: customerName,
         serviceName: serviceName,
         time: time,

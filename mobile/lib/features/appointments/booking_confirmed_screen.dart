@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_thermal_printer/flutter_thermal_printer.dart';
-import 'package:flutter_thermal_printer/utils/printer.dart';
-import 'package:intl/intl.dart';
 import '../../core/printer_service.dart';
+import 'package:intl/intl.dart';
 import '../../core/app_state.dart';
 
 class BookingConfirmedScreen extends StatefulWidget {
@@ -26,8 +24,7 @@ class BookingConfirmedScreen extends StatefulWidget {
 }
 
 class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
-  final PrinterService _printerService = PrinterService();
-  Printer? _selectedPrinter;
+  dynamic _selectedPrinter;
   bool _isPrinting = false;
 
   @override
@@ -148,7 +145,7 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
               children: [
                 const Text("Cetak Struk", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
                 Text(
-                  _selectedPrinter != null ? "Terhubung: ${_selectedPrinter!.name}" : "Printer belum dipilih",
+                  _selectedPrinter != null ? "Terhubung: ${_selectedPrinter!.name ?? 'Printer'}" : "Printer belum dipilih",
                   style: TextStyle(color: Colors.white38, fontSize: 12),
                 ),
               ],
@@ -180,7 +177,7 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
 
     setState(() => _isPrinting = true);
     try {
-      await _printerService.printReceipt(
+      await printerService.printReceipt(
         printer: _selectedPrinter!,
         shopName: widget.shopName,
         customerName: widget.customerName,
@@ -200,7 +197,7 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
   }
 
   void _showPrinterSelectionDialog() {
-    _printerService.startScan();
+    printerService.startScan();
     showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0xFF1A1A1A),
@@ -214,8 +211,8 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
               const Text("Pilih Printer Thermal",
                   style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
-              StreamBuilder<List<Printer>>(
-                stream: _printerService.devicesStream,
+              StreamBuilder<List<dynamic>>(
+                stream: printerService.devicesStream,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -238,7 +235,7 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
                         subtitle: Text(printer.address ?? "", style: const TextStyle(color: Colors.white38)),
                         onTap: () async {
                           Navigator.pop(context);
-                          final connected = await _printerService.connect(printer);
+                          final connected = await printerService.connect(printer);
                           if (connected) {
                             setState(() => _selectedPrinter = printer);
                             _handlePrint();
