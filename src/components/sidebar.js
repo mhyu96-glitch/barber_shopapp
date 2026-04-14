@@ -69,8 +69,8 @@ export function renderSidebar(container, activePage) {
           ${isSuperAdmin ? '<i class="fas fa-user-shield"></i>' : (user?.fullName?.[0] || user?.username?.[0] || 'U')}
         </div>
         <div class="user-info-mini">
-          <div class="user-name">${user?.fullName || user?.username || 'User'}</div>
-          <div class="user-role">${isSuperAdmin ? 'PLATFORM OWNER' : role}</div>
+          <div class="user-name">${user?.fullName || user?.username || 'Pengguna'}</div>
+          <div class="user-role">${isSuperAdmin ? 'PLATFORM OWNER' : (user?.role || 'Staff').toUpperCase()}</div>
         </div>
       </div>
     </div>
@@ -181,18 +181,13 @@ function _renderSuperAdminSidebar(container, user) {
         <i class="fas fa-crown" style="color: var(--primary);"></i>
         <div>
           <h1>MASTER PLATFORM</h1>
-          <div class="sidebar-branch-label">
-            <i class="fas fa-shield-halved"></i> Root Access
-          </div>
-        </div>
-      </div>
-      <div class="user-profile-mini">
-        <div class="user-avatar-mini" style="background: var(--primary); color: black;">
-          ${user?.fullName?.[0] || 'S'}
+      <div class="user-profile-mini" style="margin-top: 10px;">
+        <div class="user-avatar-mini" style="background: linear-gradient(135deg, #f1c40f, #f39c12); color: #fff;">
+          <i class="fas fa-user-shield"></i>
         </div>
         <div class="user-info-mini">
           <div class="user-name">${user?.fullName || 'Super Admin'}</div>
-          <div class="user-role">Platform Owner</div>
+          <div class="user-role">PLATFORM OWNER</div>
         </div>
       </div>
     </div>

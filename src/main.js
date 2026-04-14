@@ -142,25 +142,16 @@ async function initApp() {
     const bootHash = (window.location.hash || '').replace('#', '') || 'dashboard';
     if (sidebarEl) renderSidebar(sidebarEl, bootHash);
 
-    // Mobile setup
-    const toggle = document.createElement('button');
-    toggle.className = 'sidebar-toggle';
-    toggle.innerHTML = '<i class="fas fa-bars"></i>';
-    const overlay = document.createElement('div');
-    overlay.className = 'sidebar-overlay';
-    
-    toggle.addEventListener('click', () => {
-      sidebarEl?.classList.toggle('open');
-      overlay.classList.toggle('active');
-    });
-    
-    overlay.addEventListener('click', () => {
-      sidebarEl?.classList.remove('open');
-      overlay.classList.remove('active');
-    });
-    
-    document.body.appendChild(toggle);
-    document.body.appendChild(overlay);
+    // Sidebar Toggle Logic
+    window.toggleSidebar = (force) => {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.querySelector('.sidebar-overlay');
+      if (!sidebar) return;
+      
+      const isOpen = force !== undefined ? force : !sidebar.classList.contains('open');
+      sidebar.classList.toggle('open', isOpen);
+      overlay?.classList.toggle('active', isOpen);
+    };
 
     // 2. Real Session Verification (Local First)
     let session = null;
