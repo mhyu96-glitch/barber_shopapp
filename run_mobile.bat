@@ -1,6 +1,7 @@
 @echo off
 set FLUTTER_PATH=C:\flutter_windows_3.41.4-stable\flutter\bin\flutter.bat
 
+:start
 cls
 echo ==================================================
 echo       BarberPro Mobile Development Launcher
@@ -23,7 +24,7 @@ echo [1/2] Menjalankan BarberPro Mobile di Port 9000...
 cd mobile
 call "%FLUTTER_PATH%" run -d chrome --web-port 9000 --web-hostname 127.0.0.1
 pause
-exit
+goto start
 
 :vite
 echo.
@@ -31,4 +32,4 @@ echo [2/2] Menjalankan Web SPA Gold App di Port 9000...
 echo Pastikan Anda sudah menjalankan 'npm install' sebelumnya.
 call npm run dev
 pause
-exit
+goto start

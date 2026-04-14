@@ -153,17 +153,38 @@ async function initApp() {
       overlay?.classList.toggle('active', isOpen);
     };
 
+    // Show Loading State for better UX
+    const container = document.getElementById('page-container');
+    if (container) {
+      container.innerHTML = `
+        <div id="boot-loader" style="height: 60vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;">
+          <div class="spinner"></div>
+          <style>
+            .spinner { width: 40px; height: 40px; border: 4px solid rgba(212, 168, 55, 0.1); border-top-color: #D4AF37; border-radius: 50%; animation: spin 1s linear infinite; }
+            @keyframes spin { to { transform: rotate(360deg); } }
+          </style>
+          <div style="text-align: center;">
+            <div style="font-size: 18px; font-weight: 700; color: #fff;">Menghubungkan ke Server...</div>
+            <p style="color: rgba(255,255,255,0.5); font-size: 14px; margin-top: 8px;">Mohon tunggu sebentar</p>
+          </div>
+        </div>
+      `;
+    }
+
     // 2. Real Session Verification (Local First)
     let session = null;
     try {
-      // Use race to prevent hanging if Supabase is unreachable
+      // Use race to prevent hanging if Supabase is unreachable (4s timeout)
       const sessionRes = await Promise.race([
         supabase.auth.getSession(),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Auth Timeout')), 3000))
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Auth Timeout')), 4000))
       ]);
       session = sessionRes.data?.session;
     } catch (e) {
-      console.warn('Auth check skipped/failed:', e);
+      console.warn('Auth check delayed or failed, using local context:', e);
+      // Fallback: if we have a local user, assume we might be in offline mode
+      const localUser = storage.getCurrentUser();
+      if (localUser) session = { user: localUser };
     }
     
     // Do NOT force logout on missing Supabase session to support offline apps
