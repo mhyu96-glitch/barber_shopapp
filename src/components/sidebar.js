@@ -6,8 +6,8 @@ import { navigateTo } from '../main.js';
 import { storage } from '../utils/storage.js';
 import { showToast } from './toast.js';
 
-export function renderSidebar(container) {
-  const hash = window.location.hash.replace('#', '');
+export function renderSidebar(container, activePage) {
+  const hash = activePage || window.location.hash.replace('#', '') || 'dashboard';
   
   // 🛡️ Master Redirect: Prevent global sidebar from rendering on specific layouts
   if (hash === 'super-admin' || hash === 'login' || hash === 'feedback' || hash === 'register-shop') {
@@ -40,8 +40,9 @@ export function renderSidebar(container) {
   const activeBranch = branches.find(b => b.id === activeBranchId) || branches[0];
 
   const renderNavItem = (page, icon, label, colorHex = '#a0aec0', extraHtml = '') => {
+    const isActive = hash === page;
     return `
-      <button class="nav-item" data-page="${page}">
+      <button class="nav-item ${isActive ? 'active' : ''}" data-page="${page}">
         <div style="background: ${colorHex}15; color: ${colorHex}; border-radius: 8px; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 14px; box-shadow: 0 2px 4px ${colorHex}10;">
           <i class="${icon}"></i>
         </div>
@@ -102,7 +103,7 @@ export function renderSidebar(container) {
       ` : `
         <!-- SHOP STAFF MENU -->
         <div class="nav-section-title">Menu Utama</div>
-        <button class="nav-item active" data-page="dashboard">
+        <button class="nav-item ${hash === 'dashboard' ? 'active' : ''}" data-page="dashboard">
           <div style="background: #3498db15; color: #3498db; border-radius: 8px; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 14px;"><i class="fas fa-th-large"></i></div>
           <span style="font-weight: 600;">Dashboard</span>
           ${pendingPortal > 0 ? `<span class="nav-badge" style="background: var(--info);">${pendingPortal}</span>` : ''}

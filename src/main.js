@@ -101,7 +101,7 @@ export function navigateTo(page) {
     // Show sidebar for app pages
     if (sidebar) {
       sidebar.style.display = 'flex';
-      renderSidebar(sidebar);
+      renderSidebar(sidebar, page);
     }
     if (mainContent) {
       mainContent.style.marginLeft = '';
@@ -139,7 +139,8 @@ async function initApp() {
     initTheme();
     
     const sidebarEl = document.getElementById('sidebar');
-    if (sidebarEl) renderSidebar(sidebarEl);
+    const bootHash = (window.location.hash || '').replace('#', '') || 'dashboard';
+    if (sidebarEl) renderSidebar(sidebarEl, bootHash);
 
     // Mobile setup
     const toggle = document.createElement('button');
@@ -217,7 +218,7 @@ async function initApp() {
   window.addEventListener('supabase-synced', () => {
     navigateTo(currentPage);
     const sidebarEl = document.getElementById('sidebar');
-    if (sidebarEl) renderSidebar(sidebarEl);
+    if (sidebarEl) renderSidebar(sidebarEl, currentPage);
   });
 
   // 🔔 Instant notification for new portal bookings (via Supabase Realtime)
@@ -242,7 +243,7 @@ async function initApp() {
 
     // Refresh current page to show updated data
     navigateTo(currentPage);
-    renderSidebar(document.getElementById('sidebar'));
+    renderSidebar(document.getElementById('sidebar'), currentPage);
   });
 
   // Request browser notification permission
@@ -260,14 +261,14 @@ async function initApp() {
   window.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
       navigateTo(currentPage);
-      renderSidebar(document.getElementById('sidebar'));
+      renderSidebar(document.getElementById('sidebar'), currentPage);
     }
   });
 
   window.addEventListener('storage', (e) => {
     if (e.key && e.key.includes('appointments')) {
       navigateTo(currentPage);
-      renderSidebar(document.getElementById('sidebar'));
+      renderSidebar(document.getElementById('sidebar'), currentPage);
     }
   });
 
