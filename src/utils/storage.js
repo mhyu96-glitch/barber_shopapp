@@ -166,108 +166,77 @@ export const storage = {
     },
 
     async syncFromSupabase() {
-        console.log('Syncing from Supabase...');
+        console.log('Syncing from Supabase (Background)...');
         const shopId = getShopId();
-        const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Sync Timeout')), 5000));
         
         try {
-            await Promise.race([
-                (async () => {
-                    for (const col of SUPABASE_COLLECTIONS) {
-                        let query = supabase.from(col).select('*');
-                        if (shopId && SHOP_SCOPED_TABLES.includes(col)) {
-                            query = query.eq('shop_id', shopId);
-                        }
-                        const { data, error } = await query;
-                        if (!error && data) {
-                            const mappedData = data.map(d => this.toCamelCaseObj(d));
-                            this.set(col, mappedData);
-                        }
-                    }
-                    const settingsQuery = shopId 
-                        ? supabase.from('settings').select('*').eq('shop_id', shopId).limit(1)
-                        : supabase.from('settings').select('*').limit(1);
-                    const { data: settingsData, error: settingsError } = await settingsQuery;
-                    if (!settingsError && settingsData?.[0]) {
-                        this.set('settings', this.toCamelCaseObj(settingsData[0]));
-                    }
+            // Background process: iterate and sync
+            for (const col of SUPABASE_COLLECTIONS) {
+                let query = supabase.from(col).select('*');
+                if (shopId && SHOP_SCOPED_TABLES.includes(col)) {
+                    query = query.eq('shop_id', shopId);
+                }
+                const { data, error } = await query;
+                if (!error && data) {
+                    const mappedData = data.map(d => this.toCamelCaseObj(d));
+                    this.set(col, mappedData);
+                }
+            }
+            
+            // Sync settings
+            const settingsQuery = shopId 
+                ? supabase.from('settings').select('*').eq('shop_id', shopId).limit(1)
+                : supabase.from('settings').select('*').limit(1);
+            const { data: settingsData, error: settingsError } = await settingsQuery;
+            if (!settingsError && settingsData?.[0]) {
+                this.set('settings', this.toCamelCaseObj(settingsData[0]));
+            }
 
-                    if (shopId) {
-                        const { data: shopData } = await supabase
-                            .from('shops')
-                            .select('*')
-                            .eq('id', shopId)
-                            .single();
-                        
-                        if (shopData) {
-                            // 🚀 THE GREAT UNLOCK: All shops now have full access to all modules
-                            const allFeatures = [
-                                'dashboard', 'appointments', 'customers', 'services', 'portal',
-                                'queue', 'barbers', 'attendance', 'pos', 'reports', 'inventory',
-                                'promos', 'expenses', 'memberships', 'gallery', 'logbook'
-                            ];
-
-                            const constraints = {
-                                maxBarbers: 99, // Unlimited for everyone
-                                maxBranches: 99
-                            };
-                            
-                            this.set('active_features', allFeatures);
-                            this.set('shop_plan', 'Premium Access'); // Universal plan name
-                            this.set('shop_status', shopData.status);
-                            this.set('shop_constraints', constraints);
-                            
-                            console.log(`Open-Access Sync: All features unlocked for ${shopData.name}`);
-                        }
-                    }
-
-                    window.dispatchEvent(new Event('supabase-synced'));
-                })(),
-                timeout
-            ]);
+            if (shopId) {
+                const { data: shopData } = await supabase.from('shops').select('*').eq('id', shopId).single();
+                if (shopData) {
+                    const allFeatures = ['dashboard', 'appointments', 'customers', 'services', 'portal', 'queue', 'barbers', 'attendance', 'pos', 'reports', 'inventory', 'promos', 'expenses', 'memberships', 'gallery', 'logbook'];
+                    this.set('active_features', allFeatures);
+                    this.set('shop_plan', 'Premium Access');
+                    this.set('shop_status', shopData.status);
+                }
+            }
+            window.dispatchEvent(new Event('supabase-synced'));
         } catch (err) {
-            console.warn('Sync failed or timed out:', err);
+            console.warn('Background sync encountered an issue:', err);
         }
     },
 
     async migrateLocalToSupabase() {
-        console.log('Checking for local data migration...');
-        const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Migration Timeout')), 5000));
-        
+        console.log('Migration check...');
         try {
             const user = this.getCurrentUser();
-            if (user?.role === 'superadmin') {
-                console.log('Migration skipped: SuperAdmin context.');
-                return;
-            }
+            if (!user || user.role === 'superadmin') return;
 
-            await Promise.race([
-                (async () => {
-                    for (const col of SUPABASE_COLLECTIONS) {
-                        const localData = this.get(col, []);
-                        if (localData.length === 0) continue;
+            for (const col of SUPABASE_COLLECTIONS) {
+                const localData = this.get(col, []);
+                if (localData.length === 0) continue;
 
-                        const { count, error } = await supabase.from(col).select('*', { count: 'exact', head: true });
-                        if (!error && count === 0) {
-                            console.log(`Migrating ${localData.length} items for ${col}...`);
-                            const dbData = localData.map(item => {
-                                const row = this.toSnakeCaseObj(item);
-                                const filteredRow = {};
-                                const allowedCols = ALLOWED_COLUMNS[col] || Object.keys(row);
-                                allowedCols.forEach(key => {
-                                    if (row[key] !== undefined) filteredRow[key] = row[key];
-                                });
-                                if (filteredRow.created_at) delete filteredRow.created_at;
-                                return filteredRow;
-                            });
-                            await supabase.from(col).insert(dbData);
-                        }
+                // Non-blocking attempt per collection
+                supabase.from(col).select('*', { count: 'exact', head: true }).then(({ count, error }) => {
+                    if (!error && count === 0) {
+                        console.log(`Migrating ${localData.length} items for ${col}...`);
+                        const dbData = localData.map(item => {
+                            const row = this.toSnakeCaseObj(item);
+                            const filteredRow = {};
+                            const allowedCols = ALLOWED_COLUMNS[col] || Object.keys(row);
+                            allowedCols.forEach(key => { if (row[key] !== undefined) filteredRow[key] = row[key]; });
+                            if (filteredRow.created_at) delete filteredRow.created_at;
+                            return filteredRow;
+                        });
+                        supabase.from(col).insert(dbData).then(({error}) => {
+                            if(error) console.error(`Migration error for ${col}:`, error);
+                        });
                     }
-                })(),
-                timeout
-            ]);
+                });
+            }
         } catch (err) {
-            console.warn('Migration failed or timed out:', err);
+            console.warn('Migration encounterd an issue:', err);
         }
     },
 

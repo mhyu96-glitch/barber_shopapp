@@ -213,14 +213,31 @@ async function initApp() {
       navigateTo(hash || 'dashboard');
     }
 
-    // 4. Background Maintenance
-    storage.migrateLocalToSupabase();
-    console.log('✅ Boot sequence finished.');
+    // 4. Final Render
+    try {
+      await storage.migrateLocalToSupabase();
+      await storage.syncFromSupabase();
+    } catch (err) {
+      console.warn('Background init tasks delayed, proceeding anyway:', err);
+    }
+
+    // Hide Boot Loader
+    const loader = document.getElementById('boot-loader');
+    if (loader) loader.style.display = 'none';
+
+    navigateTo(hash || 'dashboard');
+    
   } catch (err) {
-    console.error('❌ CRITICAL BOOT ERROR:', err);
-    // Ultimate fallback to prevent total blank screen
-    if (!window.location.hash || window.location.hash === '#') {
-      window.location.hash = 'login';
+    console.error('CRITICAL: App failed to boot:', err);
+    const container = document.getElementById('page-container');
+    if (container) {
+      container.innerHTML = `
+        <div style="padding: 40px; text-align: center;">
+          <h2 style="color: var(--danger);">Gagal Memuat Aplikasi</h2>
+          <p style="margin-top: 10px;">Terjadi kesalahan teknis saat menghubungkan ke server.</p>
+          <button class="btn btn-primary" style="margin-top: 20px;" onclick="window.location.reload()">Coba Lagi</button>
+        </div>
+      `;
     }
   }
   
