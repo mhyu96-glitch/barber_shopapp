@@ -177,6 +177,29 @@ export function renderSettings(container) {
           </div>
         </div>
 
+        <!-- WhatsApp Auto-Templates -->
+        <div class="card">
+          <h3 style="margin-bottom: 8px;"><i class="fab fa-whatsapp" style="color: #25d366;"></i> Template Auto-WhatsApp</h3>
+          <p class="text-xs text-muted mb-md">Gunakan tag: <b>[NAMA_PELANGGAN], [WAKTU], [TANGGAL], [LAYANAN], [NAMA_BARBER], [NAMA_TOKO], [HARGA]</b></p>
+          <form id="wa-template-form">
+            <div class="form-group">
+              <label>Konfirmasi Booking Baru</label>
+              <textarea class="form-control" name="waConfirmation" rows="4" style="font-size: 12px; font-family: monospace;">${settings.waTemplates?.confirmation || 'Halo [NAMA_PELANGGAN]! 👋\\n\\nJanji temu Anda telah dikonfirmasi:\\n📅 Tanggal: [TANGGAL]\\n⏰ Jam: [WAKTU] WIB\\n💇 Layanan: [LAYANAN]\\n💈 Barber: [NAMA_BARBER]\\n\\n[NAMA_TOKO]\\nSampai jumpa! ✂️'}</textarea>
+            </div>
+            <div class="form-group">
+              <label>Reminder (Pengingat)</label>
+              <textarea class="form-control" name="waReminder" rows="4" style="font-size: 12px; font-family: monospace;">${settings.waTemplates?.reminder || 'Halo [NAMA_PELANGGAN]! 🔔\\n\\nReminder janji temu Anda:\\n📅 [TANGGAL]\\n⏰ Jam [WAKTU] WIB\\n💇 [LAYANAN]\\n\\nJangan lupa ya! 😊\\nBalas pesan ini jika ada perubahan.'}</textarea>
+            </div>
+            <div class="form-group">
+              <label>Resi Pembayaran (Receipt)</label>
+              <textarea class="form-control" name="waReceipt" rows="4" style="font-size: 12px; font-family: monospace;">${settings.waTemplates?.receipt || 'Terima kasih [NAMA_PELANGGAN]! 🙏\\n\\nPembayaran diterima:\\n💰 [HARGA]\\n💇 [LAYANAN]\\n📅 [TANGGAL]\\n\\n[NAMA_TOKO] ✂️'}</textarea>
+            </div>
+            <button type="button" class="btn btn-primary" id="save-wa-btn">
+              <i class="fas fa-save"></i> Simpan Template WA
+            </button>
+          </form>
+        </div>
+
         <!-- Targets -->
         <div class="card">
           <h3 style="margin-bottom: 18px;"><i class="fas fa-bullseye" style="color: var(--danger);"></i> Target Bulanan</h3>
@@ -420,6 +443,20 @@ export function renderSettings(container) {
     };
     storage.set('settings', updated);
     showToast('Target disimpan!', 'success');
+  });
+
+  // Save WA Templates
+  container.querySelector('#save-wa-btn').addEventListener('click', () => {
+    const fd = new FormData(document.getElementById('wa-template-form'));
+    const current = storage.get('settings', {});
+    const waTemplates = {
+      ...current.waTemplates,
+      confirmation: fd.get('waConfirmation'),
+      reminder: fd.get('waReminder'),
+      receipt: fd.get('waReceipt')
+    };
+    storage.set('settings', { ...current, waTemplates });
+    showToast('Template WhatsApp disimpan!', 'success');
   });
 
   // Theme

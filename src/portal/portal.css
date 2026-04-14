@@ -149,6 +149,15 @@ body {
     margin: 0 auto;
 }
 
+/* ===== GALLERY CAROUSEL ===== */
+.portal-gallery-carousel {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+}
+.portal-gallery-carousel::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+}
+
 /* ===== CARDS ===== */
 .p-card {
     background: var(--p-card);
