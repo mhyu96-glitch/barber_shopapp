@@ -407,7 +407,7 @@ function renderFooter() {
           <i class="fab fa-whatsapp"></i> ${phone}
         </a>
       </p>` : ''}
-      <p>&copy; ${new Date().getFullYear()} ${shopName}. Powered by BarberPro</p>
+      <p>&copy; ${new Date().getFullYear()} ${shopName}</p>
     </div>
   `;
 }
@@ -436,6 +436,9 @@ window.renderHome = function () {
         <p>${t('hero_sub')}</p>
       </div>
 
+      <!-- Live Queue Status -->
+      ${renderLiveQueue()}
+
       <!-- CTA -->
       <div style="text-align: center; margin-bottom: 32px;">
         <button class="p-btn p-btn-primary" onclick="startBooking()" style="font-size: 16px; padding: 14px 40px; box-shadow: 0 4px 15px var(--p-accent-glow);">
@@ -449,11 +452,14 @@ window.renderHome = function () {
           <h3 style="font-size: 16px; margin-bottom: 12px;"><i class="fas fa-camera-retro" style="color: var(--p-accent);"></i> Inspirasi Style Potongan</h3>
           <div class="portal-gallery-carousel" style="display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; scrollbar-width: none;">
             ${gallery.map(item => `
-              <div class="portal-gallery-card" style="flex: 0 0 140px; scroll-snap-align: start; border-radius: 12px; overflow: hidden; position: relative; background: var(--p-bg-card); border: 1px solid var(--p-border); aspect-ratio: 3/4; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+              <div class="portal-gallery-card" style="flex: 0 0 160px; scroll-snap-align: start; border-radius: 12px; overflow: hidden; position: relative; background: var(--p-bg-card); border: 1px solid var(--p-border); aspect-ratio: 3/4; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
                 ${item.url ? `<img src="${item.url}" style="width: 100%; height: 100%; object-fit: cover;" alt="${item.title}" loading="lazy" />` : `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--p-accent-glow), transparent);"><i class="fas fa-image" style="font-size: 32px; color: var(--p-muted);"></i></div>`}
-                <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 30px 12px 10px; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); color: white;">
+                <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 40px 12px 10px; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); color: white;">
                   <div style="font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--p-accent); margin-bottom: 2px; font-weight: 700;">${item.category || 'Portfolio'}</div>
-                  <div style="font-weight: 600; font-size: 12px; line-height: 1.2;">${item.title || 'Style Terkini'}</div>
+                  <div style="font-weight: 600; font-size: 12px; line-height: 1.2; margin-bottom: 8px;">${item.title || 'Style Terkini'}</div>
+                  <button class="p-btn p-btn-sm p-btn-primary" style="width: 100%; font-size: 10px; padding: 4px;" onclick="useLookbookStyle('${item.title}')">
+                    Gunakan Gaya Ini
+                  </button>
                 </div>
               </div>
             `).join('')}
@@ -509,7 +515,9 @@ window.renderHome = function () {
           <h3 style="font-size: 16px; margin-bottom: 12px;"><i class="fas fa-list-check" style="color: var(--p-accent);"></i> ${t('svc_title')}</h3>
           <div class="service-grid">
             ${services.map(s => `
-              <div class="p-card" style="padding: 16px;">
+              <div class="p-card" style="padding: 16px; position: relative; overflow: hidden;">
+                ${(s.name || '').toLowerCase().includes('paket') || (s.name || '').toLowerCase().includes('combo') ? 
+                  `<div style="position: absolute; top: 0; right: 0; background: var(--p-accent); color: var(--p-bg); font-size: 8px; font-weight: 900; padding: 2px 8px; border-bottom-left-radius: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Hemat</div>` : ''}
                 <div style="display: flex; align-items: center; gap: 10px;">
                   <div style="width: 40px; height: 40px; border-radius: 10px; background: var(--p-accent-glow); display: flex; align-items: center; justify-content: center; color: var(--p-accent);"><i class="fas ${s.icon || 'fa-scissors'}"></i></div>
                   <div style="flex: 1;">
@@ -553,6 +561,48 @@ window.renderHome = function () {
       </div>
     </div>
   `;
+}
+
+// === Queue & Loyalty Helpers ===
+function renderLiveQueue() {
+  const appointments = sGetAll('appointments').filter(a => {
+    const today = new Date().toISOString().split('T')[0];
+    return a.date === today && (a.status === 'pending' || a.status === 'confirmed');
+  });
+
+  if (appointments.length === 0) return '';
+
+  const avgTimePerService = 30; // 30 minutes average
+  const totalWait = appointments.length * avgTimePerService;
+
+  return `
+    <div class="live-queue-banner stagger">
+      <div class="queue-info">
+        <i class="fas fa-clock-rotate-left"></i>
+        <span>Antrian Saat Ini: <b>${appointments.length} Orang</b></span>
+      </div>
+      <div class="queue-wait">
+        <span>Estimasi Tunggu: <b>~${totalWait} Menit</b></span>
+      </div>
+    </div>
+  `;
+}
+
+window.useLookbookStyle = function(title) {
+  booking.notes = `Gaya Rambut: ${title}`;
+  startBooking();
+};
+
+async function getLoyaltyStatus(phone) {
+  if (!phone) return null;
+  const appointments = sGetAll('appointments').filter(a => 
+    a.phone === phone && a.status === 'done'
+  );
+  return {
+    count: appointments.length,
+    nextReward: 5 - (appointments.length % 5),
+    isRewardReady: appointments.length > 0 && appointments.length % 5 === 0
+  };
 }
 
 // === Map Section ===
@@ -1166,6 +1216,8 @@ function renderSuccess(code) {
   const dateStr = `${DAYS_ID[dateObj.getDay()]}, ${dateObj.getDate()} ${MONTHS_SHORT[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
   const settings = sGet('settings', {});
   const shopPhone = settings.phone || '';
+  const isDepositRequired = settings.isDepositRequired || false;
+  const depositAmount = settings.depositAmount || 0;
 
   const main = document.getElementById('portal-main');
   main.innerHTML = `
@@ -1173,6 +1225,21 @@ function renderSuccess(code) {
       <div class="success-page">
         <div class="success-icon"><i class="fas fa-check"></i></div>
         <h2 style="margin-bottom: 6px;">Booking Berhasil Dikirim!</h2>
+        
+        ${isDepositRequired ? `
+          <div class="p-card stagger" style="background: var(--p-accent-glow); border: 1px dashed var(--p-accent); padding: 20px; margin: 20px 0; text-align: left;">
+            <h4 style="color: var(--p-accent); margin-bottom: 12px;"><i class="fas fa-wallet"></i> Instruksi Pembayaran DP</h4>
+            <p style="font-size: 13px; margin-bottom: 10px;">Untuk mengunci jadwal Anda, silakan lakukan pembayaran DP sebesar:</p>
+            <div style="font-size: 24px; font-weight: 800; color: var(--p-accent); margin-bottom: 16px;">Rp ${depositAmount.toLocaleString('id')}</div>
+            <div style="font-size: 12px; line-height: 1.6;">
+              <p><b>Metode Pembayaran:</b></p>
+              <p>• Transfer Bank: <b>BCA 123456789 (a.n BarberPro)</b></p>
+              <p>• QRIS: (Tersedia di Kasir)</p>
+            </div>
+            <p style="font-size: 11px; color: var(--p-muted); margin-top: 12px;">*Harap kirimkan bukti transfer melalui tombol WhatsApp di bawah.</p>
+          </div>
+        ` : ''}
+
         <p style="color: var(--p-muted); margin-bottom: 20px;">Menunggu konfirmasi dari admin</p>
 
         <div style="margin-bottom: 20px;">
@@ -1441,16 +1508,59 @@ window.selectRecurring = function (type) {
   renderBookingInfo(); // Re-render to show selection
 };
 
-function validateStep4() {
-  const name = document.querySelector('[name="cust-name"]').value;
-  const phone = document.querySelector('[name="cust-phone"]').value;
-  const notes = document.getElementById('p-notes').value;
+async function updateLoyaltyUI() {
+  const phone = document.querySelector('[name="cust-phone"]')?.value;
+  const loyaltyContainer = document.getElementById('loyalty-status-container');
+  if (!phone || phone.length < 8 || !loyaltyContainer) return;
 
-  if (!name || !phone) return false;
-  booking.name = name;
-  booking.phone = phone;
-  booking.notes = notes;
-  return true;
+  const status = await getLoyaltyStatus(phone);
+  if (!status || status.count === 0) {
+    loyaltyContainer.innerHTML = '';
+    return;
+  }
+
+  const progress = (status.count % 5) * 20;
+  loyaltyContainer.innerHTML = `
+    <div class="loyalty-card stagger">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <span style="font-size: 11px; font-weight: 700; color: var(--p-accent);">LOYALTY PROGRAM 🏆</span>
+        <span style="font-size: 11px; font-weight: 600;">${status.count} Kunjungan</span>
+      </div>
+      <div class="loyalty-progress-bg">
+        <div class="loyalty-progress-fill" style="width: ${progress}%"></div>
+      </div>
+      <p style="font-size: 10px; margin-top: 6px; color: var(--p-muted);">
+        ${status.isRewardReady ? 
+          '<b style="color: var(--p-success);">Selamat! Anda berhak mendapatkan 1x Potong Gratis! 🎁</b>' : 
+          `Dapatkan <b>1x Potong GRATIS</b> setelah <b>${status.nextReward}</b> kunjungan lagi.`}
+      </p>
+    </div>
+  `;
+}
+
+function renderStep4(container) {
+  container.innerHTML = `
+    <h3 style="margin-bottom: 4px;">${t('step_info')}</h3>
+    <p style="color: var(--p-muted); font-size: 13px; margin-bottom: 16px;">${t('step_info_sub')}</p>
+    
+    <div class="p-card" style="padding: 20px;">
+      <div class="p-form-group">
+        <label>${t('label_name')}</label>
+        <input type="text" name="cust-name" class="p-form-control" value="${booking.name}" placeholder="Masukkan nama Anda" />
+      </div>
+      <div class="p-form-group">
+        <label>${t('label_phone')}</label>
+        <input type="tel" name="cust-phone" class="p-form-control" value="${booking.phone}" placeholder="Contoh: 08123456789" oninput="updateLoyaltyUI()" />
+      </div>
+
+      <div id="loyalty-status-container"></div>
+
+      <div class="p-form-group" style="margin-top: 16px;">
+        <label>${t('label_notes')}</label>
+        <textarea id="p-notes" class="p-form-control" style="height: 80px;" placeholder="Ada pesan khusus?">${booking.notes}</textarea>
+      </div>
+    </div>
+  `;
 }
 
 window.joinWaitlist = function (time) {

@@ -889,3 +889,66 @@ body {
     color: var(--p-info);
     margin-top: 12px;
 }
+/* --- New Portal Features Styles --- */
+.stagger {
+    animation: staggerIn 0.4s ease forwards;
+    opacity: 0;
+}
+
+@keyframes staggerIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Live Queue Banner */
+.live-queue-banner {
+    background: linear-gradient(135deg, var(--p-bg2), var(--p-card));
+    border: 1px solid var(--p-accent-glow);
+    border-radius: var(--p-radius);
+    padding: 16px;
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.queue-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+}
+
+.queue-info i {
+    color: var(--p-accent);
+    font-size: 18px;
+}
+
+.queue-wait {
+    font-size: 12px;
+    color: var(--p-muted);
+    text-align: right;
+}
+
+/* Loyalty Card */
+.loyalty-card {
+    background: var(--p-bg);
+    border-radius: var(--p-radius-sm);
+    padding: 14px;
+    margin-top: 12px;
+    border: 1px solid var(--p-border);
+}
+
+.loyalty-progress-bg {
+    height: 8px;
+    background: var(--p-input);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.loyalty-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--p-accent), var(--p-accent-lt));
+    transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
