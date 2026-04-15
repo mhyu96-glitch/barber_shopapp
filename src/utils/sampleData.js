@@ -5,6 +5,13 @@
 import { storage } from './storage.js';
 
 export function initSampleData() {
+    // Force update for new features
+    const CURRENT_DATA_VERSION = '2.1';
+    if (storage.get('data_version') !== CURRENT_DATA_VERSION) {
+        storage.set('initialized', false); // Allow re-init
+        storage.set('data_version', CURRENT_DATA_VERSION);
+    }
+
     if (storage.get('initialized')) return;
 
     // Services
