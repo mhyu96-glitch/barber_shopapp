@@ -1471,7 +1471,7 @@ window.selectRecurring = function (type) {
   renderBookingInfo(); // Re-render to show selection
 };
 
-async function updateLoyaltyUI() {
+window.updateLoyaltyUI = async function() {
   const phone = document.querySelector('[name="cust-phone"]')?.value;
   const loyaltyContainer = document.getElementById('loyalty-status-container');
   if (!phone || phone.length < 8 || !loyaltyContainer) return;

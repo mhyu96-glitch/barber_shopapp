@@ -18,7 +18,7 @@ export function getShopId() {
 const ALLOWED_COLUMNS = {
     services: ['id', 'name', 'price', 'duration', 'description', 'icon', 'category', 'consumables', 'shop_id'],
     barbers: ['id', 'name', 'phone', 'specialization', 'rating', 'total_ratings', 'work_days', 'work_start', 'work_end', 'avatar', 'bio', 'base_salary', 'commission_rate', 'commission_type', 'commission_fixed', 'shop_id'],
-    customers: ['id', 'name', 'phone', 'email', 'avatar', 'total_appointments', 'total_spent', 'last_visit', 'notes', 'tags', 'loyalty_points', 'loyalty_tier', 'member_since', 'shop_id'],
+    customers: ['id', 'name', 'phone', 'email', 'avatar', 'total_appointments', 'total_spent', 'last_visit', 'first_visit', 'notes', 'tags', 'loyalty_points', 'loyalty_tier', 'member_since', 'shop_id'],
     appointments: ['id', 'barber_id', 'customer_id', 'service_id', 'date', 'time', 'status', 'total_price', 'price', 'source', 'notes', 'shop_id'],
     payments: ['id', 'appointment_id', 'barber_id', 'commission_amount', 'amount', 'method', 'status', 'reference', 'date', 'customer_id', 'customer_name', 'shop_id'],
     inventory: ['id', 'name', 'category', 'stock', 'unit', 'min_stock', 'price', 'last_restock', 'shop_id'],
@@ -111,10 +111,22 @@ export const storage = {
         allItems.push(item);
         this.set(collection, allItems);
 
+        // Strict Filtering for Supabase
         const dbTable = collection;
         if (SUPABASE_COLLECTIONS.includes(dbTable)) {
             const row = { ...item };
-            const dbData = this.toSnakeCaseObj(row);
+            let dbData = this.toSnakeCaseObj(row);
+            
+            // Remove calculated or non-existent columns
+            const allowed = ALLOWED_COLUMNS[dbTable] || [];
+            if (allowed.length > 0) {
+                const cleaned = {};
+                allowed.forEach(col => {
+                    if (dbData[col] !== undefined) cleaned[col] = dbData[col];
+                });
+                dbData = cleaned;
+            }
+
             if (dbData.created_at) delete dbData.created_at; 
             supabase.from(dbTable).insert([dbData]).then(({error}) => {
                 if(error) console.error('Supabase Insert Error:', error);
@@ -133,10 +145,23 @@ export const storage = {
 
             const dbTable = collection;
             if (SUPABASE_COLLECTIONS.includes(dbTable)) {
-                const dbUpdates = this.toSnakeCaseObj(updates);
-                supabase.from(dbTable).update(dbUpdates).eq('id', id).then(({error}) => {
-                    if(error) console.error('Supabase Update Error:', error);
-                });
+                let dbUpdates = this.toSnakeCaseObj(updates);
+                
+                // Strict Filtering for Updates
+                const allowed = ALLOWED_COLUMNS[dbTable] || [];
+                if (allowed.length > 0) {
+                    const cleaned = {};
+                    allowed.forEach(col => {
+                        if (dbUpdates[col] !== undefined) cleaned[col] = dbUpdates[col];
+                    });
+                    dbUpdates = cleaned;
+                }
+
+                if (Object.keys(dbUpdates).length > 0) {
+                    supabase.from(dbTable).update(dbUpdates).eq('id', id).then(({error}) => {
+                        if(error) console.error('Supabase Update Error:', error);
+                    });
+                }
             }
 
             return allItems[index];
