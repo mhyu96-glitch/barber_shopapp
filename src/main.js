@@ -30,9 +30,6 @@ import { renderPOS } from './pages/pos.js';
 import { renderSuperAdmin } from './pages/superAdmin.js';
 import { renderFeedbackPublic } from './pages/feedback_public.js';
 
-// Initialize sample data
-initSampleData();
-
 // Initialize theme
 initTheme();
 
@@ -217,6 +214,8 @@ async function initApp() {
     try {
       await storage.migrateLocalToSupabase();
       await storage.syncFromSupabase();
+      // Initialize/Sync sample data after initial cloud sync
+      initSampleData();
     } catch (err) {
       console.warn('Background init tasks delayed, proceeding anyway:', err);
     }

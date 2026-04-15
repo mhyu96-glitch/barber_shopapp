@@ -6,12 +6,17 @@ import { storage } from './storage.js';
 
 export function initSampleData() {
     // Current data version for synchronization
-    const CURRENT_DATA_VERSION = '2.2';
+    const CURRENT_DATA_VERSION = '2.3';
     const lastVersion = storage.get('data_version', '0');
 
-    if (lastVersion === CURRENT_DATA_VERSION) return;
+    console.log(`🔍 Checking Data Consistency (v${lastVersion} -> v${CURRENT_DATA_VERSION})...`);
 
-    console.log(`📦 Syncing Defaults (v${lastVersion} -> v${CURRENT_DATA_VERSION})...`);
+    if (lastVersion === CURRENT_DATA_VERSION) {
+        console.log('✅ Data already at latest version.');
+        return;
+    }
+
+    console.log('🚀 Synchronizing New Default Services & Lookbook...');
 
     // Services Catalog
     const defaultServices = [
