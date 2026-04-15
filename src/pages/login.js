@@ -46,7 +46,7 @@ export function renderLogin(container) {
       <div class="absolute inset-0 bg-gradient-to-t from-[#1c1b1b] to-transparent"></div>
     </div>
 
-    <div class="px-10 pb-12 pt-4">
+    <div class="px-6 sm:px-10 pb-12 pt-4">
       <header class="mb-10">
         <h2 class="text-2xl font-bold tracking-tight text-[#e5e2e1]" style="font-family: 'Epilogue', sans-serif;">Welcome Back</h2>
         <p class="text-[#d0c5af] text-sm mt-1">Sign in to your professional workspace.</p>

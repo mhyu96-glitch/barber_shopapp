@@ -45,7 +45,7 @@ export async function renderSignup(container) {
     </div>
 
     <div class="card" style="max-width: 500px; margin: 30px auto; border: 1px solid var(--border-accent); border-radius: var(--radius-lg); box-shadow: var(--shadow-md);">
-      <div style="padding: 24px;">
+      <div style="padding: 16px 20px;">
         <h3 style="margin-top: 0; margin-bottom: 24px; font-size: 18px; color: var(--text-primary); border-bottom: 1px solid var(--border-light); padding-bottom: 12px;">
           <i class="fas fa-id-card text-accent mr-[8px]"></i> Profil & Akses Staf
         </h3>

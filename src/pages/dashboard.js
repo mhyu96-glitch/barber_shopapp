@@ -525,7 +525,7 @@ function renderTargetSection(appointments, customers, now) {
   const apptPct = Math.min(Math.round((monthAppts.length / appointmentTarget) * 100), 150);
 
   return `
-    <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 20px;">
+    <div class="stats-grid grid-responsive-3" style="margin-bottom: 20px;">
       <div class="card target-card" style="padding: 16px 18px;">
         <div class="flex-between">
           <span class="text-sm fw-600">💰 Target Pendapatan</span>
@@ -737,7 +737,7 @@ function renderPeakHoursHeatmap(appointments) {
         <i class="fas fa-fire" style="color: var(--danger);"></i> Peak Hours (30 Hari)
       </h3>
       <div style="overflow-x: auto;">
-        <div style="display: grid; grid-template-columns: 40px repeat(${hours.length}, 1fr); gap: 2px; min-width: 400px;">
+        <div style="display: grid; grid-template-columns: 40px repeat(${hours.length}, 1fr); gap: 2px;">
           <div></div>
           ${hours.map(h => `<div style="text-align: center; font-size: 9px; color: var(--text-muted);">${h.split(':')[0]}</div>`).join('')}
           ${daysShort.map((day, di) => `
@@ -794,12 +794,12 @@ function renderBarberPerformance(appointments) {
         ${podium.map((b, i) => {
           const rank = b === stats[0] ? 1 : b === stats[1] ? 2 : 3;
           return `
-            <div class="podium-item rank-${rank}" style="width: 33%;">
-              <div class="rank-badge">${rank}</div>
+            <div class="podium-item rank-${rank}" style="width: 32%; flex-shrink: 0;">
+              <div class="rank-badge" style="width: 20px; height: 20px; font-size: 10px;">${rank}</div>
               <img src="${b.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + b.name}" class="barber-avatar-l" />
               <div class="fw-700 text-xs text-center" style="margin-bottom: 4px;">${b.name.split(' ')[0]}</div>
               <div class="podium-rank podium-rank-${rank}">
-                <div class="text-xs fw-800" style="color: rgba(255,255,255,0.7);">${formatter.currency(b.monthRevenue).split(',')[0]}</div>
+                <div class="text-[9px] fw-800" style="color: rgba(255,255,255,0.7); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${formatter.currency(b.monthRevenue).split(',')[0]}</div>
               </div>
             </div>
           `;
@@ -902,7 +902,7 @@ function renderAIAdvisor(appointments, customers, settings) {
         <span class="badge badge-gold">Premium</span>
       </div>
       
-      <div class="insights-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
+      <div class="insights-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px;">
         ${insights.length > 0 ? insights.map(i => `
           <div class="insight-item" style="display: flex; gap: 12px; padding: 12px; background: var(--bg-input); border-radius: var(--radius-sm); border-left: 3px solid var(--${i.type});">
             <div class="insight-icon" style="color: var(--${i.type}); font-size: 18px; margin-top: 2px;">
@@ -914,7 +914,7 @@ function renderAIAdvisor(appointments, customers, settings) {
             </div>
           </div>
         `).join('') : `
-          <p class="text-sm text-muted">Belum ada saran saat ini. Terus kumpulkan data untuk mendapatkan insight!</p>
+          <p class="text-sm text-muted text-center py-10">Belum ada saran saat ini. Terus kumpulkan data untuk mendapatkan insight!</p>
         `}
       </div>
     </div>
@@ -968,7 +968,7 @@ async function renderAttendanceWidget(container) {
     if (role === 'admin') {
       const onlineCount = logs ? logs.filter(l => !l.check_out).length : 0;
       container.innerHTML = `
-        <div class="card" style="border-left: 4px solid var(--success); display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; margin-bottom: 24px;">
+        <div class="card" style="border-left: 4px solid var(--success); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; padding: 16px; gap: 12px; margin-bottom: 24px;">
           <div style="display: flex; align-items: center; gap: 16px;">
             <div class="stat-icon" style="background: var(--success-bg); color: var(--success); width: 44px; height: 44px; font-size: 18px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center;">
                 <i class="fas fa-user-check"></i>
@@ -986,7 +986,7 @@ async function renderAttendanceWidget(container) {
     } else {
       const activeLog = logs ? logs.find(l => l.profile_id === user.id && !l.check_out) : null;
       container.innerHTML = `
-        <div class="card" style="border-left: 4px solid ${activeLog ? 'var(--success)' : 'var(--warning)'}; display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; margin-bottom: 24px;">
+        <div class="card" style="border-left: 4px solid ${activeLog ? 'var(--success)' : 'var(--warning)'}; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; padding: 16px; gap: 12px; margin-bottom: 24px;">
           <div style="display: flex; align-items: center; gap: 16px;">
             <div class="stat-icon" style="background: ${activeLog ? 'var(--success-bg)' : 'var(--warning-bg)'}; color: ${activeLog ? 'var(--success)' : 'var(--warning)'}; width: 44px; height: 44px; font-size: 18px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center;">
                 <i class="fas ${activeLog ? 'fa-clock' : 'fa-door-open'}"></i>
