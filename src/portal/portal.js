@@ -996,47 +996,6 @@ window.selectTime = function (time) {
 };
 
 // === Step 4: Data Pelanggan ===
-function renderStep4(container) {
-  container.innerHTML = `
-    <h3 style="margin-bottom: 4px;">${t('step_info')}</h3>
-    <p style="color: var(--p-muted); font-size: 13px; margin-bottom: 16px;">${t('step_info_sub')}</p>
-    <form id="booking-form">
-      <div class="p-card" style="padding: 24px;">
-        <div class="p-form-group">
-          <label>${t('label_name')} *</label>
-          <input type="text" class="p-form-control" name="cust-name" value="${booking.name}" placeholder="John Doe" required />
-        </div>
-        <div class="p-form-group">
-          <label>${t('label_phone')} *</label>
-          <input type="tel" class="p-form-control" name="cust-phone" value="${booking.phone}" placeholder="08xxxxxxxxxx" required />
-        </div>
-        <div class="p-form-group">
-          <label>${t('label_notes')}</label>
-          <textarea class="p-form-control" id="p-notes" placeholder="e.g., Taper fade..." rows="2">${booking.notes}</textarea>
-        </div>
-
-        <!-- Recurring Appointment Option -->
-        <div style="margin-top: 10px; padding: 15px; background: rgba(212,168,67,0.05); border: 1px dashed var(--p-border); border-radius: var(--p-radius);">
-          <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-            <input type="checkbox" id="p-recurring" style="width: 18px; height: 18px; cursor: pointer;" ${booking.recurringType ? 'checked' : ''} onchange="toggleRecurringGroup()">
-            <span style="font-weight: 600; font-size: 14px; color: var(--p-text1);">${t('label_recurring_toggle')}</span>
-          </label>
-          <div id="recurring-options" style="margin-top: 12px; display: ${booking.recurringType ? 'block' : 'none'}; padding-left: 28px; border-left: 2px solid var(--p-accent);">
-            <p class="text-sm text-muted" style="margin-bottom: 8px; font-size: 12px;">${t('label_recurring_sub')}</p>
-            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-              ${['Setiap 2 Minggu', 'Setiap Bulan (4 Minggu)', 'Setiap 2 Bulan'].map(type => `
-                <button class="p-btn p-btn-sm ${booking.recurringType === type ? 'p-btn-primary' : 'p-btn-secondary'}" 
-                  onclick="selectRecurring('${type}')" style="font-size: 12px; padding: 6px 10px;">
-                  ${type}
-                </button>
-              `).join('')}
-            </div>
-          </div>
-        </div>
-      </div>
-    </form>
-  `;
-}
 
 // === Step 5: Review ===
 function renderStep5(container) {
