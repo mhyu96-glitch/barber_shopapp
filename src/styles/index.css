@@ -190,6 +190,7 @@ textarea {
     margin-left: 0;
     padding: 12px;
     padding-top: 74px;
+    padding-bottom: 80px;
     width: 100%;
     overflow-x: hidden;
   }
@@ -600,8 +601,21 @@ body.sidebar-collapsed .sidebar-collapse-btn {
 
 @media (max-width: 480px) {
   .stats-grid {
-    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-    gap: 8px;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px;
+  }
+  .stat-card {
+    padding: 16px 12px !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center;
+    gap: 10px !important;
+  }
+  .stat-icon {
+    width: 44px !important;
+    height: 44px !important;
+    font-size: 18px !important;
+    margin: 0 auto;
   }
   .grid-responsive-3 {
     grid-template-columns: 1fr !important;

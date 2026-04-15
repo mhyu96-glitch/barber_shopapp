@@ -455,9 +455,11 @@ window.renderHome = function () {
         <div style="margin-bottom: 32px;">
           <h3 style="font-size: 16px; margin-bottom: 12px;"><i class="fas fa-camera-retro" style="color: var(--p-accent);"></i> Inspirasi Style Potongan</h3>
           <div class="portal-gallery-carousel" style="display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; scrollbar-width: none;">
-            ${gallery.map(item => `
+            ${gallery.map(item => {
+    const imgUrl = item.image_url || item.url || item.image;
+    return `
               <div class="portal-gallery-card" style="flex: 0 0 160px; scroll-snap-align: start; border-radius: 12px; overflow: hidden; position: relative; background: var(--p-bg-card); border: 1px solid var(--p-border); aspect-ratio: 3/4; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-                ${item.url ? `<img src="${item.url}" style="width: 100%; height: 100%; object-fit: cover;" alt="${item.title}" loading="lazy" />` : `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--p-accent-glow), transparent);"><i class="fas fa-image" style="font-size: 32px; color: var(--p-muted);"></i></div>`}
+                ${imgUrl ? `<img src="${imgUrl}" style="width: 100%; height: 100%; object-fit: cover;" alt="${item.title}" loading="lazy" />` : `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--p-accent-glow), transparent);"><i class="fas fa-image" style="font-size: 32px; color: var(--p-muted);"></i></div>`}
                 <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 40px 12px 10px; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); color: white;">
                   <div style="font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--p-accent); margin-bottom: 2px; font-weight: 700;">${item.category || 'Portfolio'}</div>
                   <div style="font-weight: 600; font-size: 12px; line-height: 1.2; margin-bottom: 8px;">${item.title || 'Style Terkini'}</div>
@@ -466,7 +468,8 @@ window.renderHome = function () {
                   </button>
                 </div>
               </div>
-            `).join('')}
+            `;
+  }).join('')}
           </div>
         </div>
       ` : ''}

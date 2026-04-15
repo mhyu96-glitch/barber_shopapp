@@ -6,7 +6,7 @@ import { storage } from './storage.js';
 
 export function initSampleData() {
     // Current data version for synchronization
-    const CURRENT_DATA_VERSION = '2.3';
+    const CURRENT_DATA_VERSION = '2.4';
     const lastVersion = storage.get('data_version', '0');
 
     console.log(`🔍 Checking Data Consistency (v${lastVersion} -> v${CURRENT_DATA_VERSION})...`);
@@ -40,12 +40,12 @@ export function initSampleData() {
 
     // Style Lookbook
     const defaultGallery = [
-        { title: 'Textured Crop Fade', description: 'Classic fade dengan clean lines', category: 'Modern', url: '/gallery/textured_crop_fade.png' },
-        { title: 'Classic Pompadour', description: 'Undercut stylish untuk look modern', category: 'Classic', url: '/gallery/classic_pompadour.png' },
-        { title: 'Skin Fade Buzz Cut', description: 'Pompadour klasik ala vintage', category: 'Simple', url: '/gallery/skin_fade_buzz_cut.png' },
-        { title: 'Side Part Quiff', description: 'Potong pendek simple dan clean', category: 'Modern', url: '/gallery/side_part_quiff.png' },
-        { title: 'Modern Mullet', description: 'Gaya mullet tren masa kini', category: 'Trendy', url: '/gallery/modern_mullet_fade.png' },
-        { title: 'Classic Crew Cut', description: 'Potongan crew cut rapi dan profesional', category: 'Classic', url: '/gallery/classic_crew_cut.png' },
+        { title: 'Textured Crop Fade', description: 'Classic fade dengan clean lines', category: 'Modern', image_url: '/gallery/textured_crop_fade.png' },
+        { title: 'Classic Pompadour', description: 'Undercut stylish untuk look modern', category: 'Classic', image_url: '/gallery/classic_pompadour.png' },
+        { title: 'Skin Fade Buzz Cut', description: 'Pompadour klasik ala vintage', category: 'Simple', image_url: '/gallery/skin_fade_buzz_cut.png' },
+        { title: 'Side Part Quiff', description: 'Potong pendek simple dan clean', category: 'Modern', image_url: '/gallery/side_part_quiff.png' },
+        { title: 'Modern Mullet', description: 'Gaya mullet tren masa kini', category: 'Trendy', image_url: '/gallery/modern_mullet_fade.png' },
+        { title: 'Classic Crew Cut', description: 'Potongan crew cut rapi dan profesional', category: 'Classic', image_url: '/gallery/classic_crew_cut.png' },
     ];
 
     // Incremental Sync logic
