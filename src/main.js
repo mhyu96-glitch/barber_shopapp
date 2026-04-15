@@ -30,8 +30,8 @@ import { renderPOS } from './pages/pos.js';
 import { renderSuperAdmin } from './pages/superAdmin.js';
 import { renderFeedbackPublic } from './pages/feedback_public.js';
 
-// Initialize sample data (disabled for Supabase real DB)
-// initSampleData();
+// Initialize sample data
+initSampleData();
 
 // Initialize theme
 initTheme();

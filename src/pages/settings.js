@@ -4,6 +4,7 @@
 // ========================================
 
 import { storage } from '../utils/storage.js';
+import { initSampleData } from '../utils/sampleData.js';
 import { showToast } from '../components/toast.js';
 import { openModal, closeModal } from '../components/modal.js';
 import { receipt } from '../utils/receipt.js';
@@ -335,7 +336,10 @@ export function renderSettings(container) {
             <button class="btn btn-secondary btn-block" id="sync-tier-btn" style="border: 1px dashed var(--accent);">
               <i class="fas fa-sync-alt"></i> Sync Paket Berlangganan
             </button>
-            <p class="text-[10px] text-muted mt-xs italic">Gunakan ini jika fitur paket Anda belum terupdate setelah pembayaran.</p>
+            <button class="btn btn-secondary btn-block mt-sm" id="sync-defaults-btn" style="border: 1px dashed var(--info);">
+              <i class="fas fa-database"></i> Sinkron Layanan Default & Lookbook
+            </button>
+            <p class="text-[10px] text-muted mt-xs italic">Gunakan ini jika fitur paket atau layanan baru tidak muncul.</p>
           </div>
         </div>
 
@@ -546,6 +550,26 @@ export function renderSettings(container) {
       setTimeout(() => location.reload(), 1000);
     } catch (err) {
       showToast('Gagal sinkronisasi: ' + err.message, 'danger');
+      btn.disabled = false;
+      btn.innerHTML = original;
+    }
+  });
+
+  container.querySelector('#sync-defaults-btn')?.addEventListener('click', async (e) => {
+    const btn = e.currentTarget;
+    const original = btn.innerHTML;
+    try {
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sinkronisasi...';
+      
+      // Force update by clearing the version first
+      storage.remove('data_version');
+      initSampleData();
+      
+      showToast('Layanan & Lookbook berhasil disinkronkan!', 'success');
+      setTimeout(() => location.reload(), 1500);
+    } catch (err) {
+      showToast('Gagal sinkron: ' + err.message, 'danger');
       btn.disabled = false;
       btn.innerHTML = original;
     }
