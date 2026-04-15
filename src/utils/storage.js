@@ -136,7 +136,14 @@ export const storage = {
 
             if (dbData.created_at) delete dbData.created_at; 
             supabase.from(dbTable).insert([dbData]).then(({error}) => {
-                if(error) console.error('Supabase Insert Error:', error);
+                if(error) {
+                    // Suppress noise for missing columns (PGRST204) until user runs migration
+                    if (error.code === 'PGRST204') {
+                        console.warn(`⏳ Cloud Sync Pending: Tabel '${dbTable}' perlu diupdate dengan SQL v2.`);
+                    } else {
+                        console.error(`❌ Supabase Sync Error [${dbTable}]:`, error.message);
+                    }
+                }
             });
         }
 
