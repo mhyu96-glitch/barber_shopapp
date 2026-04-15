@@ -439,9 +439,11 @@ body.sidebar-collapsed .sidebar-collapse-btn {
 
 @media (max-width: 768px) {
   .sidebar {
+    width: 280px !important;
     transform: translateX(-100%) !important;
     box-shadow: none;
     left: 0;
+    visibility: hidden;
   }
 
   .sidebar.open {
@@ -449,7 +451,9 @@ body.sidebar-collapsed .sidebar-collapse-btn {
     left: 0 !important;
     box-shadow: 20px 0 50px rgba(0,0,0,0.8);
     display: flex !important;
+    visibility: visible !important;
     z-index: 2000000 !important;
+    width: 280px !important;
   }
 
   .sidebar-toggle {
@@ -880,9 +884,11 @@ textarea.form-control {
 /* Responsive tweaks */
 @media (max-width: 768px) {
   :root {
-    --sidebar-width: 0px;
     --sidebar-collapsed: 0px;
     --header-height: auto;
+  }
+  .main-content {
+    margin-left: 0 !important;
   }
 }
 
