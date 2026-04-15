@@ -6,7 +6,7 @@ import { storage } from './storage.js';
 
 export function initSampleData() {
     // Current data version for synchronization
-    const CURRENT_DATA_VERSION = '2.6';
+    const CURRENT_DATA_VERSION = '2.7';
     const lastVersion = storage.get('data_version', '0');
 
     console.log(`🔍 Checking Data Consistency (v${lastVersion} -> v${CURRENT_DATA_VERSION})...`);
@@ -15,16 +15,16 @@ export function initSampleData() {
         // Safe Check: If gallery is empty (could be overwritten by empty cloud sync), repopulate
         const currentGallery = storage.getAll('gallery');
         if (currentGallery.length === 0) {
-            console.log('🔄 Gallery empty but version v2.6 detected. Repopulating for safety...');
+            console.log('🔄 Gallery empty but version v2.7 detected. Repopulating for safety...');
         } else {
             console.log('✅ Data already at latest version.');
             return;
         }
     }
 
-    // Hard reset for version jumps that changed data structures (gallery/promos)
-    if (parseFloat(lastVersion) < 2.6) {
-        console.log('🧹 Performing Clean Reset for Gallery & Promos (v2.6 upgrade)...');
+    // Hard reset for version jumps that changed data structures (v2.6 and v2.7)
+    if (parseFloat(lastVersion) < 2.7) {
+        console.log('🧹 Performing Clean Reset for Cloud Sync (v2.7 upgrade)...');
         storage.clearCollection('gallery');
         storage.clearCollection('promos');
     }
