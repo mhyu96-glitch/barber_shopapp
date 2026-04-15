@@ -6,7 +6,7 @@ import { storage } from './storage.js';
 
 export function initSampleData() {
     // Force update for new features
-    const CURRENT_DATA_VERSION = '2.1';
+    const CURRENT_DATA_VERSION = '2.2';
     if (storage.get('data_version') !== CURRENT_DATA_VERSION) {
         storage.set('initialized', false); // Allow re-init
         storage.set('data_version', CURRENT_DATA_VERSION);
@@ -29,6 +29,8 @@ export function initSampleData() {
         { id: 's11', name: 'Cuci Rambut Relaksasi', price: 0, duration: 15, icon: 'fa-shower', description: 'Cuci rambut bersih dengan pijat' },
         { id: 's12', name: 'Aplikasi Hair Tonic', price: 0, duration: 5, icon: 'fa-bottle-droplet', description: 'Nutrisi akar rambut dengan hair tonic premium' },
         { id: 's13', name: 'Styling & Finish', price: 0, duration: 10, icon: 'fa-wind', description: 'Styling akhir menggunakan hair dryer & wax/pomade' },
+        { id: 's14', name: 'Premium Aftershave', price: 0, duration: 5, icon: 'fa-spray-can', description: 'Kesegaran maksimal setelah cukur' },
+        { id: 's15', name: 'Hair Tattoo / Design Line', price: 0, duration: 10, icon: 'fa-wand-magic', description: 'Sentuhan seni garis rambut' },
     ];
     storage.set('services', services);
 
@@ -169,7 +171,7 @@ export function initSampleData() {
         { id: 'g3', title: 'Skin Fade Buzz Cut', description: 'Pompadour klasik ala vintage', category: 'Simple', url: '/gallery/skin_fade_buzz_cut.png' },
         { id: 'g4', title: 'Side Part Quiff', description: 'Potong pendek simple dan clean', category: 'Modern', url: '/gallery/side_part_quiff.png' },
         { id: 'g5', title: 'Modern Mullet', description: 'Gaya mullet tren masa kini', category: 'Trendy', url: '/gallery/modern_mullet_fade.png' },
-        { id: 'g6', title: 'Crew Cut', description: 'Potongan crew cut rapi', category: 'Classic', url: '' },
+        { id: 'g6', title: 'Classic Crew Cut', description: 'Potongan crew cut rapi dan profesional', category: 'Classic', url: '/gallery/classic_crew_cut.png' },
     ];
     storage.set('gallery', gallery);
 
