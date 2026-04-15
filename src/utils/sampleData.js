@@ -12,8 +12,14 @@ export function initSampleData() {
     console.log(`🔍 Checking Data Consistency (v${lastVersion} -> v${CURRENT_DATA_VERSION})...`);
 
     if (lastVersion === CURRENT_DATA_VERSION) {
-        console.log('✅ Data already at latest version.');
-        return;
+        // Safe Check: If gallery is empty (could be overwritten by empty cloud sync), repopulate
+        const currentGallery = storage.getAll('gallery');
+        if (currentGallery.length === 0) {
+            console.log('🔄 Gallery empty but version v2.6 detected. Repopulating for safety...');
+        } else {
+            console.log('✅ Data already at latest version.');
+            return;
+        }
     }
 
     // Hard reset for version jumps that changed data structures (gallery/promos)
