@@ -17,6 +17,11 @@ export function initSampleData() {
         { id: 's6', name: 'Hair Wash', price: 15000, duration: 15, icon: 'fa-shower', description: 'Cuci rambut + pijat kepala' },
         { id: 's7', name: 'Kids Cut', price: 25000, duration: 20, icon: 'fa-child', description: 'Potong rambut anak-anak' },
         { id: 's8', name: 'Pomade Styling', price: 45000, duration: 30, icon: 'fa-wand-magic-sparkles', description: 'Styling dengan pomade premium' },
+        { id: 's9', name: 'Konsultasi Gaya Rambut', price: 0, duration: 10, icon: 'fa-comments', description: 'Diskusi gaya rambut yang cocok untuk Anda' },
+        { id: 's10', name: 'Pijat Kepala & Bahu', price: 0, duration: 15, icon: 'fa-hand-holding-heart', description: 'Relaksasi pijat kepala dan bahu' },
+        { id: 's11', name: 'Cuci Rambut Relaksasi', price: 0, duration: 15, icon: 'fa-shower', description: 'Cuci rambut bersih dengan pijat' },
+        { id: 's12', name: 'Aplikasi Hair Tonic', price: 0, duration: 5, icon: 'fa-bottle-droplet', description: 'Nutrisi akar rambut dengan hair tonic premium' },
+        { id: 's13', name: 'Styling & Finish', price: 0, duration: 10, icon: 'fa-wind', description: 'Styling akhir menggunakan hair dryer & wax/pomade' },
     ];
     storage.set('services', services);
 
@@ -152,12 +157,12 @@ export function initSampleData() {
 
     // Gallery styles
     const gallery = [
-        { id: 'g1', name: 'Fade Cut', description: 'Classic fade dengan clean lines', category: 'Modern', image: '' },
-        { id: 'g2', name: 'Undercut', description: 'Undercut stylish untuk look modern', category: 'Modern', image: '' },
-        { id: 'g3', name: 'Pompadour', description: 'Pompadour klasik ala vintage', category: 'Classic', image: '' },
-        { id: 'g4', name: 'Buzz Cut', description: 'Potong pendek simple dan clean', category: 'Simple', image: '' },
-        { id: 'g5', name: 'Mullet', description: 'Gaya mullet tren masa kini', category: 'Trendy', image: '' },
-        { id: 'g6', name: 'Crew Cut', description: 'Potongan crew cut rapi', category: 'Classic', image: '' },
+        { id: 'g1', title: 'Textured Crop Fade', description: 'Classic fade dengan clean lines', category: 'Modern', url: 'gallery/textured_crop_fade.png' },
+        { id: 'g2', title: 'Classic Pompadour', description: 'Undercut stylish untuk look modern', category: 'Classic', url: 'gallery/classic_pompadour.png' },
+        { id: 'g3', title: 'Skin Fade Buzz Cut', description: 'Pompadour klasik ala vintage', category: 'Simple', url: 'gallery/skin_fade_buzz_cut.png' },
+        { id: 'g4', title: 'Side Part Quiff', description: 'Potong pendek simple dan clean', category: 'Modern', url: 'gallery/side_part_quiff.png' },
+        { id: 'g5', title: 'Modern Mullet', description: 'Gaya mullet tren masa kini', category: 'Trendy', url: 'gallery/modern_mullet_fade.png' },
+        { id: 'g6', title: 'Crew Cut', description: 'Potongan crew cut rapi', category: 'Classic', url: '' },
     ];
     storage.set('gallery', gallery);
 
