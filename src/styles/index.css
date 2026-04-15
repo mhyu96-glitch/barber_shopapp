@@ -586,7 +586,7 @@ body.sidebar-collapsed .sidebar-collapse-btn {
 /* Stats Grid */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 16px;
   margin-bottom: 24px;
 }
@@ -2145,3 +2145,26 @@ tbody tr:last-child td {
 .rank-1 .barber-avatar-l { border-color: #FFD700; }
 .rank-2 .barber-avatar-l { border-color: #C0C0C0; }
 .rank-3 .barber-avatar-l { border-color: #CD7F32; }
+
+/* --- Responsive POS Layout --- */
+.pos-container {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 16px;
+  height: calc(100vh - 80px);
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .pos-container {
+    grid-template-columns: 1fr;
+    height: auto;
+    overflow: visible;
+  }
+
+  .pos-luxury-sidebar {
+    width: 100% !important;
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+}

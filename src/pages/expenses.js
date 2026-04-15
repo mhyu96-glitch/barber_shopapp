@@ -63,7 +63,7 @@ export function renderExpenses(container) {
     </div>
 
     <!-- Summary Cards -->
-    <div class="stats-grid stagger" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 20px;">
+    <div class="stats-grid stagger" style="margin-bottom: 20px;">
       <div class="card stat-card" style="border-left: 3px solid var(--success);">
         <div class="stat-icon green"><i class="fas fa-arrow-up"></i></div>
         <div class="stat-info">

@@ -42,13 +42,13 @@ export function renderPOS(container) {
     selectedPaymentDetail = '';
 
     container.innerHTML = `
-    <div class="pos-container" style="display: grid; grid-template-columns: 1fr 380px; gap: 16px; height: calc(100vh - 80px); overflow: hidden;">
+    <div class="pos-container">
         
         <!-- Left: Service Selection ... -->
         <div class="pos-main card" style="display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius-xl);">
-            <div class="pos-header" style="padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: rgba(var(--accent-rgb), 0.02);">
+            <div class="pos-header" style="padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px;">
                 <h2 style="margin: 0; font-size: 16px; display: flex; align-items: center; gap: 10px;"><i class="fas fa-cash-register text-accent"></i> Kasir / POS</h2>
-                <select id="pos-customer-select" class="form-control" style="width: 160px; height: 32px; font-size: 12px; padding: 0 10px; padding-right: 28px;">
+                <select id="pos-customer-select" class="form-control" style="width: 160px; max-width: 100%; height: 32px; font-size: 12px; padding: 0 10px; padding-right: 28px;">
                     <option value="walk-in">Walk-In (Tamu)</option>
                     ${customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
                 </select>
@@ -64,7 +64,7 @@ export function renderPOS(container) {
             </div>
 
             <div class="pos-catalog" id="pos-catalog" style="flex: 1; overflow-y: auto; padding: 16px;">
-                <div id="pos-service-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;">
+                <div id="pos-service-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px;">
                     ${services.map(s => `
                         <div class="card service-item-card clickable" data-id="${s.id}" data-name="${(s.name || '').toLowerCase()}" 
                             style="text-align: center; padding: 14px 10px; border: 1px solid var(--border); cursor: pointer; transition: 0.2s;">
@@ -78,7 +78,7 @@ export function renderPOS(container) {
         </div>
 
         <!-- Right: Cart & Checkout -->
-        <div class="pos-luxury-sidebar shadow-premium" style="border-radius: var(--radius-xl); overflow: hidden; height: 100%;">
+        <div class="pos-luxury-sidebar shadow-premium" style="border-radius: var(--radius-xl); overflow: hidden;">
             <!-- Header -->
             <div style="padding: 16px; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center;">
                 <div style="display: flex; align-items: center; gap: 8px;">

@@ -23,7 +23,7 @@ export function renderInventory(container) {
     </div>
 
     <!-- Inventory Stats -->
-    <div class="stats-grid stagger" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 20px;">
+    <div class="stats-grid stagger" style="margin-bottom: 20px;">
       <div class="card stat-card" style="border-left: 3px solid var(--accent);">
         <div class="stat-icon gold"><i class="fas fa-box"></i></div>
         <div class="stat-info">

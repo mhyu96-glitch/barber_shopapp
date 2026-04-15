@@ -279,7 +279,7 @@ export function renderReports(container) {
     </div>
 
     <!-- Summary Stats -->
-    <div class="stats-grid stagger" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 20px;">
+    <div class="stats-grid stagger" style="margin-bottom: 20px;">
       <div class="card stat-card" style="border-bottom: 4px solid var(--success);">
         <div class="stat-icon green"><i class="fas fa-money-bill-trend-up"></i></div>
         <div class="stat-info">
@@ -303,7 +303,7 @@ export function renderReports(container) {
       </div>
     </div>
 
-    <div class="stats-grid stagger" style="grid-template-columns: repeat(4, 1fr); margin-top: 0;">
+    <div class="stats-grid stagger" style="margin-top: 0;">
       <div class="card stat-card">
         <div class="stat-icon gold"><i class="fas fa-calendar-check"></i></div>
         <div class="stat-info"><h3>${totalAppts}</h3><p>Total Janji</p></div>
