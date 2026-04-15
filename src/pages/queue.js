@@ -40,107 +40,105 @@ export function renderQueue(container) {
       <p>${dateUtils.formatDate(now, 'day')}, ${dateUtils.formatDate(now, 'long')} • ${currentTime} WIB</p>
     </div>
 
-    <div class="stats-grid stagger" style="grid-template-columns: repeat(4, 1fr);">
-      <div class="card stat-card">
-        <div class="stat-icon gold"><i class="fas fa-users-line"></i></div>
+    <div class="stats-grid stagger" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));">
+      <div class="card stat-card" style="padding: 16px;">
+        <div class="stat-icon gold" style="width: 40px; height: 40px; font-size: 18px;"><i class="fas fa-users-line"></i></div>
         <div class="stat-info">
-          <h3>${appointments.length}</h3>
+          <h3 style="font-size: 20px;">${appointments.length}</h3>
           <p>Total Antrian</p>
         </div>
       </div>
-      <div class="card stat-card">
-        <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+      <div class="card stat-card" style="padding: 16px;">
+        <div class="stat-icon green" style="width: 40px; height: 40px; font-size: 18px;"><i class="fas fa-check-circle"></i></div>
         <div class="stat-info">
-          <h3>${done.length}</h3>
+          <h3 style="font-size: 20px;">${done.length}</h3>
           <p>Selesai</p>
         </div>
       </div>
-      <div class="card stat-card">
-        <div class="stat-icon blue"><i class="fas fa-hourglass-half"></i></div>
+      <div class="card stat-card" style="padding: 16px;">
+        <div class="stat-icon blue" style="width: 40px; height: 40px; font-size: 18px;"><i class="fas fa-hourglass-half"></i></div>
         <div class="stat-info">
-          <h3>${active.length}</h3>
+          <h3 style="font-size: 20px;">${active.length}</h3>
           <p>Menunggu</p>
         </div>
       </div>
-      <div class="card stat-card">
-        <div class="stat-icon purple"><i class="fas fa-clock"></i></div>
+      <div class="card stat-card" style="padding: 16px;">
+        <div class="stat-icon purple" style="width: 40px; height: 40px; font-size: 18px;"><i class="fas fa-clock"></i></div>
         <div class="stat-info">
-          <h3>~${totalWait} min</h3>
-          <p>Est. Waktu Total</p>
+          <h3 style="font-size: 20px;">~${totalWait}m</h3>
+          <p>Est. Total</p>
         </div>
       </div>
     </div>
 
-    <div class="grid-2" style="align-items: start;">
-      <!-- Active Queue -->
-      <div class="card">
-        <h3 style="margin-bottom: 16px;">
-          <i class="fas fa-list-ol" style="color: var(--accent);"></i> Antrian Aktif
-        </h3>
-        ${active.length > 0 ? `
-          <div class="queue-list">
-            ${active.map((apt, i) => {
-        const isCurrent = i === currentIdx;
-        const isNext = i === nextIdx;
-        const customer = storage.find('customers', apt.customerId);
+    <!-- Active Queue -->
+    <div class="card" style="margin-bottom: 16px;">
+      <h3 style="margin-bottom: 16px; font-size: 16px;">
+        <i class="fas fa-list-ol" style="color: var(--accent);"></i> Antrian Aktif
+      </h3>
+      ${active.length > 0 ? `
+        <div class="queue-list">
+          ${active.map((apt, i) => {
+      const isCurrent = i === currentIdx;
+      const isNext = i === nextIdx;
+      const customer = storage.find('customers', apt.customerId);
 
-        return `
-                <div class="queue-item ${isCurrent ? 'current' : isNext ? 'next' : ''}">
-                  <div class="queue-number" style="${isCurrent ? 'background: var(--success); color: #fff;' : isNext ? 'background: var(--accent); color: var(--text-inverse);' : ''}">
-                    ${i + 1}
-                  </div>
-                  <div style="flex: 1;">
-                    <div class="fw-600">${apt.customerName}</div>
-                    <div class="text-sm text-muted">
-                      ${apt.serviceName} • ${apt.barberName} • ${apt.time}
-                    </div>
-                    ${isCurrent ? '<div class="text-sm" style="color: var(--success);">🟢 Sedang dilayani</div>' : ''}
-                    ${isNext ? '<div class="text-sm" style="color: var(--accent);">⏳ Selanjutnya</div>' : ''}
-                  </div>
-                  <div style="display: flex; gap: 4px;">
-                    <button class="btn btn-ghost btn-sm" title="WhatsApp" onclick="window.__queueWA('${apt.id}')">
-                      <i class="fab fa-whatsapp" style="color: #25d366;"></i>
-                    </button>
-                    <button class="btn btn-ghost btn-sm ${isCurrent ? '' : 'btn-success'}" title="Selesai" onclick="window.__queueDone('${apt.id}')">
-                      <i class="fas fa-check" style="color: var(--success);"></i>
-                    </button>
-                  </div>
+      return `
+              <div class="queue-item ${isCurrent ? 'current' : isNext ? 'next' : ''}">
+                <div class="queue-number" style="${isCurrent ? 'background: var(--success); color: #fff;' : isNext ? 'background: var(--accent); color: var(--text-inverse);' : ''}">
+                  ${i + 1}
                 </div>
-              `;
-    }).join('')}
-          </div>
-        ` : `
-          <div class="empty-state" style="padding: 30px;">
-            <i class="fas fa-check-circle" style="color: var(--success);"></i>
-            <p>Semua antrian selesai! 🎉</p>
-          </div>
-        `}
-      </div>
-
-      <!-- Completed -->
-      <div class="card">
-        <h3 style="margin-bottom: 16px;">
-          <i class="fas fa-check-double" style="color: var(--success);"></i> Selesai (${done.length})
-        </h3>
-        ${done.length > 0 ? `
-          <div class="queue-list">
-            ${done.map(apt => `
-              <div class="queue-item" style="opacity: 0.6; border-left-color: var(--success);">
-                <div class="queue-number" style="background: var(--success-bg);">
-                  <i class="fas fa-check" style="color: var(--success); font-size: 12px;"></i>
-                </div>
-                <div style="flex: 1;">
-                  <div class="fw-600">${apt.customerName}</div>
-                  <div class="text-sm text-muted">
-                    ${apt.serviceName} • ${apt.time}
-                    ${apt.rating > 0 ? ` • ${'⭐'.repeat(apt.rating)}` : ''}
+                <div style="flex: 1; min-width: 0;">
+                  <div class="fw-600" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${apt.customerName}</div>
+                  <div class="text-sm text-muted" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    ${apt.serviceName} • ${apt.barberName} • ${apt.time}
                   </div>
+                  ${isCurrent ? '<div class="text-sm" style="color: var(--success);">🟢 Sedang dilayani</div>' : ''}
+                  ${isNext ? '<div class="text-sm" style="color: var(--accent);">⏳ Selanjutnya</div>' : ''}
+                </div>
+                <div style="display: flex; gap: 4px; flex-shrink: 0;">
+                  <button class="btn btn-ghost btn-sm" title="WhatsApp" onclick="window.__queueWA('${apt.id}')">
+                    <i class="fab fa-whatsapp" style="color: #25d366;"></i>
+                  </button>
+                  <button class="btn btn-ghost btn-sm" title="Selesai" onclick="window.__queueDone('${apt.id}')">
+                    <i class="fas fa-check" style="color: var(--success);"></i>
+                  </button>
                 </div>
               </div>
-            `).join('')}
-          </div>
-        ` : `<p class="text-muted text-sm">Belum ada yang selesai</p>`}
-      </div>
+            `;
+  }).join('')}
+        </div>
+      ` : `
+        <div class="empty-state" style="padding: 30px;">
+          <i class="fas fa-check-circle" style="color: var(--success);"></i>
+          <p>Semua antrian selesai! 🎉</p>
+        </div>
+      `}
+    </div>
+
+    <!-- Completed -->
+    <div class="card" style="margin-bottom: 16px;">
+      <h3 style="margin-bottom: 16px; font-size: 16px;">
+        <i class="fas fa-check-double" style="color: var(--success);"></i> Selesai (${done.length})
+      </h3>
+      ${done.length > 0 ? `
+        <div class="queue-list">
+          ${done.map(apt => `
+            <div class="queue-item" style="opacity: 0.6; border-left-color: var(--success);">
+              <div class="queue-number" style="background: var(--success-bg);">
+                <i class="fas fa-check" style="color: var(--success); font-size: 12px;"></i>
+              </div>
+              <div style="flex: 1; min-width: 0;">
+                <div class="fw-600">${apt.customerName}</div>
+                <div class="text-sm text-muted">
+                  ${apt.serviceName} • ${apt.time}
+                  ${apt.rating > 0 ? ` • ${'⭐'.repeat(apt.rating)}` : ''}
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      ` : `<p class="text-muted text-sm">Belum ada yang selesai</p>`}
     </div>
 
     <div style="text-align: center; margin-top: 20px;">
