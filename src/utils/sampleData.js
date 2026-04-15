@@ -164,11 +164,11 @@ export function initSampleData() {
 
     // Gallery styles
     const gallery = [
-        { id: 'g1', title: 'Textured Crop Fade', description: 'Classic fade dengan clean lines', category: 'Modern', url: 'gallery/textured_crop_fade.png' },
-        { id: 'g2', title: 'Classic Pompadour', description: 'Undercut stylish untuk look modern', category: 'Classic', url: 'gallery/classic_pompadour.png' },
-        { id: 'g3', title: 'Skin Fade Buzz Cut', description: 'Pompadour klasik ala vintage', category: 'Simple', url: 'gallery/skin_fade_buzz_cut.png' },
-        { id: 'g4', title: 'Side Part Quiff', description: 'Potong pendek simple dan clean', category: 'Modern', url: 'gallery/side_part_quiff.png' },
-        { id: 'g5', title: 'Modern Mullet', description: 'Gaya mullet tren masa kini', category: 'Trendy', url: 'gallery/modern_mullet_fade.png' },
+        { id: 'g1', title: 'Textured Crop Fade', description: 'Classic fade dengan clean lines', category: 'Modern', url: '/gallery/textured_crop_fade.png' },
+        { id: 'g2', title: 'Classic Pompadour', description: 'Undercut stylish untuk look modern', category: 'Classic', url: '/gallery/classic_pompadour.png' },
+        { id: 'g3', title: 'Skin Fade Buzz Cut', description: 'Pompadour klasik ala vintage', category: 'Simple', url: '/gallery/skin_fade_buzz_cut.png' },
+        { id: 'g4', title: 'Side Part Quiff', description: 'Potong pendek simple dan clean', category: 'Modern', url: '/gallery/side_part_quiff.png' },
+        { id: 'g5', title: 'Modern Mullet', description: 'Gaya mullet tren masa kini', category: 'Trendy', url: '/gallery/modern_mullet_fade.png' },
         { id: 'g6', title: 'Crew Cut', description: 'Potongan crew cut rapi', category: 'Classic', url: '' },
     ];
     storage.set('gallery', gallery);

@@ -3,6 +3,7 @@
 // ========================================
 
 import { supabase } from '../utils/supabaseClient.js';
+import { initSampleData } from '../utils/sampleData.js';
 
 const STORAGE_PREFIX = 'barberpro_';
 const DAYS_ID = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
@@ -131,6 +132,9 @@ function renderShopNotFound() {
 
 // === Init ===
 document.addEventListener('DOMContentLoaded', async () => {
+  // Ensure sample data is initialized if not using multi-tenant slug
+  initSampleData();
+
   const params = new URLSearchParams(window.location.search);
   const shopSlug = params.get('shop');
 
