@@ -57,6 +57,11 @@ export const storage = {
         localStorage.removeItem(STORAGE_PREFIX + key);
     },
 
+    clearCollection(collection) {
+        this.remove(collection);
+        console.log(`🧹 Collection '${collection}' cleared.`);
+    },
+
     getCurrentUser() {
         return this.get('currentUser', null);
     },

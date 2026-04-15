@@ -6,7 +6,7 @@ import { storage } from './storage.js';
 
 export function initSampleData() {
     // Current data version for synchronization
-    const CURRENT_DATA_VERSION = '2.5';
+    const CURRENT_DATA_VERSION = '2.6';
     const lastVersion = storage.get('data_version', '0');
 
     console.log(`🔍 Checking Data Consistency (v${lastVersion} -> v${CURRENT_DATA_VERSION})...`);
@@ -14,6 +14,13 @@ export function initSampleData() {
     if (lastVersion === CURRENT_DATA_VERSION) {
         console.log('✅ Data already at latest version.');
         return;
+    }
+
+    // Hard reset for version jumps that changed data structures (gallery/promos)
+    if (parseFloat(lastVersion) < 2.6) {
+        console.log('🧹 Performing Clean Reset for Gallery & Promos (v2.6 upgrade)...');
+        storage.clearCollection('gallery');
+        storage.clearCollection('promos');
     }
 
     console.log('🚀 Synchronizing New Default Services & Lookbook...');
