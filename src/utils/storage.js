@@ -30,7 +30,7 @@ const ALLOWED_COLUMNS = {
     membership_packages: ['id', 'name', 'serviceId', 'serviceName', 'sessions', 'price', 'validDays', 'shop_id'],
     customer_memberships: ['id', 'customer_id', 'package_id', 'remaining_sessions', 'purchase_date', 'expiry_date', 'status', 'shop_id'],
     loyalty_logs: ['id', 'customer_id', 'points', 'type', 'description', 'date', 'shop_id'],
-    gallery: ['id', 'title', 'description', 'category', 'url', 'image', 'image_url', 'shop_id'],
+    gallery: ['id', 'title', 'description', 'category', 'url', 'image', 'shop_id'],
     promos: ['id', 'name', 'description', 'type', 'discount', 'startDate', 'endDate', 'active', 'serviceId', 'shop_id']
 };
 
