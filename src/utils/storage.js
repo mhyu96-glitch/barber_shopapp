@@ -5,8 +5,8 @@
 import { supabase } from './supabaseClient.js';
 
 const STORAGE_PREFIX = 'barberpro_';
-const SUPABASE_COLLECTIONS = ['services', 'barbers', 'customers', 'appointments', 'payments', 'gallery', 'promos', 'holidays', 'inventory', 'expenses', 'attendance', 'profiles', 'settings', 'feedbacks', 'membershipPackages', 'customerMemberships', 'loyalty_logs'];
-const SHOP_SCOPED_TABLES = ['services', 'barbers', 'customers', 'appointments', 'payments', 'inventory', 'expenses', 'attendance', 'profiles', 'settings', 'feedbacks', 'membershipPackages', 'customerMemberships', 'loyalty_logs'];
+const SUPABASE_COLLECTIONS = ['services', 'barbers', 'customers', 'appointments', 'payments', 'gallery', 'promos', 'holidays', 'inventory', 'expenses', 'attendance', 'profiles', 'settings', 'feedbacks', 'membership_packages', 'customer_memberships', 'loyalty_logs'];
+const SHOP_SCOPED_TABLES = ['services', 'barbers', 'customers', 'appointments', 'payments', 'inventory', 'expenses', 'attendance', 'profiles', 'settings', 'feedbacks', 'membership_packages', 'customer_memberships', 'loyalty_logs'];
 
 export function getShopId() {
   try {
@@ -27,8 +27,8 @@ const ALLOWED_COLUMNS = {
     profiles: ['id', 'full_name', 'username', 'role', 'avatar_url', 'barber_id', 'shop_id'],
     settings: ['id', 'shop_name', 'address', 'phone', 'email', 'currency', 'opening_hours', 'google_review_link', 'active_branch_id', 'branches', 'shop_id'],
     feedbacks: ['id', 'appointment_id', 'barber_id', 'customer_name', 'rating', 'comment', 'date', 'shop_id'],
-    membershipPackages: ['id', 'name', 'serviceId', 'serviceName', 'sessions', 'price', 'validDays', 'shop_id'],
-    customerMemberships: ['id', 'customer_id', 'package_id', 'remaining_sessions', 'purchase_date', 'expiry_date', 'status', 'shop_id'],
+    membership_packages: ['id', 'name', 'serviceId', 'serviceName', 'sessions', 'price', 'validDays', 'shop_id'],
+    customer_memberships: ['id', 'customer_id', 'package_id', 'remaining_sessions', 'purchase_date', 'expiry_date', 'status', 'shop_id'],
     loyalty_logs: ['id', 'customer_id', 'points', 'type', 'description', 'date', 'shop_id']
 };
 

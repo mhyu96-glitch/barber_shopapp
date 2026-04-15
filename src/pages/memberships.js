@@ -9,7 +9,7 @@ import { showToast } from '../components/toast.js';
 import { openModal, closeModal, confirmDialog } from '../components/modal.js';
 
 export function renderMemberships(container) {
-    const packages = storage.getAll('membershipPackages');
+    const packages = storage.getAll('membership_packages');
     const activeBookings = storage.getAll('appointments').filter(a => a.status !== 'cancelled');
 
     container.innerHTML = `
@@ -60,16 +60,16 @@ export function renderMemberships(container) {
       <div class="card">
         <div class="flex-between mb-md">
             <h3 style="margin: 0;"><i class="fas fa-users" style="color: var(--info);"></i> Penggunaan Aktif</h3>
-            <span class="badge badge-info">${storage.getAll('customerMemberships').filter(m => m.status === 'active').length} Member Aktif</span>
+            <span class="badge badge-info">${storage.getAll('customer_memberships').filter(m => m.status === 'active').length} Member Aktif</span>
         </div>
         <div class="queue-list" id="active-memberships-list">
           ${(() => {
-            const activeMembs = storage.getAll('customerMemberships').filter(m => m.status === 'active');
+            const activeMembs = storage.getAll('customer_memberships').filter(m => m.status === 'active');
             if (activeMembs.length === 0) return '<div class="text-center py-20 text-muted">Belum ada member aktif</div>';
             
             return activeMembs.map(m => {
                 const customer = storage.find('customers', m.customer_id) || { name: 'Unknown' };
-                const pack = storage.find('membershipPackages', m.package_id) || { name: 'Unknown Package' };
+                const pack = storage.find('membership_packages', m.package_id) || { name: 'Unknown Package' };
                 const isExpired = m.expiry_date && new Date(m.expiry_date) < new Date();
                 
                 return `
@@ -97,7 +97,7 @@ export function renderMemberships(container) {
     window.__editPackage = (id) => showPackageForm(id);
     window.__deletePackage = (id) => {
         confirmDialog('Hapus paket ini?', () => {
-            storage.delete('membershipPackages', id);
+            storage.delete('membership_packages', id);
             showToast('Paket dihapus', 'warning');
             renderMemberships(container);
         });
@@ -105,7 +105,7 @@ export function renderMemberships(container) {
 }
 
 function showPackageForm(editId = null) {
-    const existing = editId ? storage.find('membershipPackages', editId) : null;
+    const existing = editId ? storage.find('membership_packages', editId) : null;
     const services = storage.getAll('services');
 
     const body = `
@@ -159,10 +159,10 @@ function showPackageForm(editId = null) {
         };
 
         if (editId) {
-            storage.update('membershipPackages', editId, data);
+            storage.update('membership_packages', editId, data);
             showToast('Paket diperbarui!', 'success');
         } else {
-            storage.add('membershipPackages', data);
+            storage.add('membership_packages', data);
             showToast('Paket ditambahkan!', 'success');
         }
 

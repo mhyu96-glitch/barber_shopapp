@@ -323,7 +323,7 @@ export function renderPOS(container) {
         const membBtn = container.querySelector('#btn-method-membership');
         
         if (selectedCustomer && selectedCustomer !== 'walk-in') {
-            const activeMembs = storage.getAll('customerMemberships')
+            const activeMembs = storage.getAll('customer_memberships')
                 .filter(m => m.customer_id === selectedCustomer && m.status === 'active' && m.remaining_sessions > 0);
             
             if (activeMembs.length > 0) {
@@ -545,22 +545,22 @@ async function handleCheckout(container) {
 
             // Automasi Membership (Deduct Session)
             if (selectedPaymentMethod === 'membership') {
-                const activeMembs = storage.getAll('customerMemberships')
+                const activeMembs = storage.getAll('customer_memberships')
                     .filter(m => m.customer_id === customerId && m.status === 'active' && m.remaining_sessions > 0);
                 if (activeMembs.length > 0) {
-                    storage.update('customerMemberships', activeMembs[0].id, {
+                    storage.update('customer_memberships', activeMembs[0].id, {
                         remaining_sessions: activeMembs[0].remaining_sessions - 1
                     });
                 }
             }
             
             // Check if cart item was a package sale
-            const isPackage = storage.find('membershipPackages', item.id);
+            const isPackage = storage.find('membership_packages', item.id);
             if (isPackage) {
                 const expiryDate = new Date();
                 if (isPackage.validDays) expiryDate.setDate(expiryDate.getDate() + isPackage.validDays);
                 
-                storage.add('customerMemberships', {
+                storage.add('customer_memberships', {
                     id: 'MEM-' + Date.now(),
                     customer_id: customerId,
                     package_id: isPackage.id,

@@ -402,11 +402,11 @@ function showCustomerDetail(id) {
     </div>
 
     ${(() => {
-        const membership = storage.getAll('customerMemberships')
+        const membership = storage.getAll('customer_memberships')
             .find(m => m.customer_id === id && m.status === 'active' && m.remaining_sessions > 0);
         
         if (!membership) return '';
-        const pack = storage.find('membershipPackages', membership.package_id);
+        const pack = storage.find('membership_packages', membership.package_id);
         
         return `
             <div class="card" style="background: rgba(var(--accent-rgb), 0.1); border: 1px solid var(--accent); margin-bottom: 20px;">
@@ -498,7 +498,7 @@ window.__previewImage = function (src) {
 };
 
 window.__buyPackage = function (customerId) {
-  const packages = storage.getAll('membershipPackages');
+  const packages = storage.getAll('membership_packages');
   if (packages.length === 0) {
     showToast('Belum ada master paket. Buat di menu Membership.', 'error');
     return;
@@ -522,7 +522,7 @@ window.__buyPackage = function (customerId) {
 };
 
 window.__confirmBuyPackage = function (customerId, packageId) {
-  const pkg = storage.find('membershipPackages', packageId);
+  const pkg = storage.find('membership_packages', packageId);
   const customer = storage.find('customers', customerId);
   if (!pkg || !customer) return;
 
