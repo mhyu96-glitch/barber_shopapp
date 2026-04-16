@@ -37,7 +37,7 @@ export function renderQueue(container) {
     container.innerHTML = `
     <div class="page-header">
       <h2>Antrian Hari Ini</h2>
-      <p>${dateUtils.formatDate(now, 'day')}, ${dateUtils.formatDate(now, 'long')} • ${currentTime} WIB</p>
+      <p>${dateUtils.formatDate(now, 'day')}, ${dateUtils.formatDate(now, 'long')} • ${currentTime} WITA</p>
     </div>
 
     <div class="stats-grid stagger" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));">

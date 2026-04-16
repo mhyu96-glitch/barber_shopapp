@@ -259,6 +259,10 @@ export const storage = {
                 // Non-blocking attempt per collection
                 supabase.from(col).select('*', { count: 'exact', head: true }).then(({ count, error }) => {
                     if (!error && count === 0) {
+                        if (!Array.isArray(localData)) {
+                            console.log(`Skipping migration for ${col} (not an array)`);
+                            return;
+                        }
                         console.log(`Migrating ${localData.length} items for ${col}...`);
                         const dbData = localData.map(item => {
                             const row = this.toSnakeCaseObj(item);

@@ -47,20 +47,21 @@ export function renderGallery(container) {
       ${filtered.length > 0 ? `
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px;">
           ${filtered.map(g => {
-            const bg = STYLE_IMAGES[g.name] || 'linear-gradient(135deg, #1f1f1f, #333333)';
+            const title = g.title || g.name || 'Style Baru';
+            const bg = STYLE_IMAGES[title] || 'linear-gradient(135deg, #1f1f1f, #333333)';
+            const imgUrl = g.url || g.image || g.image_url;
             return `
-              <div style="background: var(--bg-card); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); border: 1px solid var(--border-light); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-6px)'; this.style.boxShadow='var(--shadow-md)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-sm)';" onclick="window.__viewGallery('${g.id}')">
+              <div style="background: var(--bg-card); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); border: 1px solid var(--border-light); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; position: relative;" onmouseover="this.style.transform='translateY(-6px)'; this.style.boxShadow='var(--shadow-md)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-sm)';" onclick="window.__viewGallery('${g.id}')">
                 
-                <div style="width: 100%; aspect-ratio: 4/3; background: ${bg}; display: flex; align-items: center; justify-content: center; position: relative;">
+                <div style="width: 100%; aspect-ratio: 3/4; background: ${bg}; display: flex; align-items: center; justify-content: center; position: relative;">
+                  ${imgUrl ? `<img src="${imgUrl}" style="width: 100%; height: 100%; object-fit: cover;" />` : ''}
                   <div style="position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.85));"></div>
                   
-                  <i class="fas fa-cut" style="font-size: 42px; color: rgba(255,255,255,0.25); z-index: 1;"></i>
+                  ${!imgUrl ? `<i class="fas fa-cut" style="font-size: 42px; color: rgba(255,255,255,0.25); z-index: 1;"></i>` : ''}
                   
-                  <div style="position: absolute; bottom: 12px; left: 16px; right: 16px; z-index: 2; display: flex; justify-content: space-between; align-items: flex-end;">
-                     <div>
-                        <div class="fw-800" style="color: #ffffff; font-size: 16px; text-shadow: 0 2px 4px rgba(0,0,0,0.4);">${g.name}</div>
-                     </div>
-                     <span style="background: rgba(255,255,255,0.2); color: #fff; backdrop-filter: blur(4px); padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase;">${g.category || ''}</span>
+                  <div style="position: absolute; bottom: 12px; left: 16px; right: 16px; z-index: 2; display: flex; flex-direction: column;">
+                     <div style="font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 2px; font-weight: 700;">${g.category || 'Portfolio'}</div>
+                     <div class="fw-800" style="color: #ffffff; font-size: 16px; text-shadow: 0 2px 4px rgba(0,0,0,0.4);">${title}</div>
                   </div>
                 </div>
               </div>
@@ -90,13 +91,15 @@ export function renderGallery(container) {
     window.__viewGallery = (id) => {
         const g = storage.find('gallery', id);
         if (!g) return;
-        const bg = STYLE_IMAGES[g.name] || 'linear-gradient(135deg, var(--bg-card-hover), var(--bg-card))';
+        const title = g.title || g.name;
+        const bg = STYLE_IMAGES[title] || 'linear-gradient(135deg, var(--bg-card-hover), var(--bg-card))';
+        const imgUrl = g.url || g.image || g.image_url;
         const body = `
-      <div style="width: 100%; height: 200px; border-radius: var(--radius-md); background: ${bg}; display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
-        <i class="fas fa-scissors" style="font-size: 48px; opacity: 0.3; color: #fff;"></i>
+      <div style="width: 100%; height: 280px; border-radius: var(--radius-md); background: ${bg}; overflow: hidden; display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+        ${imgUrl ? `<img src="${imgUrl}" style="width: 100%; height: 100%; object-fit: cover;" />` : `<i class="fas fa-scissors" style="font-size: 48px; opacity: 0.3; color: #fff;"></i>`}
       </div>
-      <h3>${g.name}</h3>
-      <span class="badge badge-info mt-sm">${g.category}</span>
+      <h3>${title}</h3>
+      <span class="badge badge-info mt-sm">${g.category || 'Portfolio'}</span>
       <p class="text-muted mt-md">${g.description || 'Tidak ada deskripsi'}</p>
       <div style="display: flex; gap: 8px; margin-top: 16px;">
         <button class="btn btn-secondary btn-sm" onclick="window.__editGalleryItem('${g.id}')"><i class="fas fa-edit"></i> Edit</button>
@@ -124,7 +127,11 @@ function showGalleryForm(pageContainer, editId = null) {
     <form id="gallery-form">
       <div class="form-group">
         <label>Nama Style</label>
-        <input type="text" class="form-control" name="name" value="${existing?.name || ''}" required />
+        <input type="text" class="form-control" name="title" value="${existing?.title || existing?.name || ''}" required />
+      </div>
+      <div class="form-group">
+        <label>URL Gambar (Opsional)</label>
+        <input type="url" class="form-control" name="url" value="${existing?.url || existing?.image || existing?.image_url || ''}" placeholder="https://example.com/image.png" />
       </div>
       <div class="form-group">
         <label>Kategori</label>
@@ -152,7 +159,7 @@ function showGalleryForm(pageContainer, editId = null) {
     document.getElementById('save-gallery-btn').addEventListener('click', () => {
         const fd = new FormData(document.getElementById('gallery-form'));
         const data = Object.fromEntries(fd);
-        if (!data.name) { showToast('Nama wajib diisi', 'error'); return; }
+        if (!data.title) { showToast('Nama wajib diisi', 'error'); return; }
 
         if (editId) {
             storage.update('gallery', editId, data);

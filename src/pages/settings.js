@@ -185,11 +185,11 @@ export function renderSettings(container) {
           <form id="wa-template-form">
             <div class="form-group">
               <label>Konfirmasi Booking Baru</label>
-              <textarea class="form-control" name="waConfirmation" rows="4" style="font-size: 12px; font-family: monospace;">${settings.waTemplates?.confirmation || 'Halo [NAMA_PELANGGAN]! 👋\\n\\nJanji temu Anda telah dikonfirmasi:\\n📅 Tanggal: [TANGGAL]\\n⏰ Jam: [WAKTU] WIB\\n💇 Layanan: [LAYANAN]\\n💈 Barber: [NAMA_BARBER]\\n\\n[NAMA_TOKO]\\nSampai jumpa! ✂️'}</textarea>
+              <textarea class="form-control" name="waConfirmation" rows="4" style="font-size: 12px; font-family: monospace;">${settings.waTemplates?.confirmation || 'Halo [NAMA_PELANGGAN]! 👋\\n\\nJanji temu Anda telah dikonfirmasi:\\n📅 Tanggal: [TANGGAL]\\n⏰ Jam: [WAKTU] WITA\\n💇 Layanan: [LAYANAN]\\n💈 Barber: [NAMA_BARBER]\\n\\n[NAMA_TOKO]\\nSampai jumpa! ✂️'}</textarea>
             </div>
             <div class="form-group">
               <label>Reminder (Pengingat)</label>
-              <textarea class="form-control" name="waReminder" rows="4" style="font-size: 12px; font-family: monospace;">${settings.waTemplates?.reminder || 'Halo [NAMA_PELANGGAN]! 🔔\\n\\nReminder janji temu Anda:\\n📅 [TANGGAL]\\n⏰ Jam [WAKTU] WIB\\n💇 [LAYANAN]\\n\\nJangan lupa ya! 😊\\nBalas pesan ini jika ada perubahan.'}</textarea>
+              <textarea class="form-control" name="waReminder" rows="4" style="font-size: 12px; font-family: monospace;">${settings.waTemplates?.reminder || 'Halo [NAMA_PELANGGAN]! 🔔\\n\\nReminder janji temu Anda:\\n📅 [TANGGAL]\\n⏰ Jam [WAKTU] WITA\\n💇 [LAYANAN]\\n\\nJangan lupa ya! 😊\\nBalas pesan ini jika ada perubahan.'}</textarea>
             </div>
             <div class="form-group">
               <label>Resi Pembayaran (Receipt)</label>

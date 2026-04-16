@@ -25,7 +25,7 @@ export const whatsapp = {
     // Send appointment confirmation
     sendConfirmation(appointment, customer) {
         const settings = storage.get('settings', {});
-        const defaultTpl = 'Halo [NAMA_PELANGGAN]! 👋\\n\\nJanji temu Anda telah dikonfirmasi:\\n📅 Tanggal: [TANGGAL]\\n⏰ Jam: [WAKTU] WIB\\n💇 Layanan: [LAYANAN]\\n💈 Barber: [NAMA_BARBER]\\n\\n[NAMA_TOKO]\\n📍 [ALAMAT_TOKO]\\n\\nSampai jumpa! ✂️';
+        const defaultTpl = 'Halo [NAMA_PELANGGAN]! 👋\\n\\nJanji temu Anda telah dikonfirmasi:\\n📅 Tanggal: [TANGGAL]\\n⏰ Jam: [WAKTU] WITA\\n💇 Layanan: [LAYANAN]\\n💈 Barber: [NAMA_BARBER]\\n\\n[NAMA_TOKO]\\n📍 [ALAMAT_TOKO]\\n\\nSampai jumpa! ✂️';
         const tpl = settings.waTemplates?.confirmation || defaultTpl;
         const msg = this._parseTemplate(tpl, { appointment, customer });
         this.openWA(customer.phone, msg);
@@ -34,7 +34,7 @@ export const whatsapp = {
     // Send reminder
     sendReminder(appointment, customer) {
         const settings = storage.get('settings', {});
-        const defaultTpl = 'Halo [NAMA_PELANGGAN]! 🔔\\n\\nReminder janji temu Anda:\\n📅 [TANGGAL]\\n⏰ Jam [WAKTU] WIB\\n💇 [LAYANAN]\\n\\nJangan lupa ya! 😊\\nBalas pesan ini jika ada perubahan.';
+        const defaultTpl = 'Halo [NAMA_PELANGGAN]! 🔔\\n\\nReminder janji temu Anda:\\n📅 [TANGGAL]\\n⏰ Jam [WAKTU] WITA\\n💇 [LAYANAN]\\n\\nJangan lupa ya! 😊\\nBalas pesan ini jika ada perubahan.';
         const tpl = settings.waTemplates?.reminder || defaultTpl;
         const msg = this._parseTemplate(tpl, { appointment, customer });
         this.openWA(customer.phone, msg);

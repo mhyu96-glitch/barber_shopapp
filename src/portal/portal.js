@@ -254,57 +254,11 @@ const TRANSLATIONS = {
     promo_badge: 'PROMO',
     status_pending: 'Menunggu Konfirmasi',
     status_done: 'Selesai',
-  },
-  en: {
-    welcome: 'Online Booking at',
-    hero_sub: 'Choose your service, favorite barber, and schedule. Easy and fast!',
-    btn_book_now: 'Book Now',
-    btn_cek_status: 'Check Status',
-    promo_title: 'Active Promos',
-    barber_title: 'Our Barber Team',
-    svc_title: 'Our Services',
-    review_title: 'Customer Reviews',
-    loc_title: 'Our Location',
-
-    step_svc: 'Select Service',
-    step_svc_sub: 'Choose the service you want',
-    step_barber: 'Select Barber',
-    step_barber_sub: 'Choose your favorite barber',
-    step_schedule: 'Select Schedule',
-    step_schedule_sub: 'Set your date and arrival time',
-    step_info: 'Your Information',
-    step_info_sub: 'Complete your details for confirmation',
-    step_review: 'Review Booking',
-    step_review_sub: 'Make sure all data is correct',
-
-    label_svc: 'Service',
-    label_barber: 'Barber',
-    label_date: 'Date',
-    label_time: 'Time',
-    label_price: 'Price',
-    label_recurring: 'Recurring',
-    label_name: 'Full Name',
-    label_phone: 'WhatsApp Number',
-    label_notes: 'Additional notes (Optional)',
-    label_recurring_toggle: 'Set as Recurring Appointment? 📅',
-    label_recurring_sub: 'Choose your recurring frequency:',
-
-    btn_next: 'Next',
-    btn_back: 'Back',
-    btn_confirm: 'Confirm Booking',
-    btn_cancel: 'Cancel',
-
-    hh_label: 'HAPPY HOUR',
-    promo_badge: 'PROMO',
-    status_pending: 'Awaiting Confirmation',
-    status_done: 'Completed',
-
     success_title: 'Booking Berhasil!',
     success_sub: 'Kode booking Anda adalah:',
     success_msg: 'Silakan simpan kode ini untuk mengecek status pesanan atau tunjukkan saat datang ke barbershop.',
     btn_home: 'Kembali ke Beranda',
     btn_wa_confirm: 'Konfirmasi via WhatsApp',
-
     status_title: 'Cek Status Booking',
     status_input_label: 'Masukkan Kode Booking',
     status_btn_check: 'Cek Sekarang',
@@ -596,8 +550,12 @@ function renderLiveQueue() {
 }
 
 window.useLookbookStyle = function(title) {
-  booking.notes = `Gaya Rambut: ${title}`;
-  startBooking();
+  if (booking.notes && !booking.notes.includes(title)) {
+    booking.notes += `, Gaya: ${title}`;
+  } else {
+    booking.notes = `Gaya Rambut: ${title}`;
+  }
+  startBooking(false); // false means don't reset existing selections
 };
 
 async function getLoyaltyStatus(phone) {
@@ -632,8 +590,10 @@ function renderMapSection() {
 }
 
 // === Start Booking ===
-window.startBooking = function () {
-  booking = { services: [], barber: null, date: null, time: null, name: '', phone: '', notes: '', promoId: null };
+window.startBooking = function (reset = true) {
+  if (reset) {
+    booking = { services: [], barber: null, date: null, time: null, name: '', phone: '', notes: '', promoId: null };
+  }
   currentStep = 1;
   renderWizard();
 };
