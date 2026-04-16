@@ -214,6 +214,21 @@ class SupabaseService {
     return await query;
   }
 
+  // --- Gallery & Promos (NEW) ---
+  static Future<List<Map<String, dynamic>>> getGallery() async {
+    final shopId = AppState.shopId.value;
+    var query = client.from('gallery').select();
+    if (shopId != null) query = query.eq('shop_id', shopId);
+    return await query.order('created_at', ascending: false);
+  }
+
+  static Future<List<Map<String, dynamic>>> getPromos() async {
+    final shopId = AppState.shopId.value;
+    var query = client.from('promos').select().eq('active', true);
+    if (shopId != null) query = query.eq('shop_id', shopId);
+    return await query.order('created_at', ascending: false);
+  }
+
   // --- Customers ---
   static Future<List<Map<String, dynamic>>> getCustomers() async {
     final shopId = AppState.shopId.value;

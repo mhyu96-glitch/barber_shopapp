@@ -59,7 +59,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final now = DateTime.now();
     final months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
     final days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-    return "${days[now.weekday % 7]}, ${now.day} ${months[now.month - 1]} ${now.year}";
+    return "${days[now.weekday % 7]}, ${now.day} ${months[now.month - 1]} ${now.year} • WITA";
   }
 
   @override

@@ -131,7 +131,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> with TickerProvider
                 
                 const SizedBox(height: 12),
                 Text(
-                  DateFormat('EEEE, d MMMM yyyy', 'id_ID').format(_now),
+                  "${DateFormat('EEEE, d MMMM yyyy', 'id_ID').format(_now)} • WITA",
                   style: const TextStyle(color: Colors.white60, fontSize: 16),
                 ),
                 

@@ -952,3 +952,58 @@ body {
     background: linear-gradient(90deg, var(--p-accent), var(--p-accent-lt));
     transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
+
+/* === MASTERPIECE UI UPGRADE === */
+:root {
+    --p-transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --p-blur: 16px;
+    --p-glass: rgba(255, 255, 255, 0.7);
+    --p-glass-border: rgba(255, 255, 255, 0.3);
+}
+
+[data-theme="dark"] {
+    --p-bg: #0b0c10;
+    --p-bg2: #14161c;
+    --p-card: rgba(30, 33, 45, 0.5);
+    --p-card-hover: rgba(40, 44, 58, 0.7);
+    --p-input: #1b1e28;
+    --p-glass: rgba(20, 22, 28, 0.6);
+    --p-glass-border: rgba(255, 255, 255, 0.08);
+}
+
+.p-card {
+    backdrop-filter: blur(var(--p-blur));
+    -webkit-backdrop-filter: blur(var(--p-blur));
+}
+
+.p-card:hover {
+    border-color: var(--p-accent) !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+.atelier-aura {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: radial-gradient(circle at center, var(--p-accent-glow), transparent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--p-accent);
+    font-size: 18px;
+    border: 1px solid var(--p-accent-glow);
+    transition: all var(--p-transition);
+}
+
+.p-card:hover .atelier-aura {
+    transform: scale(1.1) rotate(5deg);
+    background: var(--p-accent-glow);
+    box-shadow: 0 0 15px var(--p-accent-glow);
+}
+
+.service-option.selected {
+    border-color: var(--p-accent) !important;
+    background: linear-gradient(135deg, var(--p-bg2), var(--p-accent-glow)) !important;
+    box-shadow: 0 0 30px var(--p-accent-glow) !important;
+}

@@ -305,7 +305,7 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
           _buildDetailRow(Icons.content_cut_rounded, "Layanan", widget.serviceName, primary),
           _buildDetailRow(Icons.person_outline_rounded, "Nama", widget.customerName, primary),
           _buildDetailRow(
-              Icons.calendar_today_rounded, "Waktu", DateFormat('EEE, dd MMM • HH:mm').format(widget.date), primary),
+              Icons.calendar_today_rounded, "Waktu", "${DateFormat('EEE, dd MMM • HH:mm').format(widget.date)} WITA", primary),
           _buildDetailRow(Icons.location_on_outlined, "Outlet", widget.shopName, primary, isLast: true),
         ],
       ),

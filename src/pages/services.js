@@ -24,28 +24,31 @@ export function renderServices(container) {
 
     <div class="grid-3 stagger">
       ${services.map(s => `
-        <div class="card" style="position: relative; overflow: hidden;">
-          <div style="position: absolute; top: -20px; right: -20px; width: 60px; height: 60px; background: var(--accent-glow); border-radius: 50%;"></div>
-          <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 14px;">
-            <div style="width: 48px; height: 48px; border-radius: var(--radius-md); background: var(--accent-subtle); display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 20px;">
+        <div class="card" style="position: relative; overflow: hidden; padding: 20px; border: 1px solid var(--border-light); transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='var(--shadow-md)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-sm)';">
+          ${(s.name || '').toLowerCase().includes('paket') || (s.name || '').toLowerCase().includes('combo') ? 
+            `<div style="position: absolute; top: 0; right: 0; background: var(--accent); color: var(--text-inverse); font-size: 9px; font-weight: 900; padding: 4px 12px; border-bottom-left-radius: 12px; text-transform: uppercase; letter-spacing: 1px;">Hemat</div>` : ''}
+          
+          <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+            <div style="width: 50px; height: 50px; border-radius: 14px; background: var(--accent-subtle); display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 24px; box-shadow: 0 4px 10px var(--accent-glow);">
               <i class="fas ${s.icon || 'fa-scissors'}"></i>
             </div>
-            <div>
-              <h3 style="font-size: 16px;">${s.name}</h3>
-              <p class="text-sm text-muted">${s.description || ''}</p>
+            <div style="flex: 1;">
+              <h3 style="font-size: 17px; margin: 0; color: var(--text-primary);">${s.name}</h3>
+              <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                <span style="font-size: 11px; color: var(--text-secondary);"><i class="fas fa-clock" style="font-size: 9px;"></i> ${s.duration} menit</span>
+                <span style="width: 3px; height: 3px; background: var(--border); border-radius: 50%;"></span>
+                <span style="font-size: 11px; color: var(--accent); font-weight: 700;">${formatter.currency(s.price)}</span>
+              </div>
             </div>
           </div>
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-            <div>
-              <span class="fw-700" style="font-size: 20px; color: var(--accent);">${formatter.currency(s.price)}</span>
-            </div>
-            <span class="badge badge-info"><i class="fas fa-clock"></i> ${s.duration} menit</span>
-          </div>
-          <div style="display: flex; gap: 6px;">
-            <button class="btn btn-secondary btn-sm" style="flex: 1;" onclick="window.__editService('${s.id}')">
+          
+          <p class="text-sm text-muted" style="margin-bottom: 20px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 3em;">${s.description || 'Layanan potong rambut profesional untuk menunjang penampilan Anda.'}</p>
+          
+          <div style="display: flex; gap: 8px; padding-top: 16px; border-top: 1px solid var(--border-light);">
+            <button class="btn btn-secondary btn-sm" style="flex: 1; border-radius: 10px;" onclick="window.__editService('${s.id}')">
               <i class="fas fa-edit"></i> Edit
             </button>
-            <button class="btn btn-ghost btn-sm" onclick="window.__deleteService('${s.id}')">
+            <button class="btn btn-ghost btn-sm" style="border-radius: 10px; width: 40px; height: 38px; padding: 0;" onclick="window.__deleteService('${s.id}')">
               <i class="fas fa-trash" style="color: var(--danger);"></i>
             </button>
           </div>

@@ -32,30 +32,34 @@ export function renderPromos(container) {
         const dayNames = (p.validDays || []).map(d => dateUtils.getDayShort(d)).join(', ');
 
         return `
-            <div class="card promo-card">
-              <div style="display: flex; align-items: start; justify-content: space-between; margin-bottom: 14px;">
-                <div>
-                  <div class="promo-badge">${p.type === 'percentage' ? `${p.discount}% OFF` : `Hemat ${formatter.currency(p.discount)}`}</div>
-                  <h3 style="font-size: 18px; margin-top: 10px;">${p.name}</h3>
-                  <p class="text-sm text-muted mt-sm">${p.description || ''}</p>
+            <div class="card promo-card" style="position: relative; overflow: hidden; border: 1px solid var(--border-light); padding: 20px; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-4px)';" onmouseout="this.style.transform='translateY(0)';">
+              <div style="display: flex; align-items: start; justify-content: space-between; margin-bottom: 20px;">
+                <div style="flex: 1;">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                     <div class="promo-badge" style="background: var(--accent); color: var(--text-inverse); padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 11px; letter-spacing: 0.5px;">${p.type === 'percentage' ? `${p.discount}% OFF` : `Hemat ${formatter.currency(p.discount)}`}</div>
+                     ${isActive ? '<span style="width: 8px; height: 8px; background: var(--success); border-radius: 50%; box-shadow: 0 0 10px var(--success);"></span>' : ''}
+                  </div>
+                  <h3 style="font-size: 18px; margin-top: 12px; font-weight: 800; color: var(--text-primary);">${p.name}</h3>
+                  <p class="text-sm text-muted mt-sm" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.5;">${p.description || 'Promosi spesial untuk layanan pilihan Anda.'}</p>
                 </div>
-                <span class="badge ${isActive ? 'badge-success' : 'badge-danger'}">
-                  ${isActive ? 'Aktif' : 'Nonaktif'}
-                </span>
               </div>
-              <div style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; margin-bottom: 14px;">
-                ${service ? `<div class="text-muted"><i class="fas fa-scissors" style="width: 16px;"></i> ${service.name}</div>` : ''}
-                <div class="text-muted"><i class="fas fa-calendar" style="width: 16px;"></i> ${dateUtils.formatDate(p.startDate, 'short')} - ${dateUtils.formatDate(p.endDate, 'short')}</div>
-                <div class="text-muted"><i class="fas fa-clock" style="width: 16px;"></i> ${dayNames || 'Setiap hari'}</div>
+              
+              <div style="background: var(--bg-input); border-radius: 12px; padding: 14px; margin-bottom: 20px; border: 1px solid var(--border-light);">
+                <div style="display: flex; flex-direction: column; gap: 8px; font-size: 12px;">
+                  ${service ? `<div style="color: var(--text-primary); font-weight: 600;"><i class="fas fa-scissors" style="width: 18px; color: var(--accent);"></i> ${service.name}</div>` : `<div style="color: var(--text-primary); font-weight: 600;"><i class="fas fa-tags" style="width: 18px; color: var(--accent);"></i> Semua Layanan</div>`}
+                  <div class="text-muted"><i class="fas fa-calendar-range" style="width: 18px;"></i> ${dateUtils.formatDate(p.startDate, 'short')} - ${dateUtils.formatDate(p.endDate, 'short')}</div>
+                  <div class="text-muted"><i class="fas fa-clock" style="width: 18px;"></i> ${dayNames || 'Setiap hari'}</div>
+                </div>
               </div>
-              <div style="display: flex; gap: 6px;">
-                <button class="btn btn-secondary btn-sm" style="flex: 1;" onclick="window.__togglePromo('${p.id}')">
-                  <i class="fas ${isActive ? 'fa-pause' : 'fa-play'}"></i> ${isActive ? 'Nonaktifkan' : 'Aktifkan'}
+
+              <div style="display: flex; gap: 8px; padding-top: 16px; border-top: 1px solid var(--border-light);">
+                <button class="btn ${isActive ? 'btn-ghost' : 'btn-secondary'} btn-sm" style="flex: 1; border-radius: 10px;" onclick="window.__togglePromo('${p.id}')">
+                  <i class="fas ${isActive ? 'fa-pause' : 'fa-play'}"></i> ${isActive ? 'Jeda' : 'Aktifkan'}
                 </button>
-                <button class="btn btn-ghost btn-sm" onclick="window.__editPromo('${p.id}')">
+                <button class="btn btn-secondary btn-sm" style="width: 40px; border-radius: 10px; padding: 0;" onclick="window.__editPromo('${p.id}')">
                   <i class="fas fa-edit"></i>
                 </button>
-                <button class="btn btn-ghost btn-sm" onclick="window.__deletePromo('${p.id}')">
+                <button class="btn btn-ghost btn-sm" style="width: 40px; border-radius: 10px; padding: 0;" onclick="window.__deletePromo('${p.id}')">
                   <i class="fas fa-trash" style="color: var(--danger);"></i>
                 </button>
               </div>

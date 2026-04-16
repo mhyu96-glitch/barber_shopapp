@@ -408,17 +408,17 @@ window.renderHome = function () {
       ${gallery.length > 0 ? `
         <div style="margin-bottom: 32px;">
           <h3 style="font-size: 16px; margin-bottom: 12px;"><i class="fas fa-camera-retro" style="color: var(--p-accent);"></i> Inspirasi Style Potongan</h3>
-          <div class="portal-gallery-carousel" style="display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; scrollbar-width: none;">
+          <div class="portal-gallery-carousel" style="display: flex; gap: 16px; overflow-x: auto; padding: 10px 0 20px; scroll-snap-type: x mandatory; scrollbar-width: none;">
             ${gallery.map(item => {
     const imgUrl = item.image_url || item.url || item.image;
     return `
-              <div class="portal-gallery-card" style="flex: 0 0 160px; scroll-snap-align: start; border-radius: 12px; overflow: hidden; position: relative; background: var(--p-bg-card); border: 1px solid var(--p-border); aspect-ratio: 3/4; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+              <div class="portal-gallery-card p-card" style="flex: 0 0 160px; scroll-snap-align: start; border-radius: 18px; overflow: hidden; position: relative; aspect-ratio: 3/4; padding: 0; border: 1px solid var(--p-border);">
                 ${imgUrl ? `<img src="${imgUrl}" style="width: 100%; height: 100%; object-fit: cover;" alt="${item.title}" loading="lazy" />` : `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--p-accent-glow), transparent);"><i class="fas fa-image" style="font-size: 32px; color: var(--p-muted);"></i></div>`}
-                <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 40px 12px 10px; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); color: white;">
-                  <div style="font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--p-accent); margin-bottom: 2px; font-weight: 700;">${item.category || 'Portfolio'}</div>
-                  <div style="font-weight: 600; font-size: 12px; line-height: 1.2; margin-bottom: 8px;">${item.title || 'Style Terkini'}</div>
-                  <button class="p-btn p-btn-sm p-btn-primary" style="width: 100%; font-size: 10px; padding: 4px;" onclick="useLookbookStyle('${item.title}')">
-                    Gunakan Gaya Ini
+                <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 40px 12px 10px; background: linear-gradient(to top, rgba(0,0,0,0.95), transparent); color: white;">
+                  <div style="font-size: 8px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--p-accent); margin-bottom: 2px; font-weight: 800;">${item.category || 'EXECUTIVE STYLE'}</div>
+                  <div style="font-weight: 700; font-size: 13px; line-height: 1.2; margin-bottom: 8px; letter-spacing: -0.2px;">${item.title || 'Masterpiece'}</div>
+                  <button class="p-btn p-btn-sm p-btn-primary" style="width: 100%; font-size: 10px; padding: 6px; border-radius: 8px;" onclick="useLookbookStyle('${item.title}')">
+                    PILIH GAYA
                   </button>
                 </div>
               </div>
@@ -457,13 +457,15 @@ window.renderHome = function () {
           <h3 style="font-size: 16px; margin-bottom: 12px;"><i class="fas fa-user-tie" style="color: var(--p-accent);"></i> ${t('barber_title')}</h3>
           <div class="barber-grid">
             ${barbers.map(b => `
-              <div class="p-card" style="text-align: center; padding: 20px;">
-                <div class="barber-avatar" style="${b.avatar ? `background: url(${b.avatar}) center/cover; font-size: 0;` : ''}">
+              <div class="p-card" style="text-align: center; padding: 24px; border-radius: 24px;">
+                <div class="barber-avatar" style="${b.avatar ? `background: url(${b.avatar}) center/cover; border: 3px solid var(--p-accent-glow);` : ''} width: 72px; height: 72px; margin-bottom: 12px;">
                   ${b.avatar ? '' : getInitials(b.name)}
                 </div>
-                <div class="barber-name">${b.name}</div>
-                <div class="barber-spec">${b.specialization || 'All-round'}</div>
-                <div class="barber-rating">${'⭐'.repeat(Math.round(b.rating || 4))} ${(b.rating || 4).toFixed(1)}</div>
+                <div class="barber-name" style="font-size: 16px;">${b.name}</div>
+                <div class="barber-spec" style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;">${b.specialization || 'MASTER BARBER'}</div>
+                <div class="barber-rating" style="margin-top: 8px; background: var(--p-warning-bg); display: inline-block; padding: 2px 8px; border-radius: 12px;">
+                  <i class="fas fa-star" style="font-size: 10px;"></i> ${(b.rating || 4.9).toFixed(1)}
+                </div>
               </div>
             `).join('')}
           </div>
@@ -475,17 +477,25 @@ window.renderHome = function () {
         <div style="margin-bottom: 28px;">
           <h3 style="font-size: 16px; margin-bottom: 12px;"><i class="fas fa-list-check" style="color: var(--p-accent);"></i> ${t('svc_title')}</h3>
           <div class="service-grid">
-            ${services.map(s => `
-              <div class="p-card" style="padding: 16px; position: relative; overflow: hidden;">
+    ${services.map(s => `
+              <div class="p-card service-option" onclick="selectService('${s.id}')" style="padding: 18px; position: relative; overflow: hidden; margin-bottom: 12px; display: flex; align-items: center; gap: 16px; border-radius: 20px;">
                 ${(s.name || '').toLowerCase().includes('paket') || (s.name || '').toLowerCase().includes('combo') ? 
-                  `<div style="position: absolute; top: 0; right: 0; background: var(--p-accent); color: var(--p-bg); font-size: 8px; font-weight: 900; padding: 2px 8px; border-bottom-left-radius: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Hemat</div>` : ''}
-                <div style="display: flex; align-items: center; gap: 10px;">
-                  <div style="width: 40px; height: 40px; border-radius: 10px; background: var(--p-accent-glow); display: flex; align-items: center; justify-content: center; color: var(--p-accent);"><i class="fas ${s.icon || 'fa-scissors'}"></i></div>
-                  <div style="flex: 1;">
-                    <div style="font-weight: 600; font-size: 14px;">${s.name}</div>
-                    <div style="font-size: 12px; color: var(--p-muted);">${s.duration} menit</div>
+                  `<div style="position: absolute; top: 0; right: 0; background: var(--p-accent); color: #000; font-size: 8px; font-weight: 900; padding: 4px 12px; border-bottom-left-radius: 12px; text-transform: uppercase; letter-spacing: 1px; z-index: 2;">BEST VALUE</div>` : ''}
+                
+                <div class="atelier-aura">
+                  <i class="fas ${s.icon || 'fa-scissors'}"></i>
+                </div>
+                
+                <div style="flex: 1;">
+                  <div style="font-weight: 800; font-size: 15px; letter-spacing: -0.2px; margin-bottom: 2px;">${s.name}</div>
+                  <div style="font-size: 11px; color: var(--p-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                    <i class="far fa-clock" style="margin-right: 4px;"></i> ${s.duration} MENIT
                   </div>
-                  <div style="font-weight: 700; color: var(--p-accent);">Rp ${(s.price || 0).toLocaleString('id')}</div>
+                </div>
+                
+                <div style="text-align: right;">
+                  <div style="font-weight: 900; color: var(--p-accent); font-size: 17px; letter-spacing: -0.5px;">Rp ${(s.price || 0).toLocaleString('id')}</div>
+                  <div style="font-size: 9px; color: var(--p-muted); font-weight: 700;">NET • WITA</div>
                 </div>
               </div>
             `).join('')}
@@ -537,13 +547,13 @@ function renderLiveQueue() {
   const totalWait = appointments.length * avgTimePerService;
 
   return `
-    <div class="live-queue-banner stagger">
+    <div class="live-queue-banner stagger" style="border-radius: 16px; background: linear-gradient(135deg, var(--p-bg2), var(--p-glass)); border: 1px solid var(--p-accent-glow);">
       <div class="queue-info">
-        <i class="fas fa-clock-rotate-left"></i>
-        <span>Antrian Saat Ini: <b>${appointments.length} Orang</b></span>
+        <i class="fas fa-clock-rotate-left" style="color: var(--p-accent); font-size: 20px;"></i>
+        <span>Antrian Saat Ini: <b style="color: var(--p-accent);">${appointments.length} Orang</b></span>
       </div>
       <div class="queue-wait">
-        <span>Estimasi Tunggu: <b>~${totalWait} Menit</b></span>
+        <span>Estimasi Tunggu: <b style="color: var(--p-accent);">~${totalWait} Menit</b> • WITA</span>
       </div>
     </div>
   `;
@@ -712,23 +722,32 @@ function renderStep1(container) {
     // Use the lower of the two: Promo price or Happy Hour price
     const finalPrice = Math.max(0, Math.min(Math.round(promo ? discountedPrice : s.price), hhPrice));
     const showsDiscount = finalPrice < s.price;
+    const isSelected = booking.services.some(svc => svc.id === s.id);
 
     return `
-          <div class="service-option ${booking.services.some(svc => svc.id === s.id) ? 'selected' : ''}" onclick="selectService('${s.id}')">
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-              <div style="width: 36px; height: 36px; border-radius: 8px; background: var(--p-accent-glow); display: flex; align-items: center; justify-content: center; color: var(--p-accent);"><i class="fas ${s.icon || 'fa-scissors'}"></i></div>
-              <div class="svc-name">${s.name}</div>
-              ${booking.services.some(svc => svc.id === s.id) ? `<i class="fas fa-check-circle" style="margin-left:auto; color: var(--p-accent);"></i>` : ''}
-            </div>
-            ${s.description ? `<p style="font-size: 12px; color: var(--p-muted); margin-bottom: 8px;">${s.description}</p>` : ''}
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <div>
-                ${showsDiscount ? `<span style="text-decoration: line-through; color: var(--p-muted); font-size: 12px;">Rp ${s.price.toLocaleString('id')}</span> ` : ''}
-                <span class="svc-price">Rp ${finalPrice.toLocaleString('id')}</span>
-                ${promo ? `<span class="p-badge p-badge-gold" style="margin-left: 4px;">PROMO</span>` : ''}
-                ${isHH && finalPrice === hhPrice ? `<span class="p-badge" style="margin-left: 4px; background: #facc15; color: #111;">⚡ HH</span>` : ''}
+          <div class="service-option ${isSelected ? 'selected' : ''}" onclick="selectService('${s.id}')" style="display: flex; flex-direction: column; gap: 4px; padding: 20px; border-radius: 24px; position: relative; overflow: hidden;">
+            <div style="display: flex; align-items: flex-start; gap: 14px;">
+              <div class="atelier-aura">
+                <i class="fas ${s.icon || 'fa-scissors'}"></i>
               </div>
-              <span class="svc-dur"><i class="fas fa-clock"></i> ${s.duration} min</span>
+              <div style="flex: 1;">
+                <div class="svc-name" style="font-size: 16px; letter-spacing: -0.3px;">${s.name}</div>
+                <div class="svc-dur" style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.6;">
+                   ${s.duration} MIN • <span style="color: var(--p-accent);">WITA</span>
+                </div>
+              </div>
+              ${isSelected ? `<div style="background: var(--p-accent); color: #000; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; box-shadow: 0 0 10px var(--p-accent-glow);"><i class="fas fa-check"></i></div>` : ''}
+            </div>
+            
+            <div style="margin-top: 12px; display: flex; justify-content: space-between; align-items: flex-end;">
+              <div>
+                ${showsDiscount ? `<div style="text-decoration: line-through; color: var(--p-muted); font-size: 11px; margin-bottom: -2px;">Rp ${s.price.toLocaleString('id')}</div>` : ''}
+                <div class="svc-price" style="font-size: 19px; letter-spacing: -0.5px; color: var(--p-accent);">Rp ${finalPrice.toLocaleString('id')}</div>
+              </div>
+              <div style="display: flex; gap: 4px;">
+                ${promo ? `<span class="p-badge p-badge-gold" style="font-size: 8px; font-weight: 900;">PROMO</span>` : ''}
+                ${isHH && finalPrice === hhPrice ? `<span class="p-badge" style="font-size: 8px; font-weight: 900; background: #facc15; color: #111;">HAPPY HOUR</span>` : ''}
+              </div>
             </div>
           </div>
         `;
@@ -769,17 +788,19 @@ function renderStep2(container) {
       ${barbers.map(b => {
     const totalAppts = appointments.filter(a => a.barberId === b.id && a.status === 'done').length;
     const reviews = appointments.filter(a => a.barberId === b.id && a.rating > 0);
-    const avgRating = reviews.length > 0 ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length) : (b.rating || 4);
+    const avgRating = reviews.length > 0 ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length) : (b.rating || 4.9);
+    const isSelected = booking.barber?.id === b.id;
     return `
-          <div class="barber-option ${booking.barber?.id === b.id ? 'selected' : ''}" onclick="selectBarber('${b.id}')">
-            <div class="barber-avatar" style="${b.avatar ? `background: url(${b.avatar}) center/cover; font-size: 0;` : ''}">
+          <div class="barber-option ${isSelected ? 'selected' : ''}" onclick="selectBarber('${b.id}')" style="padding: 24px; border-radius: 28px; position: relative;">
+            <div class="barber-avatar" style="${b.avatar ? `background: url(${b.avatar}) center/cover; border: 3px solid var(--p-accent-glow);` : ''} width: 80px; height: 80px;">
               ${b.avatar ? '' : getInitials(b.name)}
             </div>
-            <div class="barber-name">${b.name}</div>
-            <div class="barber-spec">${b.specialization || 'All-round'}</div>
-            <div class="barber-rating">${'⭐'.repeat(Math.round(avgRating))} ${avgRating.toFixed(1)}</div>
-            <div style="font-size: 11px; color: var(--p-muted); margin-top: 4px;">${totalAppts} potong</div>
-            ${b.phone ? `<a href="https://wa.me/${b.phone.replace(/\D/g, '')}" target="_blank" class="p-btn p-btn-wa p-btn-sm" style="margin-top: 8px; font-size: 11px;"><i class="fab fa-whatsapp"></i> Chat</a>` : ''}
+            <div class="barber-name" style="font-size: 16px; margin-top: 12px;">${b.name}</div>
+            <div class="barber-spec" style="font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; opacity: 0.6; margin-top: 4px;">${b.specialization || 'MASTER BARBER'}</div>
+            <div class="barber-rating" style="margin-top: 12px; background: var(--p-warning-bg); display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 12px; color: var(--p-warning); font-weight: 800; font-size: 11px;">
+              <i class="fas fa-star" style="font-size: 10px;"></i> ${avgRating.toFixed(1)}
+            </div>
+            <div style="font-size: 10px; color: var(--p-muted); margin-top: 10px; font-weight: 600;">${totalAppts} CLIENTS SERVED</div>
           </div>
         `;
   }).join('')}
@@ -896,7 +917,7 @@ function renderTimeSlots() {
   const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
   tsc.innerHTML = `
-    <h4 style="font-size: 14px; margin-bottom: 10px; color: var(--p-text2);">Jam Tersedia</h4>
+    <h4 style="font-size: 12px; margin-bottom: 12px; color: var(--p-text2); text-transform: uppercase; letter-spacing: 1px; font-weight: 800;">WAKTU TERSEDIA • WITA</h4>
     <div class="time-grid">
       ${slots.map(t => {
     const booked = existingAppts.filter(a => a.time === t).length;
@@ -1013,11 +1034,11 @@ function renderStep5(container) {
       </div>
       <div class="review-row">
         <span class="review-label">${t('label_time')}</span>
-        <span class="review-value">${booking.time}</span>
+        <span class="review-value">${booking.time} <span style="color: var(--p-accent);">WITA</span></span>
       </div>
       <div class="review-row">
         <span class="review-label">Total Durasi</span>
-        <span class="review-value">${totalDuration} menit</span>
+        <span class="review-value"><i class="far fa-clock"></i> ${totalDuration} menit</span>
       </div>
       <div class="review-row">
         <span class="review-label">${t('label_name')}</span>
@@ -1039,10 +1060,13 @@ function renderStep5(container) {
           <span class="review-value" style="color: var(--p-success); font-weight: 700;">Diskon 10% ✨</span>
         </div>
       ` : ''}
-      <div style="border-top: 2px solid var(--p-border); margin-top: 10px; padding-top: 10px;">
-        <div class="review-row" style="font-size: 18px;">
-          <span class="review-label" style="font-weight: 700;">Total</span>
-          <span class="review-value" style="color: var(--p-accent); font-size: 20px;">Rp ${Math.round(finalPrice).toLocaleString('id')}</span>
+      <div style="border-top: 2px dashed var(--p-border); margin-top: 20px; padding-top: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+          <div>
+            <div style="font-size: 11px; font-weight: 800; color: var(--p-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px;">TOTAL PEMBAYARAN</div>
+            <div style="font-weight: 900; font-size: 28px; color: var(--p-accent); letter-spacing: -0.8px;">Rp ${Math.round(finalPrice).toLocaleString('id')}</div>
+          </div>
+          <div style="text-align: right; font-size: 9px; color: var(--p-muted); font-weight: 700; margin-bottom: 4px;">NET • WITA</div>
         </div>
       </div>
     </div>
@@ -1148,9 +1172,12 @@ function renderSuccess(code) {
   const main = document.getElementById('portal-main');
   main.innerHTML = `
     <div class="portal-main fade-in">
-      <div class="success-page">
-        <div class="success-icon"><i class="fas fa-check"></i></div>
-        <h2 style="margin-bottom: 6px;">Booking Berhasil Dikirim!</h2>
+      <div class="success-page" style="padding-top: 40px;">
+        <div class="success-icon" style="background: var(--p-success-bg); color: var(--p-success); width: 80px; height: 80px; margin-bottom: 24px; box-shadow: 0 0 20px var(--p-success-bg);">
+          <i class="fas fa-check"></i>
+        </div>
+        <h2 style="font-size: 28px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 8px;">Pesanan Diterima!</h2>
+        <p style="color: var(--p-muted); font-size: 15px; margin-bottom: 32px;">Barber kami sedang bersiap menyambut Anda.</p>
         
         ${isDepositRequired ? `
           <div class="p-card stagger" style="background: var(--p-accent-glow); border: 1px dashed var(--p-accent); padding: 20px; margin: 20px 0; text-align: left;">
@@ -1168,9 +1195,9 @@ function renderSuccess(code) {
 
         <p style="color: var(--p-muted); margin-bottom: 20px;">Menunggu konfirmasi dari admin</p>
 
-        <div style="margin-bottom: 20px;">
-          <p style="font-size: 13px; color: var(--p-muted); margin-bottom: 6px;">Kode Booking Anda:</p>
-          <div class="booking-code">${code}</div>
+        <div style="margin-bottom: 32px; background: var(--p-bg2); border: 1px solid var(--p-border); border-radius: 20px; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+          <div style="font-size: 10px; color: var(--p-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">KODE BOOKING</div>
+          <div class="booking-code" style="margin: 0; padding: 4px 16px; border-style: solid; border-width: 1px; font-size: 32px;">${code}</div>
         </div>
 
         <!-- QR Code (simple text-based) -->
@@ -1190,7 +1217,7 @@ function renderSuccess(code) {
           </div>
           <div class="review-row">
             <span class="review-label">Jadwal</span>
-            <span class="review-value">${dateStr}, ${booking.time}</span>
+            <span class="review-value" style="font-weight: 700;">${dateStr}, ${booking.time} <span style="color: var(--p-accent);">WITA</span></span>
           </div>
           ${booking.recurringType ? `
             <div class="review-row">
