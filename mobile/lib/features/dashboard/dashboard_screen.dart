@@ -8,6 +8,8 @@ import '../../widgets/atelier_aura.dart';
 import '../appointments/book_appointment_screen.dart';
 import '../services/services_screen.dart';
 import 'reports_screen.dart';
+import 'lookbook_screen.dart';
+import 'exclusive_offers_screen.dart';
 import 'dart:async';
 import 'package:intl/intl.dart';
 
@@ -25,6 +27,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     'total_customers': 0,
   };
   Attendance? _todayAttendance;
+  List<GalleryItem> _gallery = [];
+  List<Promo> _promos = [];
   bool _isLoading = true;
 
   @override
@@ -41,11 +45,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
       
       final stats = await SupabaseService.getDashboardStats(barberId: barberId);
       final attendance = !isAdmin ? await SupabaseService.getTodayAttendance(profile?['id'] ?? '') : null;
+      final galleryData = await SupabaseService.getGallery();
+      final promosData = await SupabaseService.getPromos();
       
       if (mounted) {
         setState(() {
           _stats = stats;
           _todayAttendance = attendance;
+          _gallery = galleryData.map((e) => GalleryItem.fromMap(e)).toList();
+          _promos = promosData.map((e) => Promo.fromMap(e)).toList();
           _isLoading = false;
         });
       }
@@ -166,6 +174,159 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     _buildAtelierAttendanceCard(goldColor, isAdmin),
                     
                     const SizedBox(height: 40),
+
+                    // --- EXCLUSIVE OFFERS (PROMOS) ---
+                    if (_promos.isNotEmpty) ...[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "EXCLUSIVE OFFERS", 
+                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.white.withOpacity(0.3), letterSpacing: 2.5)
+                          ),
+                          TextButton(
+                            onPressed: () { 
+                               Navigator.push(context, MaterialPageRoute(builder: (context) => const ExclusiveOffersScreen()));
+                            },
+                            child: Text("VIEW ALL", style: TextStyle(fontSize: 11, color: goldColor, fontWeight: FontWeight.w900, letterSpacing: 1.0))
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        height: 140,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: _promos.length,
+                          itemBuilder: (context, index) {
+                            final promo = _promos[index];
+                            return Container(
+                              width: 280,
+                              margin: const EdgeInsets.only(right: 16),
+                              child: AtelierGlassCard(
+                                padding: const EdgeInsets.all(20),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 48,
+                                      height: 48,
+                                      decoration: BoxDecoration(
+                                        color: goldColor.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(color: goldColor.withOpacity(0.3)),
+                                      ),
+                                      child: Icon(Icons.local_offer_rounded, color: goldColor),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            promo.title,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            promo.type == 'percentage' ? '${promo.discount}% OFF' : 'Rp ${promo.discount} OFF',
+                                            style: TextStyle(fontSize: 12, color: goldColor, fontWeight: FontWeight.w900),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 40),
+                    ],
+
+                    // --- MASTERPIECE LOOKBOOK (GALLERY) ---
+                    if (_gallery.isNotEmpty) ...[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "MASTERPIECE LOOKBOOK", 
+                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.white.withOpacity(0.3), letterSpacing: 2.5)
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => const LookbookScreen()));
+                            },
+                            child: Text("VIEW ALL", style: TextStyle(fontSize: 11, color: goldColor, fontWeight: FontWeight.w900, letterSpacing: 1.0))
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        height: 200,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: _gallery.length,
+                          itemBuilder: (context, index) {
+                            final item = _gallery[index];
+                            return Container(
+                              width: 140,
+                              margin: const EdgeInsets.only(right: 16),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: Colors.white.withOpacity(0.1)),
+                                image: item.imageUrl != null
+                                    ? DecorationImage(image: NetworkImage(item.imageUrl!), fit: BoxFit.cover)
+                                    : null,
+                                color: const Color(0xFF1C1B1B),
+                              ),
+                              child: Stack(
+                                children: [
+                                  if (item.imageUrl == null)
+                                    Center(
+                                      child: Icon(Icons.image_outlined, color: Colors.white.withOpacity(0.2), size: 40),
+                                    ),
+                                  Positioned(
+                                    bottom: 0, left: 0, right: 0,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          begin: Alignment.bottomCenter,
+                                          end: Alignment.topCenter,
+                                          colors: [Colors.black.withOpacity(0.9), Colors.transparent],
+                                        ),
+                                        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            (item.category ?? 'EXECUTIVE').toUpperCase(),
+                                            style: TextStyle(fontSize: 8, color: goldColor, fontWeight: FontWeight.w900, letterSpacing: 1.0),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            item.title,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 40),
+                    ],
                     
                     // --- Quick Actions Grid ---
                     Text(

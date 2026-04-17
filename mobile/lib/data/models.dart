@@ -148,3 +148,64 @@ class Attendance {
     );
   }
 }
+
+class GalleryItem {
+  final String id;
+  final String title;
+  final String? imageUrl;
+  final String? category;
+  final String? createdAt;
+
+  GalleryItem({
+    required this.id,
+    required this.title,
+    this.imageUrl,
+    this.category,
+    this.createdAt,
+  });
+
+  factory GalleryItem.fromMap(Map<String, dynamic> map) {
+    return GalleryItem(
+      id: map['id'],
+      title: map['title'] ?? map['name'] ?? 'Style',
+      imageUrl: map['image_url'] ?? map['url'] ?? map['image'],
+      category: map['category'],
+      createdAt: map['created_at'],
+    );
+  }
+}
+
+class Promo {
+  final String id;
+  final String title;
+  final String? description;
+  final String? code;
+  final num discount;
+  final String type; // 'percentage' or 'fixed'
+  final String? startDate;
+  final String? endDate;
+
+  Promo({
+    required this.id,
+    required this.title,
+    this.description,
+    this.code,
+    required this.discount,
+    required this.type,
+    this.startDate,
+    this.endDate,
+  });
+
+  factory Promo.fromMap(Map<String, dynamic> map) {
+    return Promo(
+      id: map['id'],
+      title: map['title'] ?? 'Promo',
+      description: map['description'],
+      code: map['code'],
+      discount: map['discount'] ?? 0,
+      type: map['type'] ?? 'fixed',
+      startDate: map['start_date'],
+      endDate: map['end_date'],
+    );
+  }
+}
