@@ -264,7 +264,7 @@ class AppointmentsScreen extends StatelessWidget {
           children: [
             Column(
               children: [
-                Text(appointment.time, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: Colors.white, letterSpacing: -0.5)),
+                Text('${appointment.time} WITA', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Colors.white, letterSpacing: -0.5)),
                 const SizedBox(height: 4),
                 Text(
                   appointment.status.toUpperCase(), 

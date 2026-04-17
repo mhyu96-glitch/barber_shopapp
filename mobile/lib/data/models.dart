@@ -199,7 +199,7 @@ class Promo {
   factory Promo.fromMap(Map<String, dynamic> map) {
     return Promo(
       id: map['id'],
-      title: map['title'] ?? 'Promo',
+      title: map['title'] ?? map['name'] ?? 'Promo',
       description: map['description'],
       code: map['code'],
       discount: map['discount'] ?? 0,
