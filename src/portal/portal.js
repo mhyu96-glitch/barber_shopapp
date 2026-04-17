@@ -10,6 +10,21 @@ const DAYS_ID = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
 const DAYS_SHORT = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
 const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'];
 
+const STYLE_IMAGES = {
+    'Fade Cut': 'linear-gradient(135deg, #667eea, #764ba2)',
+    'Undercut': 'linear-gradient(135deg, #f093fb, #f5576c)',
+    'Pompadour': 'linear-gradient(135deg, #4facfe, #00f2fe)',
+    'Buzz Cut': 'linear-gradient(135deg, #43e97b, #38f9d7)',
+    'Mullet': 'linear-gradient(135deg, #fa709a, #fee140)',
+    'Crew Cut': 'linear-gradient(135deg, #a18cd1, #fbc2eb)',
+    'Textured Crop Fade': 'url("https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=400")',
+    'Classic Pompadour': 'url("https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=400")',
+    'Skin Fade Buzz Cut': 'url("https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=400")',
+    'Side Part Quiff': 'url("https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=400")',
+    'Modern Mullet': 'url("https://images.unsplash.com/photo-1620302380595-64c3c3933cff?w=400")',
+    'Classic Crew Cut': 'url("https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=400")'
+};
+
 // === Storage helpers (read-only from main app's localStorage) ===
 function sGet(key, def = null) {
   try { const v = localStorage.getItem(STORAGE_PREFIX + key); return v ? JSON.parse(v) : def; }
@@ -411,13 +426,15 @@ window.renderHome = function () {
           <div class="portal-gallery-carousel" style="display: flex; gap: 16px; overflow-x: auto; padding: 10px 0 20px; scroll-snap-type: x mandatory; scrollbar-width: none;">
             ${gallery.map(item => {
     const imgUrl = item.image_url || item.url || item.image;
+    const title = item.title || item.name || 'Masterpiece';
+    const bg = STYLE_IMAGES[title] || 'linear-gradient(135deg, #1c1b1b, #212121)';
     return `
               <div class="portal-gallery-card p-card" style="flex: 0 0 160px; scroll-snap-align: start; border-radius: 18px; overflow: hidden; position: relative; aspect-ratio: 3/4; padding: 0; border: 1px solid var(--p-border);">
-                ${imgUrl ? `<img src="${imgUrl}" style="width: 100%; height: 100%; object-fit: cover;" alt="${item.title}" loading="lazy" />` : `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--p-accent-glow), transparent);"><i class="fas fa-image" style="font-size: 32px; color: var(--p-muted);"></i></div>`}
+                ${imgUrl ? `<img src="${imgUrl}" style="width: 100%; height: 100%; object-fit: cover;" alt="${title}" loading="lazy" />` : `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: ${bg}; background-size: cover; background-position: center;"><i class="fas fa-cut" style="font-size: 32px; color: rgba(255,255,255,0.15);"></i></div>`}
                 <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 40px 12px 10px; background: linear-gradient(to top, rgba(0,0,0,0.95), transparent); color: white;">
                   <div style="font-size: 8px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--p-accent); margin-bottom: 2px; font-weight: 800;">${item.category || 'EXECUTIVE STYLE'}</div>
-                  <div style="font-weight: 700; font-size: 13px; line-height: 1.2; margin-bottom: 8px; letter-spacing: -0.2px;">${item.title || 'Masterpiece'}</div>
-                  <button class="p-btn p-btn-sm p-btn-primary" style="width: 100%; font-size: 10px; padding: 6px; border-radius: 8px;" onclick="useLookbookStyle('${item.title}')">
+                  <div style="font-weight: 700; font-size: 13px; line-height: 1.2; margin-bottom: 8px; letter-spacing: -0.2px;">${title}</div>
+                  <button class="p-btn p-btn-sm p-btn-primary" style="width: 100%; font-size: 10px; padding: 6px; border-radius: 8px;" onclick="useLookbookStyle('${title}')">
                     PILIH GAYA
                   </button>
                 </div>

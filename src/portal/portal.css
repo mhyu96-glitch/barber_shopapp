@@ -4,12 +4,12 @@
    ======================================== */
 
 :root {
-    --p-bg: #f8fafc;
-    --p-bg2: #ffffff;
-    --p-card: #ffffff;
-    --p-card-hover: #f1f5f9;
+    --p-bg: #0d0d0d;
+    --p-bg2: #1c1b1b;
+    --p-card: #1c1b1b;
+    --p-card-hover: #212121;
     --p-input: #f1f5f9;
-    --p-text: #0f172a;
+    --p-text: #ffffff;
     --p-text2: #475569;
     --p-muted: #64748b;
     --p-accent: #d4a843;
