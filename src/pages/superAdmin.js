@@ -553,7 +553,7 @@ function renderAddShopModal() {
     const password = document.getElementById('new-admin-pass').value;
 
     try {
-      const email = `${username}.${shopSlug}_${Date.now()}@barberpro.local`;
+      const email = `${username}${Date.now()}@barberpro.local`;
       const { data: authData, error: authErr } = await supabase.auth.signUp({ email, password });
       if (authErr) throw authErr;
 
@@ -626,7 +626,7 @@ function renderAdminProvisioning(shopId, shopName, shopSlug) {
     const username = document.getElementById('prov-admin-user').value.trim().toLowerCase();
     const password = document.getElementById('prov-admin-pass').value;
     try {
-      const email = `${username}.${shopSlug}_${Date.now()}@barberpro.local`;
+      const email = `${username}${Date.now()}@barberpro.local`;
       const { data: authData, error: authErr } = await supabase.auth.signUp({ email, password });
       if (authErr) throw authErr;
       await supabase.from('profiles').upsert({ id: authData.user.id, full_name: fullName, username, role: 'admin', shop_id: shopId });
@@ -656,4 +656,5 @@ async function handleDeleteShop(shop) {
     showToast('Registry Tenant Dihapus.', 'success'); closeModal(); loadTenants(document.getElementById('sub-page-container'));
   };
 }
+
 
