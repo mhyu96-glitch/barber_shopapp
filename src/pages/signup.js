@@ -117,6 +117,19 @@ export async function renderSignup(container) {
             </select>
           </div>
 
+          <!-- Dropdown pilih barber (muncul saat role = barber) -->
+          <div class="form-group" id="barber-link-group" style="margin: 0;">
+            <label style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px;">
+              <i class="fas fa-scissors" style="color: var(--accent);"></i> Hubungkan ke Barber
+            </label>
+            <select id="signup-barber-id" class="form-control"
+              style="height: 46px; font-size: 14px; background: var(--bg-input) !important; color: var(--text-primary) !important;">
+              <option value="">-- Pilih barber yang akan login --</option>
+              ${storage.getAll('barbers').map(b => `<option value="${b.id}">${b.name}${b.specialization ? ' · ' + b.specialization : ''}</option>`).join('')}
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 5px;"><i class="fas fa-info-circle"></i> Pilih barber agar jadwal & janji temu terhubung ke akun ini.</div>
+          </div>
+
           <div id="signup-message" style="display: none; padding: 12px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600;"></div>
 
           <button type="submit" class="btn btn-primary" style="height: 48px; font-size: 14px; font-weight: 800;" id="submit-signup">
@@ -145,6 +158,15 @@ export async function renderSignup(container) {
 
   container.querySelector('#back-btn')?.addEventListener('click', () => navigateTo('barbers'));
 
+  // Show/hide barber dropdown based on role
+  const roleSelect = container.querySelector('#signup-role');
+  const barberGroup = container.querySelector('#barber-link-group');
+  const toggleBarberGroup = () => {
+    barberGroup.style.display = roleSelect.value === 'barber' ? 'block' : 'none';
+  };
+  roleSelect.addEventListener('change', toggleBarberGroup);
+  toggleBarberGroup(); // init
+
   const form = container.querySelector('#signup-form');
   const messageDiv = container.querySelector('#signup-message');
   const submitBtn = container.querySelector('#submit-signup');
@@ -156,6 +178,7 @@ export async function renderSignup(container) {
     const username = document.getElementById('signup-username').value.toLowerCase().replace(/\s+/g, '');
     const password = document.getElementById('signup-password').value;
     const role = document.getElementById('signup-role').value;
+    const selectedBarberId = document.getElementById('signup-barber-id')?.value || null;
 
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
@@ -180,15 +203,17 @@ export async function renderSignup(container) {
         loginMap[finalUsername] = result.loginEmail || email;
         storage.set('staff_login_map', loginMap);
 
-        // Upsert profile dengan shop_id agar muncul di daftar staf toko ini
+        // Upsert profile dengan shop_id dan barber_id
         if (result.user?.id && shopId) {
-          await supabase.from('profiles').upsert({
+          const profileData = {
             id: result.user.id,
             full_name: fullName,
             username: finalUsername,
             role,
             shop_id: shopId,
-          });
+          };
+          if (selectedBarberId) profileData.barber_id = selectedBarberId;
+          await supabase.from('profiles').upsert(profileData);
         }
 
         messageDiv.style.cssText = 'display:block; padding:12px; border-radius:8px; font-size:13px; font-weight:600; background:rgba(46,213,115,0.1); color:#2ed573;';
