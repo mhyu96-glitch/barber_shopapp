@@ -553,7 +553,7 @@ function renderAddShopModal() {
     const password = document.getElementById('new-admin-pass').value;
 
     try {
-      const email = `${username}.${shopSlug}@barberpro.local`;
+      const email = `${username}.${shopSlug}_${Date.now()}@barberpro.local`;
       const { data: authData, error: authErr } = await supabase.auth.signUp({ email, password });
       if (authErr) throw authErr;
 
@@ -562,6 +562,12 @@ function renderAddShopModal() {
 
       await supabase.from('profiles').upsert({ id: authData.user.id, full_name: ownerName, username, role: 'admin', shop_id: newShop.id });
       await supabase.from('settings').insert([{ shop_id: newShop.id, shop_name: shopName }]);
+
+      // Simpan login map agar bisa login dengan username
+      const loginMap = JSON.parse(localStorage.getItem('barberpro_staff_login_map') || '{}');
+      loginMap[`${username}.${shopSlug}`] = email;
+      loginMap[username] = email;
+      localStorage.setItem('barberpro_staff_login_map', JSON.stringify(loginMap));
 
       showToast('SaaS Diaktifkan untuk ' + shopName, 'success');
       closeModal();
@@ -590,10 +596,16 @@ function renderAdminProvisioning(shopId, shopName, shopSlug) {
     const username = document.getElementById('prov-admin-user').value.trim().toLowerCase();
     const password = document.getElementById('prov-admin-pass').value;
     try {
-      const email = `${username}.${shopSlug}@barberpro.local`;
+      const email = `${username}.${shopSlug}_${Date.now()}@barberpro.local`;
       const { data: authData, error: authErr } = await supabase.auth.signUp({ email, password });
       if (authErr) throw authErr;
       await supabase.from('profiles').upsert({ id: authData.user.id, full_name: fullName, username, role: 'admin', shop_id: shopId });
+      
+      // Simpan login map
+      const loginMap = JSON.parse(localStorage.getItem('barberpro_staff_login_map') || '{}');
+      loginMap[`${username}.${shopSlug}`] = email;
+      loginMap[username] = email;
+      localStorage.setItem('barberpro_staff_login_map', JSON.stringify(loginMap));
       showToast('Akun Admin Berhasil Ditambahkan.', 'success');
       closeModal();
     } catch (err) { showToast(err.message, 'danger'); e.target.disabled = false; }
