@@ -690,11 +690,25 @@ async function handleDeleteShop(shop) {
   const footer = `<button class="btn btn-secondary" onclick="closeModal()">Batal</button><button id="final-delete-btn" class="btn btn-danger" disabled>Hapus Sekarang</button>`;
   openModal('Delete Tenant Hub', body, footer, { maxWidth: '400px' });
   document.getElementById('confirm-shop-name').oninput = (e) => { document.getElementById('final-delete-btn').disabled = e.target.value !== shopName; };
-  document.getElementById('final-delete-btn').onclick = async () => {
-    const tables = ['settings', 'barbers', 'services', 'appointments', 'customers', 'attendance', 'subscriptions', 'profiles'];
-    for (const t of tables) await supabase.from(t).delete().eq('shop_id', shop.id);
-    await supabase.from('shops').delete().eq('id', shop.id);
-    showToast('Registry Tenant Dihapus.', 'success'); closeModal(); loadTenants(document.getElementById('sub-page-container'));
+  document.getElementById('final-delete-btn').onclick = async (e) => {
+    e.target.disabled = true;
+    e.target.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menghapus...';
+    try {
+      const tables = ['settings', 'barbers', 'services', 'appointments', 'customers', 'attendance', 'subscriptions', 'profiles'];
+      for (const t of tables) {
+        const { error } = await supabase.from(t).delete().eq('shop_id', shop.id);
+        if (error) console.warn(`Delete ${t} error:`, error.message);
+      }
+      const { error: shopErr } = await supabase.from('shops').delete().eq('id', shop.id);
+      if (shopErr) throw new Error(shopErr.message);
+      showToast('Registry Tenant Dihapus.', 'success');
+      closeModal();
+      loadTenants(document.getElementById('sub-page-container'));
+    } catch (err) {
+      showToast('Gagal hapus: ' + err.message, 'danger');
+      e.target.disabled = false;
+      e.target.innerHTML = 'Hapus Sekarang';
+    }
   };
 }
 
