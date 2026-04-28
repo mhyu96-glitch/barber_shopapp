@@ -138,7 +138,43 @@ async function renderActiveTab(container) {
 // TENANTS LIST TAB
 // ==========================================
 async function renderTenantsList(container) {
+  // Ambil credentials yang tersimpan
+  const savedCreds = JSON.parse(localStorage.getItem('barberpro_shop_credentials') || '[]');
+
   container.innerHTML = `
+    ${savedCreds.length > 0 ? `
+    <div class="card fade-in" style="margin-top: 16px; border: 1px solid var(--accent-glow);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <h3 style="font-size:14px;margin:0;"><i class="fas fa-key" style="color:var(--accent);"></i> Kredensial Toko Terdaftar</h3>
+        <button class="btn btn-ghost btn-sm" onclick="localStorage.removeItem('barberpro_shop_credentials');renderSuperAdmin(document.getElementById('page-container'));" style="font-size:11px;color:var(--danger);">
+          <i class="fas fa-trash"></i> Hapus Semua
+        </button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        ${savedCreds.map(c => `
+          <div style="background:var(--bg-input);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <div style="width:36px;height:36px;border-radius:10px;background:var(--accent-subtle);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0;">
+              ${c.shopName?.[0]?.toUpperCase() || 'S'}
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:700;font-size:13px;">${c.shopName}</div>
+              <div style="font-size:11px;color:var(--text-muted);">Slug: ${c.shopSlug} • ${c.createdAt}</div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+              <div style="background:var(--bg-card);padding:4px 10px;border-radius:6px;font-size:11px;">
+                <span style="color:var(--text-muted);">User: </span>
+                <code style="color:var(--accent);font-weight:700;">${c.username}</code>
+              </div>
+              <div style="background:var(--bg-card);padding:4px 10px;border-radius:6px;font-size:11px;">
+                <span style="color:var(--text-muted);">Pass: </span>
+                <code style="color:var(--text-primary);font-weight:700;">${c.password}</code>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    ` : ''}
     <div class="stats-grid fade-in" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 20px;">
        <div class="card stat-card" style="display: flex; align-items: center; gap: 16px; padding: 22px; border-left: 4px solid var(--accent); background: linear-gradient(to right, rgba(var(--accent-rgb), 0.05), transparent);">
         <div class="stat-icon" style="background: var(--accent-subtle); color: var(--accent); width: 52px; height: 52px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);"><i class="fas fa-store"></i></div>
@@ -568,6 +604,11 @@ function renderAddShopModal() {
       loginMap[`${username}.${shopSlug}`] = email;
       loginMap[username] = email;
       localStorage.setItem('barberpro_staff_login_map', JSON.stringify(loginMap));
+
+      // Simpan credentials untuk ditampilkan di card
+      const savedCreds = JSON.parse(localStorage.getItem('barberpro_shop_credentials') || '[]');
+      savedCreds.unshift({ shopName, shopSlug, username, password, createdAt: new Date().toLocaleDateString('id-ID') });
+      localStorage.setItem('barberpro_shop_credentials', JSON.stringify(savedCreds.slice(0, 20)));
 
       showToast('SaaS Diaktifkan untuk ' + shopName, 'success');
       closeModal();
