@@ -597,6 +597,9 @@ function renderAddShopModal() {
       if (shopErr) throw shopErr;
 
       await supabase.from('profiles').upsert({ id: authData.user.id, full_name: ownerName, username, role: 'admin', shop_id: newShop.id });
+      // Tunggu sebentar lalu update eksplisit untuk override trigger default
+      await new Promise(r => setTimeout(r, 1000));
+      await supabase.from('profiles').update({ role: 'admin', shop_id: newShop.id, full_name: ownerName, username }).eq('id', authData.user.id);
       await supabase.from('settings').insert([{ shop_id: newShop.id, shop_name: shopName }]);
 
       // Simpan login map agar bisa login dengan username
