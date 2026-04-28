@@ -227,27 +227,33 @@ export function renderLogin(container) {
   width: 100%;
   height: 46px;
   background: #1a1510 !important;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(212,175,55,0.3);
   border-radius: 12px;
   padding: 0 16px 0 42px;
-  color: #fff !important;
+  color: #ffffff !important;
   font-size: 13px;
   font-family: inherit;
   font-weight: 500;
   transition: all 0.2s;
   outline: none;
-  -webkit-text-fill-color: #fff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  color-scheme: dark;
 }
 .lp-input:focus {
-  border-color: rgba(212,175,55,0.5);
-  background: #1f1a0f !important;
-  box-shadow: 0 0 0 3px rgba(212,175,55,0.08);
+  border-color: rgba(212,175,55,0.6);
+  background: #221c0e !important;
+  box-shadow: 0 0 0 3px rgba(212,175,55,0.1);
 }
-.lp-input::placeholder { color: rgba(255,255,255,0.3) !important; -webkit-text-fill-color: rgba(255,255,255,0.3) !important; }
+.lp-input::placeholder { 
+  color: rgba(255,255,255,0.35) !important; 
+  -webkit-text-fill-color: rgba(255,255,255,0.35) !important; 
+}
 .lp-input:-webkit-autofill,
+.lp-input:-webkit-autofill:hover,
 .lp-input:-webkit-autofill:focus {
   -webkit-box-shadow: 0 0 0 1000px #1a1510 inset !important;
-  -webkit-text-fill-color: #fff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  caret-color: #ffffff;
 }
 .lp-input-hint {
   font-size: 10px;
