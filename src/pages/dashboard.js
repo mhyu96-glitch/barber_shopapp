@@ -16,7 +16,17 @@ export function renderDashboard(container) {
   const user = storage.getCurrentUser();
   const isSuperAdmin = user?.isSuperAdmin || false;
   const isBarber = user?.role === 'barber';
-  const barberId = user?.barberId;
+  // barberId dari profiles.barber_id (link ke tabel barbers)
+  // Jika tidak ada, cari barber berdasarkan nama user
+  let barberId = user?.barberId;
+  if (!barberId && isBarber) {
+    // Cari barber yang namanya cocok dengan nama user
+    const barbers = storage.getAll('barbers');
+    const matchedBarber = barbers.find(b => 
+      b.name?.toLowerCase() === (user?.fullName || user?.username || '').toLowerCase()
+    );
+    if (matchedBarber) barberId = matchedBarber.id;
+  }
 
   const now = new Date();
   calendarYear = now.getFullYear();

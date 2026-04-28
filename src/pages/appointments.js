@@ -15,11 +15,25 @@ let filterStatus = 'all';
 let filterDate = 'today';
 
 export function renderAppointments(container) {
+  const user = storage.getCurrentUser();
+  const isBarber = user?.role === 'barber';
   const appointments = storage.getAll('appointments');
   const todayStr = new Date().toISOString().split('T')[0];
 
+  // Cari barberId untuk barber yang login
+  let myBarberId = user?.barberId;
+  if (!myBarberId && isBarber) {
+    const barbers = storage.getAll('barbers');
+    const matched = barbers.find(b => b.name?.toLowerCase() === (user?.fullName || user?.username || '').toLowerCase());
+    if (matched) myBarberId = matched.id;
+  }
+
   // Filter
   let filtered = [...appointments];
+  // Barber hanya lihat janji miliknya
+  if (isBarber && myBarberId) {
+    filtered = filtered.filter(a => a.barberId === myBarberId);
+  }
   if (filterStatus !== 'all') filtered = filtered.filter(a => a.status === filterStatus);
   if (filterDate === 'today') filtered = filtered.filter(a => a.date === todayStr);
   else if (filterDate === 'upcoming') filtered = filtered.filter(a => a.date >= todayStr && a.status !== 'done' && a.status !== 'cancelled');
