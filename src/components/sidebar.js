@@ -39,6 +39,12 @@ export function renderSidebar(container, activePage) {
   const isSuperAdmin = user?.isSuperAdmin || false;
   const activeBranch = branches.find(b => b.id === activeBranchId) || branches[0];
 
+  // Barber mobile: render bottom nav instead of sidebar
+  if (role === 'barber') {
+    _renderBarberMobileNav(container, hash);
+    return;
+  }
+
   const renderNavItem = (page, icon, label, colorHex = '#a0aec0', extraHtml = '') => {
     const isActive = hash === page;
     return `
@@ -134,6 +140,22 @@ export function renderSidebar(container, activePage) {
         ${renderNavItem('logbook', 'fas fa-book', 'Catatan Harian', '#fdcb6e')}
         
         ${role === 'admin' ? renderNavItem('settings', 'fas fa-cog', 'Pengaturan', '#b2bec3') : ''}
+
+        ${window.electronAPI?.isElectron ? `
+          <div class="nav-section-title">Desktop</div>
+          <button class="nav-item" id="queue-display-btn">
+            <div style="background: #00cec915; color: #00cec9; border-radius: 8px; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 14px;"><i class="fas fa-tv"></i></div>
+            <span style="font-weight: 600;">Tampilan TV Antrian</span>
+          </button>
+          <button class="nav-item" id="auto-backup-btn">
+            <div style="background: #0984e315; color: #0984e3; border-radius: 8px; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 14px;"><i class="fas fa-database"></i></div>
+            <span style="font-weight: 600;">Auto Backup</span>
+          </button>
+          <button class="nav-item" id="check-update-btn">
+            <div style="background: #6c5ce715; color: #6c5ce7; border-radius: 8px; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 14px;"><i class="fas fa-arrow-up-from-bracket"></i></div>
+            <span style="font-weight: 600;">Cek Update</span>
+          </button>
+        ` : ''}
       `}
 
       <div style="margin-top: auto; padding-top: 20px;">
@@ -144,7 +166,7 @@ export function renderSidebar(container, activePage) {
       </div>
     </nav>
     <div style="padding: 14px; border-top: 1px solid var(--border); text-align: center;">
-      <small style="color: var(--text-muted); font-size: 11px;">BarberPro v2.5</small>
+      <small style="color: var(--text-muted); font-size: 11px;">BarberPro v${window.electronAPI?.appVersion || '2.5'}</small>
     </div>
   `;
 
@@ -155,20 +177,47 @@ export function renderSidebar(container, activePage) {
     });
   });
 
-  // Role-based visibility for sections
+  // Desktop feature buttons (web + electron)
+  container.querySelector('#queue-display-btn')?.addEventListener('click', async () => {
+    const { queueDisplay } = await import('../utils/desktopFeatures.js');
+    const isOpen = await queueDisplay.isOpen();
+    if (isOpen) {
+      queueDisplay.close();
+      showToast('📺 Tampilan Antrian ditutup', 'info');
+    } else {
+      queueDisplay.open();
+    }
+  });
+
+  container.querySelector('#auto-backup-btn')?.addEventListener('click', async () => {
+    const { autoBackup } = await import('../utils/desktopFeatures.js');
+    autoBackup.showSettingsModal();
+  });
+
+  container.querySelector('#check-update-btn')?.addEventListener('click', async () => {
+    const { updateChecker } = await import('../utils/desktopFeatures.js');
+    updateChecker.check();
+  });
+
+  if (window.electronAPI?.isElectron) {
+    // Electron-only: nothing extra needed here
+  }
+
+  // Role-based visibility — barber hanya lihat menu yang relevan
   if (role === 'barber') {
-    const adminPages = ['barbers', 'services', 'reports', 'expenses', 'inventory'];
-    container.querySelectorAll('.nav-item').forEach(item => {
-      if (adminPages.includes(item.dataset.page)) {
+    // Halaman yang BOLEH dilihat barber
+    const barberAllowed = ['dashboard', 'appointments', 'queue', 'customers', 'attendance'];
+    container.querySelectorAll('.nav-item[data-page]').forEach(item => {
+      if (!barberAllowed.includes(item.dataset.page)) {
         item.style.display = 'none';
       }
     });
 
-    // Hide labels
+    // Sembunyikan section title yang semua isinya tersembunyi
     container.querySelectorAll('.nav-section-title').forEach(title => {
-      if (title.textContent === 'Kelola' || title.textContent === 'Bisnis') {
-        // We might want to keep some items in Bisnis, but usually admin only
-        // Re-check specific ones if needed
+      const section = title.textContent.trim();
+      if (section === 'Bisnis' || section === 'Lainnya' || section === 'Desktop') {
+        title.style.display = 'none';
       }
     });
   }
@@ -251,3 +300,158 @@ function getPendingPortalCount() {
   const appointments = storage.getAll('appointments');
   return appointments.filter(a => a.status === 'pending' && a.source === 'portal').length;
 }
+
+// ── Barber Mobile Bottom Navigation ──────────────────────────────────────────
+function _renderBarberMobileNav(container, activePage) {
+  const user = storage.getCurrentUser();
+  const isMobile = window.innerWidth <= 768;
+
+  if (!isMobile) {
+    // Desktop: render sidebar biasa untuk barber
+    _renderBarberDesktopSidebar(container, activePage, user);
+    return;
+  }
+
+  // Mobile: sembunyikan sidebar, tampilkan bottom nav
+  container.style.display = 'none';
+  container.innerHTML = '';
+
+  // Tambah class ke body untuk CSS targeting
+  document.body.classList.add('role-barber');
+
+  // Sembunyikan burger button
+  const burgerBtn = document.querySelector('.sidebar-toggle');
+  if (burgerBtn) burgerBtn.style.display = 'none';
+
+  // Hapus bottom nav lama jika ada
+  document.getElementById('barber-bottom-nav')?.remove();
+
+  const nav = document.createElement('nav');
+  nav.id = 'barber-bottom-nav';
+  nav.style.cssText = `
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+    background: var(--bg-card);
+    border-top: 1px solid var(--border);
+    display: flex; align-items: stretch;
+    padding: 0 0 env(safe-area-inset-bottom);
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+  `;
+
+  const tabs = [
+    { page: 'dashboard',    icon: 'fa-th-large',          label: 'Beranda',   color: '#3498db' },
+    { page: 'appointments', icon: 'fa-calendar-check',    label: 'Jadwal',    color: '#9b59b6' },
+    { page: 'queue',        icon: 'fa-users-line',         label: 'Antrian',   color: '#00cec9' },
+    { page: 'attendance',   icon: 'fa-clock-rotate-left',  label: 'Presensi',  color: '#e84393' },
+    { page: 'customers',    icon: 'fa-user-group',         label: 'Pelanggan', color: '#1abc9c' },
+  ];
+
+  nav.innerHTML = tabs.map(t => {
+    const isActive = activePage === t.page;
+    return `
+      <button data-page="${t.page}" style="
+        flex: 1; display: flex; flex-direction: column; align-items: center;
+        justify-content: center; gap: 3px; padding: 10px 4px 8px;
+        background: ${isActive ? t.color + '18' : 'transparent'};
+        border: none; cursor: pointer; font-family: inherit;
+        color: ${isActive ? t.color : 'var(--text-muted)'};
+        transition: all 0.2s; border-radius: 0;
+        border-top: 2px solid ${isActive ? t.color : 'transparent'};
+      ">
+        <i class="fas ${t.icon}" style="font-size: 19px; ${isActive ? `filter: drop-shadow(0 0 6px ${t.color}80);` : ''}"></i>
+        <span style="font-size: 9px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase;">${t.label}</span>
+      </button>
+    `;
+  }).join('') + `
+    <button id="barber-logout-nav" style="
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 3px; padding: 10px 4px 8px;
+      background: transparent; border: none; cursor: pointer;
+      color: var(--danger); font-family: inherit;
+      border-top: 2px solid transparent;
+    ">
+      <i class="fas fa-sign-out-alt" style="font-size: 19px;"></i>
+      <span style="font-size: 9px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase;">Keluar</span>
+    </button>
+  `;
+
+  document.body.appendChild(nav);
+
+  // Event listeners
+  nav.querySelectorAll('button[data-page]').forEach(btn => {
+    btn.addEventListener('click', () => navigateTo(btn.dataset.page));
+  });
+  nav.querySelector('#barber-logout-nav')?.addEventListener('click', () => {
+    document.querySelector('#logout-btn')?.click() || storage.logout();
+  });
+
+  // Pastikan main-content punya padding bawah untuk bottom nav
+  const mainContent = document.getElementById('main-content');
+  if (mainContent) mainContent.style.paddingBottom = '80px';
+}
+
+function _renderBarberDesktopSidebar(container, activePage, user) {
+  container.style.display = 'flex';
+  const settings = storage.get('settings', {});
+  const shopName = settings.shopName || 'BarberPro';
+
+  const renderNavItem = (page, icon, label, colorHex = '#a0aec0') => {
+    const isActive = activePage === page;
+    return `
+      <button class="nav-item ${isActive ? 'active' : ''}" data-page="${page}">
+        <div style="background: ${colorHex}15; color: ${colorHex}; border-radius: 8px; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 14px;">
+          <i class="${icon}"></i>
+        </div>
+        <span style="font-weight: 600;">${label}</span>
+      </button>
+    `;
+  };
+
+  container.innerHTML = `
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <i class="fas fa-scissors"></i>
+        <div>
+          <h1>${shopName.length > 14 ? shopName.substring(0, 14) : shopName}</h1>
+          <div class="sidebar-branch-label">
+            <span><i class="fas fa-location-dot"></i> Pusat</span>
+            <span class="badge" style="background: var(--primary-glow); color: var(--primary); font-size: 8px; border: 0.5px solid var(--primary);">LICENSE ACTIVE</span>
+          </div>
+        </div>
+      </div>
+      <div class="user-profile-mini">
+        <div class="user-avatar-mini" style="background: var(--primary); color: #fff;">
+          ${user?.fullName?.[0] || user?.username?.[0] || 'B'}
+        </div>
+        <div class="user-info-mini">
+          <div class="user-name">${user?.fullName || user?.username || 'Barber'}</div>
+          <div class="user-role">BARBER</div>
+        </div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Menu Utama</div>
+      ${renderNavItem('dashboard',    'fas fa-th-large',          'Dashboard',    '#3498db')}
+      ${renderNavItem('appointments', 'fas fa-calendar-check',    'Janji Temu',   '#9b59b6')}
+      ${renderNavItem('queue',        'fas fa-users-line',        'Antrian',      '#00cec9')}
+      <div class="nav-section-title">Kelola</div>
+      ${renderNavItem('customers',    'fas fa-user-group',        'Pelanggan',    '#1abc9c')}
+      ${renderNavItem('attendance',   'fas fa-clock-rotate-left', 'Presensi',     '#e84393')}
+      <div style="margin-top: auto; padding-top: 20px;">
+        <button class="nav-item" id="logout-btn" style="color: var(--danger);">
+          <div style="background: #e74c3c15; color: #e74c3c; border-radius: 8px; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 14px;"><i class="fas fa-sign-out-alt"></i></div>
+          <span style="font-weight: 700;">Keluar Sistem</span>
+        </button>
+      </div>
+    </nav>
+    <div style="padding: 14px; border-top: 1px solid var(--border); text-align: center;">
+      <small style="color: var(--text-muted); font-size: 11px;">BarberPro v2.5</small>
+    </div>
+  `;
+
+  container.querySelectorAll('.nav-item[data-page]').forEach(item => {
+    item.addEventListener('click', () => navigateTo(item.dataset.page));
+  });
+}
+
+
+

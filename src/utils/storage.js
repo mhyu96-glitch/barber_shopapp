@@ -217,7 +217,14 @@ export const storage = {
                 }
                 const { data, error } = await query;
                 if (!error && data) {
-                    const mappedData = data.map(d => this.toCamelCaseObj(d));
+                    let mappedData = data.map(d => this.toCamelCaseObj(d));
+                    // Jangan restore profiles yang sudah dihapus user
+                    if (col === 'profiles') {
+                        const deletedIds = this.get('deleted_profile_ids', []);
+                        if (deletedIds.length > 0) {
+                            mappedData = mappedData.filter(p => !deletedIds.includes(p.id));
+                        }
+                    }
                     this.set(col, mappedData);
                 }
             }
@@ -322,18 +329,34 @@ export const storage = {
     },
 
     async signUp(email, password, fullName, role) {
+        // Email unik: username_timestamp@shopslug.barberpro.local
+        // Simpan juga email ini di metadata agar bisa dicari saat login
+        const uniqueEmail = email.replace('@', `_${Date.now()}@`);
+        
         const { data, error } = await supabase.auth.signUp({
-            email,
+            email: uniqueEmail,
             password,
             options: {
                 data: {
                     full_name: fullName,
-                    role: role
+                    role: role,
+                    login_email: uniqueEmail  // simpan untuk lookup saat login
                 }
             }
         });
         
         if (error) return { success: false, error: error.message };
+        
+        // Simpan mapping username → email di localStorage untuk login offline
+        const shopId = this.get('shopId');
+        const usernameBase = email.split('@')[0]; // ambil bagian username
+        const loginMap = this.get('staff_login_map', {});
+        loginMap[usernameBase] = uniqueEmail;
+        if (shopId) loginMap[`${usernameBase}.${shopId}`] = uniqueEmail;
+        this.set('staff_login_map', loginMap);
+        
+        return { success: true, user: data.user, loginEmail: uniqueEmail };
         return { success: true, user: data.user };
     }
 };
+

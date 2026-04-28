@@ -6,7 +6,7 @@ import { storage } from './storage.js';
 
 export function initSampleData() {
     // Current data version for synchronization
-    const CURRENT_DATA_VERSION = '2.7';
+    const CURRENT_DATA_VERSION = '2.8';
     const lastVersion = storage.get('data_version', '0');
 
     console.log(`🔍 Checking Data Consistency (v${lastVersion} -> v${CURRENT_DATA_VERSION})...`);
@@ -15,16 +15,16 @@ export function initSampleData() {
         // Safe Check: If gallery is empty (could be overwritten by empty cloud sync), repopulate
         const currentGallery = storage.getAll('gallery');
         if (currentGallery.length === 0) {
-            console.log('🔄 Gallery empty but version v2.7 detected. Repopulating for safety...');
+            console.log('🔄 Gallery empty but version v2.8 detected. Repopulating for safety...');
         } else {
             console.log('✅ Data already at latest version.');
             return;
         }
     }
 
-    // Hard reset for version jumps that changed data structures (v2.6 and v2.7)
-    if (parseFloat(lastVersion) < 2.7) {
-        console.log('🧹 Performing Clean Reset for Cloud Sync (v2.7 upgrade)...');
+    // Hard reset for version jumps
+    if (parseFloat(lastVersion) < 2.8) {
+        console.log('🧹 Performing Clean Reset for Cloud Sync (v2.8 upgrade)...');
         storage.clearCollection('gallery');
         storage.clearCollection('promos');
     }
@@ -33,22 +33,32 @@ export function initSampleData() {
 
     // Services Catalog
     const defaultServices = [
-        { name: 'Potong Rambut', price: 35000, duration: 30, icon: 'fa-scissors', description: 'Potong rambut standar pria' },
-        { name: 'Cukur Jenggot', price: 20000, duration: 15, icon: 'fa-razor', description: 'Trim & shaping jenggot' },
-        { name: 'Potong + Cukur', price: 50000, duration: 45, icon: 'fa-cut', description: 'Paket potong rambut dan cukur jenggot' },
-        { name: 'Hair Coloring', price: 150000, duration: 90, icon: 'fa-palette', description: 'Pewarnaan rambut premium' },
-        { name: 'Creambath', price: 75000, duration: 60, icon: 'fa-spa', description: 'Perawatan rambut creambath' },
-        { name: 'Hair Wash', price: 15000, duration: 15, icon: 'fa-shower', description: 'Cuci rambut + pijat kepala' },
-        { name: 'Kids Cut', price: 25000, duration: 20, icon: 'fa-child', description: 'Potong rambut anak-anak' },
-        { name: 'Pomade Styling', price: 45000, duration: 30, icon: 'fa-wand-magic-sparkles', description: 'Styling dengan pomade premium' },
-        // New Premium Additions (Default Rp 0)
-        { name: 'Konsultasi Gaya Rambut', price: 0, duration: 10, icon: 'fa-comments', description: 'Diskusi gaya rambut yang cocok untuk Anda' },
-        { name: 'Pijat Kepala & Bahu', price: 0, duration: 15, icon: 'fa-hand-holding-heart', description: 'Relaksasi pijat kepala dan bahu' },
-        { name: 'Cuci Rambut Relaksasi', price: 0, duration: 15, icon: 'fa-shower', description: 'Cuci rambut bersih dengan pijat' },
-        { name: 'Aplikasi Hair Tonic', price: 0, duration: 5, icon: 'fa-bottle-droplet', description: 'Nutrisi akar rambut dengan hair tonic premium' },
-        { name: 'Styling & Finish', price: 0, duration: 10, icon: 'fa-wind', description: 'Styling akhir menggunakan hair dryer & wax/pomade' },
-        { name: 'Premium Aftershave', price: 0, duration: 5, icon: 'fa-spray-can', description: 'Kesegaran maksimal setelah cukur' },
-        { name: 'Hair Tattoo / Design Line', price: 0, duration: 10, icon: 'fa-wand-magic', description: 'Sentuhan seni garis rambut' },
+        // ── Layanan Utama ──────────────────────────────────────────
+        { name: 'Potong Rambut',          price: 35000,  duration: 30,  icon: 'fa-scissors',              description: 'Potong rambut standar pria, rapi dan bersih.' },
+        { name: 'Cukur Jenggot',          price: 20000,  duration: 15,  icon: 'fa-razor',                 description: 'Trim & shaping jenggot dengan pisau cukur.' },
+        { name: 'Potong + Cukur',         price: 50000,  duration: 45,  icon: 'fa-cut',                   description: 'Paket hemat potong rambut dan cukur jenggot.' },
+        { name: 'Kids Cut',               price: 25000,  duration: 20,  icon: 'fa-child',                 description: 'Potong rambut anak-anak, sabar dan menyenangkan.' },
+        { name: 'Hair Coloring',          price: 150000, duration: 90,  icon: 'fa-palette',               description: 'Pewarnaan rambut premium dengan bahan berkualitas.' },
+        { name: 'Creambath',              price: 75000,  duration: 60,  icon: 'fa-spa',                   description: 'Perawatan rambut creambath, lembut dan berkilau.' },
+        { name: 'Hair Wash',              price: 15000,  duration: 15,  icon: 'fa-shower',                description: 'Cuci rambut bersih + pijat kepala menyegarkan.' },
+        { name: 'Pomade Styling',         price: 45000,  duration: 30,  icon: 'fa-wand-magic-sparkles',   description: 'Styling dengan pomade premium pilihan.' },
+
+        // ── Layanan Tambahan (harga 0 — isi sesuai kebutuhan) ──────
+        { name: 'Konsultasi Gaya Rambut', price: 0,      duration: 10,  icon: 'fa-comments',              description: 'Diskusi gaya rambut yang paling cocok untuk Anda.' },
+        { name: 'Pijat Kepala & Bahu',    price: 0,      duration: 15,  icon: 'fa-hand-holding-heart',    description: 'Relaksasi pijat kepala dan bahu setelah potong.' },
+        { name: 'Cuci Rambut Relaksasi',  price: 0,      duration: 15,  icon: 'fa-shower',                description: 'Cuci rambut bersih dengan teknik pijat relaksasi.' },
+        { name: 'Aplikasi Hair Tonic',    price: 0,      duration: 5,   icon: 'fa-bottle-droplet',        description: 'Nutrisi akar rambut dengan hair tonic premium.' },
+        { name: 'Styling & Finish',       price: 0,      duration: 10,  icon: 'fa-wind',                  description: 'Finishing dengan hair dryer & wax/pomade pilihan.' },
+        { name: 'Premium Aftershave',     price: 0,      duration: 5,   icon: 'fa-spray-can',             description: 'Kesegaran maksimal setelah cukur dengan aftershave.' },
+        { name: 'Hair Tattoo / Design',   price: 0,      duration: 10,  icon: 'fa-wand-magic',            description: 'Sentuhan seni garis rambut (line art / design).' },
+        { name: 'Cukur Kumis',            price: 0,      duration: 10,  icon: 'fa-razor',                 description: 'Rapikan dan bentuk kumis sesuai selera.' },
+        { name: 'Blow Dry',               price: 0,      duration: 10,  icon: 'fa-wind',                  description: 'Pengeringan rambut dengan blow dryer profesional.' },
+        { name: 'Keramas + Kondisioner',  price: 0,      duration: 20,  icon: 'fa-shower',                description: 'Keramas bersih dengan kondisioner perawatan rambut.' },
+        { name: 'Paket Pengantin Pria',   price: 0,      duration: 90,  icon: 'fa-crown',                 description: 'Paket lengkap grooming untuk hari spesial pengantin pria.' },
+        { name: 'Paket VIP Eksekutif',    price: 0,      duration: 75,  icon: 'fa-star',                  description: 'Potong + cukur + creambath + pijat kepala. Pengalaman premium.' },
+        { name: 'Highlight Rambut',       price: 0,      duration: 60,  icon: 'fa-palette',               description: 'Highlight sebagian rambut untuk tampilan lebih dinamis.' },
+        { name: 'Smoothing / Rebonding',  price: 0,      duration: 120, icon: 'fa-spa',                   description: 'Pelurusan rambut semi permanen, hasil halus dan lurus.' },
+        { name: 'Facial Pria',            price: 0,      duration: 30,  icon: 'fa-face-smile',            description: 'Perawatan wajah dasar untuk kulit pria yang sehat.' },
     ];
 
     // Style Lookbook

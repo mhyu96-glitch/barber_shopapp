@@ -3,7 +3,7 @@
 // ========================================
 
 export function openModal(title, bodyHTML, footerHTML = '', options = {}) {
-    closeModal(); // close any existing
+    closeModal();
 
     const maxWidth = options.maxWidth || '560px';
 
@@ -23,7 +23,20 @@ export function openModal(title, bodyHTML, footerHTML = '', options = {}) {
     </div>
   `;
 
-    document.getElementById('modal-root').appendChild(overlay);
+    document.body.appendChild(overlay);
+
+    // Di mobile: hapus inline max-width agar CSS media query bisa berlaku
+    if (window.innerWidth <= 768) {
+      const modalEl = overlay.querySelector('.modal');
+      if (modalEl) {
+        modalEl.style.maxWidth = '';
+        modalEl.style.width = '100%';
+        modalEl.style.margin = '0';
+        modalEl.style.borderRadius = '20px 20px 0 0';
+      }
+      overlay.style.alignItems = 'flex-end';
+      overlay.style.padding = '0';
+    }
 
     // Animate in
     requestAnimationFrame(() => overlay.classList.add('active'));
@@ -66,3 +79,6 @@ export function confirmDialog(message, onConfirm, title = 'Konfirmasi') {
         onConfirm();
     });
 }
+
+
+

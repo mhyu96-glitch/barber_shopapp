@@ -29,6 +29,7 @@ import { renderSignup } from './pages/signup.js';
 import { renderPOS } from './pages/pos.js';
 import { renderSuperAdmin } from './pages/superAdmin.js';
 import { renderFeedbackPublic } from './pages/feedback_public.js';
+import { initDesktopFeatures, queueDisplay, autoBackup, syncTrayQueueCount } from './utils/desktopFeatures.js';
 
 // Initialize theme
 initTheme();
@@ -84,22 +85,36 @@ export function navigateTo(page) {
 
   const sidebar = document.getElementById('sidebar');
   const mainContent = document.getElementById('main-content');
+  const burgerBtn = document.querySelector('.sidebar-toggle');
   const noSidebarPages = ['login', 'feedback', 'super-admin'];
+
+  // Bersihkan barber bottom nav jika pindah ke halaman tanpa sidebar
+  if (noSidebarPages.includes(page)) {
+    document.getElementById('barber-bottom-nav')?.remove();
+    document.body.classList.remove('role-barber');
+  }
+  
+  // Jika bukan barber, hapus bottom nav dan class
+  const currentUser = storage.getCurrentUser();
+  if (currentUser?.role !== 'barber') {
+    document.getElementById('barber-bottom-nav')?.remove();
+    document.body.classList.remove('role-barber');
+  }
   
   if (noSidebarPages.includes(page)) {
     if (sidebar) sidebar.style.display = 'none';
+    if (burgerBtn) burgerBtn.style.display = 'none';
     if (mainContent) {
       mainContent.style.marginLeft = '0';
       mainContent.style.width = '100%';
-      // Only force zero padding for login/feedback, let super-admin use its internal padding
       mainContent.style.padding = (page === 'super-admin') ? '' : '0';
     }
   } else {
-    // Show sidebar for app pages
     if (sidebar) {
       sidebar.style.display = 'flex';
       renderSidebar(sidebar, page);
     }
+    if (burgerBtn) burgerBtn.style.display = '';
     if (mainContent) {
       mainContent.style.marginLeft = '';
       mainContent.style.width = '';
@@ -114,6 +129,13 @@ export function navigateTo(page) {
   document.querySelectorAll('.nav-item').forEach(item => {
     item.classList.toggle('active', item.dataset.page === page);
   });
+
+  // Sync tray queue count on every navigation (Electron)
+  if (window.electronAPI?.isElectron) {
+    syncTrayQueueCount();
+    // Also push to queue display window if open
+    import('./utils/desktopFeatures.js').then(m => m.queueDisplay.pushData());
+  }
 
   // Close mobile sidebar
   document.getElementById('sidebar')?.classList.remove('open');
@@ -240,6 +262,9 @@ async function initApp() {
     }
   }
   
+  // Initialize desktop features (Electron only)
+  initDesktopFeatures(navigateTo);
+
   storage.setupRealtime();
 
   // Listen for realtime Supabase Updates
@@ -413,3 +438,4 @@ document.addEventListener('click', async (e) => {
 
 // Boot
 document.addEventListener('DOMContentLoaded', initApp);
+

@@ -11,18 +11,39 @@ const DAYS_SHORT = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
 const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'];
 
 const STYLE_IMAGES = {
-    'Fade Cut': 'linear-gradient(135deg, #667eea, #764ba2)',
-    'Undercut': 'linear-gradient(135deg, #f093fb, #f5576c)',
-    'Pompadour': 'linear-gradient(135deg, #4facfe, #00f2fe)',
-    'Buzz Cut': 'linear-gradient(135deg, #43e97b, #38f9d7)',
-    'Mullet': 'linear-gradient(135deg, #fa709a, #fee140)',
-    'Crew Cut': 'linear-gradient(135deg, #a18cd1, #fbc2eb)',
-    'Textured Crop Fade': 'url("https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=400")',
-    'Classic Pompadour': 'url("https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=400")',
-    'Skin Fade Buzz Cut': 'url("https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=400")',
-    'Side Part Quiff': 'url("https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=400")',
-    'Modern Mullet': 'url("https://images.unsplash.com/photo-1620302380595-64c3c3933cff?w=400")',
-    'Classic Crew Cut': 'url("https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=400")'
+    // Foto nyata per gaya rambut (Unsplash)
+    'Fade Cut':             'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400&q=80',
+    'Undercut':             'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=400&q=80',
+    'Pompadour':            'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=400&q=80',
+    'Buzz Cut':             'https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=400&q=80',
+    'Mullet':               'https://images.unsplash.com/photo-1620302380595-64c3c3933cff?w=400&q=80',
+    'Crew Cut':             'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=400&q=80',
+    'Textured Crop':        'https://images.unsplash.com/photo-1567894340315-735d7c361db0?w=400&q=80',
+    'Textured Crop Fade':   'https://images.unsplash.com/photo-1567894340315-735d7c361db0?w=400&q=80',
+    'Classic Pompadour':    'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=400&q=80',
+    'Skin Fade Buzz Cut':   'https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=400&q=80',
+    'Side Part Quiff':      'https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=400&q=80',
+    'Modern Mullet':        'https://images.unsplash.com/photo-1620302380595-64c3c3933cff?w=400&q=80',
+    'Classic Crew Cut':     'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=400&q=80',
+    'Quiff':                'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&q=80',
+    'Slick Back':           'https://images.unsplash.com/photo-1534297635766-a262cdcb8ee4?w=400&q=80',
+    'French Crop':          'https://images.unsplash.com/photo-1593702288056-7cc3b3e24b6e?w=400&q=80',
+    'Caesar Cut':           'https://images.unsplash.com/photo-1504703395950-b89145a5425b?w=400&q=80',
+    'Ivy League':           'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&q=80',
+    'Mohawk':               'https://images.unsplash.com/photo-1520975916090-3105956dac38?w=400&q=80',
+    'Faux Hawk':            'https://images.unsplash.com/photo-1520975916090-3105956dac38?w=400&q=80',
+    'Comb Over':            'https://images.unsplash.com/photo-1534297635766-a262cdcb8ee4?w=400&q=80',
+    'Taper Fade':           'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400&q=80',
+    'High Fade':            'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400&q=80',
+    'Low Fade':             'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=400&q=80',
+    'Mid Fade':             'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=400&q=80',
+    'Skin Fade':            'https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=400&q=80',
+    'Drop Fade':            'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400&q=80',
+    'Burst Fade':           'https://images.unsplash.com/photo-1567894340315-735d7c361db0?w=400&q=80',
+    'Temple Fade':          'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=400&q=80',
+    'Bald Fade':            'https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=400&q=80',
+    // Default fallback
+    '_default':             'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400&q=80',
 };
 
 // === Storage helpers (read-only from main app's localStorage) ===
@@ -351,12 +372,17 @@ function renderHeader() {
   document.getElementById('portal-header').innerHTML = `
     <div class="portal-header">
       <div class="portal-header-inner">
-        <div class="portal-logo">
+        <div class="portal-logo" onclick="renderHome(); window.scrollTo({top:0});" style="cursor:pointer;">
           <i class="fas fa-scissors"></i>
           <h1>${shopName}</h1>
         </div>
         <div class="portal-header-actions">
-          <button class="p-btn p-btn-secondary p-btn-sm" onclick="showStatusCheckModal()">
+          <button class="p-btn p-btn-sm" onclick="renderHome(); window.scrollTo({top:0});"
+            style="background:transparent; color:var(--p-text2); border:1px solid var(--p-border); gap:6px;">
+            <i class="fas fa-home"></i> Beranda
+          </button>
+          <button class="p-btn p-btn-sm" onclick="showStatusCheckModal()"
+            style="background:transparent; color:var(--p-text2); border:1px solid var(--p-border); gap:6px;">
             <i class="fas fa-search"></i> Cek Status
           </button>
         </div>
@@ -390,166 +416,434 @@ window.renderHome = function () {
   currentStep = 0;
   const settings = sGet('settings', {});
   const shopName = settings.shopName || 'BarberPro Studio';
+  const address = settings.address || '';
+  const phone = settings.phone || '';
+  const openTime = settings.openTime || '08:00';
+  const closeTime = settings.closeTime || '21:00';
+  const closedDays = settings.closedDays || [0];
   const promos = sGetAll('promos').filter(p => p.active && new Date(p.endDate) >= new Date());
   const barbers = sGetAll('barbers');
   const services = sGetAll('services');
-  const gallery = sGetAll('gallery'); // Ambil data lookbook
+  const gallery = sGetAll('gallery');
 
-  // Get public reviews (done appointments with ratings)
+  // Jam buka / tutup
+  const now = new Date();
+  const dayNow = now.getDay();
+  const timeNow = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const isClosedDay = closedDays.includes(dayNow);
+  const isOpen = !isClosedDay && timeNow >= openTime && timeNow <= closeTime;
+
+  // Reviews dari appointments
   const reviews = sGetAll('appointments')
     .filter(a => a.status === 'done' && a.rating > 0)
     .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''))
-    .slice(0, 5);
+    .slice(0, 6);
+
+  // Avg rating
+  const avgRating = reviews.length > 0
+    ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
+    : '5.0';
 
   const main = document.getElementById('portal-main');
   main.innerHTML = `
     <div class="portal-main fade-in">
-      <div class="portal-hero">
-        <h2>${t('welcome')} <span>${shopName}</span></h2>
-        <p>${t('hero_sub')}</p>
+
+      <!-- HERO -->
+      <div class="portal-hero" style="padding: 48px 16px 32px; position: relative; overflow: hidden;">
+        <div style="position: absolute; top: -60px; left: 50%; transform: translateX(-50%); width: 300px; height: 300px; background: radial-gradient(circle, var(--p-accent-glow) 0%, transparent 70%); pointer-events: none;"></div>
+        
+        <!-- Status Buka/Tutup -->
+        <div style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; margin-bottom: 16px;
+          background: ${isOpen ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)'};
+          color: ${isOpen ? 'var(--p-success)' : 'var(--p-danger)'};
+          border: 1px solid ${isOpen ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'};">
+          <span style="width: 7px; height: 7px; border-radius: 50%; background: currentColor; ${isOpen ? 'animation: blink 1.5s infinite;' : ''}"></span>
+          ${isOpen ? `BUKA • Tutup ${closeTime}` : `TUTUP • Buka ${openTime}`}
+        </div>
+
+        <h2 style="font-size: 30px; font-weight: 900; margin-bottom: 10px; line-height: 1.2;">
+          ${t('welcome')} <span style="color: var(--p-accent);">${shopName}</span>
+        </h2>
+        <p style="color: var(--p-text2); font-size: 15px; max-width: 420px; margin: 0 auto 8px;">
+          ${t('hero_sub')}
+        </p>
+
+        <!-- Rating & Stats -->
+        <div style="display: flex; align-items: center; justify-content: center; gap: 16px; margin: 16px 0 24px; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 700; color: var(--p-warning);">
+            <i class="fas fa-star"></i> ${avgRating}
+            <span style="color: var(--p-muted); font-weight: 400;">(${reviews.length} ulasan)</span>
+          </div>
+          ${barbers.length > 0 ? `
+            <div style="width: 1px; height: 16px; background: var(--p-border);"></div>
+            <div style="font-size: 13px; color: var(--p-muted);">
+              <i class="fas fa-user-tie" style="color: var(--p-accent);"></i> ${barbers.length} Barber Profesional
+            </div>
+          ` : ''}
+          ${services.length > 0 ? `
+            <div style="width: 1px; height: 16px; background: var(--p-border);"></div>
+            <div style="font-size: 13px; color: var(--p-muted);">
+              <i class="fas fa-scissors" style="color: var(--p-accent);"></i> ${services.length} Layanan
+            </div>
+          ` : ''}
+        </div>
+
+        <button class="p-btn p-btn-primary" onclick="startBooking()" style="font-size: 16px; padding: 14px 40px; border-radius: 50px; box-shadow: 0 6px 24px var(--p-accent-glow);">
+          <i class="fas fa-calendar-plus"></i> ${t('btn_book_now')}
+        </button>
+
+        ${phone ? `
+          <div style="margin-top: 14px;">
+            <a href="https://wa.me/${phone.replace(/\D/g,'')}" target="_blank" style="color: #25d366; font-size: 13px; text-decoration: none; font-weight: 600;">
+              <i class="fab fa-whatsapp"></i> Hubungi via WhatsApp
+            </a>
+          </div>
+        ` : ''}
       </div>
 
-      <!-- Live Queue Status -->
+      <style>
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+      </style>
+
+      <!-- Live Queue -->
       ${renderLiveQueue()}
 
-      <!-- CTA -->
-      <div style="text-align: center; margin-bottom: 32px;">
-        <button class="p-btn p-btn-primary" onclick="startBooking()" style="font-size: 16px; padding: 14px 40px; box-shadow: 0 4px 15px var(--p-accent-glow);">
-          <i class="fas fa-calendar-plus"></i> Booking Sekarang
-        </button>
-      </div>
-
-      <!-- Gallery Style Menu -->
-      ${gallery.length > 0 ? `
-        <div style="margin-bottom: 32px;">
-          <h3 style="font-size: 16px; margin-bottom: 12px;"><i class="fas fa-camera-retro" style="color: var(--p-accent);"></i> Inspirasi Style Potongan</h3>
-          <div class="portal-gallery-carousel" style="display: flex; gap: 16px; overflow-x: auto; padding: 10px 0 20px; scroll-snap-type: x mandatory; scrollbar-width: none;">
-            ${gallery.map(item => {
-    const imgUrl = item.image_url || item.url || item.image;
-    const title = item.title || item.name || 'Masterpiece';
-    const bg = STYLE_IMAGES[title] || 'linear-gradient(135deg, #1c1b1b, #212121)';
-    return `
-              <div class="portal-gallery-card p-card" style="flex: 0 0 160px; scroll-snap-align: start; border-radius: 18px; overflow: hidden; position: relative; aspect-ratio: 3/4; padding: 0; border: 1px solid var(--p-border);">
-                ${imgUrl ? `<img src="${imgUrl}" style="width: 100%; height: 100%; object-fit: cover;" alt="${title}" loading="lazy" />` : `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: ${bg}; background-size: cover; background-position: center;"><i class="fas fa-cut" style="font-size: 32px; color: rgba(255,255,255,0.15);"></i></div>`}
-                <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 40px 12px 10px; background: linear-gradient(to top, rgba(0,0,0,0.95), transparent); color: white;">
-                  <div style="font-size: 8px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--p-accent); margin-bottom: 2px; font-weight: 800;">${item.category || 'EXECUTIVE STYLE'}</div>
-                  <div style="font-weight: 700; font-size: 13px; line-height: 1.2; margin-bottom: 8px; letter-spacing: -0.2px;">${title}</div>
-                  <button class="p-btn p-btn-sm p-btn-primary" style="width: 100%; font-size: 10px; padding: 6px; border-radius: 8px;" onclick="useLookbookStyle('${title}')">
-                    PILIH GAYA
-                  </button>
-                </div>
-              </div>
-            `;
-  }).join('')}
+      <!-- Happy Hour Banner -->
+      ${isHappyHourNow() ? `
+        <div style="background: linear-gradient(135deg, #facc15, #f59e0b); border-radius: 16px; padding: 14px 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; color: #111;">
+          <div style="font-size: 24px;">⚡</div>
+          <div>
+            <div style="font-weight: 800; font-size: 14px;">HAPPY HOUR AKTIF!</div>
+            <div style="font-size: 12px; opacity: 0.8;">Diskon ${sGet('settings',{}).hhDiscount || 0}% untuk semua layanan • Berlaku s/d ${sGet('settings',{}).hhEnd}</div>
           </div>
         </div>
       ` : ''}
 
-      <!-- Active Promos -->
+      <!-- Promo Banner -->
       ${promos.length > 0 ? `
         <div style="margin-bottom: 28px;">
-          <h3 style="font-size: 16px; margin-bottom: 12px;"><i class="fas fa-tags" style="color: var(--p-accent);"></i> ${t('promo_title')}</h3>
-          ${promos.map(p => {
-    const svc = services.find(s => s.id === p.serviceId);
-    return `
-              <div class="promo-banner">
-                <div class="promo-icon"><i class="fas fa-percent"></i></div>
-                <div style="flex: 1;">
-                  <div style="font-weight: 700; font-size: 14px;">${p.name}</div>
-                  <div style="font-size: 12px; color: var(--p-muted);">
-                    ${p.type === 'percentage' ? `Diskon ${p.discount}%` : `Hemat Rp ${p.discount.toLocaleString('id')}`}
-                    ${svc ? ` untuk ${svc.name}` : ''} • s/d ${formatDateShort(p.endDate)}
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+            <h3 style="font-size: 16px; font-weight: 800;"><i class="fas fa-tags" style="color: var(--p-accent);"></i> ${t('promo_title')}</h3>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            ${promos.map(p => {
+              const svc = services.find(s => s.id === p.serviceId);
+              return `
+                <div class="promo-banner" style="cursor: pointer;" onclick="startBooking()">
+                  <div class="promo-icon"><i class="fas fa-percent"></i></div>
+                  <div style="flex: 1;">
+                    <div style="font-weight: 700; font-size: 14px;">${p.name}</div>
+                    <div style="font-size: 12px; color: var(--p-muted); margin-top: 2px;">
+                      ${p.type === 'percentage' ? `Diskon ${p.discount}%` : `Hemat Rp ${Number(p.discount).toLocaleString('id')}`}
+                      ${svc ? ` untuk <b>${svc.name}</b>` : ' untuk semua layanan'} • s/d ${formatDateShort(p.endDate)}
+                    </div>
                   </div>
+                  <span class="p-badge p-badge-gold">PROMO</span>
                 </div>
-                <span class="p-badge p-badge-gold">PROMO</span>
-              </div>
-            `;
-  }).join('')}
+              `;
+            }).join('')}
+          </div>
         </div>
       ` : ''}
 
-      <!-- Our Barbers -->
+      <!-- Gallery / Inspirasi Style -->
+      ${gallery.length > 0 ? `
+        <div style="margin-bottom: 32px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+            <h3 style="font-size: 16px; font-weight: 800;"><i class="fas fa-camera-retro" style="color: var(--p-accent);"></i> Inspirasi Style</h3>
+            <span style="font-size: 12px; color: var(--p-muted);">Geser →</span>
+          </div>
+          <div class="portal-gallery-carousel" style="display: flex; gap: 14px; overflow-x: auto; padding: 4px 0 16px; scroll-snap-type: x mandatory;">
+            ${gallery.map(item => {
+              const imgUrl = item.image_url || item.url || item.image;
+              const title = item.title || item.name || 'Style';
+              // Prioritas: foto dari gallery data → STYLE_IMAGES → default
+              const photoUrl = imgUrl || STYLE_IMAGES[title] || STYLE_IMAGES['_default'];
+              return `
+                <div style="flex: 0 0 150px; scroll-snap-align: start; border-radius: 18px; overflow: hidden; position: relative; aspect-ratio: 3/4; border: 1px solid var(--p-border); cursor: pointer;" onclick="useLookbookStyle('${title}')">
+                  <img src="${photoUrl}" 
+                    style="width:100%;height:100%;object-fit:cover;display:block;" 
+                    alt="${title}" 
+                    loading="lazy"
+                    onerror="this.src='${STYLE_IMAGES['_default']}'"
+                  />
+                  <div style="position:absolute;bottom:0;left:0;right:0;padding:36px 10px 10px;background:linear-gradient(to top,rgba(0,0,0,0.9),transparent);">
+                    <div style="font-size:8px;text-transform:uppercase;letter-spacing:1.5px;color:var(--p-accent);font-weight:800;">${item.category || 'STYLE'}</div>
+                    <div style="font-weight:700;font-size:12px;color:#fff;margin-top:2px;">${title}</div>
+                    <div style="margin-top:6px;background:var(--p-accent);color:#000;font-size:9px;font-weight:800;padding:4px 8px;border-radius:6px;text-align:center;letter-spacing:0.5px;">PILIH GAYA</div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      ` : `
+        <!-- Fallback: tampilkan style default dengan foto nyata -->
+        <div style="margin-bottom: 32px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+            <h3 style="font-size: 16px; font-weight: 800;"><i class="fas fa-camera-retro" style="color: var(--p-accent);"></i> Inspirasi Style</h3>
+            <span style="font-size: 12px; color: var(--p-muted);">Geser →</span>
+          </div>
+          <div class="portal-gallery-carousel" style="display: flex; gap: 14px; overflow-x: auto; padding: 4px 0 16px; scroll-snap-type: x mandatory;">
+            ${[
+              { title: 'Fade Cut',      category: 'MODERN',   photo: STYLE_IMAGES['Fade Cut'] },
+              { title: 'Undercut',      category: 'TRENDY',   photo: STYLE_IMAGES['Undercut'] },
+              { title: 'Pompadour',     category: 'CLASSIC',  photo: STYLE_IMAGES['Pompadour'] },
+              { title: 'Buzz Cut',      category: 'SIMPLE',   photo: STYLE_IMAGES['Buzz Cut'] },
+              { title: 'Crew Cut',      category: 'CLASSIC',  photo: STYLE_IMAGES['Crew Cut'] },
+              { title: 'Quiff',         category: 'STYLISH',  photo: STYLE_IMAGES['Quiff'] },
+              { title: 'Slick Back',    category: 'FORMAL',   photo: STYLE_IMAGES['Slick Back'] },
+              { title: 'Taper Fade',    category: 'POPULAR',  photo: STYLE_IMAGES['Taper Fade'] },
+            ].map(s => `
+              <div style="flex:0 0 150px;scroll-snap-align:start;border-radius:18px;overflow:hidden;position:relative;aspect-ratio:3/4;border:1px solid var(--p-border);cursor:pointer;" onclick="useLookbookStyle('${s.title}')">
+                <img src="${s.photo}" 
+                  style="width:100%;height:100%;object-fit:cover;display:block;" 
+                  alt="${s.title}" 
+                  loading="lazy"
+                  onerror="this.src='${STYLE_IMAGES['_default']}'"
+                />
+                <div style="position:absolute;bottom:0;left:0;right:0;padding:36px 10px 10px;background:linear-gradient(to top,rgba(0,0,0,0.9),transparent);">
+                  <div style="font-size:8px;text-transform:uppercase;letter-spacing:1.5px;color:var(--p-accent);font-weight:800;">${s.category}</div>
+                  <div style="font-weight:700;font-size:12px;color:#fff;margin-top:2px;">${s.title}</div>
+                  <div style="margin-top:6px;background:var(--p-accent);color:#000;font-size:9px;font-weight:800;padding:4px 8px;border-radius:6px;text-align:center;letter-spacing:0.5px;">PILIH GAYA</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `}
+
+      <!-- Layanan -->
+      ${(() => {
+        // Filter hanya layanan dengan harga > 0 untuk portal
+        const visibleServices = services.filter(s => s.price > 0);
+        if (visibleServices.length === 0) return '';
+
+        // Definisi kategori
+        const CATEGORIES = {
+          'Potong': { icon: 'fa-scissors', keywords: ['potong', 'cut', 'kids', 'anak', 'fade', 'undercut', 'crop'] },
+          'Cukur': { icon: 'fa-razor', keywords: ['cukur', 'jenggot', 'kumis', 'shave', 'beard'] },
+          'Perawatan': { icon: 'fa-spa', keywords: ['creambath', 'hair wash', 'keramas', 'tonic', 'kondisioner', 'wash', 'cuci', 'pijat', 'relaksasi', 'facial'] },
+          'Styling': { icon: 'fa-wand-magic-sparkles', keywords: ['styling', 'pomade', 'blow', 'finish', 'wax', 'gel'] },
+          'Warna': { icon: 'fa-palette', keywords: ['color', 'warna', 'highlight', 'smoothing', 'rebonding'] },
+          'Paket': { icon: 'fa-star', keywords: ['paket', 'combo', 'vip', 'pengantin', 'eksekutif'] },
+        };
+
+        // Tentukan kategori tiap layanan
+        function getCategory(name) {
+          const lower = name.toLowerCase();
+          for (const [cat, cfg] of Object.entries(CATEGORIES)) {
+            if (cfg.keywords.some(k => lower.includes(k))) return cat;
+          }
+          return 'Lainnya';
+        }
+
+        // Badge populer (layanan dengan harga tertinggi di kategorinya atau nama mengandung kata kunci)
+        function getBadge(s) {
+          const lower = s.name.toLowerCase();
+          if (lower.includes('paket') || lower.includes('combo') || lower.includes('vip')) return { label: 'HEMAT', color: '#10b981', bg: 'rgba(16,185,129,0.15)' };
+          if (lower.includes('potong rambut') || lower.includes('fade cut')) return { label: 'POPULER', color: '#f59e0b', bg: 'rgba(245,158,11,0.15)' };
+          if (lower.includes('pengantin') || lower.includes('eksekutif')) return { label: 'PREMIUM', color: '#a78bfa', bg: 'rgba(167,139,250,0.15)' };
+          return null;
+        }
+
+        // Kelompokkan per kategori
+        const grouped = {};
+        visibleServices.forEach(s => {
+          const cat = getCategory(s.name);
+          if (!grouped[cat]) grouped[cat] = [];
+          grouped[cat].push(s);
+        });
+
+        return `
+          <div style="margin-bottom: 32px;">
+            <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 6px;">
+              <i class="fas fa-list-check" style="color: var(--p-accent);"></i> ${t('svc_title')}
+            </h3>
+            <p style="font-size: 12px; color: var(--p-muted); margin-bottom: 18px;">Tap layanan untuk langsung booking</p>
+
+            ${Object.entries(grouped).map(([cat, items]) => `
+              <div style="margin-bottom: 20px;">
+                <!-- Label Kategori -->
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+                  <div style="width:28px;height:28px;border-radius:8px;background:var(--p-accent-glow);display:flex;align-items:center;justify-content:center;color:var(--p-accent);font-size:12px;">
+                    <i class="fas ${CATEGORIES[cat]?.icon || 'fa-tag'}"></i>
+                  </div>
+                  <span style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--p-muted);">${cat}</span>
+                  <div style="flex:1;height:1px;background:var(--p-border);"></div>
+                </div>
+
+                <!-- Kartu Layanan -->
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                  ${items.map(s => {
+                    const hhPrice = getServicePrice(s);
+                    const isHH = hhPrice !== s.price;
+                    const badge = getBadge(s);
+                    return `
+                      <div onclick="portalSelectService('${s.id}')"
+                        style="display:flex;align-items:center;gap:14px;padding:14px 16px;
+                          background:var(--p-card);border:1px solid var(--p-border);
+                          border-radius:14px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;"
+                        onmouseover="this.style.borderColor='var(--p-accent)';this.style.transform='translateY(-1px)'"
+                        onmouseout="this.style.borderColor='var(--p-border)';this.style.transform='translateY(0)'">
+
+                        <!-- Icon -->
+                        <div style="width:44px;height:44px;border-radius:12px;background:var(--p-accent-glow);
+                          display:flex;align-items:center;justify-content:center;
+                          color:var(--p-accent);font-size:18px;flex-shrink:0;">
+                          <i class="fas ${s.icon || 'fa-scissors'}"></i>
+                        </div>
+
+                        <!-- Info -->
+                        <div style="flex:1;min-width:0;">
+                          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                            <span style="font-weight:700;font-size:14px;">${s.name}</span>
+                            ${badge ? `<span style="font-size:9px;font-weight:800;padding:2px 7px;border-radius:20px;background:${badge.bg};color:${badge.color};letter-spacing:0.5px;">${badge.label}</span>` : ''}
+                          </div>
+                          <div style="font-size:11px;color:var(--p-muted);margin-top:3px;display:flex;align-items:center;gap:8px;">
+                            <span><i class="far fa-clock"></i> ${s.duration} menit</span>
+                            ${s.description ? `<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px;">${s.description}</span>` : ''}
+                          </div>
+                        </div>
+
+                        <!-- Harga + Tombol -->
+                        <div style="text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+                          <div>
+                            ${isHH ? `<div style="text-decoration:line-through;color:var(--p-muted);font-size:10px;">Rp ${s.price.toLocaleString('id')}</div>` : ''}
+                            <div style="font-weight:900;color:var(--p-accent);font-size:15px;line-height:1;">Rp ${hhPrice.toLocaleString('id')}</div>
+                            ${isHH ? `<div style="font-size:8px;background:#facc15;color:#111;padding:1px 5px;border-radius:4px;font-weight:800;margin-top:2px;">HH</div>` : ''}
+                          </div>
+                          <div style="background:var(--p-accent);color:#0f1117;font-size:10px;font-weight:800;
+                            padding:5px 12px;border-radius:20px;letter-spacing:0.3px;white-space:nowrap;">
+                            Pilih →
+                          </div>
+                        </div>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      })()}
+
+      <!-- Tim Barber -->
       ${barbers.length > 0 ? `
-        <div style="margin-bottom: 28px;">
-          <h3 style="font-size: 16px; margin-bottom: 12px;"><i class="fas fa-user-tie" style="color: var(--p-accent);"></i> ${t('barber_title')}</h3>
-          <div class="barber-grid">
-            ${barbers.map(b => `
-              <div class="p-card" style="text-align: center; padding: 24px; border-radius: 24px;">
-                <div class="barber-avatar" style="${b.avatar ? `background: url(${b.avatar}) center/cover; border: 3px solid var(--p-accent-glow);` : ''} width: 72px; height: 72px; margin-bottom: 12px;">
-                  ${b.avatar ? '' : getInitials(b.name)}
-                </div>
-                <div class="barber-name" style="font-size: 16px;">${b.name}</div>
-                <div class="barber-spec" style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;">${b.specialization || 'MASTER BARBER'}</div>
-                <div class="barber-rating" style="margin-top: 8px; background: var(--p-warning-bg); display: inline-block; padding: 2px 8px; border-radius: 12px;">
-                  <i class="fas fa-star" style="font-size: 10px;"></i> ${(b.rating || 4.9).toFixed(1)}
-                </div>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      ` : ''}
-
-      <!-- Services Preview -->
-      ${services.length > 0 ? `
-        <div style="margin-bottom: 28px;">
-          <h3 style="font-size: 16px; margin-bottom: 12px;"><i class="fas fa-list-check" style="color: var(--p-accent);"></i> ${t('svc_title')}</h3>
-          <div class="service-grid">
-    ${services.map(s => `
-              <div class="p-card service-option" onclick="selectService('${s.id}')" style="padding: 18px; position: relative; overflow: hidden; margin-bottom: 12px; display: flex; align-items: center; gap: 16px; border-radius: 20px;">
-                ${(s.name || '').toLowerCase().includes('paket') || (s.name || '').toLowerCase().includes('combo') ? 
-                  `<div style="position: absolute; top: 0; right: 0; background: var(--p-accent); color: #000; font-size: 8px; font-weight: 900; padding: 4px 12px; border-bottom-left-radius: 12px; text-transform: uppercase; letter-spacing: 1px; z-index: 2;">BEST VALUE</div>` : ''}
-                
-                <div class="atelier-aura">
-                  <i class="fas ${s.icon || 'fa-scissors'}"></i>
-                </div>
-                
-                <div style="flex: 1;">
-                  <div style="font-weight: 800; font-size: 15px; letter-spacing: -0.2px; margin-bottom: 2px;">${s.name}</div>
-                  <div style="font-size: 11px; color: var(--p-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
-                    <i class="far fa-clock" style="margin-right: 4px;"></i> ${s.duration} MENIT
+        <div style="margin-bottom: 32px;">
+          <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 14px;"><i class="fas fa-user-tie" style="color: var(--p-accent);"></i> ${t('barber_title')}</h3>
+          <div style="display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;scroll-snap-type:x mandatory;">
+            ${barbers.map(b => {
+              const bReviews = sGetAll('appointments').filter(a => a.barberId === b.id && a.rating > 0);
+              const bRating = bReviews.length > 0 ? (bReviews.reduce((s,r)=>s+r.rating,0)/bReviews.length).toFixed(1) : (b.rating||4.9).toFixed(1);
+              return `
+                <div class="p-card" style="flex:0 0 160px;scroll-snap-align:start;text-align:center;padding:20px 14px;border-radius:20px;cursor:pointer;" onclick="startBooking()">
+                  <div style="width:64px;height:64px;border-radius:50%;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#0f1117;
+                    ${b.avatar ? `background:url(${b.avatar}) center/cover;border:2px solid var(--p-accent-glow);` : 'background:linear-gradient(135deg,var(--p-accent-dk),var(--p-accent));'}">
+                    ${b.avatar ? '' : getInitials(b.name)}
+                  </div>
+                  <div style="font-weight:700;font-size:14px;">${b.name}</div>
+                  <div style="font-size:10px;color:var(--p-muted);text-transform:uppercase;letter-spacing:0.8px;margin-top:3px;">${b.specialization||'Master Barber'}</div>
+                  <div style="margin-top:8px;display:inline-flex;align-items:center;gap:4px;background:var(--p-warning-bg);color:var(--p-warning);padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;">
+                    <i class="fas fa-star" style="font-size:9px;"></i> ${bRating}
                   </div>
                 </div>
-                
-                <div style="text-align: right;">
-                  <div style="font-weight: 900; color: var(--p-accent); font-size: 17px; letter-spacing: -0.5px;">Rp ${(s.price || 0).toLocaleString('id')}</div>
-                  <div style="font-size: 9px; color: var(--p-muted); font-weight: 700;">NET • WITA</div>
-                </div>
-              </div>
-            `).join('')}
+              `;
+            }).join('')}
           </div>
         </div>
       ` : ''}
 
-      <!-- Public Reviews -->
+      <!-- Ulasan Pelanggan -->
       ${reviews.length > 0 ? `
-        <div style="margin-bottom: 28px;">
-          <h3 style="font-size: 16px; margin-bottom: 12px;"><i class="fas fa-star" style="color: var(--p-warning);"></i> ${t('review_title')}</h3>
-          <div class="p-card">
+        <div style="margin-bottom: 32px;">
+          <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 14px;"><i class="fas fa-star" style="color: var(--p-warning);"></i> ${t('review_title')}</h3>
+          <div style="display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;scroll-snap-type:x mandatory;">
             ${reviews.map(r => `
-              <div class="review-card">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                  <span style="font-weight: 600;">${r.customerName}</span>
-                  <span style="color: var(--p-warning);">${'⭐'.repeat(r.rating)}</span>
+              <div class="p-card" style="flex:0 0 240px;scroll-snap-align:start;padding:16px;border-radius:16px;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+                  <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--p-accent-dk),var(--p-accent));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#0f1117;flex-shrink:0;">
+                    ${(r.customerName||'?')[0].toUpperCase()}
+                  </div>
+                  <div>
+                    <div style="font-weight:700;font-size:13px;">${r.customerName||'Pelanggan'}</div>
+                    <div style="font-size:10px;color:var(--p-muted);">${formatDateShort(r.date)}</div>
+                  </div>
                 </div>
-                <div style="font-size: 13px; color: var(--p-muted);">${r.serviceName} • ${r.barberName} • ${formatDateShort(r.date)}</div>
+                <div style="color:var(--p-warning);font-size:12px;margin-bottom:8px;">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>
+                <div style="font-size:12px;color:var(--p-text2);line-height:1.5;font-style:italic;">"${r.notes||r.comment||'Pelayanan sangat memuaskan!'}"</div>
+                <div style="font-size:10px;color:var(--p-muted);margin-top:8px;">✂️ ${r.serviceName||''} • ${r.barberName||''}</div>
               </div>
             `).join('')}
           </div>
         </div>
       ` : ''}
 
-      <!-- Map / Location -->
+      <!-- Info Jam Operasional -->
+      <div style="margin-bottom: 32px;">
+        <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 14px;"><i class="fas fa-clock" style="color: var(--p-accent);"></i> Jam Operasional</h3>
+        <div class="p-card" style="padding: 18px; border-radius: 16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--p-border);">
+            <span style="font-size:14px;color:var(--p-text2);">Senin – Sabtu</span>
+            <span style="font-weight:700;font-size:14px;">${openTime} – ${closeTime} WITA</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--p-border);">
+            <span style="font-size:14px;color:var(--p-text2);">Hari Libur</span>
+            <span style="font-weight:700;font-size:14px;color:var(--p-danger);">
+              ${closedDays.map(d => ['Min','Sen','Sel','Rab','Kam','Jum','Sab'][d]).join(', ')}
+            </span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;">
+            <span style="font-size:14px;color:var(--p-text2);">Status Sekarang</span>
+            <span style="font-weight:700;font-size:13px;padding:4px 12px;border-radius:20px;
+              background:${isOpen?'var(--p-success-bg)':'var(--p-danger-bg)'};
+              color:${isOpen?'var(--p-success)':'var(--p-danger)'};">
+              ${isOpen ? '🟢 BUKA' : '🔴 TUTUP'}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ -->
+      <div style="margin-bottom: 32px;">
+        <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 14px;"><i class="fas fa-circle-question" style="color: var(--p-accent);"></i> FAQ</h3>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          ${[
+            ['Apakah bisa walk-in tanpa booking?', 'Bisa, namun booking online diprioritaskan. Disarankan booking terlebih dahulu untuk menghindari antrian panjang.'],
+            ['Berapa lama proses potong rambut?', 'Rata-rata 30–60 menit tergantung layanan yang dipilih.'],
+            ['Bagaimana cara membatalkan booking?', 'Hubungi kami via WhatsApp dengan menyebutkan kode booking Anda.'],
+            ['Apakah ada diskon untuk pelanggan setia?', 'Ya! Setiap 10 kunjungan, Anda mendapatkan 1 potong rambut GRATIS.'],
+          ].map(([q, a], i) => `
+            <div class="p-card" style="padding:0;border-radius:14px;overflow:hidden;">
+              <button onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'; this.querySelector('i').style.transform=this.nextElementSibling.style.display==='block'?'rotate(180deg)':'rotate(0deg)'"
+                style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:transparent;border:none;color:var(--p-text);font-size:13px;font-weight:600;cursor:pointer;text-align:left;gap:10px;">
+                <span>${q}</span>
+                <i class="fas fa-chevron-down" style="color:var(--p-accent);flex-shrink:0;transition:transform 0.2s;"></i>
+              </button>
+              <div style="display:none;padding:0 16px 14px;font-size:13px;color:var(--p-text2);line-height:1.6;">${a}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- Lokasi -->
       ${renderMapSection()}
 
       <!-- CTA Bottom -->
-      <div style="text-align: center; margin: 32px 0;">
-        <button class="p-btn p-btn-primary p-btn-block" onclick="startBooking()" style="font-size: 16px; padding: 14px;">
-          <i class="fas fa-calendar-plus"></i> Booking Sekarang
+      <div style="text-align:center;margin:32px 0 16px;">
+        <button class="p-btn p-btn-primary p-btn-block" onclick="startBooking()" style="font-size:16px;padding:16px;border-radius:50px;box-shadow:0 6px 24px var(--p-accent-glow);">
+          <i class="fas fa-calendar-plus"></i> ${t('btn_book_now')}
         </button>
+        ${phone ? `
+          <a href="https://wa.me/${phone.replace(/\D/g,'')}" target="_blank" class="p-btn p-btn-wa p-btn-block" style="margin-top:10px;border-radius:50px;font-size:15px;padding:14px;text-decoration:none;display:flex;">
+            <i class="fab fa-whatsapp"></i> Chat WhatsApp
+          </a>
+        ` : ''}
       </div>
+
     </div>
   `;
-}
+};
 
 // === Queue & Loyalty Helpers ===
 function renderLiveQueue() {
@@ -615,6 +909,15 @@ function renderMapSection() {
     </div>
   `;
 }
+
+// Tap layanan dari portal → langsung masuk booking dengan layanan terpilih
+window.portalSelectService = function(id) {
+  const svc = sGetAll('services').find(s => s.id === id);
+  booking = { services: svc ? [svc] : [], barber: null, date: null, time: null, name: '', phone: '', notes: '', promoId: null };
+  currentStep = svc ? 2 : 1;
+  renderWizard();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
 
 // === Start Booking ===
 window.startBooking = function (reset = true) {

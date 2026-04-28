@@ -282,10 +282,23 @@ function showAppointmentForm(editId = null) {
     <form id="appt-form">
       <div class="form-group">
         <label>Pelanggan</label>
-        <select class="form-control" name="customerId" required>
-          <option value="">Pilih pelanggan...</option>
-          ${customers.map(c => `<option value="${c.id}" ${existing?.customerId === c.id ? 'selected' : ''}>${c.name} - ${formatter.phoneDisplay(c.phone)}</option>`).join('')}
-        </select>
+        <div style="position: relative;">
+          <input type="text" id="customer-search" class="form-control" placeholder="Cari nama pelanggan..." autocomplete="off"
+            style="padding-right: 36px;"
+            value="${existing ? (customers.find(c=>c.id===existing.customerId)?.name || '') : ''}" />
+          <i class="fas fa-search" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:13px;pointer-events:none;"></i>
+          <input type="hidden" name="customerId" id="customer-id-hidden" value="${existing?.customerId || ''}" required />
+        </div>
+        <div id="customer-dropdown" style="display:none; position:absolute; z-index:9999; background:var(--bg-card); border:1px solid var(--border); border-radius:12px; max-height:200px; overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,0.3); margin-top:4px; width:calc(100% - 48px);"></div>
+        <div id="customer-selected-pill" style="margin-top:8px; display:${existing?.customerId ? 'flex' : 'none'}; align-items:center; gap:8px; padding:8px 12px; background:var(--accent-subtle); border:1px solid var(--accent-glow); border-radius:30px; width:fit-content;">
+          <div style="width:28px;height:28px;border-radius:50%;background:var(--accent);color:#0f1117;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;" id="pill-avatar">
+            ${existing ? (customers.find(c=>c.id===existing.customerId)?.name?.[0]?.toUpperCase() || '?') : '?'}
+          </div>
+          <span style="font-size:13px;font-weight:600;color:var(--accent);" id="pill-name">
+            ${existing ? (customers.find(c=>c.id===existing.customerId)?.name || '') : ''}
+          </span>
+          <button type="button" onclick="window.__clearCustomer()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:0;font-size:14px;line-height:1;">×</button>
+        </div>
       </div>
       <div class="form-row">
         <div class="form-group">
@@ -299,47 +312,45 @@ function showAppointmentForm(editId = null) {
           </select>
         </div>
       </div>
-      <div class="form-row">
-        <div class="form-group" style="flex: 1;">
-          <label>Layanan (Bisa pilih lebih dari satu)</label>
-          <div class="service-selection-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; max-height: 150px; overflow-y: auto; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius);">
-            ${services.map(s => {
-              const isChecked = existing?.serviceId === s.id || (existing?.serviceName || '').includes(s.name);
-              return `
-              <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer;">
-                <input type="checkbox" name="serviceIds" value="${s.id}" ${isChecked ? 'checked' : ''} style="width: 16px; height: 16px;" data-name="${s.name}" data-price="${s.price}" data-duration="${s.duration}" />
-                <span>${s.name}</span>
-              </label>
-            `}).join('')}
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Barber</label>
-          <select class="form-control" name="barberId" required>
-            <option value="">Pilih barber...</option>
-            ${barbers.map(b => `<option value="${b.id}" ${existing?.barberId === b.id ? 'selected' : ''}>${b.name}</option>`).join('')}
-          </select>
+      <div class="form-group">
+        <label>Layanan (Bisa pilih lebih dari satu)</label>
+        <div class="service-selection-grid" style="display: grid; grid-template-columns: 1fr; gap: 6px; max-height: 160px; overflow-y: auto; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius);">
+          ${services.map(s => {
+            const isChecked = existing?.serviceId === s.id || (existing?.serviceName || '').includes(s.name);
+            return `
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; padding: 4px 0;">
+              <input type="checkbox" name="serviceIds" value="${s.id}" ${isChecked ? 'checked' : ''} style="width: 16px; height: 16px; flex-shrink: 0;" data-name="${s.name}" data-price="${s.price}" data-duration="${s.duration}" />
+              <span style="flex: 1;">${s.name}</span>
+              <span style="font-size: 11px; color: var(--accent); flex-shrink: 0;">Rp ${(s.price||0).toLocaleString('id')}</span>
+            </label>
+          `}).join('')}
         </div>
       </div>
-        <div class="form-group">
-          <label>Pembayaran</label>
-          <select class="form-control" name="paymentStatus" id="payment-status-select">
-            <option value="unpaid" ${existing?.paymentStatus === 'unpaid' ? 'selected' : ''}>Belum Bayar</option>
-            <option value="dp" ${existing?.paymentStatus === 'dp' ? 'selected' : ''}>DP (Uang Muka)</option>
-            <option value="paid" ${existing?.paymentStatus === 'paid' ? 'selected' : ''}>Lunas</option>
-            <option value="package" ${existing?.paymentStatus === 'package' ? 'selected' : ''}>Paket Membership</option>
-          </select>
-        </div>
-        <div class="form-group" id="package-selector-group" style="display: none;">
-          <label>Pilih Paket</label>
-          <select class="form-control" name="usedPackageId" id="package-select">
-            <option value="">Pilih paket aktif...</option>
-          </select>
-        </div>
-        <div class="form-group" id="dp-amount-group" style="display: none;">
-          <label>Jumlah DP</label>
-          <input type="number" class="form-control" name="dpAmount" placeholder="0" value="${existing?.dpAmount || ''}" />
-        </div>
+      <div class="form-group">
+        <label>Barber</label>
+        <select class="form-control" name="barberId" required>
+          <option value="">Pilih barber...</option>
+          ${barbers.map(b => `<option value="${b.id}" ${existing?.barberId === b.id ? 'selected' : ''}>${b.name}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Pembayaran</label>
+        <select class="form-control" name="paymentStatus" id="payment-status-select">
+          <option value="unpaid" ${existing?.paymentStatus === 'unpaid' ? 'selected' : ''}>Belum Bayar</option>
+          <option value="dp" ${existing?.paymentStatus === 'dp' ? 'selected' : ''}>DP (Uang Muka)</option>
+          <option value="paid" ${existing?.paymentStatus === 'paid' ? 'selected' : ''}>Lunas</option>
+          <option value="package" ${existing?.paymentStatus === 'package' ? 'selected' : ''}>Paket Membership</option>
+        </select>
+      </div>
+      <div class="form-group" id="package-selector-group" style="display: none;">
+        <label>Pilih Paket</label>
+        <select class="form-control" name="usedPackageId" id="package-select">
+          <option value="">Pilih paket aktif...</option>
+        </select>
+      </div>
+      <div class="form-group" id="dp-amount-group" style="display: none;">
+        <label>Jumlah DP</label>
+        <input type="number" class="form-control" name="dpAmount" placeholder="0" value="${existing?.dpAmount || ''}" />
       </div>
       <div class="form-group">
         <label>Catatan</label>
@@ -357,11 +368,79 @@ function showAppointmentForm(editId = null) {
 
   openModal(editId ? 'Edit Janji' : 'Janji Temu Baru', body, footer);
 
+  // Customer search pill
+  const searchInput = document.getElementById('customer-search');
+  const dropdown = document.getElementById('customer-dropdown');
+  const hiddenInput = document.getElementById('customer-id-hidden');
+  const pill = document.getElementById('customer-selected-pill');
+  const pillName = document.getElementById('pill-name');
+  const pillAvatar = document.getElementById('pill-avatar');
+
+  window.__clearCustomer = () => {
+    hiddenInput.value = '';
+    searchInput.value = '';
+    pill.style.display = 'none';
+    searchInput.style.display = '';
+    searchInput.focus();
+  };
+
+  searchInput.addEventListener('input', () => {
+    const q = searchInput.value.toLowerCase().trim();
+    const filtered = customers.filter(c =>
+      c.name?.toLowerCase().includes(q) || c.phone?.includes(q)
+    ).slice(0, 8);
+
+    if (!q || filtered.length === 0) {
+      dropdown.style.display = 'none';
+      return;
+    }
+
+    dropdown.style.display = 'block';
+    dropdown.innerHTML = filtered.map(c => `
+      <div data-id="${c.id}" data-name="${c.name}" style="display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border);transition:background 0.15s;"
+        onmouseover="this.style.background='var(--bg-input)'" onmouseout="this.style.background='transparent'">
+        <div style="width:32px;height:32px;border-radius:50%;background:var(--accent);color:#0f1117;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;">
+          ${c.name?.[0]?.toUpperCase() || '?'}
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:600;font-size:13px;">${c.name}</div>
+          <div style="font-size:11px;color:var(--text-muted);">${formatter.phoneDisplay(c.phone) || '-'}</div>
+        </div>
+      </div>
+    `).join('');
+
+    dropdown.querySelectorAll('[data-id]').forEach(item => {
+      item.addEventListener('click', () => {
+        hiddenInput.value = item.dataset.id;
+        pillName.textContent = item.dataset.name;
+        pillAvatar.textContent = item.dataset.name?.[0]?.toUpperCase() || '?';
+        pill.style.display = 'flex';
+        searchInput.style.display = 'none';
+        dropdown.style.display = 'none';
+      });
+    });
+  });
+
+  searchInput.addEventListener('focus', () => {
+    if (searchInput.value) searchInput.dispatchEvent(new Event('input'));
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!dropdown.contains(e.target) && e.target !== searchInput) {
+      dropdown.style.display = 'none';
+    }
+  }, { once: false });
+
+  // Jika sudah ada pelanggan terpilih, sembunyikan input
+  if (existing?.customerId) {
+    searchInput.style.display = 'none';
+  }
+
   // Toggle payment groups
   const paySelect = document.getElementById('payment-status-select');
   const dpGroup = document.getElementById('dp-amount-group');
   const pkgGroup = document.getElementById('package-selector-group');
-  const custSelect = document.querySelector('[name="customerId"]');
+  const custHidden = document.getElementById('customer-id-hidden');
   const pkgSelect = document.getElementById('package-select');
 
   const updatePkgOptions = (custId) => {
@@ -380,17 +459,13 @@ function showAppointmentForm(editId = null) {
   paySelect.addEventListener('change', () => {
     dpGroup.style.display = paySelect.value === 'dp' ? '' : 'none';
     pkgGroup.style.display = paySelect.value === 'package' ? '' : 'none';
-    if (paySelect.value === 'package') updatePkgOptions(custSelect.value);
-  });
-
-  custSelect.addEventListener('change', () => {
-    if (paySelect.value === 'package') updatePkgOptions(custSelect.value);
+    if (paySelect.value === 'package') updatePkgOptions(custHidden.value);
   });
 
   if (paySelect.value === 'dp') dpGroup.style.display = '';
   if (paySelect.value === 'package') {
     pkgGroup.style.display = '';
-    updatePkgOptions(custSelect.value);
+    updatePkgOptions(custHidden.value);
   }
 
   // Save
@@ -749,3 +824,5 @@ function generateInvoice(aptId) {
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
   });
 }
+
+

@@ -23,6 +23,7 @@
       "dist/**/*",
       "electron-main.cjs",
       "preload.cjs",
+      "preload-queue.cjs",
       "package.json",
       "build/**/*"
     ],

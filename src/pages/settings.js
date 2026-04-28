@@ -414,6 +414,73 @@ export function renderSettings(container) {
             <p class="text-xs mt-sm" id="notif-status" style="color: var(--text-muted);"></p>
           </div>
         </div>
+
+        ${window.electronAPI?.isElectron || true ? `
+        <!-- Desktop Features Card -->
+        <div class="card" id="desktop-features-card">
+          <h3 style="margin-bottom: 18px;"><i class="fas fa-desktop" style="color: var(--accent);"></i> Fitur Desktop</h3>
+
+          <!-- Queue Display -->
+          <div class="card-section">
+            <div class="card-section-title">📺 Tampilan Antrian (TV Display)</div>
+            <p class="text-xs text-muted mb-md">Buka jendela khusus untuk ditampilkan di TV/monitor di toko. Menampilkan nomor antrian secara real-time.</p>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-primary btn-sm" id="open-queue-display-btn">
+                <i class="fas fa-tv"></i> Buka Tampilan TV
+              </button>
+              <button class="btn btn-secondary btn-sm" id="close-queue-display-btn">
+                <i class="fas fa-times"></i> Tutup
+              </button>
+            </div>
+          </div>
+
+          <!-- Keyboard Shortcuts -->
+          <div class="card-section" style="border-top: 1px solid var(--border); padding-top: 16px; margin-top: 16px;">
+            <div class="card-section-title">⌨️ Keyboard Shortcuts</div>
+            <div style="display: grid; gap: 8px; margin-top: 8px;">
+              ${[
+                ['Ctrl+Shift+B', 'Buka BarberPro dari mana saja (global)'],
+                ['Ctrl+Shift+N', 'Tambah Appointment baru (global)'],
+                ['Ctrl+Shift+P', 'Buka Kasir / POS (global)'],
+                ['Ctrl+Shift+Q', 'Buka Tampilan Antrian TV (global)'],
+                ['Ctrl+N', 'Appointment baru (saat app aktif)'],
+                ['Ctrl+P', 'Kasir / POS (saat app aktif)'],
+                ['Ctrl+D', 'Dashboard (saat app aktif)'],
+                ['Ctrl+Q', 'Antrian (saat app aktif)'],
+              ].map(([key, desc]) => `
+                <div style="display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: var(--bg-input); border-radius: 8px;">
+                  <kbd style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 5px; padding: 3px 8px; font-size: 11px; font-family: monospace; color: var(--accent); white-space: nowrap; flex-shrink: 0;">${key}</kbd>
+                  <span class="text-xs text-muted">${desc}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- Auto Backup -->
+          <div class="card-section" style="border-top: 1px solid var(--border); padding-top: 16px; margin-top: 16px;">
+            <div class="card-section-title">💾 Auto Backup</div>
+            <p class="text-xs text-muted mb-md">Backup data otomatis ke folder lokal. Menyimpan hingga 30 file backup terakhir.</p>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button class="btn btn-secondary btn-sm" id="settings-backup-config-btn">
+                <i class="fas fa-cog"></i> Konfigurasi Backup
+              </button>
+              <button class="btn btn-primary btn-sm" id="settings-backup-now-btn">
+                <i class="fas fa-download"></i> Backup Sekarang
+              </button>
+            </div>
+            <div id="backup-status-info" style="margin-top: 10px;"></div>
+          </div>
+
+          <!-- Update -->
+          <div class="card-section" style="border-top: 1px solid var(--border); padding-top: 16px; margin-top: 16px;">
+            <div class="card-section-title">🆕 Update Aplikasi</div>
+            <p class="text-xs text-muted mb-md">Versi saat ini: <b>v${window.electronAPI?.appVersion || '2.0.0'}</b></p>
+            <button class="btn btn-secondary btn-sm" id="settings-check-update-btn">
+              <i class="fas fa-arrow-up-from-bracket"></i> Cek Update
+            </button>
+          </div>
+        </div>
+        ` : ''}
       </div>
     </div>
   `;
@@ -472,6 +539,50 @@ export function renderSettings(container) {
     setTheme('light');
     renderSettings(container);
   });
+
+  // Desktop Features (semua platform)
+  {
+    // Queue Display
+    container.querySelector('#open-queue-display-btn')?.addEventListener('click', async () => {
+      const { queueDisplay } = await import('../utils/desktopFeatures.js');
+      queueDisplay.open();
+    });
+    container.querySelector('#close-queue-display-btn')?.addEventListener('click', async () => {
+      const { queueDisplay } = await import('../utils/desktopFeatures.js');
+      queueDisplay.close();
+      showToast('Tampilan Antrian ditutup', 'info');
+    });
+
+    // Backup config
+    container.querySelector('#settings-backup-config-btn')?.addEventListener('click', async () => {
+      const { autoBackup } = await import('../utils/desktopFeatures.js');
+      autoBackup.showSettingsModal();
+    });
+
+    // Backup now
+    container.querySelector('#settings-backup-now-btn')?.addEventListener('click', async () => {
+      const { autoBackup } = await import('../utils/desktopFeatures.js');
+      await autoBackup.performBackup();
+    });
+
+    // Check update
+    container.querySelector('#settings-check-update-btn')?.addEventListener('click', async () => {
+      const { updateChecker } = await import('../utils/desktopFeatures.js');
+      updateChecker.check();
+    });
+
+    // Show backup status
+    (async () => {
+      const { autoBackup } = await import('../utils/desktopFeatures.js');
+      const bs = await autoBackup.getSettings();
+      const statusEl = container.querySelector('#backup-status-info');
+      if (statusEl && bs) {
+        statusEl.innerHTML = bs.enabled
+          ? `<div style="font-size: 12px; color: var(--success);"><i class="fas fa-check-circle"></i> Aktif${bs.folder ? ` • <code style="font-size: 11px;">${bs.folder}</code>` : ''}${bs.lastBackup ? ` • Terakhir: ${new Date(bs.lastBackup).toLocaleString('id-ID')}` : ''}</div>`
+          : `<div style="font-size: 12px; color: var(--text-muted);"><i class="fas fa-circle-xmark"></i> Nonaktif</div>`;
+      }
+    })();
+  }
 
   // Export
   container.querySelector('#export-data-btn').addEventListener('click', () => {

@@ -209,13 +209,14 @@ body {
 }
 
 .p-btn-secondary {
-    background: var(--p-input);
+    background: var(--p-card);
     color: var(--p-text);
     border: 1px solid var(--p-border);
 }
 
 .p-btn-secondary:hover {
     background: var(--p-card-hover);
+    border-color: rgba(255,255,255,0.15);
 }
 
 .p-btn-wa {

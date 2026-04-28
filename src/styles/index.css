@@ -124,7 +124,6 @@ body {
   background: var(--bg-primary);
   color: var(--text-primary);
   line-height: 1.6;
-  overflow-x: hidden;
   min-height: 100vh;
 }
 
@@ -175,6 +174,7 @@ textarea {
 #app {
   display: flex;
   min-height: 100vh;
+  /* Jangan overflow hidden di sini — modal-root ada di luar #app */
 }
 
 .main-content {
@@ -192,7 +192,6 @@ textarea {
     padding-top: 74px;
     padding-bottom: 80px;
     width: 100%;
-    overflow-x: hidden;
   }
 }
 
@@ -850,6 +849,32 @@ body.sidebar-collapsed .sidebar-collapse-btn {
   color: var(--text-muted);
 }
 
+/* Fix browser autocomplete background override */
+.form-control:-webkit-autofill,
+.form-control:-webkit-autofill:hover,
+.form-control:-webkit-autofill:focus,
+.form-control:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px var(--bg-input) inset !important;
+  -webkit-text-fill-color: var(--text-primary) !important;
+  caret-color: var(--text-primary);
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+/* Force dark color scheme on all inputs */
+input, select, textarea {
+  color-scheme: dark;
+  color: var(--text-primary);
+  background-color: var(--bg-input);
+}
+
+/* Extra force untuk mencegah browser override warna input */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+select,
+textarea {
+  background-color: var(--bg-input) !important;
+  color: var(--text-primary) !important;
+}
+
 select.form-control {
   cursor: pointer;
   appearance: none;
@@ -923,26 +948,132 @@ textarea.form-control {
   }
 }
 
-/* SuperAdmin Responsive Utilities */
-.super-admin-header.sticky-header {
-  flex-wrap: wrap;
-  gap: 15px;
-  justify-content: center;
-  text-align: center;
-}
+/* ========================================
+   SuperAdmin Mobile Redesign
+   ======================================== */
+.super-admin-layout { padding: 0 40px; }
+.hide-mobile { display: flex; }
 
 @media (max-width: 768px) {
-  .super-admin-header.sticky-header .header-actions {
-    flex-wrap: wrap;
+
+  /* ── Layout ── */
+  .super-admin-layout { padding: 0 !important; }
+
+  /* ── Mobile Top Bar ── */
+  .mobile-top-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 16px !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* ── Sembunyikan desktop header ── */
+  .super-admin-header.sticky-header {
+    display: none !important;
+  }
+
+  /* ── Bottom Navigation Bar ── */
+  .sa-bottom-nav {
+    display: flex !important;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 200;
+    background: var(--bg-card);
+    border-top: 1px solid var(--border);
+    padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+    gap: 4px;
+    box-shadow: 0 -4px 24px rgba(0,0,0,0.3);
+  }
+  .sa-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
-    width: 100%;
+    gap: 4px;
+    padding: 8px 4px;
+    border-radius: 12px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
   }
-  .super-admin-header.sticky-header button {
-    flex: 1 1 calc(50% - 10px);
-    min-width: 120px;
+  .sa-nav-item i { font-size: 18px; transition: all 0.2s; }
+  .sa-nav-item.active {
+    color: var(--accent);
+    background: var(--accent-subtle);
   }
+  .sa-nav-item.active i { transform: translateY(-2px); }
+  .sa-nav-item.danger { color: var(--danger); }
+  .sa-nav-item.danger:active { background: rgba(239,68,68,0.1); }
+
+  /* ── Content padding ── */
+  #sub-page-container {
+    padding: 12px 14px 90px !important;
+  }
+
+  /* ── Stats: 3 kolom kecil ── */
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;
+    margin-top: 12px !important;
+  }
+  .stat-card {
+    padding: 12px 10px !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 6px !important;
+    border-left: none !important;
+    border-top: 3px solid !important;
+  }
+  .stat-card .stat-icon {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 16px !important;
+    border-radius: 10px !important;
+  }
+  .stat-card h3 { font-size: 20px !important; letter-spacing: -0.5px !important; }
+  .stat-card p { font-size: 9px !important; }
+
+  /* ── Tenant list: card style bukan table ── */
+  .sa-tenant-table { display: none !important; }
+  .sa-tenant-cards { display: flex !important; flex-direction: column; gap: 10px; }
+
+  /* ── Card header ── */
+  .card-header {
+    flex-direction: row !important;
+    gap: 8px !important;
+    align-items: center !important;
+    flex-wrap: wrap;
+  }
+
+  /* ── Table fallback ── */
+  .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { min-width: 480px; }
+
+  /* ── Sembunyikan separator ── */
+  .hide-mobile { display: none !important; }
 }
 
+/* Bottom nav hanya di mobile */
+.sa-bottom-nav { display: none; }
+
+/* Mobile top bar hanya di mobile */
+@media (min-width: 769px) {
+  .mobile-top-bar { display: none !important; }
+  .sa-bottom-nav { display: none !important; }
+}
 /* ========================================
    Tables
    ======================================== */
@@ -1074,11 +1205,12 @@ tbody tr:last-child td {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 9999;
   opacity: 0;
   visibility: hidden;
   transition: all var(--transition);
   padding: 20px;
+  box-sizing: border-box;
 }
 
 .modal-overlay.active {
@@ -1101,6 +1233,71 @@ tbody tr:last-child td {
 
 .modal-overlay.active .modal {
   transform: scale(1) translateY(0);
+}
+
+/* Mobile: modal full width dari bawah */
+@media (max-width: 768px) {
+  .modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+    z-index: 9999;
+  }
+  .modal {
+    max-width: 100% !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-height: 92vh;
+    border-radius: 20px 20px 0 0;
+    transform: translateY(100%);
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+  }
+  .modal-overlay.active .modal {
+    transform: translateY(0);
+  }
+  .modal-header {
+    padding: 16px 20px;
+    flex-shrink: 0;
+  }
+  .modal-header h3 {
+    font-size: 16px;
+  }
+  .modal-body {
+    padding: 16px 20px;
+    overflow-y: auto;
+    flex: 1;
+  }
+  .modal-footer {
+    padding: 12px 20px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+    flex-shrink: 0;
+    position: sticky;
+    bottom: 0;
+    background: var(--bg-card);
+    border-top: 1px solid var(--border);
+  }
+  .modal::before {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+    margin: 10px auto 0;
+    flex-shrink: 0;
+  }
+}
+
+/* Sembunyikan burger untuk barber di mobile */
+@media (max-width: 768px) {
+  body.role-barber .sidebar-toggle {
+    display: none !important;
+  }
+  body.role-barber .sidebar {
+    display: none !important;
+  }
 }
 
 .modal-header {
@@ -2199,3 +2396,79 @@ tbody tr:last-child td {
     border-top: 1px solid var(--border);
   }
 }
+
+/* Mobile top bar super admin */
+@media (max-width: 768px) {
+  .mobile-top-bar { display: flex !important; }
+}
+
+/* Barber dashboard mobile */
+@media (max-width: 768px) {
+  .hide-on-mobile { display: none !important; }
+  .show-on-mobile { display: block !important; }
+}
+@media (min-width: 769px) {
+  .show-on-mobile { display: none !important; }
+}
+
+/* ── Barber Dashboard Mobile ── */
+@media (max-width: 768px) {
+  /* Stats barber — 3 kolom penuh */
+  .stats-grid.stagger {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  /* Stat card barber lebih compact & terbaca */
+  .stat-card {
+    padding: 14px 10px !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 6px !important;
+  }
+  .stat-card .stat-icon {
+    width: 38px !important;
+    height: 38px !important;
+    font-size: 16px !important;
+    border-radius: 10px !important;
+  }
+  .stat-card .stat-info h3 {
+    font-size: 18px !important;
+    letter-spacing: -0.5px !important;
+  }
+  .stat-card .stat-info p {
+    font-size: 9px !important;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  /* Quick action barber — full width buttons */
+  .barber-quick-actions {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+  .barber-quick-actions .btn {
+    height: 48px !important;
+    font-size: 13px !important;
+    border-radius: 12px !important;
+    justify-content: center !important;
+  }
+
+  /* Next appointment card — lebih prominent */
+  .next-appt-card {
+    border-radius: 16px !important;
+    padding: 16px !important;
+  }
+
+  /* Jadwal list mobile */
+  .queue-item {
+    padding: 12px !important;
+  }
+  .queue-number {
+    font-size: 12px !important;
+    min-width: 44px !important;
+  }
+}
+

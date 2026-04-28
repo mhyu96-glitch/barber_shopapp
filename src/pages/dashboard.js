@@ -83,7 +83,7 @@ export function renderDashboard(container) {
     : `Belum ada janji hari ini. Waktunya promosi! 🚀`;
 
   container.innerHTML = `
-    <div id="platform-announcements-container"></div>
+    ${!isBarber ? `<div id="platform-announcements-container"></div>` : ''}
 
     ${isSuperAdmin ? `
       <div class="card" style="background: var(--accent-subtle); border: 1px dashed var(--accent); margin-bottom: 24px; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; border-radius: var(--radius-md);">
@@ -116,6 +116,7 @@ export function renderDashboard(container) {
 
     <!-- Stats -->
     <div class="stats-grid stagger">
+      ${!isBarber ? `
       <div class="card stat-card" style="border-bottom: 3px solid var(--success);">
         <div class="stat-icon green"><i class="fas fa-cash-register"></i></div>
         <div class="stat-info">
@@ -123,6 +124,7 @@ export function renderDashboard(container) {
           <p>Omset Hari Ini</p>
         </div>
       </div>
+      ` : ''}
       <div class="card stat-card">
         <div class="stat-icon gold"><i class="fas fa-calendar-check"></i></div>
         <div class="stat-info">
@@ -144,16 +146,16 @@ export function renderDashboard(container) {
           <p>${monthLabels}</p>
         </div>
       </div>
+      ${!isBarber ? `
       <div class="card stat-card">
         <div class="stat-icon purple"><i class="fas fa-users"></i></div>
         <div class="stat-info">
           <h3>${customers.length}</h3>
-          <p>${isBarber ? 'Total Pelanggan Shop' : 'Total Pelanggan'}</p>
+          <p>Total Pelanggan</p>
         </div>
       </div>
+      ` : ''}
     </div>
-
-    <!-- Birthday Alert -->
     ${birthdayCustomers.length > 0 ? `
       <div class="card" style="border-left: 3px solid var(--warning); margin-bottom: 20px; padding: 16px 20px;">
         <div class="flex gap-sm" style="align-items: center;">
@@ -171,27 +173,29 @@ export function renderDashboard(container) {
       </div>
     ` : ''}
 
-    <!-- AI Advisor -->
-    ${renderAIAdvisor(appointments, customers, storage.get('settings', {}))}
+    <!-- AI Advisor — hanya admin -->
+    ${!isBarber ? renderAIAdvisor(appointments, customers, storage.get('settings', {})) : ''}
 
-    <!-- Pending Portal Bookings -->
-    ${renderPendingBookings(appointments)}
+    <!-- Pending Portal Bookings — hanya admin -->
+    ${!isBarber ? renderPendingBookings(appointments) : ''}
 
-    <!-- Target Progress -->
-    ${renderTargetSection(appointments, customers, now)}
+    <!-- Target Progress — hanya admin -->
+    ${!isBarber ? renderTargetSection(appointments, customers, now) : ''}
 
-    <!-- Monthly Revenue Trend -->
-    ${renderMonthlyTrend(appointments)}
+    <!-- Monthly Revenue Trend — hanya admin -->
+    ${!isBarber ? renderMonthlyTrend(appointments) : ''}
 
-    <!-- Analytics Row -->
+    <!-- Analytics Row — hanya admin -->
+    ${!isBarber ? `
     <div class="grid-2" style="align-items: start; margin-bottom: 20px;">
       ${renderPeakHoursHeatmap(appointments)}
       ${renderBarberPerformance(appointments)}
     </div>
+    ` : ''}
 
     <div class="grid-2" style="align-items: start;">
-      <!-- Calendar -->
-      <div class="calendar-container" id="dashboard-calendar"></div>
+      <!-- Calendar — sembunyikan di mobile untuk barber -->
+      <div class="calendar-container ${isBarber ? 'hide-on-mobile' : ''}" id="dashboard-calendar"></div>
 
       <!-- Today's Appointments + Upcoming -->
       <div style="display: flex; flex-direction: column; gap: 16px;">
@@ -248,70 +252,126 @@ export function renderDashboard(container) {
           `}
         </div>
 
-        <!-- Latest Feedback -->
-        <div class="card">
-          <div class="flex-between mb-md">
-            <span class="fw-700">Feedback Terbaru</span>
-            <span class="text-xs text-muted" style="cursor: pointer;" onclick="showToast('Fitur laporan lengkap feedback segera hadir!', 'info')">Lihat Semua</span>
-          </div>
-          ${(storage.getAll('feedbacks') || []).length > 0 ? `
-            <div style="display: flex; flex-direction: column; gap: 10px;">
-              ${(storage.getAll('feedbacks') || []).sort((a, b) => b.id.localeCompare(a.id)).slice(0, 3).map(f => `
-                <div style="padding: 10px; border-radius: 8px; background: ${f.rating <= 2 ? 'rgba(var(--danger-rgb), 0.08)' : 'var(--bg-input)'}; border-left: 3px solid ${f.rating <= 2 ? 'var(--danger)' : 'var(--success)'};">
-                  <div class="flex-between mb-xs">
-                    <span class="fw-600 text-xs">${f.rating} ⭐</span>
-                    <span class="text-xs text-muted">${f.date}</span>
-                  </div>
-                  <p class="text-xs" style="font-style: italic; line-height: 1.4;">"${f.comment || 'Tanpa komentar'}"</p>
-                  ${f.rating <= 2 ? `<div class="text-xs fw-700 text-danger mt-sm"><i class="fas fa-triangle-exclamation"></i> PERLU PERHATIAN</div>` : ''}
-                </div>
-              `).join('')}
+        <!-- Feedback barber sendiri -->
+        ${isBarber ? `
+          <div class="card">
+            <div class="flex-between mb-md">
+              <span class="fw-700">⭐ Rating Saya</span>
             </div>
-          ` : `
-            <div class="text-center py-20 text-muted text-xs">Belum ada feedback</div>
-          `}
-        </div>
+            ${(() => {
+              const myFeedbacks = storage.getAll('feedbacks').filter(f => f.barberId === barberId);
+              if (myFeedbacks.length === 0) return '<div class="text-center py-20 text-muted text-xs">Belum ada rating</div>';
+              const avg = (myFeedbacks.reduce((s, f) => s + f.rating, 0) / myFeedbacks.length).toFixed(1);
+              const recent = myFeedbacks.sort((a, b) => b.id.localeCompare(a.id)).slice(0, 3);
+              return `
+                <div style="text-align: center; padding: 12px 0; margin-bottom: 12px; border-bottom: 1px solid var(--border);">
+                  <div style="font-size: 36px; font-weight: 900; color: var(--accent);">${avg}</div>
+                  <div style="color: var(--warning); font-size: 18px; margin: 4px 0;">${'★'.repeat(Math.round(avg))}${'☆'.repeat(5 - Math.round(avg))}</div>
+                  <div style="font-size: 12px; color: var(--text-muted);">${myFeedbacks.length} ulasan</div>
+                </div>
+                ${recent.map(f => `
+                  <div style="padding: 8px 0; border-bottom: 1px solid var(--border);">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
+                      <span style="font-size: 12px; font-weight: 600;">${f.customerName || 'Pelanggan'}</span>
+                      <span style="color: var(--warning); font-size: 11px;">${'★'.repeat(f.rating)}</span>
+                    </div>
+                    <p style="font-size: 11px; color: var(--text-muted); font-style: italic;">"${f.comment || 'Tanpa komentar'}"</p>
+                  </div>
+                `).join('')}
+              `;
+            })()}
+          </div>
+        ` : `
+          <!-- Latest Feedback — admin only -->
+          <div class="card">
+            <div class="flex-between mb-md">
+              <span class="fw-700">Feedback Terbaru</span>
+            </div>
+            ${(storage.getAll('feedbacks') || []).length > 0 ? `
+              <div style="display: flex; flex-direction: column; gap: 10px;">
+                ${(storage.getAll('feedbacks') || []).sort((a, b) => b.id.localeCompare(a.id)).slice(0, 3).map(f => `
+                  <div style="padding: 10px; border-radius: 8px; background: ${f.rating <= 2 ? 'rgba(var(--danger-rgb), 0.08)' : 'var(--bg-input)'}; border-left: 3px solid ${f.rating <= 2 ? 'var(--danger)' : 'var(--success)'};">
+                    <div class="flex-between mb-xs">
+                      <span class="fw-600 text-xs">${f.rating} ⭐</span>
+                      <span class="text-xs text-muted">${f.date}</span>
+                    </div>
+                    <p class="text-xs" style="font-style: italic; line-height: 1.4;">"${f.comment || 'Tanpa komentar'}"</p>
+                    ${f.rating <= 2 ? `<div class="text-xs fw-700 text-danger mt-sm"><i class="fas fa-triangle-exclamation"></i> PERLU PERHATIAN</div>` : ''}
+                  </div>
+                `).join('')}
+              </div>
+            ` : `<div class="text-center py-20 text-muted text-xs">Belum ada feedback</div>`}
+          </div>
+        `}
 
         <!-- Quick Actions -->
         <div class="card">
           <span class="fw-700" style="display: block; margin-bottom: 12px;">Aksi Cepat</span>
-          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <button class="btn btn-primary btn-sm" id="quick-add-appt">
-              <i class="fas fa-plus"></i> Janji Baru
-            </button>
-            <button class="btn btn-secondary btn-sm" id="quick-add-customer">
-              <i class="fas fa-user-plus"></i> Pelanggan Baru
-            </button>
-            <button class="btn btn-wa btn-sm" id="quick-send-reminders">
-              <i class="fab fa-whatsapp"></i> Kirim Reminder
-            </button>
-            <button class="btn btn-secondary btn-sm" id="quick-nightly-report" style="background: var(--bg-primary); color: var(--accent); border: 1px solid var(--accent-glow);">
-              <i class="fas fa-moon"></i> Laporan Malam (WA)
-            </button>
-          </div>
+          ${isBarber ? `
+            <div class="barber-quick-actions" style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button class="btn btn-primary" id="quick-checkin-btn" style="flex:1; min-width: 120px;">
+                <i class="fas fa-sign-in-alt"></i> Presensi
+              </button>
+              <button class="btn btn-secondary" id="quick-queue-btn" style="flex:1; min-width: 120px;">
+                <i class="fas fa-users-line"></i> Antrian
+              </button>
+              <button class="btn btn-secondary" id="quick-appt-btn" style="flex:1; min-width: 120px;">
+                <i class="fas fa-calendar-check"></i> Jadwal Saya
+              </button>
+              <button class="btn btn-secondary" id="quick-customer-btn" style="flex:1; min-width: 120px;">
+                <i class="fas fa-users"></i> Pelanggan
+              </button>
+            </div>
+          ` : `
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button class="btn btn-primary btn-sm" id="quick-add-appt">
+                <i class="fas fa-plus"></i> Janji Baru
+              </button>
+              <button class="btn btn-secondary btn-sm" id="quick-add-customer">
+                <i class="fas fa-user-plus"></i> Pelanggan Baru
+              </button>
+              <button class="btn btn-wa btn-sm" id="quick-send-reminders">
+                <i class="fab fa-whatsapp"></i> Kirim Reminder
+              </button>
+              <button class="btn btn-secondary btn-sm" id="quick-nightly-report" style="background: var(--bg-primary); color: var(--accent); border: 1px solid var(--accent-glow);">
+                <i class="fas fa-moon"></i> Laporan Malam (WA)
+              </button>
+            </div>
+          `}
         </div>
       </div>
     </div>
+
+    <!-- Kalender barber — tampil di bawah pada mobile -->
+    ${isBarber ? `<div class="calendar-container show-on-mobile" id="dashboard-calendar-mobile" style="margin-top: 16px;"></div>` : ''}
   `;
 
   // Render calendar
   renderCalendar(container.querySelector('#dashboard-calendar'));
+  if (isBarber) {
+    const mobileCal = container.querySelector('#dashboard-calendar-mobile');
+    if (mobileCal) renderCalendar(mobileCal);
+  }
   
   // Render Attendance Widget
   renderAttendanceWidget(container.querySelector('#dashboard-attendance-container'));
 
-  // Load Platform Announcements
-  loadPlatformNotices(container.querySelector('#platform-announcements-container'));
+  // Load Platform Announcements — hanya admin
+  if (!isBarber) {
+    loadPlatformNotices(container.querySelector('#platform-announcements-container'));
+  }
 
-  // Event listeners
+  // Event listeners — admin
   container.querySelector('#quick-add-appt')?.addEventListener('click', () => navigateTo('appointments'));
   container.querySelector('#quick-add-customer')?.addEventListener('click', () => navigateTo('customers'));
   container.querySelector('#quick-send-reminders')?.addEventListener('click', () => sendTodayReminders());
   container.querySelector('#quick-nightly-report')?.addEventListener('click', () => sendNightlyReport());
-  container.querySelector('#quick-add-customer')?.addEventListener('click', () => navigateTo('customers'));
-  container.querySelector('#quick-send-reminders')?.addEventListener('click', () => {
-    sendTodayReminders();
-  });
+
+  // Event listeners — barber
+  container.querySelector('#quick-checkin-btn')?.addEventListener('click', () => navigateTo('attendance'));
+  container.querySelector('#quick-queue-btn')?.addEventListener('click', () => navigateTo('queue'));
+  container.querySelector('#quick-appt-btn')?.addEventListener('click', () => navigateTo('appointments'));
+  container.querySelector('#quick-customer-btn')?.addEventListener('click', () => navigateTo('customers'));
 
   if (upcoming.length > 0) {
     container.querySelector('#wa-next-btn')?.addEventListener('click', () => {
@@ -984,20 +1044,32 @@ async function renderAttendanceWidget(container) {
         </div>
       `;
     } else {
-      const activeLog = logs ? logs.find(l => l.profile_id === user.id && !l.check_out) : null;
+      // Cari active log — fallback ke log aktif pertama jika profile_id tidak cocok
+      const activeLog = logs
+        ? (logs.find(l => l.profile_id === user.id && !l.check_out) || logs.find(l => !l.check_out))
+        : null;
+      const finishedLog = logs
+        ? (logs.find(l => l.profile_id === user.id && l.check_out) || logs.find(l => l.check_out))
+        : null;
+      const displayLog = activeLog || finishedLog;
+      const isFinished = !activeLog && !!finishedLog;
+
+      // Format waktu dari ISO string
+      const formatT = (t) => t ? (t.includes('T') ? t.split('T')[1].substring(0,5) : t.substring(0,5)) : '';
+
       container.innerHTML = `
-        <div class="card" style="border-left: 4px solid ${activeLog ? 'var(--success)' : 'var(--warning)'}; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; padding: 16px; gap: 12px; margin-bottom: 24px;">
+        <div class="card" style="border-left: 4px solid ${activeLog ? 'var(--success)' : isFinished ? 'var(--info)' : 'var(--warning)'}; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; padding: 16px; gap: 12px; margin-bottom: 24px;">
           <div style="display: flex; align-items: center; gap: 16px;">
-            <div class="stat-icon" style="background: ${activeLog ? 'var(--success-bg)' : 'var(--warning-bg)'}; color: ${activeLog ? 'var(--success)' : 'var(--warning)'}; width: 44px; height: 44px; font-size: 18px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center;">
-                <i class="fas ${activeLog ? 'fa-clock' : 'fa-door-open'}"></i>
+            <div class="stat-icon" style="background: ${activeLog ? 'var(--success-bg)' : isFinished ? 'var(--info-bg)' : 'var(--warning-bg)'}; color: ${activeLog ? 'var(--success)' : isFinished ? 'var(--info)' : 'var(--warning)'}; width: 44px; height: 44px; font-size: 18px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center;">
+                <i class="fas ${activeLog ? 'fa-clock' : isFinished ? 'fa-check-circle' : 'fa-door-open'}"></i>
             </div>
             <div>
-              <div class="fw-700" style="font-size: 18px;">Status: ${activeLog ? 'Sedang Bekerja' : 'Belum Check-In'}</div>
-              <p class="text-sm text-muted">${activeLog ? 'Mulai sejak ' + activeLog.check_in.substring(0, 5) : 'Silakan lakukan presensi hari ini'}</p>
+              <div class="fw-700" style="font-size: 18px;">Status: ${activeLog ? 'Sedang Bekerja' : isFinished ? 'Tugas Selesai' : 'Belum Check-In'}</div>
+              <p class="text-sm text-muted">${activeLog ? 'Mulai sejak ' + formatT(activeLog.check_in) : isFinished ? 'Selesai ' + formatT(finishedLog.check_out) : 'Silakan lakukan presensi hari ini'}</p>
             </div>
           </div>
           <button class="btn ${activeLog ? 'btn-danger' : 'btn-primary'} btn-sm" onclick="window.location.hash='attendance'">
-            <i class="fas fa-sign-in-alt"></i> ${activeLog ? 'Check-Out' : 'Check-In'}
+            <i class="fas fa-sign-in-alt"></i> ${activeLog ? 'Check-Out' : isFinished ? 'Lihat Detail' : 'Check-In'}
           </button>
         </div>
       `;
@@ -1006,3 +1078,5 @@ async function renderAttendanceWidget(container) {
     console.error('Widget error:', err);
   }
 }
+
+

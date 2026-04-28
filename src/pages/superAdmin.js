@@ -16,6 +16,18 @@ function renderMainLayout(container) {
 
   container.innerHTML = `
     <div class="super-admin-layout fade-in" style="max-width: 1400px; margin: 0 auto; padding: 0 40px; min-height: 100vh;">
+
+      <!-- Mobile top bar (hanya tampil di mobile) -->
+      <div class="mobile-top-bar" style="display:none; padding: 14px 16px 0; align-items: center; justify-content: space-between;">
+        <div>
+          <div style="font-size: 16px; font-weight: 900; color: var(--accent); letter-spacing: -0.5px;">MASTER PLATFORM</div>
+          <div style="font-size: 11px; color: var(--text-muted);">Manajemen tenant & sistem global</div>
+        </div>
+        <button id="add-shop-btn-mobile" class="btn btn-primary btn-sm" style="border-radius: 10px; height: 36px; padding: 0 14px; font-size: 12px; font-weight: 800;">
+          <i class="fas fa-plus"></i> Baru
+        </button>
+      </div>
+
       <div class="super-admin-header sticky-header" style="background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 16px 30px; margin: 0 -40px 24px -40px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-sm); z-index: 100; border-radius: 0 0 16px 16px;">
         <div class="header-content" style="padding-left: 10px;">
           <h1 style="font-size: 19px; font-weight: 800; margin: 0; color: var(--accent); letter-spacing: -0.5px; text-transform: uppercase;">Master Platform</h1>
@@ -55,15 +67,50 @@ function renderMainLayout(container) {
       <div id="sub-page-container" style="padding-bottom: 40px;">
         <!-- Content injected here -->
       </div>
+
+      <!-- Mobile Bottom Navigation -->
+      <nav class="sa-bottom-nav">
+        <button class="sa-nav-item ${activeTab === 'tenants' ? 'active' : ''}" id="mob-tab-tenants">
+          <i class="fas fa-store"></i>
+          <span>Tenant</span>
+        </button>
+        <button class="sa-nav-item ${activeTab === 'reports' ? 'active' : ''}" id="mob-tab-reports">
+          <i class="fas fa-chart-pie"></i>
+          <span>Laporan</span>
+        </button>
+        <button class="sa-nav-item ${activeTab === 'broadcast' ? 'active' : ''}" id="mob-tab-broadcast">
+          <i class="fas fa-bullhorn"></i>
+          <span>Umumkan</span>
+        </button>
+        <button class="sa-nav-item" id="mob-add-btn">
+          <i class="fas fa-plus-circle" style="color: var(--accent);"></i>
+          <span style="color: var(--accent);">Daftar</span>
+        </button>
+        <button class="sa-nav-item danger" id="mob-logout-btn">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Keluar</span>
+        </button>
+      </nav>
     </div>
   `;
 
   // Global Listeners
   container.querySelector('#theme-toggle-btn').onclick = toggleTheme;
   container.querySelector('#add-shop-btn').onclick = () => renderAddShopModal();
+  const mobileAddBtn = container.querySelector('#add-shop-btn-mobile');
+  if (mobileAddBtn) mobileAddBtn.onclick = () => renderAddShopModal();
   container.querySelector('#btn-tab-tenants').onclick = () => { activeTab = 'tenants'; renderMainLayout(container); };
   container.querySelector('#btn-tab-reports').onclick = () => { activeTab = 'reports'; renderMainLayout(container); };
   container.querySelector('#btn-tab-broadcast').onclick = () => { activeTab = 'broadcast'; renderMainLayout(container); };
+
+  // Mobile bottom nav
+  container.querySelector('#mob-tab-tenants')?.addEventListener('click', () => { activeTab = 'tenants'; renderMainLayout(container); });
+  container.querySelector('#mob-tab-reports')?.addEventListener('click', () => { activeTab = 'reports'; renderMainLayout(container); });
+  container.querySelector('#mob-tab-broadcast')?.addEventListener('click', () => { activeTab = 'broadcast'; renderMainLayout(container); });
+  container.querySelector('#mob-add-btn')?.addEventListener('click', () => renderAddShopModal());
+  container.querySelector('#mob-logout-btn')?.addEventListener('click', () => {
+    document.querySelector('#master-logout-btn')?.click();
+  });
 
   renderActiveTab(container);
 }
@@ -121,7 +168,14 @@ async function renderTenantsList(container) {
         <h2 style="font-size: 16px;"><i class="fas fa-list"></i> Unit Tenant Terdaftar</h2>
         <button id="refresh-tenants" class="btn btn-ghost btn-sm"><i class="fas fa-sync-alt"></i></button>
       </div>
-      <div class="table-container">
+
+      <!-- Mobile: card list -->
+      <div id="tenant-cards-mobile" class="sa-tenant-cards" style="display:none; padding: 12px 0; gap: 10px; flex-direction: column;">
+        <div style="text-align:center;padding:30px;color:var(--text-muted);"><i class="fas fa-spinner fa-spin"></i></div>
+      </div>
+
+      <!-- Desktop: table -->
+      <div class="table-container sa-tenant-table">
         <table class="data-table">
           <thead>
             <tr>
@@ -155,9 +209,13 @@ async function loadTenants(container) {
     const tbody = container.querySelector('#tenants-body');
     if (shops.length === 0) {
       tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">Belum ada tenant terdaftar.</td></tr>';
+      // Mobile cards juga kosong
+      const mobileCards = container.querySelector('#tenant-cards-mobile');
+      if (mobileCards) mobileCards.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-muted);">Belum ada tenant.</div>';
       return;
     }
 
+    // Desktop table
     tbody.innerHTML = shops.map(shop => `
       <tr>
         <td>
@@ -186,6 +244,52 @@ async function loadTenants(container) {
     tbody.querySelectorAll('.provision-btn').forEach(btn => btn.onclick = () => renderAdminProvisioning(btn.dataset.id, btn.dataset.name, btn.dataset.slug));
     tbody.querySelectorAll('.delete-btn').forEach(btn => btn.onclick = () => handleDeleteShop(shops.find(s => s.id === btn.dataset.id)));
 
+    // Mobile cards
+    const mobileCards = container.querySelector('#tenant-cards-mobile');
+    if (mobileCards) {
+      const statusColor = { active: '#22c55e', trial: '#f59e0b', expired: '#ef4444', deactivated: '#6b7280' };
+      mobileCards.innerHTML = shops.map(shop => `
+        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 10px;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 42px; height: 42px; border-radius: 12px; background: var(--accent-subtle); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; flex-shrink: 0;">
+              ${shop.name?.[0]?.toUpperCase() || 'S'}
+            </div>
+            <div style="flex: 1; min-width: 0;">
+              <div style="font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${shop.name}</div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">/${shop.slug}</div>
+            </div>
+            <span style="font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 20px; background: ${statusColor[shop.status || 'trial']}20; color: ${statusColor[shop.status || 'trial']}; flex-shrink: 0;">
+              ${(shop.status || 'TRIAL').toUpperCase()}
+            </span>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 8px; border-top: 1px solid var(--border);">
+            <div style="font-size: 10px; color: var(--text-muted);">
+              <i class="fas fa-calendar" style="color: var(--accent);"></i>
+              ${new Date(shop.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
+              <span style="margin-left: 8px; background: var(--accent-subtle); color: var(--accent); padding: 2px 6px; border-radius: 4px; font-weight: 700;">
+                ${shop.plan_id ? 'PRO' : 'BASIC'}
+              </span>
+            </div>
+            <div style="display: flex; gap: 6px;">
+              <button class="btn btn-secondary btn-sm mob-edit-btn" data-id="${shop.id}" style="height: 32px; padding: 0 10px; border-radius: 8px; font-size: 12px;">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-ghost btn-sm mob-prov-btn" data-id="${shop.id}" data-name="${shop.name}" data-slug="${shop.slug}" style="height: 32px; padding: 0 10px; border-radius: 8px; font-size: 12px; color: #6366f1;">
+                <i class="fas fa-user-shield"></i>
+              </button>
+              <button class="btn btn-ghost btn-sm mob-del-btn" data-id="${shop.id}" style="height: 32px; padding: 0 10px; border-radius: 8px; font-size: 12px; color: var(--danger);">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      mobileCards.querySelectorAll('.mob-edit-btn').forEach(btn => btn.onclick = () => handleEditShop(shops.find(s => s.id === btn.dataset.id)));
+      mobileCards.querySelectorAll('.mob-prov-btn').forEach(btn => btn.onclick = () => renderAdminProvisioning(btn.dataset.id, btn.dataset.name, btn.dataset.slug));
+      mobileCards.querySelectorAll('.mob-del-btn').forEach(btn => btn.onclick = () => handleDeleteShop(shops.find(s => s.id === btn.dataset.id)));
+    }
+
   } catch (err) { console.error(err); showToast('Gagal memuat tenant.', 'danger'); }
 }
 
@@ -195,24 +299,16 @@ async function loadTenants(container) {
 async function renderAnnouncementsTab(container) {
   container.innerHTML = `
     <div class="card fade-in" style="margin-top: 10px;">
-      <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-        <h2 style="font-size: 16px;"><i class="fas fa-bullhorn"></i> Manajemen Pengumuman Global</h2>
-        <button id="add-notice-btn" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Tambah Pengumuman</button>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h2 style="font-size: 15px; margin: 0;"><i class="fas fa-bullhorn" style="color:var(--accent);"></i> Pengumuman Global</h2>
+        <button id="add-notice-btn" class="btn btn-primary btn-sm" style="height: 36px; padding: 0 14px; font-size: 12px;">
+          <i class="fas fa-plus"></i> Tambah
+        </button>
       </div>
-      <div class="table-container" style="margin-top: 15px;">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Judul & Pesan</th>
-              <th>Tipe</th>
-              <th>Status</th>
-              <th>Aksi</th>
-            </tr>
-          </thead>
-          <tbody id="notices-body">
-            <tr><td colspan="4" style="text-align:center; padding: 40px;"><i class="fas fa-spinner fa-spin"></i> Memuat data...</td></tr>
-          </tbody>
-        </table>
+      <div id="notices-list" style="display: flex; flex-direction: column; gap: 10px;">
+        <div style="text-align:center; padding: 30px; color: var(--text-muted);">
+          <i class="fas fa-spinner fa-spin"></i>
+        </div>
       </div>
     </div>
   `;
@@ -224,31 +320,54 @@ async function renderAnnouncementsTab(container) {
 async function loadNotices(container) {
   try {
     const { data: notices } = await supabase.from('platform_notices').select('*').order('created_at', { ascending: false });
-    const tbody = container.querySelector('#notices-body');
-    
+    const listEl = container.querySelector('#notices-list');
+
     if (!notices || notices.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px;">Belum ada pengumuman.</td></tr>';
+      listEl.innerHTML = `
+        <div style="text-align:center; padding: 30px; color: var(--text-muted);">
+          <i class="fas fa-bullhorn" style="font-size: 28px; opacity: 0.2; display: block; margin-bottom: 8px;"></i>
+          Belum ada pengumuman.
+        </div>`;
       return;
     }
 
-    tbody.innerHTML = notices.map(n => `
-      <tr>
-        <td>
-          <div class="fw-700">${n.title}</div>
-          <div style="font-size: 11px; color: var(--text-muted); max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${n.message}</div>
-        </td>
-        <td><span class="badge" style="background: var(--${n.type}-bg); color: var(--${n.type});">${n.type.toUpperCase()}</span></td>
-        <td><span class="status-badge status-${n.is_active ? 'active' : 'expired'}">${n.is_active ? 'AKTIF' : 'NON-AKTIF'}</span></td>
-        <td>
-          <div class="flex gap-2">
-            <button class="btn-icon toggle-notice-btn" data-id="${n.id}" data-active="${n.is_active}">${n.is_active ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>'}</button>
-            <button class="btn-icon delete-notice-btn" data-id="${n.id}" style="color: #ef4444;"><i class="fas fa-trash"></i></button>
+    const typeColor = { info: '#3b82f6', success: '#22c55e', warning: '#f59e0b', danger: '#ef4444' };
+    const typeIcon  = { info: 'fa-info-circle', success: 'fa-check-circle', warning: 'fa-triangle-exclamation', danger: 'fa-circle-xmark' };
+
+    listEl.innerHTML = notices.map(n => `
+      <div style="background: var(--bg-input); border-radius: 12px; padding: 14px; border-left: 3px solid ${typeColor[n.type] || '#3b82f6'};">
+        <div style="display: flex; align-items: flex-start; gap: 10px;">
+          <i class="fas ${typeIcon[n.type] || 'fa-info-circle'}" style="color: ${typeColor[n.type] || '#3b82f6'}; font-size: 16px; margin-top: 2px; flex-shrink: 0;"></i>
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-weight: 700; font-size: 13px;">${n.title}</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px; line-height: 1.5; word-break: break-word;">${n.message}</div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap;">
+              <span style="font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 6px; background: ${typeColor[n.type]}20; color: ${typeColor[n.type]};">
+                ${n.type.toUpperCase()}
+              </span>
+              <span style="font-size: 10px; padding: 2px 8px; border-radius: 6px; font-weight: 700;
+                background: ${n.is_active ? 'rgba(34,197,94,0.1)' : 'rgba(107,114,128,0.1)'};
+                color: ${n.is_active ? '#22c55e' : '#6b7280'};">
+                ${n.is_active ? '● AKTIF' : '○ NONAKTIF'}
+              </span>
+            </div>
           </div>
-        </td>
-      </tr>
+          <div style="display: flex; flex-direction: column; gap: 6px; flex-shrink: 0;">
+            <button class="btn btn-ghost btn-sm toggle-notice-btn" data-id="${n.id}" data-active="${n.is_active}"
+              style="width: 32px; height: 32px; padding: 0; border-radius: 8px; font-size: 13px;"
+              title="${n.is_active ? 'Nonaktifkan' : 'Aktifkan'}">
+              <i class="fas ${n.is_active ? 'fa-eye-slash' : 'fa-eye'}" style="color: var(--text-muted);"></i>
+            </button>
+            <button class="btn btn-ghost btn-sm delete-notice-btn" data-id="${n.id}"
+              style="width: 32px; height: 32px; padding: 0; border-radius: 8px; font-size: 13px;">
+              <i class="fas fa-trash" style="color: var(--danger);"></i>
+            </button>
+          </div>
+        </div>
+      </div>
     `).join('');
 
-    tbody.querySelectorAll('.toggle-notice-btn').forEach(btn => {
+    listEl.querySelectorAll('.toggle-notice-btn').forEach(btn => {
       btn.onclick = async () => {
         const active = btn.dataset.active === 'true';
         await supabase.from('platform_notices').update({ is_active: !active }).eq('id', btn.dataset.id);
@@ -256,7 +375,7 @@ async function loadNotices(container) {
       };
     });
 
-    tbody.querySelectorAll('.delete-notice-btn').forEach(btn => {
+    listEl.querySelectorAll('.delete-notice-btn').forEach(btn => {
       btn.onclick = async () => {
         if (!confirm('Hapus pengumuman ini?')) return;
         await supabase.from('platform_notices').delete().eq('id', btn.dataset.id);
@@ -347,17 +466,42 @@ function handleEditShop(shop) {
 
   document.getElementById('update-shop-btn').onclick = async (e) => {
     e.target.disabled = true;
+    e.target.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
     const name = document.getElementById('edit-shop-name').value.trim();
     const phone = document.getElementById('edit-shop-phone').value.trim();
     const status = document.getElementById('edit-shop-status').value;
     const plan_id = document.getElementById('edit-shop-plan').value || null;
 
     try {
-      await supabase.from('shops').update({ name, phone, status, plan_id }).eq('id', shop.id);
-      showToast('Data tenant berhasil diperbarui!', 'success');
+      // Update satu per satu field untuk isolasi error
+      const updateData = {};
+      if (name) updateData.name = name;
+      if (phone !== undefined) updateData.phone = phone;
+      if (status) updateData.status = status;
+      // plan_id hanya diupdate jika kolom ada di DB
+      try {
+        const testCheck = await supabase.from('shops').select('plan_id').eq('id', shop.id).limit(1);
+        if (!testCheck.error) updateData.plan_id = plan_id;
+      } catch { /* kolom tidak ada, skip */ }
+
+      const { data, error } = await supabase
+        .from('shops')
+        .update(updateData)
+        .eq('id', shop.id)
+        .select();
+
+      if (error) throw new Error(error.message || JSON.stringify(error));
+
+      showToast('✅ Data tenant berhasil diperbarui!', 'success');
       closeModal();
-      loadTenants(document.getElementById('sub-page-container'));
-    } catch (err) { showToast('Gagal: ' + err.message, 'danger'); e.target.disabled = false; }
+      // Refresh dengan delay kecil agar Supabase sync
+      setTimeout(() => loadTenants(document.getElementById('sub-page-container')), 300);
+    } catch (err) {
+      console.error('Update shop error:', err);
+      showToast('Gagal: ' + err.message, 'danger');
+      e.target.disabled = false;
+      e.target.innerHTML = 'Simpan Perubahan';
+    }
   };
 }
 
@@ -470,3 +614,4 @@ async function handleDeleteShop(shop) {
     showToast('Registry Tenant Dihapus.', 'success'); closeModal(); loadTenants(document.getElementById('sub-page-container'));
   };
 }
+

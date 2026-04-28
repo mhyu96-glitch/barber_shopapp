@@ -37,7 +37,9 @@ export function renderServices(container) {
               <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
                 <span style="font-size: 11px; color: var(--text-secondary);"><i class="fas fa-clock" style="font-size: 9px;"></i> ${s.duration} menit</span>
                 <span style="width: 3px; height: 3px; background: var(--border); border-radius: 50%;"></span>
-                <span style="font-size: 11px; color: var(--accent); font-weight: 700;">${formatter.currency(s.price)}</span>
+                <span style="font-size: 11px; color: ${s.price === 0 ? 'var(--warning)' : 'var(--accent)'}; font-weight: 700;">
+                  ${s.price === 0 ? '⚙️ Atur Harga' : formatter.currency(s.price)}
+                </span>
               </div>
             </div>
           </div>
@@ -165,7 +167,7 @@ function showServiceForm(editId = null) {
       consumables: []
     };
 
-    if (!data.name || !data.price) { showToast('Lengkapi data', 'error'); return; }
+    if (!data.name) { showToast('Nama layanan wajib diisi', 'error'); return; }
 
     // Collect consumables from the dynamic rows
     const rows = document.getElementById('consumables-list').children;

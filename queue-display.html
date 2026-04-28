@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BarberPro - Antrian</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0D0D0D;
+      color: #fff;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #1C1B1B, #111);
+      border-bottom: 2px solid #D4AF37;
+      padding: 18px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .header-logo {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #D4AF37, #b8922a);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+    .header-title {
+      font-size: 26px;
+      font-weight: 800;
+      color: #D4AF37;
+      letter-spacing: 1px;
+    }
+    .header-subtitle {
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+      margin-top: 2px;
+    }
+    .header-clock {
+      text-align: right;
+    }
+    .clock-time {
+      font-size: 36px;
+      font-weight: 800;
+      color: #D4AF37;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 2px;
+    }
+    .clock-date {
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+      margin-top: 2px;
+    }
+
+    /* Main content */
+    .main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      overflow: hidden;
+    }
+
+    /* Now Serving */
+    .now-serving {
+      background: linear-gradient(135deg, #1a1800, #0D0D0D);
+      border-right: 1px solid rgba(212,175,55,0.2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .now-serving::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      left: -100px;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .now-label {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: rgba(212,175,55,0.7);
+      margin-bottom: 20px;
+    }
+    .now-number {
+      font-size: 140px;
+      font-weight: 900;
+      color: #D4AF37;
+      line-height: 1;
+      text-shadow: 0 0 60px rgba(212,175,55,0.4);
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+    @keyframes pulse-glow {
+      0%, 100% { text-shadow: 0 0 40px rgba(212,175,55,0.3); }
+      50% { text-shadow: 0 0 80px rgba(212,175,55,0.6); }
+    }
+    .now-name {
+      font-size: 32px;
+      font-weight: 700;
+      margin-top: 16px;
+      text-align: center;
+      color: #fff;
+    }
+    .now-service {
+      font-size: 18px;
+      color: rgba(255,255,255,0.6);
+      margin-top: 8px;
+      text-align: center;
+    }
+    .now-barber {
+      margin-top: 12px;
+      padding: 8px 20px;
+      background: rgba(212,175,55,0.15);
+      border: 1px solid rgba(212,175,55,0.3);
+      border-radius: 30px;
+      font-size: 14px;
+      color: #D4AF37;
+      font-weight: 600;
+    }
+    .empty-now {
+      text-align: center;
+      color: rgba(255,255,255,0.3);
+    }
+    .empty-now .empty-icon {
+      font-size: 80px;
+      margin-bottom: 20px;
+    }
+    .empty-now p {
+      font-size: 22px;
+      font-weight: 600;
+    }
+
+    /* Queue list */
+    .queue-panel {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .queue-panel-header {
+      padding: 20px 30px;
+      background: #111;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .queue-panel-title {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+    }
+    .queue-count-badge {
+      background: rgba(212,175,55,0.15);
+      border: 1px solid rgba(212,175,55,0.3);
+      color: #D4AF37;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+    .queue-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .queue-list::-webkit-scrollbar { width: 4px; }
+    .queue-list::-webkit-scrollbar-track { background: transparent; }
+    .queue-list::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.3); border-radius: 2px; }
+
+    .queue-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 18px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      transition: all 0.3s;
+    }
+    .queue-item.is-next {
+      background: rgba(212,175,55,0.08);
+      border-color: rgba(212,175,55,0.3);
+    }
+    .queue-item.is-done {
+      opacity: 0.35;
+    }
+    .queue-num {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 800;
+      color: rgba(255,255,255,0.5);
+      flex-shrink: 0;
+    }
+    .queue-item.is-next .queue-num {
+      background: rgba(212,175,55,0.2);
+      color: #D4AF37;
+    }
+    .queue-item.is-done .queue-num {
+      background: rgba(52,211,153,0.15);
+      color: #34d399;
+    }
+    .queue-info { flex: 1; min-width: 0; }
+    .queue-cust-name {
+      font-size: 16px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .queue-detail {
+      font-size: 12px;
+      color: rgba(255,255,255,0.45);
+      margin-top: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .queue-time {
+      font-size: 14px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.4);
+      flex-shrink: 0;
+    }
+    .queue-item.is-next .queue-time { color: #D4AF37; }
+    .next-badge {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #D4AF37;
+      background: rgba(212,175,55,0.15);
+      padding: 3px 8px;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+    .done-badge {
+      font-size: 10px;
+      font-weight: 700;
+      color: #34d399;
+      background: rgba(52,211,153,0.1);
+      padding: 3px 8px;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+
+    /* Footer ticker */
+    .footer {
+      background: #D4AF37;
+      padding: 10px 40px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .footer-label {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #0D0D0D;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .ticker-wrap {
+      flex: 1;
+      overflow: hidden;
+    }
+    .ticker-text {
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(0,0,0,0.7);
+      white-space: nowrap;
+      animation: ticker 20s linear infinite;
+    }
+    @keyframes ticker {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+
+    /* No queue state */
+    .no-queue {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,0.2);
+      gap: 12px;
+    }
+    .no-queue-icon { font-size: 48px; }
+    .no-queue-text { font-size: 16px; font-weight: 600; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-brand">
+      <div class="header-logo">✂️</div>
+      <div>
+        <div class="header-title" id="shop-name">BarberPro Studio</div>
+        <div class="header-subtitle">Sistem Antrian Digital</div>
+      </div>
+    </div>
+    <div class="header-clock">
+      <div class="clock-time" id="clock-time">00:00:00</div>
+      <div class="clock-date" id="clock-date">-</div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <!-- Now Serving -->
+    <div class="now-serving" id="now-serving-panel">
+      <div class="empty-now">
+        <div class="empty-icon">✂️</div>
+        <p>Menunggu antrian...</p>
+      </div>
+    </div>
+
+    <!-- Queue List -->
+    <div class="queue-panel">
+      <div class="queue-panel-header">
+        <span class="queue-panel-title">Daftar Antrian</span>
+        <span class="queue-count-badge" id="queue-count">0 antrian</span>
+      </div>
+      <div class="queue-list" id="queue-list">
+        <div class="no-queue">
+          <div class="no-queue-icon">📋</div>
+          <div class="no-queue-text">Belum ada antrian hari ini</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Ticker -->
+  <div class="footer">
+    <span class="footer-label">INFO</span>
+    <div class="ticker-wrap">
+      <div class="ticker-text" id="ticker-text">
+        Selamat datang di BarberPro Studio • Terima kasih telah memilih layanan kami • Mohon tunggu giliran Anda •
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Clock
+    function updateClock() {
+      const now = new Date();
+      const days = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+      const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+      document.getElementById('clock-time').textContent =
+        String(now.getHours()).padStart(2,'0') + ':' +
+        String(now.getMinutes()).padStart(2,'0') + ':' +
+        String(now.getSeconds()).padStart(2,'0');
+      document.getElementById('clock-date').textContent =
+        `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Receive queue data from main window via IPC
+    if (window.queueDisplayAPI) {
+      window.queueDisplayAPI.onQueueUpdate((data) => {
+        renderQueue(data);
+      });
+    }
+
+    // Also listen for postMessage (fallback)
+    window.addEventListener('message', (e) => {
+      if (e.data && e.data.type === 'QUEUE_UPDATE') {
+        renderQueue(e.data.payload);
+      }
+    });
+
+    // Web fallback: poll localStorage setiap 5 detik
+    if (!window.queueDisplayAPI) {
+      setInterval(() => {
+        try {
+          const raw = localStorage.getItem('barberpro_queue_display_data');
+          if (raw) renderQueue(JSON.parse(raw));
+        } catch { }
+      }, 5000);
+      // Load immediately
+      try {
+        const raw = localStorage.getItem('barberpro_queue_display_data');
+        if (raw) renderQueue(JSON.parse(raw));
+      } catch { }
+    }
+
+    function renderQueue(data) {
+      if (!data) return;
+
+      // Shop name
+      if (data.shopName) {
+        document.getElementById('shop-name').textContent = data.shopName;
+      }
+
+      // Ticker
+      if (data.shopName) {
+        document.getElementById('ticker-text').textContent =
+          `Selamat datang di ${data.shopName} • Terima kasih telah memilih layanan kami • Mohon tunggu giliran Anda dengan sabar • Kami siap melayani Anda dengan sepenuh hati •`;
+      }
+
+      const queue = data.queue || [];
+      const now = new Date();
+      const currentTime = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+
+      const done = queue.filter(a => a.status === 'done');
+      const active = queue.filter(a => a.status !== 'done');
+
+      // Find current (serving) and next
+      let currentIdx = -1;
+      for (let i = 0; i < active.length; i++) {
+        if (active[i].time <= currentTime) currentIdx = i;
+      }
+      const nextIdx = currentIdx + 1 < active.length ? currentIdx + 1 : -1;
+      const current = currentIdx >= 0 ? active[currentIdx] : null;
+      const next = nextIdx >= 0 ? active[nextIdx] : null;
+
+      // Update count
+      document.getElementById('queue-count').textContent = `${active.length} antrian`;
+
+      // Now serving panel
+      const nowPanel = document.getElementById('now-serving-panel');
+      if (current) {
+        nowPanel.innerHTML = `
+          <div class="now-label">✂ Sedang Dilayani</div>
+          <div class="now-number">${currentIdx + 1}</div>
+          <div class="now-name">${current.customerName || 'Pelanggan'}</div>
+          <div class="now-service">${current.serviceName || ''}</div>
+          <div class="now-barber">💈 ${current.barberName || 'Barber'}</div>
+        `;
+      } else if (active.length > 0) {
+        // Show first in queue
+        const first = active[0];
+        nowPanel.innerHTML = `
+          <div class="now-label">⏳ Menunggu Mulai</div>
+          <div class="now-number">1</div>
+          <div class="now-name">${first.customerName || 'Pelanggan'}</div>
+          <div class="now-service">${first.serviceName || ''}</div>
+          <div class="now-barber">💈 ${first.barberName || 'Barber'}</div>
+        `;
+      } else {
+        nowPanel.innerHTML = `
+          <div class="empty-now">
+            <div class="empty-icon">✂️</div>
+            <p>Semua antrian selesai!</p>
+          </div>
+        `;
+      }
+
+      // Queue list
+      const listEl = document.getElementById('queue-list');
+      if (queue.length === 0) {
+        listEl.innerHTML = `
+          <div class="no-queue">
+            <div class="no-queue-icon">📋</div>
+            <div class="no-queue-text">Belum ada antrian hari ini</div>
+          </div>
+        `;
+        return;
+      }
+
+      // Combine: active first, then done
+      const allSorted = [...active, ...done];
+      listEl.innerHTML = allSorted.map((apt, i) => {
+        const isDone = apt.status === 'done';
+        const isNext = !isDone && i === nextIdx;
+        const isCurrent = !isDone && i === currentIdx;
+
+        let cls = '';
+        if (isDone) cls = 'is-done';
+        else if (isCurrent) cls = 'is-current';
+        else if (isNext) cls = 'is-next';
+
+        const badge = isDone
+          ? `<span class="done-badge">✓ Selesai</span>`
+          : isNext
+            ? `<span class="next-badge">Selanjutnya</span>`
+            : '';
+
+        return `
+          <div class="queue-item ${cls}">
+            <div class="queue-num">${isDone ? '✓' : i + 1}</div>
+            <div class="queue-info">
+              <div class="queue-cust-name">${apt.customerName || 'Pelanggan'}</div>
+              <div class="queue-detail">${apt.serviceName || ''} • ${apt.barberName || ''}</div>
+            </div>
+            <div class="queue-time">${apt.time || ''}</div>
+            ${badge}
+          </div>
+        `;
+      }).join('');
+    }
+  </script>
+</body>
+</html>
