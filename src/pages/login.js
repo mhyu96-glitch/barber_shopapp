@@ -226,7 +226,7 @@ export function renderLogin(container) {
 .lp-input {
   width: 100%;
   height: 46px;
-  background: rgba(255,255,255,0.05) !important;
+  background: #1a1510 !important;
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 12px;
   padding: 0 16px 0 42px;
@@ -240,13 +240,13 @@ export function renderLogin(container) {
 }
 .lp-input:focus {
   border-color: rgba(212,175,55,0.5);
-  background: rgba(212,175,55,0.04) !important;
+  background: #1f1a0f !important;
   box-shadow: 0 0 0 3px rgba(212,175,55,0.08);
 }
-.lp-input::placeholder { color: rgba(255,255,255,0.15) !important; -webkit-text-fill-color: rgba(255,255,255,0.15) !important; }
+.lp-input::placeholder { color: rgba(255,255,255,0.3) !important; -webkit-text-fill-color: rgba(255,255,255,0.3) !important; }
 .lp-input:-webkit-autofill,
 .lp-input:-webkit-autofill:focus {
-  -webkit-box-shadow: 0 0 0 1000px rgba(20,16,10,0.95) inset !important;
+  -webkit-box-shadow: 0 0 0 1000px #1a1510 inset !important;
   -webkit-text-fill-color: #fff !important;
 }
 .lp-input-hint {
