@@ -470,7 +470,7 @@ export function renderLogin(container) {
         </div>
         <div class="lp-input-wrap">
           <i class="fas fa-hashtag lp-icon"></i>
-          <input id="shop-slug" class="lp-input" type="text" placeholder="contoh: garuda-studio" autocomplete="off" />
+          <input id="shop-slug" class="lp-input" type="text" placeholder="contoh: garuda-studio" autocomplete="off" style="background:#1a1510!important;color:#fff!important;" />
         </div>
         <div class="lp-input-hint">Kosongkan jika Anda adalah Super Admin.</div>
       </div>
@@ -482,7 +482,7 @@ export function renderLogin(container) {
         <div class="lp-field-label"><i class="fas fa-user"></i> Username</div>
         <div class="lp-input-wrap">
           <i class="fas fa-at lp-icon"></i>
-          <input id="username" class="lp-input" type="text" placeholder="Masukkan username Anda" autocomplete="username" required />
+          <input id="username" class="lp-input" type="text" placeholder="Masukkan username Anda" autocomplete="off" required style="background:#1a1510!important;color:#fff!important;" />
         </div>
       </div>
 
@@ -491,7 +491,7 @@ export function renderLogin(container) {
         <div class="lp-field-label"><i class="fas fa-lock"></i> Password</div>
         <div class="lp-input-wrap">
           <i class="fas fa-key lp-icon"></i>
-          <input id="password" class="lp-input" type="password" placeholder="••••••••" autocomplete="current-password" required />
+          <input id="password" class="lp-input" type="password" placeholder="••••••••" autocomplete="new-password" required style="background:#1a1510!important;color:#fff!important;" />
           <button type="button" class="lp-pw-toggle" id="pw-toggle">
             <i class="fas fa-eye"></i>
           </button>
