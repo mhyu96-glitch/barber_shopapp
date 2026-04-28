@@ -571,6 +571,36 @@ function renderAddShopModal() {
 
       showToast('SaaS Diaktifkan untuk ' + shopName, 'success');
       closeModal();
+
+      // Tampilkan card kredensial
+      openModal('✅ Toko Berhasil Didaftarkan', `
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div style="padding:16px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.3);border-radius:12px;text-align:center;">
+            <div style="font-size:24px;margin-bottom:8px;">🎉</div>
+            <div style="font-weight:700;font-size:16px;color:#22c55e;">${shopName}</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Slug: ${shopSlug}</div>
+          </div>
+          <div style="padding:16px;background:var(--bg-input);border-radius:12px;">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:12px;">Kredensial Login Owner</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+              <span style="font-size:13px;color:var(--text-muted);">Kode Toko</span>
+              <code style="font-size:13px;font-weight:700;color:var(--accent);background:var(--accent-subtle);padding:3px 10px;border-radius:6px;">${shopSlug}</code>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+              <span style="font-size:13px;color:var(--text-muted);">Username</span>
+              <code style="font-size:13px;font-weight:700;color:var(--text-primary);background:var(--bg-card);padding:3px 10px;border-radius:6px;">${username}</code>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;">
+              <span style="font-size:13px;color:var(--text-muted);">Password</span>
+              <code style="font-size:13px;font-weight:700;color:var(--text-primary);background:var(--bg-card);padding:3px 10px;border-radius:6px;">${password}</code>
+            </div>
+          </div>
+          <div style="padding:12px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:10px;font-size:12px;color:var(--warning);">
+            <i class="fas fa-triangle-exclamation"></i> Simpan kredensial ini. Password tidak bisa dilihat lagi setelah modal ditutup.
+          </div>
+        </div>
+      `, `<button class="btn btn-primary" onclick="closeModal()">Tutup & Selesai</button>`);
+
       loadTenants(document.getElementById('sub-page-container'));
     } catch (err) { showToast(err.message, 'danger'); e.target.disabled = false; }
   };
