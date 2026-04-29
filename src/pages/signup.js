@@ -31,43 +31,13 @@ export async function renderSignup(container) {
     return;
   }
 
-  // Fetch staf dari Supabase langsung — filter by shop_id
-  // shopId bisa dari storage atau dari profile user
-  let shopId = storage.get('shopId') || user.shopId;
-  
-  // Jika masih kosong, ambil dari Supabase berdasarkan user id
-  if (!shopId) {
-    try {
-      const { data: myProfile } = await supabase
-        .from('profiles')
-        .select('shop_id')
-        .eq('id', user.id)
-        .single();
-      if (myProfile?.shop_id) {
-        shopId = myProfile.shop_id;
-        storage.set('shopId', shopId);
-      }
-    } catch { }
-  }
-
-  let profiles = [];
-  try {
-    if (!shopId) throw new Error('shopId tidak ditemukan');
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('shop_id', shopId)
-      .neq('id', user.id)
-      .order('full_name');
-    if (error) throw new Error(error.message);
-    profiles = (data || []).map(p => storage.toCamelCaseObj(p));
-  } catch (e) {
-    console.warn('Fetch profiles error:', e.message);
-    profiles = storage.getAll('profiles').filter(p =>
-      p.id !== user.id && p.shopId === shopId
-    );
-  }
+  // Render UI langsung — jangan tunggu Supabase
+  const shopId = storage.get('shopId') || user.shopId;
   const loginMap = storage.get('staff_login_map', {});
+  // Gunakan data lokal dulu
+  const localProfiles = storage.getAll('profiles').filter(p =>
+    p.id !== user.id && (shopId ? p.shopId === shopId : true)
+  );
 
   container.innerHTML = `
     <div class="page-header flex-between">
@@ -142,21 +112,36 @@ export async function renderSignup(container) {
       <div>
         <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 14px;">
           <i class="fas fa-users" style="color: var(--accent);"></i> Staf Terdaftar
-          <span class="badge badge-gold" style="margin-left: 8px;">${profiles.length}</span>
+          <span class="badge badge-gold" style="margin-left: 8px;">${localProfiles.length}</span>
         </h3>
         <div id="staff-list" style="display: flex; flex-direction: column; gap: 10px;">
-          ${profiles.length === 0 ? `
+          ${localProfiles.length === 0 ? `
             <div class="card empty-state" style="padding: 30px;">
               <i class="fas fa-users"></i>
               <p>Belum ada staf terdaftar</p>
             </div>
-          ` : profiles.map(p => renderStaffCard(p, loginMap)).join('')}
+          ` : localProfiles.map(p => renderStaffCard(p, loginMap)).join('')}
         </div>
       </div>
     </div>
   `;
 
   container.querySelector('#back-btn')?.addEventListener('click', () => navigateTo('barbers'));
+
+  // Background fetch dari Supabase untuk update daftar staf
+  if (shopId) {
+    supabase.from('profiles').select('*').eq('shop_id', shopId).neq('id', user.id).order('full_name')
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          const freshProfiles = data.map(p => storage.toCamelCaseObj(p));
+          const staffList = container.querySelector('#staff-list');
+          if (staffList) {
+            staffList.innerHTML = freshProfiles.map(p => renderStaffCard(p, loginMap)).join('') ||
+              '<div class="card empty-state" style="padding:30px;"><i class="fas fa-users"></i><p>Belum ada staf terdaftar</p></div>';
+          }
+        }
+      }).catch(() => {});
+  }
 
   // Show/hide barber dropdown based on role
   const roleSelect = container.querySelector('#signup-role');
