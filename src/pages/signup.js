@@ -125,7 +125,7 @@ export async function renderSignup(container) {
             <select id="signup-barber-id" class="form-control"
               style="height: 46px; font-size: 14px; background: var(--bg-input) !important; color: var(--text-primary) !important;">
               <option value="">-- Pilih barber yang akan login --</option>
-              ${storage.getAll('barbers').map(b => `<option value="${b.id}">${b.name}${b.specialization ? ' · ' + b.specialization : ''}</option>`).join('')}
+              ${storage.getAll('barbers').map(b => `<option value="${b.id}">${b.name}</option>`).join('')}
             </select>
             <div style="font-size: 11px; color: var(--text-muted); margin-top: 5px;"><i class="fas fa-info-circle"></i> Pilih barber agar jadwal & janji temu terhubung ke akun ini.</div>
           </div>
