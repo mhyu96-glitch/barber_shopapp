@@ -2,7 +2,6 @@ import { storage } from '../utils/storage.js';
 import { supabase } from '../utils/supabaseClient.js';
 import { showToast } from '../components/toast.js';
 
-// Cache-buster: 2026-05-18T21:35:00
 export function renderLogin(container) {
   const sidebar = document.getElementById('sidebar');
   const mainContent = document.getElementById('main-content');
@@ -25,139 +24,32 @@ export function renderLogin(container) {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle at top right, rgba(212, 175, 55, 0.06), transparent 45%),
-              radial-gradient(circle at bottom left, rgba(212, 175, 55, 0.03), transparent 45%),
-              #090a0f;
+  background: #0f1115;
   font-family: 'Outfit', sans-serif;
-  padding: 20px;
 }
 
 .pwa-container {
   width: 100%;
-  max-width: 100%;
+  max-width: 390px;
   height: 100vh;
-  background: #0b0c10;
+  max-height: 932px;
+  background: #0d0d0c;
   position: relative;
-  overflow-y: auto;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.desktop-left-pane {
-  display: none;
 }
 
 @media (min-width: 480px) {
   .pwa-container {
-    max-width: 450px;
     height: auto;
-    min-height: 680px;
+    min-height: 650px;
     max-height: 90vh;
-    border-radius: 28px;
-    border: 1px solid rgba(212, 175, 55, 0.18);
-    background: #0b0c10;
-    box-shadow: 0 30px 60px rgba(0,0,0,0.6), 
-                0 0 100px rgba(212, 175, 55, 0.03);
+    border-radius: 24px;
+    border: 1px solid rgba(212, 175, 55, 0.15);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
     overflow-y: auto;
-  }
-}
-
-@media (min-width: 768px) {
-  .lp-wrap {
-    padding: 0;
-    overflow: hidden;
-    flex-direction: row;
-    align-items: stretch;
-    justify-content: flex-start;
-  }
-  
-  .desktop-left-pane {
-    display: flex !important;
-    flex-direction: column;
-    justify-content: space-between;
-    flex: 1.2;
-    padding: 60px;
-    background: linear-gradient(135deg, #0d0f12 0%, #040507 100%);
-    border-right: 1px solid rgba(212, 175, 55, 0.12);
-    position: relative;
-  }
-  
-  .pwa-container {
-    flex: 1;
-    max-width: 100% !important;
-    height: 100vh !important;
-    max-height: 100vh !important;
-    border-radius: 0 !important;
-    border: none !important;
-    box-shadow: none !important;
-    background: radial-gradient(circle at center, rgba(212, 175, 55, 0.03), transparent 60%), #07080a !important;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .pwa-top {
-    padding: 40px !important;
-    background: transparent !important;
-    border-bottom: none !important;
-    border-radius: 0 !important;
-    width: 100%;
-    max-width: 460px;
-    margin: 0 auto;
-  }
-  
-  .glass-card {
-    background: rgba(255, 255, 255, 0.02) !important;
-    border: 1px solid rgba(212, 175, 55, 0.15) !important;
-    border-radius: 24px !important;
-    padding: 32px !important;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.5) !important;
-  }
-  
-  .pwa-header {
-    display: none !important;
-  }
-  
-  .greeting-title {
-    font-size: 38px !important;
-  }
-  
-  .stats-row {
-    margin-top: 0 !important;
-    padding: 0 !important;
-    width: 100%;
-    max-width: 460px;
-    margin: 20px auto 0 !important;
-  }
-  
-  .stat-item {
-    background: rgba(255, 255, 255, 0.01) !important;
-    border: 1px solid rgba(212, 175, 55, 0.08) !important;
-    border-radius: 16px !important;
-    padding: 12px 6px !important;
-  }
-  
-  .pwa-bottom {
-    background: transparent !important;
-    padding: 20px 0 0 !important;
-    width: 100%;
-    max-width: 460px;
-    margin: 0 auto;
-    overflow: visible !important;
-    flex: none !important;
-  }
-  
-  .login-btn {
-    height: 52px !important;
-    border-radius: 16px !important;
-  }
-  
-  .info-card {
-    margin-top: 16px !important;
-    background: rgba(255,255,255,0.01) !important;
-    border: 1px solid rgba(212, 175, 55, 0.05) !important;
-    border-radius: 18px !important;
-    padding: 12px !important;
   }
 }
 
@@ -304,49 +196,6 @@ input:-webkit-autofill:active{
 </style>
 
 <div class="lp-wrap">
-  <!-- Desktop Left Branding Panel -->
-  <div class="desktop-left-pane">
-    <div class="desktop-brand" style="display: flex; align-items: center; gap: 12px;">
-      <div style="width: 42px; height: 42px; border-radius: 12px; background: rgba(212, 175, 55, 0.15); display: flex; align-items: center; justify-content: center;">
-        <i class="fas fa-scissors brand-icon" style="color: #d4af37; font-size: 20px;"></i>
-      </div>
-      <span style="font-weight: 800; font-size: 22px; color: #fff; letter-spacing: 1.5px; font-family: 'Outfit', sans-serif;">BARBERPRO</span>
-    </div>
-    
-    <div class="desktop-hero-content" style="margin-top: 60px;">
-      <h1 class="hero-title" style="font-size: 40px; font-weight: 900; line-height: 1.15; margin-bottom: 24px; background: linear-gradient(135deg, #ffffff 30%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-family: 'Outfit', sans-serif;">Sistem Kasir &amp; Manajemen Barbershop Cerdas</h1>
-      <p class="hero-subtitle" style="color: rgba(255,255,255,0.6); font-size: 15px; line-height: 1.6; margin-bottom: 48px; font-family: 'Outfit', sans-serif;">Kelola bagi hasil komisi barber secara akurat, kirim slip gaji otomatis lewat WhatsApp, kelola antrean antarmuka kasir, dan berikan konsultasi gaya rambut digital dengan AI Stylist Wizard.</p>
-      
-      <div class="feature-bullets" style="display: flex; flex-direction: column; gap: 28px;">
-        <div class="feat-bullet" style="display: flex; gap: 18px; align-items: flex-start;">
-          <div class="feat-icon" style="width: 46px; height: 46px; border-radius: 14px; background: rgba(212, 175, 55, 0.1); color: #d4af37; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; border: 1px solid rgba(212, 175, 55, 0.15);"><i class="fas fa-calculator"></i></div>
-          <div>
-            <div class="feat-title" style="font-size: 15px; font-weight: 700; color: #fff; font-family: 'Outfit', sans-serif;">Payroll &amp; Bagi Hasil Komisi</div>
-            <div class="feat-desc" style="font-size: 13px; color: rgba(255,255,255,0.45); font-family: 'Outfit', sans-serif;">Skema komisi persentase atau nominal flat untuk barber yang langsung terintegrasi dengan slip gaji WhatsApp otomatis.</div>
-          </div>
-        </div>
-        <div class="feat-bullet" style="display: flex; gap: 18px; align-items: flex-start;">
-          <div class="feat-icon" style="width: 46px; height: 46px; border-radius: 14px; background: rgba(212, 175, 55, 0.1); color: #d4af37; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; border: 1px solid rgba(212, 175, 55, 0.15);"><i class="fas fa-magic"></i></div>
-          <div>
-            <div class="feat-title" style="font-size: 15px; font-weight: 700; color: #fff; font-family: 'Outfit', sans-serif;">AI Stylist Digital Consultant</div>
-            <div class="feat-desc" style="font-size: 13px; color: rgba(255,255,255,0.45); font-family: 'Outfit', sans-serif;">Bantu pelanggan menentukan model potongan rambut terbaik mereka dengan wizard rekomendasi kecerdasan buatan.</div>
-          </div>
-        </div>
-        <div class="feat-bullet" style="display: flex; gap: 18px; align-items: flex-start;">
-          <div class="feat-icon" style="width: 46px; height: 46px; border-radius: 14px; background: rgba(212, 175, 55, 0.1); color: #d4af37; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; border: 1px solid rgba(212, 175, 55, 0.15);"><i class="fas fa-chart-line"></i></div>
-          <div>
-            <div class="feat-title" style="font-size: 15px; font-weight: 700; color: #fff; font-family: 'Outfit', sans-serif;">Analitik &amp; Keuangan Real-Time</div>
-            <div class="feat-desc" style="font-size: 13px; color: rgba(255,255,255,0.45); font-family: 'Outfit', sans-serif;">Laporan pengeluaran, omzet harian, dan grafik performa barber untuk optimasi profit bisnis barbershop Anda.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <div class="desktop-footer" style="font-size: 12px; color: rgba(255,255,255,0.35); font-weight: 600; font-family: 'Outfit', sans-serif; letter-spacing: 0.5px;">
-      BarberPro Enterprise v2.0 &bull; &copy; ${new Date().getFullYear()}
-    </div>
-  </div>
-
   <div class="pwa-container">
     
     <div class="pwa-top">
