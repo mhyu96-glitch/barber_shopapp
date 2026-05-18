@@ -43,26 +43,13 @@ export function renderLogin(container) {
 
 @media (min-width: 480px) {
   .pwa-container {
-    height: 844px;
-    max-height: 95vh;
-    border-radius: 44px;
-    border: 10px solid #1c1b18;
+    height: auto;
+    min-height: 650px;
+    max-height: 90vh;
+    border-radius: 24px;
+    border: 1px solid rgba(212, 175, 55, 0.15);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
     overflow-y: auto;
-  }
-  .pwa-container::before {
-    content: '';
-    position: sticky;
-    top: 10px;
-    display: block;
-    align-self: center;
-    margin-bottom: -30px;
-    width: 120px;
-    min-height: 30px;
-    background: #000;
-    border-radius: 20px;
-    z-index: 1000;
-    flex-shrink: 0;
-    box-shadow: inset 0 0 2px rgba(255,255,255,0.2);
   }
 }
 
