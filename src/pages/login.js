@@ -2,6 +2,7 @@ import { storage } from '../utils/storage.js';
 import { supabase } from '../utils/supabaseClient.js';
 import { showToast } from '../components/toast.js';
 
+// Cache-buster: 2026-05-18T21:35:00
 export function renderLogin(container) {
   const sidebar = document.getElementById('sidebar');
   const mainContent = document.getElementById('main-content');
