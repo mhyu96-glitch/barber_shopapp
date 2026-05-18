@@ -25,31 +25,36 @@ export function renderLogin(container) {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #0f1115;
+  background: radial-gradient(circle at top right, rgba(212, 175, 55, 0.06), transparent 45%),
+              radial-gradient(circle at bottom left, rgba(212, 175, 55, 0.03), transparent 45%),
+              #090a0f;
   font-family: 'Outfit', sans-serif;
+  padding: 20px;
 }
 
 .pwa-container {
   width: 100%;
-  max-width: 390px;
+  max-width: 100%;
   height: 100vh;
-  max-height: 932px;
-  background: #0d0d0c;
+  background: #0b0c10;
   position: relative;
-  overflow: hidden;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @media (min-width: 480px) {
   .pwa-container {
+    max-width: 450px;
     height: auto;
-    min-height: 650px;
+    min-height: 680px;
     max-height: 90vh;
-    border-radius: 24px;
-    border: 1px solid rgba(212, 175, 55, 0.15);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    border-radius: 28px;
+    border: 1px solid rgba(212, 175, 55, 0.18);
+    background: #0b0c10;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.6), 
+                0 0 100px rgba(212, 175, 55, 0.03);
     overflow-y: auto;
   }
 }
