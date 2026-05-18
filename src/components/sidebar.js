@@ -173,6 +173,9 @@ export function renderSidebar(container, activePage) {
   // Navigation click handlers
   container.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', () => {
+      if (typeof window.toggleSidebar === 'function') {
+        window.toggleSidebar(false);
+      }
       navigateTo(item.dataset.page);
     });
   });
@@ -286,7 +289,12 @@ function _renderSuperAdminSidebar(container, user) {
       });
       return;
     }
-    item.addEventListener('click', () => navigateTo(item.dataset.page));
+    item.addEventListener('click', () => {
+      if (typeof window.toggleSidebar === 'function') {
+        window.toggleSidebar(false);
+      }
+      navigateTo(item.dataset.page);
+    });
   });
 }
 
@@ -338,11 +346,11 @@ function _renderBarberMobileNav(container, activePage) {
   `;
 
   const tabs = [
-    { page: 'dashboard',    icon: 'fa-th-large',          label: 'Beranda',   color: '#3498db' },
-    { page: 'appointments', icon: 'fa-calendar-check',    label: 'Jadwal',    color: '#9b59b6' },
-    { page: 'queue',        icon: 'fa-users-line',         label: 'Antrian',   color: '#00cec9' },
-    { page: 'attendance',   icon: 'fa-clock-rotate-left',  label: 'Presensi',  color: '#e84393' },
-    { page: 'customers',    icon: 'fa-user-group',         label: 'Pelanggan', color: '#1abc9c' },
+    { page: 'dashboard',    icon: 'fa-th-large',          label: 'Beranda',   color: '#d4a843' },
+    { page: 'appointments', icon: 'fa-calendar-check',    label: 'Jadwal',    color: '#a78bfa' },
+    { page: 'queue',        icon: 'fa-users-line',         label: 'Antrian',   color: '#34d399' },
+    { page: 'attendance',   icon: 'fa-clock-rotate-left',  label: 'Presensi',  color: '#f87171' },
+    { page: 'customers',    icon: 'fa-user-group',         label: 'Pelanggan', color: '#f43f5e' },
   ];
 
   nav.innerHTML = tabs.map(t => {
@@ -350,26 +358,40 @@ function _renderBarberMobileNav(container, activePage) {
     return `
       <button data-page="${t.page}" style="
         flex: 1; display: flex; flex-direction: column; align-items: center;
-        justify-content: center; gap: 3px; padding: 10px 4px 8px;
-        background: ${isActive ? t.color + '18' : 'transparent'};
+        justify-content: center; gap: 4px; padding: 10px 4px 8px;
+        background: ${isActive ? 'var(--accent-subtle)' : 'transparent'};
         border: none; cursor: pointer; font-family: inherit;
-        color: ${isActive ? t.color : 'var(--text-muted)'};
-        transition: all 0.2s; border-radius: 0;
-        border-top: 2px solid ${isActive ? t.color : 'transparent'};
+        color: ${isActive ? 'var(--accent)' : 'var(--text-muted)'};
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 0;
+        border-top: 3px solid ${isActive ? 'var(--accent)' : 'transparent'};
       ">
-        <i class="fas ${t.icon}" style="font-size: 19px; ${isActive ? `filter: drop-shadow(0 0 6px ${t.color}80);` : ''}"></i>
-        <span style="font-size: 9px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase;">${t.label}</span>
+        <i class="fas ${t.icon}" style="
+          font-size: 19px;
+          color: ${isActive ? 'var(--accent)' : t.color};
+          opacity: ${isActive ? '1' : '0.65'};
+          transition: all 0.25s;
+          ${isActive ? 'filter: drop-shadow(0 0 8px var(--accent-glow));' : ''}
+        "></i>
+        <span style="
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: 0.3px;
+          text-transform: uppercase;
+          opacity: ${isActive ? '1' : '0.75'};
+        ">${t.label}</span>
       </button>
     `;
   }).join('') + `
     <button id="barber-logout-nav" style="
       flex: 1; display: flex; flex-direction: column; align-items: center;
-      justify-content: center; gap: 3px; padding: 10px 4px 8px;
+      justify-content: center; gap: 4px; padding: 10px 4px 8px;
       background: transparent; border: none; cursor: pointer;
       color: var(--danger); font-family: inherit;
-      border-top: 2px solid transparent;
+      border-top: 3px solid transparent;
+      opacity: 0.75;
+      transition: all 0.25s;
     ">
-      <i class="fas fa-sign-out-alt" style="font-size: 19px;"></i>
+      <i class="fas fa-sign-out-alt" style="font-size: 19px; color: var(--danger);"></i>
       <span style="font-size: 9px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase;">Keluar</span>
     </button>
   `;
@@ -430,15 +452,15 @@ function _renderBarberDesktopSidebar(container, activePage, user) {
     </div>
     <nav class="sidebar-nav">
       <div class="nav-section-title">Menu Utama</div>
-      ${renderNavItem('dashboard',    'fas fa-th-large',          'Dashboard',    '#3498db')}
-      ${renderNavItem('appointments', 'fas fa-calendar-check',    'Janji Temu',   '#9b59b6')}
-      ${renderNavItem('queue',        'fas fa-users-line',        'Antrian',      '#00cec9')}
+      ${renderNavItem('dashboard',    'fas fa-th-large',          'Dashboard',    '#d4a843')}
+      ${renderNavItem('appointments', 'fas fa-calendar-check',    'Janji Temu',   '#a78bfa')}
+      ${renderNavItem('queue',        'fas fa-users-line',        'Antrian',      '#34d399')}
       <div class="nav-section-title">Kelola</div>
-      ${renderNavItem('customers',    'fas fa-user-group',        'Pelanggan',    '#1abc9c')}
-      ${renderNavItem('attendance',   'fas fa-clock-rotate-left', 'Presensi',     '#e84393')}
+      ${renderNavItem('customers',    'fas fa-user-group',        'Pelanggan',    '#f43f5e')}
+      ${renderNavItem('attendance',   'fas fa-clock-rotate-left', 'Presensi',     '#f87171')}
       <div style="margin-top: auto; padding-top: 20px;">
         <button class="nav-item" id="logout-btn" style="color: var(--danger);">
-          <div style="background: #e74c3c15; color: #e74c3c; border-radius: 8px; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 14px;"><i class="fas fa-sign-out-alt"></i></div>
+          <div style="background: rgba(248, 113, 113, 0.12); color: var(--danger); border-radius: 8px; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 14px;"><i class="fas fa-sign-out-alt"></i></div>
           <span style="font-weight: 700;">Keluar Sistem</span>
         </button>
       </div>
@@ -449,7 +471,12 @@ function _renderBarberDesktopSidebar(container, activePage, user) {
   `;
 
   container.querySelectorAll('.nav-item[data-page]').forEach(item => {
-    item.addEventListener('click', () => navigateTo(item.dataset.page));
+    item.addEventListener('click', () => {
+      if (typeof window.toggleSidebar === 'function') {
+        window.toggleSidebar(false);
+      }
+      navigateTo(item.dataset.page);
+    });
   });
 }
 

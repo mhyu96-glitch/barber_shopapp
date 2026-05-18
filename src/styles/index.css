@@ -32,8 +32,8 @@
   --warning-bg: rgba(251, 191, 36, 0.12);
   --danger: #f87171;
   --danger-bg: rgba(248, 113, 113, 0.12);
-  --info: #60a5fa;
-  --info-bg: rgba(96, 165, 250, 0.12);
+  --info: #a78bfa;
+  --info-bg: rgba(167, 139, 250, 0.12);
 
   /* Borders */
   --border: rgba(255, 255, 255, 0.06);
@@ -90,7 +90,8 @@
   --success-bg: rgba(34, 197, 94, 0.1);
   --warning-bg: rgba(245, 158, 11, 0.1);
   --danger-bg: rgba(239, 68, 68, 0.1);
-  --info-bg: rgba(59, 130, 246, 0.1);
+  --info: #8b5cf6;
+  --info-bg: rgba(139, 92, 246, 0.1);
 
   /* Borders & Shadows */
   --border: rgba(0, 0, 0, 0.08);
@@ -2030,8 +2031,8 @@ tbody tr:last-child td {
   --warning-bg: rgba(245, 158, 11, 0.1);
   --danger: #ef4444;
   --danger-bg: rgba(239, 68, 68, 0.1);
-  --info: #3b82f6;
-  --info-bg: rgba(59, 130, 246, 0.1);
+  --info: #8b5cf6;
+  --info-bg: rgba(139, 92, 246, 0.1);
 
   --border: rgba(0, 0, 0, 0.08);
   --border-light: rgba(0, 0, 0, 0.12);
@@ -2471,4 +2472,277 @@ tbody tr:last-child td {
     min-width: 44px !important;
   }
 }
+
+/* ── Pill Selector Components ── */
+.pill-selector {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+.pill-btn {
+  background: var(--bg-input) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text-secondary) !important;
+  padding: 10px 16px !important;
+  border-radius: 20px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  user-select: none !important;
+}
+.pill-btn:hover {
+  border-color: var(--accent) !important;
+  color: var(--text-primary) !important;
+}
+.pill-btn.active {
+  background: rgba(212, 168, 67, 0.12) !important;
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+}
+
+/* ── Premium Leaderboard Podium Styles ── */
+.podium-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  height: 180px;
+  margin-top: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 12px;
+  padding: 12px;
+  border: 1px solid var(--border-light);
+}
+.podium-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  transition: all 0.2s ease;
+}
+.podium-item:hover {
+  transform: translateY(-4px);
+}
+.podium-item.rank-1 { height: 100%; justify-content: flex-end; }
+.podium-item.rank-2 { height: 85%; justify-content: flex-end; }
+.podium-item.rank-3 { height: 75%; justify-content: flex-end; }
+
+.rank-badge {
+  position: absolute;
+  top: -8px;
+  background: var(--accent);
+  color: #0f1117;
+  font-weight: 800;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bg-card);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  z-index: 2;
+}
+.barber-avatar-l {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+  margin-bottom: 6px;
+  object-fit: cover;
+  background: var(--bg-input);
+}
+.podium-item.rank-1 .barber-avatar-l {
+  border-color: var(--accent);
+  width: 58px;
+  height: 58px;
+  box-shadow: 0 0 15px var(--accent-glow);
+}
+.podium-item.rank-2 .barber-avatar-l {
+  border-color: #cbd5e1;
+}
+.podium-item.rank-3 .barber-avatar-l {
+  border-color: #b45309;
+}
+.podium-rank {
+  width: 100%;
+  border-radius: 6px 6px 0 0;
+  padding: 8px 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+}
+.podium-rank-1 {
+  background: linear-gradient(to top, rgba(212,168,67,0.3), rgba(212,168,67,0.15));
+  border: 1px solid var(--accent);
+  border-bottom: none;
+  min-height: 55px;
+}
+.podium-rank-2 {
+  background: linear-gradient(to top, rgba(203,213,225,0.2), rgba(203,213,225,0.08));
+  border: 1px solid #cbd5e1;
+  border-bottom: none;
+  min-height: 45px;
+}
+.podium-rank-3 {
+  background: linear-gradient(to top, rgba(180,83,9,0.2), rgba(180,83,9,0.08));
+  border: 1px solid #b45309;
+  border-bottom: none;
+}
+
+/* ── Premium Metallic Virtual Loyalty Cards ── */
+.metallic-card {
+  position: relative;
+  border-radius: 16px;
+  padding: 22px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border: 1px solid rgba(255,255,255,0.1);
+  user-select: none;
+}
+.metallic-card:hover {
+  transform: translateY(-6px) rotateX(2deg) rotateY(2deg);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.7);
+}
+.metallic-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
+  transform: skewX(-25deg);
+  animation: cardShine 6s infinite;
+}
+@keyframes cardShine {
+  0% { left: -150%; }
+  30% { left: 150%; }
+  100% { left: 150%; }
+}
+
+.card-tier-bronze {
+  background: linear-gradient(135deg, #7c2d12 0%, #3f1a0a 100%);
+  border-color: rgba(249, 115, 22, 0.4);
+}
+.card-tier-silver {
+  background: linear-gradient(135deg, #475569 0%, #1e293b 100%);
+  border-color: rgba(203, 213, 225, 0.4);
+}
+.card-tier-gold {
+  background: linear-gradient(135deg, #78350f 0%, #292524 100%);
+  border-color: var(--accent);
+}
+.card-tier-platinum {
+  background: linear-gradient(135deg, #1e1b4b 0%, #030712 100%);
+  border-color: #a78bfa;
+  box-shadow: 0 10px 30px rgba(167, 139, 250, 0.2);
+}
+
+.card-chip {
+  width: 42px;
+  height: 32px;
+  background: linear-gradient(135deg, #e2e8f0 0%, #94a3b8 100%);
+  border-radius: 6px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.1);
+}
+.card-chip::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background: rgba(0,0,0,0.15);
+  top: 50%;
+}
+
+/* ── Gamified Haircut Stamp Slots ── */
+.stamp-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-top: 14px;
+}
+.stamp-slot {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--bg-input);
+  border: 2px dashed var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: var(--text-muted);
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.stamp-slot.active {
+  background: var(--accent-subtle);
+  border: 2px solid var(--accent);
+  color: var(--accent);
+  transform: scale(1.08);
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+.stamp-slot.active::before {
+  content: '✂️';
+  font-size: 18px;
+}
+.stamp-slot.free-slot {
+  border-color: var(--success);
+}
+.stamp-slot.free-slot.active::before {
+  content: '🎁';
+  font-size: 20px;
+}
+
+/* ── AI Hair consultation Wizard ── */
+.option-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  background: var(--bg-card);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+.option-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  background: var(--bg-input);
+}
+.option-card.active {
+  border-color: var(--accent);
+  background: var(--accent-subtle);
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+.option-icon {
+  font-size: 28px;
+  background: var(--bg-input);
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+}
+.option-card.active .option-icon {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--bg-card);
+}
+
 

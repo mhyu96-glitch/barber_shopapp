@@ -332,20 +332,38 @@ export const storage = {
         // Email unik: username_timestamp@shopslug.barberpro.local
         // Simpan juga email ini di metadata agar bisa dicari saat login
         const uniqueEmail = email.replace('@', `_${Date.now()}@`);
-        
-        const { data, error } = await supabase.auth.signUp({
-            email: uniqueEmail,
-            password,
-            options: {
-                data: {
-                    full_name: fullName,
-                    role: role,
-                    login_email: uniqueEmail  // simpan untuk lookup saat login
+        let userId = `mock-staff-${Date.now()}`;
+        let authUser = { id: userId };
+
+        try {
+            const { data, error } = await supabase.auth.signUp({
+                email: uniqueEmail,
+                password,
+                options: {
+                    data: {
+                        full_name: fullName,
+                        role: role,
+                        login_email: uniqueEmail  // simpan untuk lookup saat login
+                    }
                 }
-            }
-        });
-        
-        if (error) return { success: false, error: error.message };
+            });
+            if (error) return { success: false, error: error.message };
+            authUser = data.user;
+        } catch (netErr) {
+            console.warn("Supabase auth signUp failed (offline?), creating local user fallback:", netErr);
+            // Save mock profile in localStorage
+            const shopId = this.get('shopId');
+            const allProfiles = this.get('profiles', []);
+            const newProfile = {
+                id: userId,
+                fullName,
+                username: email.split('@')[0],
+                role,
+                shopId
+            };
+            allProfiles.push(newProfile);
+            this.set('profiles', allProfiles);
+        }
         
         // Simpan mapping username → email di localStorage untuk login offline
         const shopId = this.get('shopId');
@@ -355,8 +373,46 @@ export const storage = {
         if (shopId) loginMap[`${usernameBase}.${shopId}`] = uniqueEmail;
         this.set('staff_login_map', loginMap);
         
-        return { success: true, user: data.user, loginEmail: uniqueEmail };
-        return { success: true, user: data.user };
+        return { success: true, user: authUser, loginEmail: uniqueEmail };
+    },
+
+    isShopExpired() {
+        const user = this.getCurrentUser();
+        // Superadmins don't get blocked
+        if (!user || user.isSuperAdmin) return false;
+
+        const shopId = this.get('shopId');
+        if (!shopId) return false;
+
+        const shops = this.get('shops', []);
+        const currentShop = shops.find(s => s.id === shopId);
+        
+        // If the shop data exists, check expiration
+        if (currentShop) {
+            // If the status is 'expired' or 'deactivated', it is expired
+            if (currentShop.status === 'expired' || currentShop.status === 'deactivated') {
+                return true;
+            }
+            
+            // Check expires_at timestamp if present
+            if (currentShop.expires_at) {
+                const expiryDate = new Date(currentShop.expires_at);
+                if (expiryDate < new Date()) {
+                    // Update the status locally to 'expired'
+                    currentShop.status = 'expired';
+                    this.set('shops', shops);
+                    this.set('shop_status', 'expired');
+                    return true;
+                }
+            }
+        }
+        
+        const localStatus = this.get('shop_status');
+        if (localStatus === 'expired' || localStatus === 'deactivated') {
+            return true;
+        }
+
+        return false;
     }
 };
 

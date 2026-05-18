@@ -182,38 +182,85 @@ async function loadAttendanceData(container, profileId, role, today) {
         const settings = storage.get('settings', {});
         const activeBranchId = settings.activeBranchId;
 
-        let query = supabase.from('attendance')
-            .select('*, profiles(full_name, username)')
-            .eq('date', today);
-        
-        if (shopId) query = query.eq('shop_id', shopId);
-        
-        if (role !== 'admin') {
-            query = query.eq('profile_id', profileId);
+        let logs = [];
+        let isOffline = false;
+
+        try {
+            let query = supabase.from('attendance')
+                .select('*, profiles(full_name, username)')
+                .eq('date', today);
+            
+            if (shopId) query = query.eq('shop_id', shopId);
+            
+            if (role !== 'admin') {
+                query = query.eq('profile_id', profileId);
+            }
+
+            const { data, error } = await query.order('check_in', { ascending: false });
+            if (error) throw error;
+            logs = data || [];
+        } catch (netErr) {
+            console.warn('Supabase attendance query failed (offline fallback):', netErr);
+            isOffline = true;
+            
+            const allLocalLogs = storage.getAll('attendance') || [];
+            const localProfiles = storage.getAll('profiles') || [];
+            
+            logs = allLocalLogs.filter(l => {
+                const logDate = l.date;
+                const logShop = l.shop_id || l.shopId;
+                const logProfile = l.profile_id || l.profileId;
+                
+                const matchesDate = logDate === today;
+                const matchesShop = !shopId || String(logShop) === String(shopId);
+                const matchesProfile = role === 'admin' || String(logProfile) === String(profileId);
+                
+                return matchesDate && matchesShop && matchesProfile;
+            });
+            
+            logs.forEach(l => {
+                const logProfile = l.profile_id || l.profileId;
+                const prof = localProfiles.find(p => String(p.id) === String(logProfile));
+                l.profiles = {
+                    full_name: prof ? (prof.full_name || prof.fullName) : 'Staff',
+                    username: prof ? prof.username : ''
+                };
+            });
+            
+            logs = logs.map(l => ({
+                id: l.id,
+                profile_id: l.profile_id || l.profileId,
+                date: l.date,
+                check_in: l.check_in || l.checkIn,
+                check_out: l.check_out || l.checkOut,
+                status: l.status,
+                notes: l.notes,
+                shop_id: l.shop_id || l.shopId,
+                profiles: l.profiles
+            }));
+            
+            logs.sort((a, b) => new Date(b.check_in) - new Date(a.check_in));
         }
 
-        const { data: logs, error } = await query.order('check_in', { ascending: false });
-        if (error) throw error;
-
-        // Hapus data corrupt (check_in == check_out) otomatis
-        const corruptLogs = logs?.filter(l => {
-            if (!l.check_out) return false;
-            // Bandingkan hanya bagian menit (bukan detik) untuk toleransi
-            const ci = new Date(l.check_in).getTime();
-            const co = new Date(l.check_out).getTime();
-            return Math.abs(co - ci) < 60000; // kurang dari 1 menit = corrupt
-        });
-        if (corruptLogs?.length > 0) {
-            for (const cl of corruptLogs) {
-                await supabase.from('attendance').update({ check_out: null }).eq('id', cl.id);
+        // Hapus data corrupt (check_in == check_out) otomatis (hanya jika online)
+        if (!isOffline && logs?.length > 0) {
+            const corruptLogs = logs?.filter(l => {
+                if (!l.check_out) return false;
+                const ci = new Date(l.check_in).getTime();
+                const co = new Date(l.check_out).getTime();
+                return Math.abs(co - ci) < 60000; // kurang dari 1 menit = corrupt
+            });
+            if (corruptLogs?.length > 0) {
+                for (const cl of corruptLogs) {
+                    await supabase.from('attendance').update({ check_out: null }).eq('id', cl.id);
+                }
+                renderAttendance(container);
+                return;
             }
-            renderAttendance(container);
-            return;
         }
 
         // Find current active log — hanya yang belum check_out
-        let activeLog = logs?.find(l => l.profile_id === profileId && !l.check_out);
-        // Fallback: jika tidak ketemu by profile_id, cari log aktif pertama (belum checkout)
+        let activeLog = logs?.find(l => String(l.profile_id) === String(profileId) && !l.check_out);
         if (!activeLog && role !== 'admin') {
             activeLog = logs?.find(l => !l.check_out);
         }
@@ -230,10 +277,9 @@ async function loadAttendanceData(container, profileId, role, today) {
             outBtn.disabled = false;
             outBtn.style.opacity = '1';
         } else {
-            const finishedToday = logs?.find(l => l.profile_id === profileId && l.check_out)
+            const finishedToday = logs?.find(l => String(l.profile_id) === String(profileId) && l.check_out)
                 || (role !== 'admin' ? logs?.find(l => l.check_out) : null);
 
-            // Jika check_in == check_out (data corrupt, < 1 menit), anggap belum selesai
             const validFinished = finishedToday && 
                 Math.abs(new Date(finishedToday.check_out) - new Date(finishedToday.check_in)) >= 60000
                 ? finishedToday : null;
@@ -268,7 +314,7 @@ async function loadAttendanceData(container, profileId, role, today) {
         // ── Durasi kerja ──
         const durationCard = container.querySelector('#work-duration-card');
         const durationText = container.querySelector('#work-duration-text');
-        const myLog = logs?.find(l => l.profile_id === profileId);
+        const myLog = logs?.find(l => String(l.profile_id) === String(profileId));
         if (myLog && durationCard && durationText) {
             durationCard.style.display = 'block';
             const checkIn = new Date(myLog.check_in);
@@ -280,10 +326,10 @@ async function loadAttendanceData(container, profileId, role, today) {
         }
 
         // ── Status terlambat ──
-        if (activeLog || logs?.find(l => l.profile_id === profileId)) {
+        if (activeLog || logs?.find(l => String(l.profile_id) === String(profileId))) {
             const settings = storage.get('settings', {});
             const workStart = settings.openTime || '08:00';
-            const checkInLog = logs?.find(l => l.profile_id === profileId);
+            const checkInLog = logs?.find(l => String(l.profile_id) === String(profileId));
             if (checkInLog) {
                 const checkInTime = formatTimeFromDB(checkInLog.check_in);
                 if (checkInTime > workStart) {
@@ -350,36 +396,54 @@ async function handleCheckAction(type, id, today, container) {
         if (type === 'in') {
             // Cek apakah sudah ada check-in hari ini
             const shopId = getShopId();
-            const { data: existing } = await supabase
-                .from('attendance')
-                .select('id')
-                .eq('profile_id', id)
-                .eq('date', today)
-                .is('check_out', null)
-                .limit(1);
+            let isAlreadyCheckedIn = false;
+
+            try {
+                const { data: existing } = await supabase
+                    .from('attendance')
+                    .select('id')
+                    .eq('profile_id', id)
+                    .eq('date', today)
+                    .is('check_out', null)
+                    .limit(1);
+                if (existing && existing.length > 0) {
+                    isAlreadyCheckedIn = true;
+                }
+            } catch (netErr) {
+                console.warn('Supabase check-in query failed (offline fallback):', netErr);
+                const localLogs = storage.getAll('attendance') || [];
+                const localActive = localLogs.find(l => 
+                    String(l.profileId || l.profile_id) === String(id) && 
+                    l.date === today && 
+                    !(l.checkOut || l.check_out)
+                );
+                if (localActive) {
+                    isAlreadyCheckedIn = true;
+                }
+            }
             
-            if (existing && existing.length > 0) {
+            if (isAlreadyCheckedIn) {
                 showToast('Anda sudah check-in hari ini', 'warning');
                 renderAttendance(container);
                 return;
             }
 
-            const insertData = {
-                profile_id: id,
+            // Ganti insert Supabase langsung dengan storage.add
+            storage.add('attendance', {
+                profileId: id,
                 date: today,
-                check_in: time,
+                checkIn: time,
                 status: 'hadir',
-            };
-            if (shopId) insertData.shop_id = shopId;
-
-            const { error } = await supabase.from('attendance').insert([insertData]);
-            if (error) throw error;
+                shopId
+            });
+            
             showToast('Check-In Berhasil! Selamat bekerja. ✂️', 'success');
         } else {
-            const { error } = await supabase.from('attendance').update({
-                check_out: time
-            }).eq('id', id);
-            if (error) throw error;
+            // Ganti update Supabase langsung dengan storage.update
+            storage.update('attendance', id, {
+                checkOut: time
+            });
+            
             showToast('Check-Out Berhasil! Terima kasih untuk hari ini. 🙏', 'success');
         }
         
@@ -401,11 +465,27 @@ async function loadWeeklyRecap(container, profileId, shopId) {
             days.push(d.toISOString().split('T')[0]);
         }
 
-        const { data: logs } = await supabase
-            .from('attendance')
-            .select('*')
-            .eq('profile_id', profileId)
-            .in('date', days);
+        let logs = [];
+        try {
+            const { data } = await supabase
+                .from('attendance')
+                .select('*')
+                .eq('profile_id', profileId)
+                .in('date', days);
+            logs = data || [];
+        } catch (netErr) {
+            console.warn('Supabase loadWeeklyRecap failed (offline fallback):', netErr);
+            const allLocalLogs = storage.getAll('attendance') || [];
+            logs = allLocalLogs.filter(l => 
+                String(l.profileId || l.profile_id) === String(profileId) && 
+                days.includes(l.date)
+            ).map(l => ({
+                date: l.date,
+                check_in: l.check_in || l.checkIn,
+                check_out: l.check_out || l.checkOut,
+                status: l.status
+            }));
+        }
 
         const dots = container.querySelectorAll('.weekly-dot');
         let totalHadir = 0, totalTerlambat = 0, totalIzin = 0, totalMs = 0;
@@ -429,7 +509,7 @@ async function loadWeeklyRecap(container, profileId, shopId) {
                 dot.title = log.status;
                 totalIzin++;
             } else {
-                const checkInTime = log.check_in ? log.check_in.split('T')[1]?.substring(0,5) : '';
+                const checkInTime = log.check_in ? (log.check_in.includes('T') ? log.check_in.split('T')[1]?.substring(0,5) : log.check_in.substring(0,5)) : '';
                 const isLate = checkInTime > workStart;
                 dot.style.background = isLate ? 'rgba(251,191,36,0.15)' : 'rgba(52,211,153,0.15)';
                 dot.style.borderColor = isLate ? 'var(--warning)' : 'var(--success)';
@@ -471,13 +551,45 @@ async function loadIzinPending(container, shopId) {
     if (!listEl) return;
 
     try {
-        const { data: pending } = await supabase
-            .from('attendance')
-            .select('*, profiles(full_name, username)')
-            .in('status', ['izin', 'sakit', 'cuti'])
-            .eq('shop_id', shopId)
-            .order('date', { ascending: false })
-            .limit(10);
+        let pending = [];
+        try {
+            const { data } = await supabase
+                .from('attendance')
+                .select('*, profiles(full_name, username)')
+                .in('status', ['izin', 'sakit', 'cuti'])
+                .eq('shop_id', shopId)
+                .order('date', { ascending: false })
+                .limit(10);
+            pending = data || [];
+        } catch (netErr) {
+            console.warn('Supabase loadIzinPending failed (offline fallback):', netErr);
+            const allLocalLogs = storage.getAll('attendance') || [];
+            const localProfiles = storage.getAll('profiles') || [];
+            
+            pending = allLocalLogs.filter(l => {
+                const logShop = l.shop_id || l.shopId;
+                const matchesShop = !shopId || String(logShop) === String(shopId);
+                const matchesStatus = ['izin', 'sakit', 'cuti'].includes(l.status);
+                return matchesShop && matchesStatus;
+            }).map(l => {
+                const logProfile = l.profile_id || l.profileId;
+                const prof = localProfiles.find(p => String(p.id) === String(logProfile));
+                return {
+                    id: l.id,
+                    profile_id: logProfile,
+                    date: l.date,
+                    status: l.status,
+                    notes: l.notes,
+                    profiles: {
+                        full_name: prof ? (prof.full_name || prof.fullName) : 'Staff',
+                        username: prof ? prof.username : ''
+                    }
+                };
+            });
+            
+            pending.sort((a, b) => new Date(b.date) - new Date(a.date));
+            if (pending.length > 10) pending = pending.slice(0, 10);
+        }
 
         if (!pending || pending.length === 0) {
             listEl.innerHTML = '<div style="font-size:12px;color:var(--text-muted);text-align:center;padding:12px;">Tidak ada pengajuan izin.</div>';
@@ -510,17 +622,41 @@ export async function sendLateCheckInAlert(shopId) {
         const shopPhone = settings.phone || '';
         if (!shopPhone) return;
 
-        const { data: profiles } = await supabase
-            .from('profiles')
-            .select('id, full_name')
-            .eq('shop_id', shopId)
-            .eq('role', 'barber');
+        let profiles = [];
+        let checkedIn = [];
+        try {
+            const { data } = await supabase
+                .from('profiles')
+                .select('id, full_name')
+                .eq('shop_id', shopId)
+                .eq('role', 'barber');
+            profiles = data || [];
 
-        const { data: checkedIn } = await supabase
-            .from('attendance')
-            .select('profile_id')
-            .eq('date', today)
-            .eq('shop_id', shopId);
+            const { data: attData } = await supabase
+                .from('attendance')
+                .select('profile_id')
+                .eq('date', today)
+                .eq('shop_id', shopId);
+            checkedIn = attData || [];
+        } catch (netErr) {
+            console.warn('Supabase sendLateCheckInAlert failed (offline fallback):', netErr);
+            const allLocalProfiles = storage.getAll('profiles') || [];
+            profiles = allLocalProfiles.filter(p => 
+                String(p.shopId || p.shop_id) === String(shopId) && 
+                p.role === 'barber'
+            ).map(p => ({
+                id: p.id,
+                full_name: p.fullName || p.full_name
+            }));
+
+            const allLocalLogs = storage.getAll('attendance') || [];
+            checkedIn = allLocalLogs.filter(l => 
+                l.date === today && 
+                String(l.shopId || l.shop_id) === String(shopId)
+            ).map(l => ({
+                profile_id: l.profileId || l.profile_id
+            }));
+        }
 
         const checkedIds = new Set((checkedIn || []).map(c => c.profile_id));
         const notChecked = (profiles || []).filter(p => !checkedIds.has(p.id));
@@ -569,15 +705,15 @@ function showIzinModal(profileId, today, container) {
 
     try {
       const shopId = getShopId();
-      const { error } = await supabase.from('attendance').insert([{
-        profile_id: profileId,
+      // Menggunakan storage.add untuk durabilitas offline
+      storage.add('attendance', {
+        profileId,
         date,
-        check_in: new Date().toISOString(),
+        checkIn: new Date().toISOString(),
         status: type,
         notes: reason,
-        shop_id: shopId,
-      }]);
-      if (error) throw error;
+        shopId,
+      });
       showToast(`Pengajuan ${type} berhasil dikirim!`, 'success');
       import('../components/modal.js').then(m => m.closeModal());
       renderAttendance(container);

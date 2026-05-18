@@ -206,9 +206,122 @@ export function renderAppointments(container) {
 
   // Global handlers
   window.__waAppt = (id) => {
+    window.openCRMTemplateModal(id);
+  };
+
+  window.openCRMTemplateModal = (id) => {
     const apt = storage.find('appointments', id);
-    const customer = storage.find('customers', apt?.customerId);
-    if (apt && customer) whatsapp.sendReminder(apt, customer);
+    if (!apt) return;
+    const customer = storage.find('customers', apt.customerId);
+    if (!customer) return;
+
+    const settings = storage.get('settings', {});
+    const shopName = settings.shopName || 'BarberPro Studio';
+    const address = settings.address || '';
+    const bookingUrl = window.location.origin + `/portal/portal.html?shop=${settings.slug || 'barber'}`;
+
+    // Multiple templates
+    const templates = [
+      {
+        id: 'confirm',
+        title: '✅ Konfirmasi',
+        icon: 'fa-calendar-check',
+        body: `Halo [NAMA_PELANGGAN]! 👋\n\nBooking Anda telah DITERIMA!\n\n📅 Hari/Tgl: [TANGGAL]\n⏰ Jam: [WAKTU] WITA\n💇 Layanan: [LAYANAN]\n💈 Barber: [NAMA_BARBER]\n\n📍 [NAMA_TOKO]\n${address ? `[ALAMAT_TOKO]` : ''}\n\nSampai jumpa! 😊`
+      },
+      {
+        id: 'reminder',
+        title: '🔔 Pengingat',
+        icon: 'fa-bell',
+        body: `Halo [NAMA_PELANGGAN]! 🔔\n\nReminder janji temu Anda di [NAMA_TOKO]:\n📅 Tanggal: [TANGGAL]\n⏰ Jam: [WAKTU] WITA\n💇 Layanan: [LAYANAN]\n💈 Barber: [NAMA_BARBER]\n\nJangan lupa ya! 😊\nBalas pesan ini jika ada perubahan.`
+      },
+      {
+        id: 'feedback',
+        title: '⭐ Ulasan',
+        icon: 'fa-star',
+        body: `Halo [NAMA_PELANGGAN]! 🙏\n\nTerima kasih telah mencukur di [NAMA_TOKO] bersama Stylist [NAMA_BARBER].\n\nBagaimana pengalaman mencukur Anda hari ini? Bantu kami meningkatkan layanan dengan memberikan ulasan di sini:\n👉 [PORTAL_URL]\n\nSemoga hari Anda menyenangkan! 💇‍♂️✨`
+      },
+      {
+        id: 'reengage',
+        title: '🎁 Re-engagement',
+        icon: 'fa-gift',
+        body: `Halo [NAMA_PELANGGAN]! 👋\n\nSudah lama tidak melihat Anda di [NAMA_TOKO]. Kami sangat merindukan kehadiran Anda!\n\nKhusus untuk Anda, gunakan kode promo *MISSYOU15* untuk mendapatkan diskon 15% pada kunjungan berikutnya!\n\nBooking di sini:\n👉 [PORTAL_URL]\n\nSampai jumpa lagi! ✂️`
+      }
+    ];
+
+    const parseText = (tpl) => {
+      return tpl
+        .replace(/\[NAMA_PELANGGAN\]/g, customer.name || '')
+        .replace(/\[TANGGAL\]/g, dateUtils.formatDate(apt.date, 'long') || '')
+        .replace(/\[WAKTU\]/g, apt.time || '')
+        .replace(/\[LAYANAN\]/g, apt.serviceName || '')
+        .replace(/\[NAMA_BARBER\]/g, apt.barberName || '')
+        .replace(/\[NAMA_TOKO\]/g, shopName)
+        .replace(/\[ALAMAT_TOKO\]/g, address)
+        .replace(/\[PORTAL_URL\]/g, bookingUrl);
+    };
+
+    const modalBody = `
+      <div style="display:flex; flex-direction:column; gap:16px; text-align:left;">
+        <p style="font-size:13px; color:var(--text-muted);">Pilih salah satu template WhatsApp CRM premium di bawah untuk mengirim pesan otomatis ke <b>${customer.name}</b>:</p>
+        
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:10px;" class="pill-selector" id="crm-template-selector">
+          ${templates.map((t, idx) => `
+            <button type="button" class="pill-btn ${idx === 0 ? 'active' : ''}" data-tpl-id="${t.id}" style="width:100%; text-align:left; display:flex; align-items:center; gap:8px;">
+              <i class="fas ${t.icon}"></i> ${t.title}
+            </button>
+          `).join('')}
+        </div>
+
+        <div class="form-group" style="margin-top:12px;">
+          <label>Edit Pesan (Real-time Preview)</label>
+          <textarea class="form-control" id="crm-message-text" rows="8" style="font-family:inherit; font-size:13px; line-height:1.5; background:var(--bg-input); border:1px solid var(--border); border-radius:12px; padding:12px; width:100%; color:var(--text-primary); outline:none; resize:none;"></textarea>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:8px; background:rgba(37, 211, 102, 0.08); border:1px solid rgba(37, 211, 102, 0.15); border-radius:10px; padding:10px;">
+          <div style="font-size:18px; color:#25d366;"><i class="fab fa-whatsapp"></i></div>
+          <div style="font-size:11px; color:var(--text-muted); line-height:1.4;">
+            Nomor Tujuan: <b>${customer.phone}</b>. Pesan akan secara otomatis dibuka di aplikasi WhatsApp Web atau Mobile.
+          </div>
+        </div>
+      </div>
+    `;
+
+    const modalFooter = `
+      <button class="btn btn-secondary" onclick="document.getElementById('active-modal').remove()">Batal</button>
+      <button class="btn btn-success" id="send-crm-wa-btn" style="background:#25d366; border:none; color:#fff; font-weight:700;">
+        <i class="fab fa-whatsapp"></i> Kirim WhatsApp
+      </button>
+    `;
+
+    openModal('WhatsApp CRM Assistant 🤖', modalBody, modalFooter);
+
+    const textEditor = document.getElementById('crm-message-text');
+    const sendBtn = document.getElementById('send-crm-wa-btn');
+
+    // Initial load
+    let activeTpl = templates[0];
+    textEditor.value = parseText(activeTpl.body);
+
+    // Template selector click handler
+    const buttons = document.querySelectorAll('#crm-template-selector button');
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        buttons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const tId = btn.dataset.tplId;
+        activeTpl = templates.find(t => t.id === tId);
+        textEditor.value = parseText(activeTpl.body);
+      });
+    });
+
+    // Send action
+    sendBtn.addEventListener('click', () => {
+      const finalMsg = textEditor.value;
+      const phoneNum = customer.phone.replace(/\D/g, '');
+      window.open(`https://wa.me/${phoneNum}?text=${encodeURIComponent(finalMsg)}`, '_blank');
+      closeModal();
+      showToast('Membuka WhatsApp...', 'success');
+    });
   };
   window.__confirmAppt = (id) => {
     storage.update('appointments', id, { status: 'confirmed' });

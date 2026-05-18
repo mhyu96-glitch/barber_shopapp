@@ -12,7 +12,7 @@ export function renderSuperAdminReports(container) {
             <i class="fas fa-hand-holding-usd"></i>
           </div>
           <div id="platform-revenue" style="font-size: 15px; font-weight: 900; letter-spacing: -0.5px;">-</div>
-          <div style="font-size: 9px; color: var(--text-muted); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.5px;">Estimasi Pendapatan</div>
+          <div style="font-size: 9px; color: var(--text-muted); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.5px;">Total Penjualan Aplikasi</div>
         </div>
         <div class="card" style="padding: 14px; text-align: center; border-top: 3px solid var(--accent);">
           <div style="width: 36px; height: 36px; border-radius: 10px; background: var(--accent-subtle); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 16px; margin: 0 auto 8px;">
@@ -74,14 +74,48 @@ export function renderSuperAdminReports(container) {
 
 async function loadPlatformStats(container) {
   try {
-    const { data: shops } = await supabase.from('shops').select('id, name, created_at, status');
-    const { count: totalUsers } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
+    let shops = [];
+    let totalUsers = 0;
+    let activity = [];
+
+    try {
+      const { data: remoteShops, error: shopsErr } = await supabase.from('shops').select('id, name, created_at, status, sale_price');
+      if (!shopsErr && remoteShops) {
+        shops = remoteShops;
+      } else {
+        throw new Error(shopsErr?.message || 'Empty shops');
+      }
+
+      const { count: remoteUsers, error: usersErr } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
+      if (!usersErr && remoteUsers !== null) {
+        totalUsers = remoteUsers;
+      } else {
+        totalUsers = shops.length * 2; // Fallback estimate
+      }
+
+      const { data: remoteActivity, error: actErr } = await supabase.from('appointments').select('shop_id');
+      if (!actErr && remoteActivity) {
+        activity = remoteActivity;
+      }
+    } catch (netErr) {
+      console.warn('Supabase fetch failed for platform stats (offline?), falling back to local storage:', netErr);
+      
+      // Fallback: Read from Local Storage
+      shops = JSON.parse(localStorage.getItem('barberpro_shops') || '[]');
+      
+      const localProfiles = JSON.parse(localStorage.getItem('barberpro_profiles') || '[]');
+      totalUsers = localProfiles.length || shops.length * 2;
+      
+      activity = JSON.parse(localStorage.getItem('barberpro_appointments') || '[]');
+    }
+
+    // Safely verify shops is an array
+    if (!Array.isArray(shops)) shops = [];
 
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const newShops = shops.filter(s => new Date(s.created_at) >= startOfMonth).length;
-    const activeShops = shops.filter(s => s.status === 'active').length;
-    const revenue = activeShops * 100000;
+    const newShops = shops.filter(s => s && s.created_at && new Date(s.created_at) >= startOfMonth).length;
+    const revenue = shops.reduce((acc, s) => acc + (parseFloat(s.sale_price || s.salePrice || 0) || 0), 0);
 
     // Stats
     container.querySelector('#platform-revenue').textContent = `Rp ${revenue.toLocaleString('id-ID')}`;
@@ -90,7 +124,12 @@ async function loadPlatformStats(container) {
 
     // Status breakdown
     const statusGroups = { active: 0, trial: 0, expired: 0, deactivated: 0 };
-    shops.forEach(s => { statusGroups[s.status || 'trial'] = (statusGroups[s.status || 'trial'] || 0) + 1; });
+    shops.forEach(s => {
+      if (s) {
+        const stat = s.status || 'trial';
+        statusGroups[stat] = (statusGroups[stat] || 0) + 1;
+      }
+    });
     const total = shops.length || 1;
     const statusColors = { active: '#22c55e', trial: '#f59e0b', expired: '#ef4444', deactivated: '#6b7280' };
     const statusLabels = { active: 'Aktif', trial: 'Trial', expired: 'Kedaluwarsa', deactivated: 'Nonaktif' };
@@ -102,20 +141,21 @@ async function loadPlatformStats(container) {
         return `
           <div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-              <span style="font-size: 12px; font-weight: 600; color: ${statusColors[key]};">${statusLabels[key]}</span>
+              <span style="font-size: 12px; font-weight: 600; color: ${statusColors[key] || '#6b7280'};">${statusLabels[key] || key}</span>
               <span style="font-size: 12px; font-weight: 700;">${val} <span style="color: var(--text-muted); font-weight: 400;">(${pct}%)</span></span>
             </div>
             <div style="height: 6px; background: var(--bg-input); border-radius: 3px; overflow: hidden;">
-              <div style="height: 100%; width: ${pct}%; background: ${statusColors[key]}; border-radius: 3px; transition: width 0.6s ease;"></div>
+              <div style="height: 100%; width: ${pct}%; background: ${statusColors[key] || '#6b7280'}; border-radius: 3px; transition: width 0.6s ease;"></div>
             </div>
           </div>
         `;
       }).join('') || '<div style="font-size:12px;color:var(--text-muted);">Belum ada data.</div>';
 
     // Top tenants
-    const { data: activity } = await supabase.from('appointments').select('shop_id');
     const stats = (activity || []).reduce((acc, curr) => {
-      acc[curr.shop_id] = (acc[curr.shop_id] || 0) + 1;
+      if (curr && curr.shop_id) {
+        acc[curr.shop_id] = (acc[curr.shop_id] || 0) + 1;
+      }
       return acc;
     }, {});
 
@@ -128,7 +168,7 @@ async function loadPlatformStats(container) {
     }
 
     const rows = await Promise.all(topEntries.map(async ([shopId, count], i) => {
-      const shop = shops.find(s => s.id === shopId);
+      const shop = shops.find(s => s && s.id === shopId);
       const medals = ['🥇', '🥈', '🥉'];
       return `
         <div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--bg-input); border-radius: 10px;">

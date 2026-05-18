@@ -63,6 +63,11 @@ let currentPage = 'dashboard';
 
 // Navigate to page
 export function navigateTo(page) {
+  // Tutup mobile sidebar secara instan jika berpindah halaman
+  if (typeof window.toggleSidebar === 'function') {
+    window.toggleSidebar(false);
+  }
+
   // Session check
   const user = storage.getCurrentUser();
   const publicPages = ['login', 'feedback'];
@@ -101,6 +106,93 @@ export function navigateTo(page) {
     document.body.classList.remove('role-barber');
   }
   
+  if (storage.isShopExpired() && !['login', 'feedback', 'super-admin'].includes(page)) {
+    // Layanan Ditangguhkan
+    if (sidebar) sidebar.style.display = 'none';
+    if (burgerBtn) burgerBtn.style.display = 'none';
+    document.getElementById('barber-bottom-nav')?.remove();
+    document.body.classList.remove('role-barber');
+    if (mainContent) {
+      mainContent.style.marginLeft = '0';
+      mainContent.style.width = '100%';
+      mainContent.style.padding = '0';
+    }
+
+    container.innerHTML = `
+      <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #0f1115; font-family: 'Outfit', sans-serif; padding: 20px; box-sizing: border-box; width: 100%;">
+        <div class="card fade-in" style="width: 100%; max-width: 420px; padding: 35px 30px; text-align: center; border: 1px solid rgba(239, 68, 68, 0.25); background: linear-gradient(145deg, #15181f, #0d0e12); box-shadow: 0 20px 40px rgba(0,0,0,0.5); border-radius: 24px;">
+          <div style="width: 72px; height: 72px; border-radius: 50%; background: rgba(239, 68, 68, 0.1); color: #ef4444; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 24px; box-shadow: 0 0 20px rgba(239, 68, 68, 0.15);">
+            <i class="fas fa-lock"></i>
+          </div>
+          
+          <h2 style="font-size: 22px; font-weight: 800; color: #fff; margin: 0 0 10px; letter-spacing: -0.5px;">Layanan Ditangguhkan</h2>
+          <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 24px;">Masa aktif sewa/berlangganan aplikasi **BarberPro** untuk barbershop Anda telah kedaluwarsa. Silakan aktivasi kode lisensi baru atau hubungi admin.</p>
+          
+          <div style="background: var(--bg-input); border-radius: 16px; padding: 18px; border: 1px solid var(--border); margin-bottom: 24px; text-align: left;">
+            <label style="font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 8px;">Aktivasi Kode Lisensi</label>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="activation-key-input" placeholder="BPRO-PRO-XXXXXX" style="flex: 1; height: 42px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 0 14px; color: #fff; font-size: 13px; font-weight: 700; text-transform: uppercase;">
+              <button id="activate-license-btn" class="btn btn-primary" style="height: 42px; border-radius: 10px; font-size: 12px; font-weight: 800; padding: 0 16px;">Aktivasi</button>
+            </div>
+            <div style="font-size: 10px; color: var(--text-muted); margin-top: 8px; font-style: italic;">Gunakan <b style="color:var(--accent);">BPRO-FREE-30D</b> untuk uji coba gratis 30 hari.</div>
+          </div>
+          
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <button id="contact-admin-wa-btn" class="btn btn-success" style="width: 100%; height: 46px; border-radius: 12px; font-size: 13px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #25d366; border: none; color: #fff; box-shadow: 0 4px 12px rgba(37,211,102,0.2);">
+              <i class="fab fa-whatsapp" style="font-size: 16px;"></i> Hubungi Admin (Beli Lisensi)
+            </button>
+            <button id="logout-suspended-btn" class="btn btn-ghost" style="width: 100%; height: 42px; border-radius: 12px; font-size: 12px; font-weight: 700; color: var(--text-muted);">
+              Keluar dari Akun
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const input = container.querySelector('#activation-key-input');
+    const btn = container.querySelector('#activate-license-btn');
+    const waBtn = container.querySelector('#contact-admin-wa-btn');
+    const logoutBtn = container.querySelector('#logout-suspended-btn');
+
+    btn.onclick = async () => {
+      const code = input.value.trim().toUpperCase();
+      if (!code) {
+        showToast('Silakan masukkan kode lisensi!', 'warning');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+      const success = await handleLicenseActivation(code);
+      if (success) {
+        showToast('Lisensi Berhasil Diaktifkan! Selamat menikmati Premium! 🎉', 'success');
+        setTimeout(() => window.location.reload(), 1500);
+      } else {
+        showToast('Kode lisensi salah atau sudah pernah digunakan!', 'danger');
+        btn.disabled = false;
+        btn.innerHTML = 'Aktivasi';
+      }
+    };
+
+    waBtn.onclick = () => {
+      const shopId = storage.get('shopId');
+      const shops = storage.get('shops', []);
+      const shop = shops.find(s => s.id === shopId) || {};
+      const msg = `Halo Admin BarberPro,\n\nSaya ingin membeli kode lisensi sewa aplikasi untuk toko:\nBarbershop: ${shop.name || 'BarberPro'}\nSlug: ${shop.slug || '-'}\nID: ${shopId || '-'}\n\nMohon informasi prosedur pembayarannya. Terima kasih!`;
+      window.open(`https://wa.me/6281234567890?text=${encodeURIComponent(msg)}`, '_blank');
+    };
+
+    logoutBtn.onclick = () => {
+      if (confirm('Apakah Anda yakin ingin keluar?')) {
+        storage.logout();
+      }
+    };
+
+    document.title = `Layanan Ditangguhkan - BarberPro`;
+    return;
+  }
+
   if (noSidebarPages.includes(page)) {
     if (sidebar) sidebar.style.display = 'none';
     if (burgerBtn) burgerBtn.style.display = 'none';
@@ -328,6 +420,16 @@ async function initApp() {
   // Check for reminders periodically
   checkReminders();
   setInterval(checkReminders, 60000); // every minute
+
+  // Start global select-to-pills observer (debounced)
+  let pillDebounce = null;
+  const globalObserver = new MutationObserver(() => {
+    clearTimeout(pillDebounce);
+    pillDebounce = setTimeout(() => convertSelectsToPills(document.body), 150);
+  });
+  globalObserver.observe(document.body, { childList: true, subtree: true });
+  // Initial run
+  setTimeout(() => convertSelectsToPills(document.body), 300);
 }
 
 // Check upcoming appointment reminders
@@ -436,6 +538,211 @@ document.addEventListener('click', async (e) => {
   }
 });
 
+async function handleLicenseActivation(code) {
+  try {
+    // 1. Verify Online with Supabase (if available)
+    try {
+      const { data: voucher, error } = await supabase
+        .from('vouchers')
+        .select('*')
+        .eq('code', code)
+        .eq('status', 'unused')
+        .single();
+
+      if (!error && voucher) {
+        const durationDays = voucher.duration_days || 30;
+        const newExpiry = new Date();
+        newExpiry.setDate(newExpiry.getDate() + durationDays);
+
+        const shopId = storage.get('shopId');
+
+        // Update shop in Supabase
+        const { error: shopErr } = await supabase
+          .from('shops')
+          .update({
+            plan_id: 'pro_unlimited',
+            status: 'active',
+            expires_at: newExpiry.toISOString()
+          })
+          .eq('id', shopId);
+
+        if (!shopErr) {
+          // Mark voucher as used
+          await supabase
+            .from('vouchers')
+            .update({
+              status: 'used',
+              used_by: shopId,
+              used_at: new Date().toISOString()
+            })
+            .eq('id', voucher.id);
+
+          // Sync local storage
+          await storage.syncFromSupabase();
+          return true;
+        }
+      }
+    } catch (netErr) {
+      console.warn("Supabase voucher check failed, using local offline activation check:", netErr);
+    }
+
+    // 2. Offline Fallback Check
+    const vouchers = storage.get('vouchers', []);
+    const match = vouchers.find(v => v.code === code && v.status === 'unused');
+    if (match) {
+      const durationDays = match.duration_days || 30;
+      const newExpiry = new Date();
+      newExpiry.setDate(newExpiry.getDate() + durationDays);
+
+      const shopId = storage.get('shopId');
+      const shops = storage.get('shops', []);
+      const shopIdx = shops.findIndex(s => s.id === shopId);
+      
+      if (shopIdx !== -1) {
+        shops[shopIdx].plan_id = 'pro_unlimited';
+        shops[shopIdx].status = 'active';
+        shops[shopIdx].expires_at = newExpiry.toISOString();
+        
+        storage.set('shops', shops);
+        storage.set('shop_plan', 'Premium Access');
+        storage.set('shop_status', 'active');
+
+        // Mark local voucher as used
+        match.status = 'used';
+        match.used_by = shopId;
+        match.used_at = new Date().toISOString();
+        storage.set('vouchers', vouchers);
+
+        return true;
+      }
+    }
+    
+    // 3. Fallback: If it's a test/mock key
+    if (code === 'BPRO-FREE-30D' || code === 'BPRO-TEST-GOLD') {
+      const newExpiry = new Date();
+      newExpiry.setDate(newExpiry.getDate() + 30);
+
+      const shopId = storage.get('shopId');
+      const shops = storage.get('shops', []);
+      let shopIdx = shops.findIndex(s => s.id === shopId);
+
+      if (shopIdx === -1 && shopId) {
+        // Create shop locally if it doesn't exist
+        shops.push({
+          id: shopId,
+          name: 'My Barbershop',
+          slug: 'my-barber',
+          status: 'active',
+          plan_id: 'pro_unlimited',
+          expires_at: newExpiry.toISOString()
+        });
+        shopIdx = shops.length - 1;
+      }
+
+      if (shopIdx !== -1) {
+        shops[shopIdx].plan_id = 'pro_unlimited';
+        shops[shopIdx].status = 'active';
+        shops[shopIdx].expires_at = newExpiry.toISOString();
+        
+        storage.set('shops', shops);
+        storage.set('shop_plan', 'Premium Access');
+        storage.set('shop_status', 'active');
+        return true;
+      }
+    }
+
+    return false;
+  } catch (err) {
+    console.error('License Activation error:', err);
+    return false;
+  }
+}
+
 // Boot
 document.addEventListener('DOMContentLoaded', initApp);
+
+// Global Select-to-Pills Converter Utility
+// Converts native <select> dropdowns into modern touch pill buttons
+// Smart rules: skips time pickers (>8 options), POS inline selects, consumable selects
+export function convertSelectsToPills(container = document.body) {
+  if (!container) return;
+  const MAX_OPTIONS = 8; // Selects with more than 8 options stay native (e.g. time slots)
+
+  const selects = container.querySelectorAll('select');
+  selects.forEach(select => {
+    // Skip if already processed
+    if (select.dataset.pillsProcessed) return;
+
+    // Skip if already hidden
+    if (select.offsetParent === null && select.style.display === 'none') return;
+
+    // Skip selects with too many options (time pickers, long lists)
+    if (select.options.length > MAX_OPTIONS) {
+      select.dataset.pillsProcessed = 'skip';
+      return;
+    }
+
+    // Skip by name attribute (time selects, consumable selects, customer selects with search)
+    const name = (select.name || '').toLowerCase();
+    const id = (select.id || '').toLowerCase();
+    if (name === 'time' || name.includes('consumable') || id.includes('pos-')) {
+      select.dataset.pillsProcessed = 'skip';
+      return;
+    }
+
+    // Skip very compact inline selects (POS barber/customer pickers with no border)
+    if (select.style.border === 'none' || select.style.background === 'transparent') {
+      select.dataset.pillsProcessed = 'skip';
+      return;
+    }
+
+    // Mark as processed & hide native select
+    select.dataset.pillsProcessed = 'true';
+    select.style.setProperty('display', 'none', 'important');
+
+    const pillContainer = document.createElement('div');
+    pillContainer.className = 'pill-selector';
+    
+    const renderPills = () => {
+      pillContainer.innerHTML = '';
+      const options = Array.from(select.options);
+      
+      options.forEach(option => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'pill-btn';
+        if (option.value === select.value) btn.classList.add('active');
+        
+        // Color dot for status-type values
+        let btnHTML = option.text;
+        const val = option.value;
+        if (val === 'info') btnHTML = `<span style="width:8px;height:8px;border-radius:50%;background:var(--info);display:inline-block"></span> ${option.text}`;
+        else if (val === 'success') btnHTML = `<span style="width:8px;height:8px;border-radius:50%;background:var(--success);display:inline-block"></span> ${option.text}`;
+        else if (val === 'warning') btnHTML = `<span style="width:8px;height:8px;border-radius:50%;background:var(--warning);display:inline-block"></span> ${option.text}`;
+        else if (val === 'danger') btnHTML = `<span style="width:8px;height:8px;border-radius:50%;background:var(--danger);display:inline-block"></span> ${option.text}`;
+        
+        btn.innerHTML = btnHTML;
+        btn.dataset.value = val;
+
+        btn.onclick = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          pillContainer.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          select.value = val;
+          select.dispatchEvent(new Event('change', { bubbles: true }));
+        };
+
+        pillContainer.appendChild(btn);
+      });
+    };
+
+    // Watch for dynamic options changes in the native select
+    const optObserver = new MutationObserver(() => renderPills());
+    optObserver.observe(select, { childList: true, subtree: true });
+
+    renderPills();
+    select.parentNode.insertBefore(pillContainer, select.nextSibling);
+  });
+}
 

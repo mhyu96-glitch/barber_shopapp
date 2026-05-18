@@ -11,39 +11,39 @@ const DAYS_SHORT = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
 const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'];
 
 const STYLE_IMAGES = {
-    // Foto nyata per gaya rambut (Unsplash)
-    'Fade Cut':             'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400&q=80',
-    'Undercut':             'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=400&q=80',
-    'Pompadour':            'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=400&q=80',
-    'Buzz Cut':             'https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=400&q=80',
-    'Mullet':               'https://images.unsplash.com/photo-1620302380595-64c3c3933cff?w=400&q=80',
-    'Crew Cut':             'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=400&q=80',
-    'Textured Crop':        'https://images.unsplash.com/photo-1567894340315-735d7c361db0?w=400&q=80',
-    'Textured Crop Fade':   'https://images.unsplash.com/photo-1567894340315-735d7c361db0?w=400&q=80',
-    'Classic Pompadour':    'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=400&q=80',
-    'Skin Fade Buzz Cut':   'https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=400&q=80',
-    'Side Part Quiff':      'https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=400&q=80',
-    'Modern Mullet':        'https://images.unsplash.com/photo-1620302380595-64c3c3933cff?w=400&q=80',
-    'Classic Crew Cut':     'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=400&q=80',
-    'Quiff':                'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&q=80',
-    'Slick Back':           'https://images.unsplash.com/photo-1534297635766-a262cdcb8ee4?w=400&q=80',
-    'French Crop':          'https://images.unsplash.com/photo-1593702288056-7cc3b3e24b6e?w=400&q=80',
-    'Caesar Cut':           'https://images.unsplash.com/photo-1504703395950-b89145a5425b?w=400&q=80',
-    'Ivy League':           'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&q=80',
-    'Mohawk':               'https://images.unsplash.com/photo-1520975916090-3105956dac38?w=400&q=80',
-    'Faux Hawk':            'https://images.unsplash.com/photo-1520975916090-3105956dac38?w=400&q=80',
-    'Comb Over':            'https://images.unsplash.com/photo-1534297635766-a262cdcb8ee4?w=400&q=80',
-    'Taper Fade':           'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400&q=80',
-    'High Fade':            'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400&q=80',
-    'Low Fade':             'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=400&q=80',
-    'Mid Fade':             'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=400&q=80',
-    'Skin Fade':            'https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=400&q=80',
-    'Drop Fade':            'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400&q=80',
-    'Burst Fade':           'https://images.unsplash.com/photo-1567894340315-735d7c361db0?w=400&q=80',
-    'Temple Fade':          'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=400&q=80',
-    'Bald Fade':            'https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=400&q=80',
-    // Default fallback
-    '_default':             'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400&q=80',
+    // Foto model nyata 100% cocok per gaya rambut (Unsplash)
+    'Fade Cut':             'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=500&q=80', // Clean fade model shot
+    'Undercut':             'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=500&q=80', // Modern undercut model shot
+    'Pompadour':            'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=500&q=80', // High classic pompadour style
+    'Buzz Cut':             'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=500&q=80', // Short buzz cut skin fade model
+    'Mullet':               'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=500&q=80', // Modern mullet model shot
+    'Crew Cut':             'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=500&q=80', // Sharp crew cut model shot
+    'Textured Crop':        'https://images.unsplash.com/photo-1630827020718-3433092696e7?auto=format&fit=crop&q=80&w=800', // Pristine front-facing textured crop model shot
+    'Textured Crop Fade':   'https://images.unsplash.com/photo-1630827020718-3433092696e7?auto=format&fit=crop&q=80&w=800', // Pristine front-facing textured crop model shot
+    'Classic Pompadour':    'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=500&q=80', // Pompadour
+    'Skin Fade Buzz Cut':   'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=500&q=80', // Buzz cut
+    'Side Part Quiff':      'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=500&q=80', // Side part quiff
+    'Modern Mullet':        'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=500&q=80', // Mullet model
+    'Classic Crew Cut':     'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=500&q=80', // Crew cut
+    'Quiff':                'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=500&q=80', // Quiff
+    'Slick Back':           'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=500&q=80', // Slick back
+    'French Crop':          'https://images.unsplash.com/photo-1630827020718-3433092696e7?auto=format&fit=crop&q=80&w=800', // French crop
+    'Caesar Cut':           'https://images.unsplash.com/photo-1630827020718-3433092696e7?auto=format&fit=crop&q=80&w=800', // Caesar
+    'Ivy League':           'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=500&q=80', // Ivy league
+    'Mohawk':               'https://images.unsplash.com/photo-1567894340315-735d7c361db0?w=500&q=80', // High crop
+    'Faux Hawk':            'https://images.unsplash.com/photo-1567894340315-735d7c361db0?w=500&q=80', // Faux hawk
+    'Comb Over':            'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=500&q=80', // Comb over
+    'Taper Fade':           'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=500&q=80', // Taper fade
+    'High Fade':            'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=500&q=80', // High fade
+    'Low Fade':             'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=500&q=80', // Low fade
+    'Mid Fade':             'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=500&q=80', // Mid fade
+    'Skin Fade':            'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=500&q=80', // Skin fade
+    'Drop Fade':            'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=500&q=80', // Drop fade
+    'Burst Fade':           'https://images.unsplash.com/photo-1567894340315-735d7c361db0?w=500&q=80', // Burst fade
+    'Temple Fade':          'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=500&q=80', // Temple fade
+    'Bald Fade':            'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=500&q=80', // Bald fade
+    // Default fallback (Stunning sharp model portrait instead of flat lay clippers)
+    '_default':             'https://images.unsplash.com/photo-1630827020718-3433092696e7?auto=format&fit=crop&q=80&w=800',
 };
 
 // === Storage helpers (read-only from main app's localStorage) ===
@@ -204,12 +204,25 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 function initPortalTheme() {
-  const settings = sGet('settings', {});
-  const accent = settings.portalAccent || '#d4a843';
+  const accent = '#bfa15f'; // Force Elegant Satin Gold theme
   const root = document.documentElement;
   root.style.setProperty('--p-accent', accent);
-  root.style.setProperty('--p-accent-glow', accent + '33');
+  root.style.setProperty('--p-accent-glow', 'rgba(191, 161, 95, 0.15)');
 }
+
+window.getIconAuraStyle = function(iconClass) {
+  const icon = iconClass?.toLowerCase() || '';
+  if (icon.includes('scissors')) return { bg: 'linear-gradient(135deg, rgba(212, 175, 55, 0.18), rgba(212, 175, 55, 0.04))', color: '#d4af37', border: 'rgba(212, 175, 55, 0.25)' };
+  if (icon.includes('brush') || icon.includes('razor')) return { bg: 'linear-gradient(135deg, rgba(230, 126, 34, 0.18), rgba(230, 126, 34, 0.04))', color: '#e67e22', border: 'rgba(230, 126, 34, 0.25)' };
+  if (icon.includes('palette') || icon.includes('paint') || icon.includes('color')) return { bg: 'linear-gradient(135deg, rgba(155, 89, 182, 0.18), rgba(155, 89, 182, 0.04))', color: '#a855f7', border: 'rgba(155, 89, 182, 0.25)' };
+  if (icon.includes('leaf') || icon.includes('spa') || icon.includes('cream')) return { bg: 'linear-gradient(135deg, rgba(46, 204, 113, 0.18), rgba(46, 204, 113, 0.04))', color: '#10b981', border: 'rgba(46, 204, 113, 0.25)' };
+  if (icon.includes('shower') || icon.includes('water') || icon.includes('bath') || icon.includes('wash')) return { bg: 'linear-gradient(135deg, rgba(52, 152, 219, 0.18), rgba(52, 152, 219, 0.04))', color: '#0ea5e9', border: 'rgba(52, 152, 219, 0.25)' };
+  if (icon.includes('child') || icon.includes('baby')) return { bg: 'linear-gradient(135deg, rgba(26, 188, 156, 0.18), rgba(26, 188, 156, 0.04))', color: '#1abc9c', border: 'rgba(26, 188, 156, 0.25)' };
+  if (icon.includes('spray') || icon.includes('wind') || icon.includes('air') || icon.includes('pomade')) return { bg: 'linear-gradient(135deg, rgba(241, 196, 15, 0.18), rgba(241, 196, 15, 0.04))', color: '#eab308', border: 'rgba(241, 196, 15, 0.25)' };
+  if (icon.includes('comment') || icon.includes('user') || icon.includes('tie') || icon.includes('chat') || icon.includes('gaya')) return { bg: 'linear-gradient(135deg, rgba(148, 163, 184, 0.18), rgba(148, 163, 184, 0.04))', color: '#64748b', border: 'rgba(148, 163, 184, 0.25)' };
+  if (icon.includes('hands') || icon.includes('hand') || icon.includes('heart') || icon.includes('pijat')) return { bg: 'linear-gradient(135deg, rgba(231, 76, 60, 0.18), rgba(231, 76, 60, 0.04))', color: '#ef4444', border: 'rgba(231, 76, 60, 0.25)' };
+  return { bg: 'linear-gradient(135deg, var(--p-accent-glow), transparent)', color: 'var(--p-accent)', border: 'var(--p-accent-glow)' };
+};
 
 const STEPS = [
   { label: 'Layanan', icon: 'fa-scissors' },
@@ -444,405 +457,655 @@ window.renderHome = function () {
     ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
     : '5.0';
 
+  const header = document.getElementById('portal-header');
+  const footer = document.getElementById('portal-footer');
+  if (header) header.style.display = 'none';
+  if (footer) footer.style.display = 'none';
+
   const main = document.getElementById('portal-main');
+  main.style.padding = '0';
+  main.style.maxWidth = '100%';
+  document.body.style.background = '#0f172a';
+
+  const totalServices = services.filter(s => s.price > 0).length;
+  const totalBarbers = barbers.length;
+  const totalPromos = promos.length;
+
+  const appointments = sGetAll('appointments');
+  const todayStr = new Date().toISOString().split('T')[0];
+  const activeCuts = appointments.filter(a => (a.status === 'confirmed' || a.status === 'ongoing') && a.date === todayStr).length;
+  const displayCuts = activeCuts > 0 ? activeCuts : 1;
+  const progressPercent = Math.min(100, Math.round((displayCuts / totalBarbers) * 100)) || 35;
+
   main.innerHTML = `
-    <div class="portal-main fade-in">
-
-      <!-- HERO -->
-      <div class="portal-hero" style="padding: 48px 16px 32px; position: relative; overflow: hidden;">
-        <div style="position: absolute; top: -60px; left: 50%; transform: translateX(-50%); width: 300px; height: 300px; background: radial-gradient(circle, var(--p-accent-glow) 0%, transparent 70%); pointer-events: none;"></div>
+    <div class="pwa-portal-wrap fade-in">
+      <div class="pwa-portal-container">
         
-        <!-- Status Buka/Tutup -->
-        <div style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; margin-bottom: 16px;
-          background: ${isOpen ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)'};
-          color: ${isOpen ? 'var(--p-success)' : 'var(--p-danger)'};
-          border: 1px solid ${isOpen ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'};">
-          <span style="width: 7px; height: 7px; border-radius: 50%; background: currentColor; ${isOpen ? 'animation: blink 1.5s infinite;' : ''}"></span>
-          ${isOpen ? `BUKA • Tutup ${closeTime}` : `TUTUP • Buka ${openTime}`}
-        </div>
-
-        <h2 style="font-size: 30px; font-weight: 900; margin-bottom: 10px; line-height: 1.2;">
-          ${t('welcome')} <span style="color: var(--p-accent);">${shopName}</span>
-        </h2>
-        <p style="color: var(--p-text2); font-size: 15px; max-width: 420px; margin: 0 auto 8px;">
-          ${t('hero_sub')}
-        </p>
-
-        <!-- Rating & Stats -->
-        <div style="display: flex; align-items: center; justify-content: center; gap: 16px; margin: 16px 0 24px; flex-wrap: wrap;">
-          <div style="display: flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 700; color: var(--p-warning);">
-            <i class="fas fa-star"></i> ${avgRating}
-            <span style="color: var(--p-muted); font-weight: 400;">(${reviews.length} ulasan)</span>
+        <div class="pwa-top">
+          <div class="pwa-header">
+            <a href="javascript:void(0)" onclick="window.location.reload()" class="back-btn"><i class="fas fa-redo-alt"></i></a>
           </div>
-          ${barbers.length > 0 ? `
-            <div style="width: 1px; height: 16px; background: var(--p-border);"></div>
-            <div style="font-size: 13px; color: var(--p-muted);">
-              <i class="fas fa-user-tie" style="color: var(--p-accent);"></i> ${barbers.length} Barber Profesional
+
+          <div class="pwa-greeting-sub">Selamat datang di,</div>
+          <div class="pwa-greeting-title">${shopName}</div>
+
+          <div class="pwa-glass-card">
+            <div class="pwa-loyalty-title"><i class="fas fa-cut" style="color: var(--p-accent); margin-right: 6px; text-shadow: 0 0 8px rgba(191, 161, 95, 0.4);"></i> SEDANG DICUKUR</div>
+            <div class="pwa-loyalty-val" style="font-size: 24px; display: block; font-family: 'Outfit', sans-serif;">
+              ${displayCuts} Pelanggan <span style="font-family: 'Outfit', sans-serif;">Sedang Dipotong</span>
             </div>
-          ` : ''}
-          ${services.length > 0 ? `
-            <div style="width: 1px; height: 16px; background: var(--p-border);"></div>
-            <div style="font-size: 13px; color: var(--p-muted);">
-              <i class="fas fa-scissors" style="color: var(--p-accent);"></i> ${services.length} Layanan
+            <div class="pwa-progress-bar" style="height: 14px; background: rgba(0,0,0,0.3); border-radius: 10px; margin-bottom: 12px; position: relative; overflow: visible;">
+              <div class="pwa-progress-fill barber-pole-fill" style="width: ${progressPercent}%; height: 100%; border-radius: 10px; transition: width 0.8s ease;"></div>
+              <div class="sliding-scissor" style="left: calc(${progressPercent}% - 8px);"><i class="fas fa-scissors"></i></div>
             </div>
-          ` : ''}
-        </div>
-
-        <button class="p-btn p-btn-primary" onclick="startBooking()" style="font-size: 16px; padding: 14px 40px; border-radius: 50px; box-shadow: 0 6px 24px var(--p-accent-glow);">
-          <i class="fas fa-calendar-plus"></i> ${t('btn_book_now')}
-        </button>
-
-        ${phone ? `
-          <div style="margin-top: 14px;">
-            <a href="https://wa.me/${phone.replace(/\D/g,'')}" target="_blank" style="color: #25d366; font-size: 13px; text-decoration: none; font-weight: 600;">
-              <i class="fab fa-whatsapp"></i> Hubungi via WhatsApp
-            </a>
-          </div>
-        ` : ''}
-      </div>
-
-      <style>
-        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-      </style>
-
-      <!-- Live Queue -->
-      ${renderLiveQueue()}
-
-      <!-- Happy Hour Banner -->
-      ${isHappyHourNow() ? `
-        <div style="background: linear-gradient(135deg, #facc15, #f59e0b); border-radius: 16px; padding: 14px 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; color: #111;">
-          <div style="font-size: 24px;">⚡</div>
-          <div>
-            <div style="font-weight: 800; font-size: 14px;">HAPPY HOUR AKTIF!</div>
-            <div style="font-size: 12px; opacity: 0.8;">Diskon ${sGet('settings',{}).hhDiscount || 0}% untuk semua layanan • Berlaku s/d ${sGet('settings',{}).hhEnd}</div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div class="pwa-progress-text">Pilih layanan & barber favoritmu!</div>
+              <div style="width:36px;height:36px;border-radius:50%;background: linear-gradient(135deg, rgba(191, 161, 95, 0.3), rgba(212, 175, 55, 0.1)); border: 1px solid rgba(191, 161, 95, 0.4); display:flex;align-items:center;justify-content:center;font-size:16px; color: var(--p-accent); text-shadow: 0 0 6px rgba(191, 161, 95, 0.5); animation: scissor-snip 0.5s ease infinite;"><i class="fas fa-scissors"></i></div>
+            </div>
           </div>
         </div>
-      ` : ''}
 
-      <!-- Promo Banner -->
-      ${promos.length > 0 ? `
-        <div style="margin-bottom: 28px;">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-            <h3 style="font-size: 16px; font-weight: 800;"><i class="fas fa-tags" style="color: var(--p-accent);"></i> ${t('promo_title')}</h3>
+        <div class="pwa-stats-row">
+          <div class="pwa-stat-item">
+            <div class="pwa-stat-val c-gold">${totalServices}</div>
+            <div class="pwa-stat-label">LAYANAN</div>
           </div>
-          <div style="display: flex; flex-direction: column; gap: 10px;">
-            ${promos.map(p => {
-              const svc = services.find(s => s.id === p.serviceId);
-              return `
-                <div class="promo-banner" style="cursor: pointer;" onclick="startBooking()">
-                  <div class="promo-icon"><i class="fas fa-percent"></i></div>
-                  <div style="flex: 1;">
-                    <div style="font-weight: 700; font-size: 14px;">${p.name}</div>
-                    <div style="font-size: 12px; color: var(--p-muted); margin-top: 2px;">
-                      ${p.type === 'percentage' ? `Diskon ${p.discount}%` : `Hemat Rp ${Number(p.discount).toLocaleString('id')}`}
-                      ${svc ? ` untuk <b>${svc.name}</b>` : ' untuk semua layanan'} • s/d ${formatDateShort(p.endDate)}
-                    </div>
-                  </div>
-                  <span class="p-badge p-badge-gold">PROMO</span>
+          <div class="pwa-stat-item">
+            <div class="pwa-stat-val c-green">${totalBarbers}</div>
+            <div class="pwa-stat-label">BARBER</div>
+          </div>
+          <div class="pwa-stat-item">
+            <div class="pwa-stat-val c-orange">${totalPromos}</div>
+            <div class="pwa-stat-label">PROMO</div>
+          </div>
+        </div>
+
+        <div class="pwa-bottom">
+          <button class="pwa-btn" onclick="startBooking()">
+            Mulai Booking Sekarang <i class="fas fa-arrow-right" style="font-size:14px; margin-left:4px;"></i>
+          </button>
+          <button class="pwa-btn" onclick="startAIConsultation()" style="background: linear-gradient(135deg, #7c2d12 0%, #b8912e 100%); color: #fff; border: none; box-shadow: 0 8px 25px rgba(212, 168, 67, 0.25);">
+            🤖 Rekomendasi Gaya Rambut AI <i class="fas fa-magic" style="font-size:14px; margin-left:4px;"></i>
+          </button>
+          <button class="pwa-btn" onclick="showStatusCheckModal()" style="background: var(--p-card); color: var(--p-text); border: 1.5px solid rgba(191, 161, 95, 0.45); box-shadow: 0 8px 25px rgba(191, 161, 95, 0.08);">
+            Cek Status Booking <i class="fas fa-search" style="font-size:14px; margin-left:4px;"></i>
+          </button>
+
+          <!-- Loyalty Member Card Lookup -->
+          <div class="pwa-glass-card" style="margin-top: 16px; padding: 18px; border: 1.5px solid rgba(255,255,255,0.08); text-align: left;">
+            <div style="font-family: 'Outfit', sans-serif; font-size:12px; font-weight:800; color: var(--p-accent); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;"><i class="fas fa-id-card"></i> KARTU MEMBER DIGITAL</div>
+            <div style="font-size: 11px; color: #94a3b8; margin-bottom: 12px; line-height: 1.4;">Masukkan No. WhatsApp untuk melihat kartu member premium & stamp loyalitas Anda:</div>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="loyalty-phone-input" placeholder="Contoh: 08123456789" style="flex:1; background: rgba(0,0,0,0.3); border: 1px solid var(--p-border); border-radius: 10px; color: #fff; padding: 0 12px; font-size: 13px; font-weight: 600; outline: none; height: 38px;" />
+              <button class="p-btn p-btn-sm" onclick="window.lookupMemberCard()" style="height:38px; border-radius: 10px; background: var(--p-accent); color: #0f1117; font-weight: 800; font-size: 12px; border: none; padding: 0 16px; cursor: pointer;">Cari</button>
+            </div>
+            <div id="loyalty-card-result" style="margin-top: 14px; display: none;"></div>
+          </div>
+
+          <!-- Featured Barbers styled as Courier Card -->
+          <div style="margin-top:24px;">
+            <div style="font-family: 'Outfit', sans-serif; font-size:13px; font-weight:800; color: var(--p-text); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px; text-align: left;">Barber Kami</div>
+            ${barbers.slice(0,3).map(b => `
+              <div class="pwa-courier-card" style="margin-bottom:12px; cursor:pointer;" onclick="startBooking()">
+                <div class="pwa-courier-icon" style="${b.avatar ? `background:url(${b.avatar}) center/cover; color:transparent;` : ''}">
+                  ${b.avatar ? '' : '<i class="fas fa-user-tie"></i>'}
                 </div>
-              `;
-            }).join('')}
-          </div>
-        </div>
-      ` : ''}
-
-      <!-- Gallery / Inspirasi Style -->
-      ${gallery.length > 0 ? `
-        <div style="margin-bottom: 32px;">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
-            <h3 style="font-size: 16px; font-weight: 800;"><i class="fas fa-camera-retro" style="color: var(--p-accent);"></i> Inspirasi Style</h3>
-            <span style="font-size: 12px; color: var(--p-muted);">Geser →</span>
-          </div>
-          <div class="portal-gallery-carousel" style="display: flex; gap: 14px; overflow-x: auto; padding: 4px 0 16px; scroll-snap-type: x mandatory;">
-            ${gallery.map(item => {
-              const imgUrl = item.image_url || item.url || item.image;
-              const title = item.title || item.name || 'Style';
-              // Prioritas: foto dari gallery data → STYLE_IMAGES → default
-              const photoUrl = imgUrl || STYLE_IMAGES[title] || STYLE_IMAGES['_default'];
-              return `
-                <div style="flex: 0 0 150px; scroll-snap-align: start; border-radius: 18px; overflow: hidden; position: relative; aspect-ratio: 3/4; border: 1px solid var(--p-border); cursor: pointer;" onclick="useLookbookStyle('${title}')">
-                  <img src="${photoUrl}" 
-                    style="width:100%;height:100%;object-fit:cover;display:block;" 
-                    alt="${title}" 
-                    loading="lazy"
-                    onerror="this.src='${STYLE_IMAGES['_default']}'"
-                  />
-                  <div style="position:absolute;bottom:0;left:0;right:0;padding:36px 10px 10px;background:linear-gradient(to top,rgba(0,0,0,0.9),transparent);">
-                    <div style="font-size:8px;text-transform:uppercase;letter-spacing:1.5px;color:var(--p-accent);font-weight:800;">${item.category || 'STYLE'}</div>
-                    <div style="font-weight:700;font-size:12px;color:#fff;margin-top:2px;">${title}</div>
-                    <div style="margin-top:6px;background:var(--p-accent);color:#000;font-size:9px;font-weight:800;padding:4px 8px;border-radius:6px;text-align:center;letter-spacing:0.5px;">PILIH GAYA</div>
-                  </div>
+                <div class="pwa-courier-info" style="text-align: left;">
+                  <div class="pwa-courier-label">${b.specialization || 'KAPSTER BARBER'}</div>
+                  <div class="pwa-courier-name">${b.name}</div>
                 </div>
-              `;
-            }).join('')}
-          </div>
-        </div>
-      ` : `
-        <!-- Fallback: tampilkan style default dengan foto nyata -->
-        <div style="margin-bottom: 32px;">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
-            <h3 style="font-size: 16px; font-weight: 800;"><i class="fas fa-camera-retro" style="color: var(--p-accent);"></i> Inspirasi Style</h3>
-            <span style="font-size: 12px; color: var(--p-muted);">Geser →</span>
-          </div>
-          <div class="portal-gallery-carousel" style="display: flex; gap: 14px; overflow-x: auto; padding: 4px 0 16px; scroll-snap-type: x mandatory;">
-            ${[
-              { title: 'Fade Cut',      category: 'MODERN',   photo: STYLE_IMAGES['Fade Cut'] },
-              { title: 'Undercut',      category: 'TRENDY',   photo: STYLE_IMAGES['Undercut'] },
-              { title: 'Pompadour',     category: 'CLASSIC',  photo: STYLE_IMAGES['Pompadour'] },
-              { title: 'Buzz Cut',      category: 'SIMPLE',   photo: STYLE_IMAGES['Buzz Cut'] },
-              { title: 'Crew Cut',      category: 'CLASSIC',  photo: STYLE_IMAGES['Crew Cut'] },
-              { title: 'Quiff',         category: 'STYLISH',  photo: STYLE_IMAGES['Quiff'] },
-              { title: 'Slick Back',    category: 'FORMAL',   photo: STYLE_IMAGES['Slick Back'] },
-              { title: 'Taper Fade',    category: 'POPULAR',  photo: STYLE_IMAGES['Taper Fade'] },
-            ].map(s => `
-              <div style="flex:0 0 150px;scroll-snap-align:start;border-radius:18px;overflow:hidden;position:relative;aspect-ratio:3/4;border:1px solid var(--p-border);cursor:pointer;" onclick="useLookbookStyle('${s.title}')">
-                <img src="${s.photo}" 
-                  style="width:100%;height:100%;object-fit:cover;display:block;" 
-                  alt="${s.title}" 
-                  loading="lazy"
-                  onerror="this.src='${STYLE_IMAGES['_default']}'"
-                />
-                <div style="position:absolute;bottom:0;left:0;right:0;padding:36px 10px 10px;background:linear-gradient(to top,rgba(0,0,0,0.9),transparent);">
-                  <div style="font-size:8px;text-transform:uppercase;letter-spacing:1.5px;color:var(--p-accent);font-weight:800;">${s.category}</div>
-                  <div style="font-weight:700;font-size:12px;color:#fff;margin-top:2px;">${s.title}</div>
-                  <div style="margin-top:6px;background:var(--p-accent);color:#000;font-size:9px;font-weight:800;padding:4px 8px;border-radius:6px;text-align:center;letter-spacing:0.5px;">PILIH GAYA</div>
+                <div class="pwa-call-btn">
+                  <i class="fas fa-star" style="font-size:12px; color:#f59e0b;"></i>
                 </div>
               </div>
             `).join('')}
           </div>
-        </div>
-      `}
-
-      <!-- Layanan -->
-      ${(() => {
-        // Filter hanya layanan dengan harga > 0 untuk portal
-        const visibleServices = services.filter(s => s.price > 0);
-        if (visibleServices.length === 0) return '';
-
-        // Definisi kategori
-        const CATEGORIES = {
-          'Potong': { icon: 'fa-scissors', keywords: ['potong', 'cut', 'kids', 'anak', 'fade', 'undercut', 'crop'] },
-          'Cukur': { icon: 'fa-razor', keywords: ['cukur', 'jenggot', 'kumis', 'shave', 'beard'] },
-          'Perawatan': { icon: 'fa-spa', keywords: ['creambath', 'hair wash', 'keramas', 'tonic', 'kondisioner', 'wash', 'cuci', 'pijat', 'relaksasi', 'facial'] },
-          'Styling': { icon: 'fa-wand-magic-sparkles', keywords: ['styling', 'pomade', 'blow', 'finish', 'wax', 'gel'] },
-          'Warna': { icon: 'fa-palette', keywords: ['color', 'warna', 'highlight', 'smoothing', 'rebonding'] },
-          'Paket': { icon: 'fa-star', keywords: ['paket', 'combo', 'vip', 'pengantin', 'eksekutif'] },
-        };
-
-        // Tentukan kategori tiap layanan
-        function getCategory(name) {
-          const lower = name.toLowerCase();
-          for (const [cat, cfg] of Object.entries(CATEGORIES)) {
-            if (cfg.keywords.some(k => lower.includes(k))) return cat;
-          }
-          return 'Lainnya';
-        }
-
-        // Badge populer (layanan dengan harga tertinggi di kategorinya atau nama mengandung kata kunci)
-        function getBadge(s) {
-          const lower = s.name.toLowerCase();
-          if (lower.includes('paket') || lower.includes('combo') || lower.includes('vip')) return { label: 'HEMAT', color: '#10b981', bg: 'rgba(16,185,129,0.15)' };
-          if (lower.includes('potong rambut') || lower.includes('fade cut')) return { label: 'POPULER', color: '#f59e0b', bg: 'rgba(245,158,11,0.15)' };
-          if (lower.includes('pengantin') || lower.includes('eksekutif')) return { label: 'PREMIUM', color: '#a78bfa', bg: 'rgba(167,139,250,0.15)' };
-          return null;
-        }
-
-        // Kelompokkan per kategori
-        const grouped = {};
-        visibleServices.forEach(s => {
-          const cat = getCategory(s.name);
-          if (!grouped[cat]) grouped[cat] = [];
-          grouped[cat].push(s);
-        });
-
-        return `
-          <div style="margin-bottom: 32px;">
-            <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 6px;">
-              <i class="fas fa-list-check" style="color: var(--p-accent);"></i> ${t('svc_title')}
-            </h3>
-            <p style="font-size: 12px; color: var(--p-muted); margin-bottom: 18px;">Tap layanan untuk langsung booking</p>
-
-            ${Object.entries(grouped).map(([cat, items]) => `
-              <div style="margin-bottom: 20px;">
-                <!-- Label Kategori -->
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-                  <div style="width:28px;height:28px;border-radius:8px;background:var(--p-accent-glow);display:flex;align-items:center;justify-content:center;color:var(--p-accent);font-size:12px;">
-                    <i class="fas ${CATEGORIES[cat]?.icon || 'fa-tag'}"></i>
-                  </div>
-                  <span style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--p-muted);">${cat}</span>
-                  <div style="flex:1;height:1px;background:var(--p-border);"></div>
+          
+          <!-- Jam Operasional -->
+          <div style="margin-top:24px;">
+             <div style="font-family: 'Outfit', sans-serif; font-size:13px; font-weight:800; color: var(--p-text); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px; text-align: left;">Informasi Toko</div>
+             <div class="pwa-courier-card" style="margin-bottom:12px;">
+                <div class="pwa-courier-icon" style="background:#fef3c7; color:#f59e0b;"><i class="fas fa-clock"></i></div>
+                <div class="pwa-courier-info" style="text-align: left;">
+                  <div class="pwa-courier-label">JAM OPERASIONAL</div>
+                  <div class="pwa-courier-name">${openTime} - ${closeTime} WITA</div>
                 </div>
-
-                <!-- Kartu Layanan -->
-                <div style="display:flex;flex-direction:column;gap:8px;">
-                  ${items.map(s => {
-                    const hhPrice = getServicePrice(s);
-                    const isHH = hhPrice !== s.price;
-                    const badge = getBadge(s);
-                    return `
-                      <div onclick="portalSelectService('${s.id}')"
-                        style="display:flex;align-items:center;gap:14px;padding:14px 16px;
-                          background:var(--p-card);border:1px solid var(--p-border);
-                          border-radius:14px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;"
-                        onmouseover="this.style.borderColor='var(--p-accent)';this.style.transform='translateY(-1px)'"
-                        onmouseout="this.style.borderColor='var(--p-border)';this.style.transform='translateY(0)'">
-
-                        <!-- Icon -->
-                        <div style="width:44px;height:44px;border-radius:12px;background:var(--p-accent-glow);
-                          display:flex;align-items:center;justify-content:center;
-                          color:var(--p-accent);font-size:18px;flex-shrink:0;">
-                          <i class="fas ${s.icon || 'fa-scissors'}"></i>
-                        </div>
-
-                        <!-- Info -->
-                        <div style="flex:1;min-width:0;">
-                          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-                            <span style="font-weight:700;font-size:14px;">${s.name}</span>
-                            ${badge ? `<span style="font-size:9px;font-weight:800;padding:2px 7px;border-radius:20px;background:${badge.bg};color:${badge.color};letter-spacing:0.5px;">${badge.label}</span>` : ''}
-                          </div>
-                          <div style="font-size:11px;color:var(--p-muted);margin-top:3px;display:flex;align-items:center;gap:8px;">
-                            <span><i class="far fa-clock"></i> ${s.duration} menit</span>
-                            ${s.description ? `<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px;">${s.description}</span>` : ''}
-                          </div>
-                        </div>
-
-                        <!-- Harga + Tombol -->
-                        <div style="text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
-                          <div>
-                            ${isHH ? `<div style="text-decoration:line-through;color:var(--p-muted);font-size:10px;">Rp ${s.price.toLocaleString('id')}</div>` : ''}
-                            <div style="font-weight:900;color:var(--p-accent);font-size:15px;line-height:1;">Rp ${hhPrice.toLocaleString('id')}</div>
-                            ${isHH ? `<div style="font-size:8px;background:#facc15;color:#111;padding:1px 5px;border-radius:4px;font-weight:800;margin-top:2px;">HH</div>` : ''}
-                          </div>
-                          <div style="background:var(--p-accent);color:#0f1117;font-size:10px;font-weight:800;
-                            padding:5px 12px;border-radius:20px;letter-spacing:0.3px;white-space:nowrap;">
-                            Pilih →
-                          </div>
-                        </div>
-                      </div>
-                    `;
-                  }).join('')}
+                <div class="pwa-call-btn" style="border:none; box-shadow:none; width:auto; font-size:11px; font-weight:800; color:${isOpen?'#10b981':'#ef4444'};">
+                  ${isOpen ? 'BUKA' : 'TUTUP'}
                 </div>
               </div>
-            `).join('')}
           </div>
-        `;
-      })()}
+          
+          <div style="text-align:center; margin-top: 30px; font-size: 11px; color: #cbd5e1; font-weight: 600;">
+            BarberPro v2.0 &copy; ${new Date().getFullYear()}
+          </div>
 
-      <!-- Tim Barber -->
-      ${barbers.length > 0 ? `
-        <div style="margin-bottom: 32px;">
-          <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 14px;"><i class="fas fa-user-tie" style="color: var(--p-accent);"></i> ${t('barber_title')}</h3>
-          <div style="display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;scroll-snap-type:x mandatory;">
-            ${barbers.map(b => {
-              const bReviews = sGetAll('appointments').filter(a => a.barberId === b.id && a.rating > 0);
-              const bRating = bReviews.length > 0 ? (bReviews.reduce((s,r)=>s+r.rating,0)/bReviews.length).toFixed(1) : (b.rating||4.9).toFixed(1);
-              return `
-                <div class="p-card" style="flex:0 0 160px;scroll-snap-align:start;text-align:center;padding:20px 14px;border-radius:20px;cursor:pointer;" onclick="startBooking()">
-                  <div style="width:64px;height:64px;border-radius:50%;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#0f1117;
-                    ${b.avatar ? `background:url(${b.avatar}) center/cover;border:2px solid var(--p-accent-glow);` : 'background:linear-gradient(135deg,var(--p-accent-dk),var(--p-accent));'}">
-                    ${b.avatar ? '' : getInitials(b.name)}
-                  </div>
-                  <div style="font-weight:700;font-size:14px;">${b.name}</div>
-                  <div style="font-size:10px;color:var(--p-muted);text-transform:uppercase;letter-spacing:0.8px;margin-top:3px;">${b.specialization||'Master Barber'}</div>
-                  <div style="margin-top:8px;display:inline-flex;align-items:center;gap:4px;background:var(--p-warning-bg);color:var(--p-warning);padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;">
-                    <i class="fas fa-star" style="font-size:9px;"></i> ${bRating}
-                  </div>
-                </div>
-              `;
-            }).join('')}
-          </div>
         </div>
-      ` : ''}
 
-      <!-- Ulasan Pelanggan -->
-      ${reviews.length > 0 ? `
-        <div style="margin-bottom: 32px;">
-          <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 14px;"><i class="fas fa-star" style="color: var(--p-warning);"></i> ${t('review_title')}</h3>
-          <div style="display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;scroll-snap-type:x mandatory;">
-            ${reviews.map(r => `
-              <div class="p-card" style="flex:0 0 240px;scroll-snap-align:start;padding:16px;border-radius:16px;">
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-                  <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--p-accent-dk),var(--p-accent));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#0f1117;flex-shrink:0;">
-                    ${(r.customerName||'?')[0].toUpperCase()}
-                  </div>
-                  <div>
-                    <div style="font-weight:700;font-size:13px;">${r.customerName||'Pelanggan'}</div>
-                    <div style="font-size:10px;color:var(--p-muted);">${formatDateShort(r.date)}</div>
-                  </div>
-                </div>
-                <div style="color:var(--p-warning);font-size:12px;margin-bottom:8px;">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>
-                <div style="font-size:12px;color:var(--p-text2);line-height:1.5;font-style:italic;">"${r.notes||r.comment||'Pelayanan sangat memuaskan!'}"</div>
-                <div style="font-size:10px;color:var(--p-muted);margin-top:8px;">✂️ ${r.serviceName||''} • ${r.barberName||''}</div>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      ` : ''}
-
-      <!-- Info Jam Operasional -->
-      <div style="margin-bottom: 32px;">
-        <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 14px;"><i class="fas fa-clock" style="color: var(--p-accent);"></i> Jam Operasional</h3>
-        <div class="p-card" style="padding: 18px; border-radius: 16px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--p-border);">
-            <span style="font-size:14px;color:var(--p-text2);">Senin – Sabtu</span>
-            <span style="font-weight:700;font-size:14px;">${openTime} – ${closeTime} WITA</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--p-border);">
-            <span style="font-size:14px;color:var(--p-text2);">Hari Libur</span>
-            <span style="font-weight:700;font-size:14px;color:var(--p-danger);">
-              ${closedDays.map(d => ['Min','Sen','Sel','Rab','Kam','Jum','Sab'][d]).join(', ')}
-            </span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;">
-            <span style="font-size:14px;color:var(--p-text2);">Status Sekarang</span>
-            <span style="font-weight:700;font-size:13px;padding:4px 12px;border-radius:20px;
-              background:${isOpen?'var(--p-success-bg)':'var(--p-danger-bg)'};
-              color:${isOpen?'var(--p-success)':'var(--p-danger)'};">
-              ${isOpen ? '🟢 BUKA' : '🔴 TUTUP'}
-            </span>
-          </div>
-        </div>
       </div>
-
-      <!-- FAQ -->
-      <div style="margin-bottom: 32px;">
-        <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 14px;"><i class="fas fa-circle-question" style="color: var(--p-accent);"></i> FAQ</h3>
-        <div style="display:flex;flex-direction:column;gap:8px;">
-          ${[
-            ['Apakah bisa walk-in tanpa booking?', 'Bisa, namun booking online diprioritaskan. Disarankan booking terlebih dahulu untuk menghindari antrian panjang.'],
-            ['Berapa lama proses potong rambut?', 'Rata-rata 30–60 menit tergantung layanan yang dipilih.'],
-            ['Bagaimana cara membatalkan booking?', 'Hubungi kami via WhatsApp dengan menyebutkan kode booking Anda.'],
-            ['Apakah ada diskon untuk pelanggan setia?', 'Ya! Setiap 10 kunjungan, Anda mendapatkan 1 potong rambut GRATIS.'],
-          ].map(([q, a], i) => `
-            <div class="p-card" style="padding:0;border-radius:14px;overflow:hidden;">
-              <button onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'; this.querySelector('i').style.transform=this.nextElementSibling.style.display==='block'?'rotate(180deg)':'rotate(0deg)'"
-                style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:transparent;border:none;color:var(--p-text);font-size:13px;font-weight:600;cursor:pointer;text-align:left;gap:10px;">
-                <span>${q}</span>
-                <i class="fas fa-chevron-down" style="color:var(--p-accent);flex-shrink:0;transition:transform 0.2s;"></i>
-              </button>
-              <div style="display:none;padding:0 16px 14px;font-size:13px;color:var(--p-text2);line-height:1.6;">${a}</div>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-
-      <!-- Lokasi -->
-      ${renderMapSection()}
-
-      <!-- CTA Bottom -->
-      <div style="text-align:center;margin:32px 0 16px;">
-        <button class="p-btn p-btn-primary p-btn-block" onclick="startBooking()" style="font-size:16px;padding:16px;border-radius:50px;box-shadow:0 6px 24px var(--p-accent-glow);">
-          <i class="fas fa-calendar-plus"></i> ${t('btn_book_now')}
-        </button>
-        ${phone ? `
-          <a href="https://wa.me/${phone.replace(/\D/g,'')}" target="_blank" class="p-btn p-btn-wa p-btn-block" style="margin-top:10px;border-radius:50px;font-size:15px;padding:14px;text-decoration:none;display:flex;">
-            <i class="fab fa-whatsapp"></i> Chat WhatsApp
-          </a>
-        ` : ''}
-      </div>
-
     </div>
   `;
+};
+
+// === Member Card Lookup & AI Consultant ===
+window.lookupMemberCard = function() {
+  const phone = document.getElementById('loyalty-phone-input')?.value?.trim();
+  const resDiv = document.getElementById('loyalty-card-result');
+  if (!phone) {
+    Swal.fire({ icon: 'warning', text: 'Silakan masukkan nomor WhatsApp Anda' });
+    return;
+  }
+  const appts = sGetAll('appointments').filter(a => a.customerPhone?.replace(/\D/g, '') === phone.replace(/\D/g, '') && a.status === 'done');
+  const count = appts.length;
+  
+  let tier = 'Bronze';
+  let tierClass = 'card-tier-bronze';
+  if (count >= 12) { tier = 'Platinum'; tierClass = 'card-tier-platinum'; }
+  else if (count >= 8) { tier = 'Gold'; tierClass = 'card-tier-gold'; }
+  else if (count >= 4) { tier = 'Silver'; tierClass = 'card-tier-silver'; }
+  
+  const name = appts[0]?.customerName || 'MEMBER PREMIUM';
+  const cardNum = `BP-${phone.slice(-4)}-${String(count).padStart(4, '0')}`;
+  
+  // Stamp Progress Board (Mod 5)
+  const stampCount = count % 5;
+  
+  resDiv.style.display = 'block';
+  resDiv.innerHTML = `
+    <div class="metallic-card ${tierClass}">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+        <div class="card-chip"></div>
+        <div style="text-align:right;">
+          <div style="font-size:12px; font-weight:900; letter-spacing:1px; color:#fff;">BARBERPRO</div>
+          <div style="font-size:8px; font-weight:700; color:rgba(255,255,255,0.6);">${tier.toUpperCase()} TIER</div>
+        </div>
+      </div>
+      <div style="margin: 16px 0 8px; font-family:'Outfit',sans-serif; font-size:16px; font-weight:800; color:#fff; letter-spacing:2px; text-shadow:0 2px 4px rgba(0,0,0,0.5);">${cardNum}</div>
+      <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+        <div>
+          <div style="font-size:8px; color:rgba(255,255,255,0.5); font-weight:700;">NAMA MEMBER</div>
+          <div style="font-size:12px; font-weight:800; color:#fff; text-transform:uppercase;">${name}</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:8px; color:rgba(255,255,255,0.5); font-weight:700;">TOTAL KUNJUNGAN</div>
+          <div style="font-size:14px; font-weight:900; color:var(--p-accent);">${count} X</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px; background:rgba(0,0,0,0.3); border-radius:12px; padding:12px; border:1px solid rgba(255,255,255,0.05);">
+      <div class="flex-between">
+        <span class="text-xs fw-700" style="color:#fff;">Stamps Reward: ${stampCount} / 5</span>
+        <span class="text-xs fw-700" style="color:var(--p-accent);">${5 - stampCount} kunjungan lagi untuk FREE CUT! 🎁</span>
+      </div>
+      <div class="stamp-grid">
+        ${[1, 2, 3, 4, 5].map(i => {
+          const isActive = i <= stampCount;
+          const isFree = i === 5;
+          return `<div class="stamp-slot ${isActive ? 'active' : ''} ${isFree ? 'free-slot' : ''}" title="${isFree ? 'Free Service' : `Stamp ${i}`}"></div>`;
+        }).join('')}
+      </div>
+    </div>
+  `;
+};
+
+// === AI Hair Consultation Wizard ===
+let aiStep = 1;
+let aiFaceShape = '';
+let aiHairType = '';
+let aiHairLength = '';
+let aiHairDensity = '';
+let aiStyleGoal = '';
+let selectedRecIdx = 0;
+
+window.startAIConsultation = function() {
+  aiStep = 1;
+  aiFaceShape = '';
+  aiHairType = '';
+  aiHairLength = '';
+  aiHairDensity = '';
+  aiStyleGoal = '';
+  selectedRecIdx = 0;
+  
+  const main = document.getElementById('portal-main');
+  main.innerHTML = `
+    <style>
+      .option-card {
+        background: var(--p-card) !important;
+        border: 1.5px solid var(--p-border) !important;
+        border-radius: 16px !important;
+        padding: 16px !important;
+        text-align: center !important;
+        cursor: pointer !important;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        box-shadow: 0 4px 12px var(--p-accent-glow) !important;
+        color: var(--p-text) !important;
+      }
+      .option-card:hover {
+        background: var(--p-card-hover) !important;
+        border-color: var(--p-accent) !important;
+        transform: translateY(-3px) !important;
+        box-shadow: 0 8px 20px var(--p-accent-glow) !important;
+      }
+      .option-card:active {
+        transform: scale(0.97) !important;
+      }
+      .option-icon {
+        font-size: 28px !important;
+        margin-bottom: 8px !important;
+      }
+      .custom-rec-tabs::-webkit-scrollbar {
+        display: none;
+      }
+      .rec-tab-btn.active {
+        background: var(--p-accent) !important;
+        color: var(--p-bg) !important;
+        border-color: var(--p-accent) !important;
+        box-shadow: 0 4px 12px rgba(191, 161, 95, 0.3) !important;
+      }
+    </style>
+    <div class="pwa-portal-wrap fade-in">
+      <div class="pwa-portal-container" style="background: var(--p-bg); color: var(--p-text);">
+        <div class="pwa-top" style="padding: 60px 24px 20px; border-radius: 0 0 30px 30px; background: linear-gradient(135deg, var(--p-accent), var(--p-accent-dk));">
+          <div style="display:flex; align-items:center; gap: 12px; margin-bottom: 12px;">
+             <button onclick="renderHome()" style="width:36px; height:36px; background:rgba(255,255,255,0.25); border:none; border-radius:12px; color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px);"><i class="fas fa-times"></i></button>
+             <div style="font-size:18px; font-weight:800; color:#fff; font-family:'Outfit',sans-serif;">AI Hair Stylist Consultant</div>
+          </div>
+          <p style="font-size:12px; color:rgba(255,255,255,0.9); margin:0;">Konsultasikan tipe wajah dan rambut Anda untuk mendapatkan rekomendasi gaya terbaik.</p>
+        </div>
+        
+        <div class="pwa-bottom" style="padding: 24px; flex:1;" id="ai-wizard-body">
+          <!-- Dynamically Rendered step content -->
+        </div>
+      </div>
+    </div>
+  `;
+  renderAIStep();
+};
+
+function renderAIStep() {
+  try {
+    const body = document.getElementById('ai-wizard-body');
+    if (!body) return;
+
+    // Add a beautifully styled gold progress bar
+    let progressBar = '';
+    if (aiStep <= 5) {
+      progressBar = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; font-size:11px; font-weight:800; color:var(--p-accent);">
+          <span>PROGRES KONSULTASI</span>
+          <span>Langkah ${aiStep} dari 5</span>
+        </div>
+        <div style="height:4px; background:rgba(255,255,255,0.05); border-radius:2px; margin-bottom:20px; overflow:hidden;">
+          <div style="width:${(aiStep / 5) * 100}%; height:100%; background:linear-gradient(to right, var(--p-accent), #d4af37); transition:width 0.3s ease;"></div>
+        </div>
+      `;
+    }
+
+    if (aiStep === 1) {
+      body.innerHTML = `
+        ${progressBar}
+        <h3 style="text-align:left; margin-bottom:4px; color: var(--p-text);">1. Pilih Bentuk Wajah</h3>
+        <p style="color:var(--p-muted); font-size:12px; margin-bottom:20px; text-align:left;">Bantu AI kami menganalisis proporsi wajah Anda untuk hasil potong paling ideal.</p>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div class="option-card" onclick="window.selectAIShape('oval')">
+            <div class="option-icon">🥚</div>
+            <div class="fw-700 text-sm" style="color: var(--p-text); font-weight: 700;">Oval</div>
+            <div style="margin-top:4px; font-size:10px; color: var(--p-muted);">Proporsional & Seimbang</div>
+          </div>
+          <div class="option-card" onclick="window.selectAIShape('round')">
+            <div class="option-icon">🌕</div>
+            <div class="fw-700 text-sm" style="color: var(--p-text); font-weight: 700;">Bulat</div>
+            <div style="margin-top:4px; font-size:10px; color: var(--p-muted);">Pipi penuh & dagu halus</div>
+          </div>
+          <div class="option-card" onclick="window.selectAIShape('square')">
+            <div class="option-icon">🔲</div>
+            <div class="fw-700 text-sm" style="color: var(--p-text); font-weight: 700;">Kotak</div>
+            <div style="margin-top:4px; font-size:10px; color: var(--p-muted);">Rahang tegas & bersudut</div>
+          </div>
+          <div class="option-card" onclick="window.selectAIShape('diamond')">
+            <div class="option-icon">💎</div>
+            <div class="fw-700 text-sm" style="color: var(--p-text); font-weight: 700;">Diamond</div>
+            <div style="margin-top:4px; font-size:10px; color: var(--p-muted);">Tulang pipi tinggi / lancip</div>
+          </div>
+        </div>
+      `;
+    } else if (aiStep === 2) {
+      body.innerHTML = `
+        ${progressBar}
+        <h3 style="text-align:left; margin-bottom:4px; color: var(--p-text);">2. Pilih Tekstur Rambut</h3>
+        <p style="color:var(--p-muted); font-size:12px; margin-bottom:20px; text-align:left;">Membantu sistem menyelaraskan ketahanan dan kelayakan gaya rambut.</p>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div class="option-card" onclick="window.selectAITexture('straight')">
+            <div class="option-icon">💈</div>
+            <div class="fw-700 text-sm" style="color: var(--p-text); font-weight: 700;">Lurus</div>
+            <div style="margin-top:4px; font-size:10px; color: var(--p-muted);">Mudah diatur & licin</div>
+          </div>
+          <div class="option-card" onclick="window.selectAITexture('wavy')">
+            <div class="option-icon">〰️</div>
+            <div class="fw-700 text-sm" style="color: var(--p-text); font-weight: 700;">Bergelombang</div>
+            <div style="margin-top:4px; font-size:10px; color: var(--p-muted);">Punya volume alami</div>
+          </div>
+          <div class="option-card" onclick="window.selectAITexture('curly')">
+            <div class="option-icon">🌀</div>
+            <div class="fw-700 text-sm" style="color: var(--p-text); font-weight: 700;">Keriting</div>
+            <div style="margin-top:4px; font-size:10px; color: var(--p-muted);">Tekstur tebal & melingkar</div>
+          </div>
+        </div>
+        
+        <button type="button" onclick="window.goBackAIStep()" style="width:100%; margin-top:20px; background:var(--p-card); border:1px solid var(--p-border); border-radius:12px; height:40px; color:var(--p-text2); font-weight:700; cursor:pointer;"><i class="fas fa-arrow-left"></i> Kembali</button>
+      `;
+    } else if (aiStep === 3) {
+      body.innerHTML = `
+        ${progressBar}
+        <h3 style="text-align:left; margin-bottom:4px; color: var(--p-text);">3. Panjang Rambut Saat Ini</h3>
+        <p style="color:var(--p-muted); font-size:12px; margin-bottom:20px; text-align:left;">Saran gaya terbaik bergantung pada panjang rambut Anda saat ini.</p>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div class="option-card" onclick="window.selectAILength('short')">
+            <div class="option-icon">💇‍♂️</div>
+            <div class="fw-700 text-sm" style="color: var(--p-text); font-weight: 700;">Pendek</div>
+            <div style="margin-top:4px; font-size:10px; color: var(--p-muted);">Di atas telinga / Buzz</div>
+          </div>
+          <div class="option-card" onclick="window.selectAILength('medium')">
+            <div class="option-icon">🧑</div>
+            <div class="fw-700 text-sm" style="color: var(--p-text); font-weight: 700;">Sedang</div>
+            <div style="margin-top:4px; font-size:10px; color: var(--p-muted);">Menyentuh telinga / poni</div>
+          </div>
+          <div class="option-card" onclick="window.selectAILength('long')">
+            <div class="option-icon">🧔</div>
+            <div class="fw-700 text-sm" style="color: var(--p-text); font-weight: 700;">Panjang</div>
+            <div style="margin-top:4px; font-size:10px; color: var(--p-muted);">Di bawah telinga / bahu</div>
+          </div>
+        </div>
+        
+        <button type="button" onclick="window.goBackAIStep()" style="width:100%; margin-top:20px; background:var(--p-card); border:1px solid var(--p-border); border-radius:12px; height:40px; color:var(--p-text2); font-weight:700; cursor:pointer;"><i class="fas fa-arrow-left"></i> Kembali</button>
+      `;
+    } else if (aiStep === 4) {
+      body.innerHTML = `
+        ${progressBar}
+        <h3 style="text-align:left; margin-bottom:4px; color: var(--p-text);">4. Kepadatan / Ketebalan Rambut</h3>
+        <p style="color:var(--p-muted); font-size:12px; margin-bottom:20px; text-align:left;">Menjamin volume dan penataan rambut tahan lama.</p>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div class="option-card" onclick="window.selectAIDensity('thin')">
+            <div class="option-icon">❄️</div>
+            <div class="fw-700 text-sm" style="color: var(--p-text); font-weight: 700;">Tipis</div>
+            <div style="margin-top:4px; font-size:10px; color: var(--p-muted);">Cenderung halus / lepek</div>
+          </div>
+          <div class="option-card" onclick="window.selectAIDensity('medium')">
+            <div class="option-icon">☁️</div>
+            <div class="fw-700 text-sm" style="color: var(--p-text); font-weight: 700;">Sedang</div>
+            <div style="margin-top:4px; font-size:10px; color: var(--p-muted);">Volume standar / normal</div>
+          </div>
+          <div class="option-card" onclick="window.selectAIDensity('thick')">
+            <div class="option-icon">⚡</div>
+            <div class="fw-700 text-sm" style="color: var(--p-text); font-weight: 700;">Tebal</div>
+            <div style="margin-top:4px; font-size:10px; color: var(--p-muted);">Kaku / sangat berbobot</div>
+          </div>
+        </div>
+        
+        <button type="button" onclick="window.goBackAIStep()" style="width:100%; margin-top:20px; background:var(--p-card); border:1px solid var(--p-border); border-radius:12px; height:40px; color:var(--p-text2); font-weight:700; cursor:pointer;"><i class="fas fa-arrow-left"></i> Kembali</button>
+      `;
+    } else if (aiStep === 5) {
+      body.innerHTML = `
+        ${progressBar}
+        <h3 style="text-align:left; margin-bottom:4px; color: var(--p-text);">5. Kesan Pilihan (Style Goal)</h3>
+        <p style="color:var(--p-muted); font-size:12px; margin-bottom:20px; text-align:left;">Tentukan getaran penampilan luar yang ingin Anda tampilkan.</p>
+        
+        <div style="display:grid; grid-template-columns:1fr; gap:12px;">
+          <div class="option-card" onclick="window.selectAIStyleGoal('neat')" style="display:flex; align-items:center; gap:16px; text-align:left;">
+            <div class="option-icon" style="margin:0;">👔</div>
+            <div>
+              <div class="fw-700 text-sm" style="color: var(--p-text); font-weight: 700;">Eksekutif & Rapi</div>
+              <div style="font-size:10px; color: var(--p-muted);">Sempurna untuk kerja / acara formal</div>
+            </div>
+          </div>
+          <div class="option-card" onclick="window.selectAIStyleGoal('trendy')" style="display:flex; align-items:center; gap:16px; text-align:left;">
+            <div class="option-icon" style="margin:0;">🚀</div>
+            <div>
+              <div class="fw-700 text-sm" style="color: var(--p-text); font-weight: 700;">Modern & Tren</div>
+              <div style="font-size:10px; color: var(--p-muted);">Gaya bertekstur, dinamis, & kekinian</div>
+            </div>
+          </div>
+          <div class="option-card" onclick="window.selectAIStyleGoal('casual')" style="display:flex; align-items:center; gap:16px; text-align:left;">
+            <div class="option-icon" style="margin:0;">🏖️</div>
+            <div>
+              <div class="fw-700 text-sm" style="color: var(--p-text); font-weight: 700;">Kasual & Praktis</div>
+              <div style="font-size:10px; color: var(--p-muted);">Bebas perawatan & sangat ringkas</div>
+            </div>
+          </div>
+        </div>
+        
+        <button type="button" onclick="window.goBackAIStep()" style="width:100%; margin-top:20px; background:var(--p-card); border:1px solid var(--p-border); border-radius:12px; height:40px; color:var(--p-text2); font-weight:700; cursor:pointer;"><i class="fas fa-arrow-left"></i> Kembali</button>
+      `;
+    } else if (aiStep === 6) {
+      // Advanced recommendation selector logic (3 Recommendations Carousel)
+      let recommendations = [];
+      
+      if (aiFaceShape === 'round') {
+        recommendations = [
+          {
+            title: 'Textured Crop Fade',
+            match: 99,
+            desc: 'Karena Anda memiliki wajah Bulat dan ingin gaya modern, Textured Crop Fade memberikan volume bertekstur di bagian atas dipadukan dengan Fade tipis di samping untuk menyamarkan pipi bulat.',
+            tip: 'Gunakan clay matte untuk memberikan tekstur tegas di bagian atas rambut.',
+            image: STYLE_IMAGES['Textured Crop Fade']
+          },
+          {
+            title: 'Side Part Quiff',
+            match: 86,
+            desc: 'Potongan quiff menyamping memberikan ilusi tinggi pada visual kepala Anda, menyeimbangkan proporsi kebulatan pipi secara elegan.',
+            tip: 'Sisir ke atas-samping menggunakan hairdryer saat rambut masih lembab.',
+            image: STYLE_IMAGES['Side Part Quiff']
+          },
+          {
+            title: 'Modern Mullet',
+            match: 75,
+            desc: 'Ekor rambut mullet yang memanjang ke bagian belakang menyamarkan kebulatan sisi wajah secara trendi.',
+            tip: 'Gunakan hair powder untuk menambah volume di belakang kepala.',
+            image: STYLE_IMAGES['Modern Mullet']
+          }
+        ];
+      } else if (aiFaceShape === 'square') {
+        recommendations = [
+          {
+            title: 'Classic Pompadour',
+            match: 98,
+            desc: 'Menonjolkan garis rahang Kotak Anda yang tegas dan maskulin. Gaya Pompadour klasik memberikan volume atas yang berwibawa.',
+            tip: 'Gunakan pomade berdaya kilau tinggi (oil-based) untuk hasil klasik yang rapi.',
+            image: STYLE_IMAGES['Classic Pompadour']
+          },
+          {
+            title: 'Slick Back',
+            match: 88,
+            desc: 'Sangat cocok untuk kesan eksekutif. Rambut disisir klimis ke belakang untuk memperkuat ekspresi rahang tegas Anda.',
+            tip: 'Gunakan sisir bergigi rapat saat mengaplikasikan gel rambut basah.',
+            image: STYLE_IMAGES['Slick Back']
+          },
+          {
+            title: 'Modern Undercut',
+            match: 78,
+            desc: 'Sisi samping yang dipangkas habis membagi batas rambut atas secara tegas untuk gaya kasual-formal.',
+            tip: 'Tata bagian atas ke satu sisi agar terlihat asimetris dan modern.',
+            image: STYLE_IMAGES['Undercut']
+          }
+        ];
+      } else if (aiHairType === 'curly') {
+        recommendations = [
+          {
+            title: 'Skin Fade Buzz Cut',
+            match: 97,
+            desc: 'Untuk rambut Keriting tebal, Skin Fade Buzz Cut memberikan potongan sangat pendek yang rapi, bersih, maskulin, dan bebas repot.',
+            tip: 'Gunakan sedikit hair oil untuk melembabkan kulit kepala.',
+            image: STYLE_IMAGES['Skin Fade Buzz Cut']
+          },
+          {
+            title: 'Burst Fade',
+            match: 87,
+            desc: 'Menonjolkan tekstur alami keriting Anda di bagian atas dengan batas transisi fade yang melingkar secara artistik.',
+            tip: 'Gunakan curl-defining cream saat rambut setengah basah untuk bentuk keriting terdefinisi.',
+            image: STYLE_IMAGES['Burst Fade']
+          },
+          {
+            title: 'High Fade',
+            match: 72,
+            desc: 'Memangkas habis sisi samping untuk memusatkan penuh perhatian pada tekstur keriting tebal di mahkota kepala.',
+            tip: 'Gunakan hairspray ringan untuk menjaga keutuhan bentuk keriting atas.',
+            image: STYLE_IMAGES['High Fade']
+          }
+        ];
+      } else {
+        // Default Oval / Wavy / Straight
+        recommendations = [
+          {
+            title: 'Modern Undercut',
+            match: 99,
+            desc: 'Sangat proporsional untuk bentuk wajah Oval. Menghasilkan kontras tajam antara bagian atas yang bervolume dan sisi tipis.',
+            tip: 'Tata dengan pomade strong hold untuk mempertahankan bentuk klimis sepanjang hari.',
+            image: STYLE_IMAGES['Undercut']
+          },
+          {
+            title: 'Quiff',
+            match: 89,
+            desc: 'Gaya dinamis yang memadukan kesan santai dan profesional secara harmonis. Sangat fleksibel untuk tipe rambut lurus/bergelombang.',
+            tip: 'Sisir rambut ke depan lalu ke atas menggunakan sisir bulat.',
+            image: STYLE_IMAGES['Quiff']
+          },
+          {
+            title: 'French Crop',
+            match: 76,
+            desc: 'Gaya rambut crop kontemporer dengan poni lurus pendek di atas dahi. Sangat kasual dan modern.',
+            tip: 'Berikan taburan hair powder untuk hasil tekstur kering (matte look).',
+            image: STYLE_IMAGES['French Crop']
+          }
+        ];
+      }
+
+      const currentRec = recommendations[selectedRecIdx] || recommendations[0];
+
+      body.innerHTML = `
+        <h3 style="text-align:left; margin-bottom:4px; color: var(--p-text);">✨ Rekomendasi Gaya Anda</h3>
+        <p style="color:var(--p-muted); font-size:12px; margin-bottom:16px; text-align:left;">AI kami menemukan 3 opsi terbaik. Silakan pilih untuk melihat visualisasi nyata:</p>
+        
+        <!-- Multi-choice Carousel Tabs -->
+        <div style="display:flex; gap:10px; margin-bottom:20px; overflow-x:auto; padding-bottom:6px;" class="custom-rec-tabs">
+          ${recommendations.map((rec, idx) => `
+            <button type="button" onclick="window.selectRecOption(${idx})" class="rec-tab-btn ${selectedRecIdx === idx ? 'active' : ''}" style="flex:1; min-width:100px; padding:10px; border-radius:12px; background:${selectedRecIdx === idx ? 'var(--p-accent)' : 'var(--p-card)'}; border:1px solid ${selectedRecIdx === idx ? 'var(--p-accent)' : 'var(--p-border)'}; color:${selectedRecIdx === idx ? 'var(--p-bg)' : 'var(--p-text2)'}; cursor:pointer; text-align:center; font-weight:800; font-size:11px; transition:all 0.2s; outline:none;">
+              <div style="font-size:9px; opacity:0.8; letter-spacing:0.5px;">GAYA #${idx + 1}</div>
+              <div style="white-space:nowrap; text-overflow:ellipsis; overflow:hidden; font-family:'Outfit',sans-serif; margin-top:2px;">${rec.title}</div>
+            </button>
+          `).join('')}
+        </div>
+
+        <!-- Main Highlight Recommendation Card -->
+        <div class="p-card" style="padding:0; overflow:hidden; border:1px solid var(--p-border); background:var(--p-card);">
+          <img src="${currentRec.image}" style="width:100%; height:200px; object-fit:cover;" onerror="this.src='${STYLE_IMAGES['_default']}'" />
+          <div style="padding:18px; text-align:left;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <span class="p-badge p-badge-gold" style="font-size:9px; font-weight:800; padding:4px 10px; border-radius:30px; letter-spacing:0.5px;">${currentRec.match}% COCOK</span>
+              <span style="font-size:11px; color:var(--p-accent); font-weight:800;"><i class="fas fa-magic"></i> AI REKOMENDASI</span>
+            </div>
+            <h4 style="font-size:18px; font-weight:800; margin-bottom:8px; color:var(--p-text); font-family:'Outfit',sans-serif;">${currentRec.title}</h4>
+            <p style="font-size:12px; color:var(--p-text2); line-height:1.5; margin-bottom:12px;">${currentRec.desc}</p>
+            
+            <div style="background:var(--p-accent-glow); border-left:3px solid var(--p-accent); padding:10px; border-radius:4px;">
+              <div style="font-size:10px; font-weight:800; color:var(--p-accent); text-transform:uppercase; letter-spacing:0.5px;"><i class="fas fa-lightbulb"></i> Tips Styling Barber:</div>
+              <div style="font-size:11px; color:var(--p-text); margin-top:3px; line-height:1.4;">${currentRec.tip}</div>
+            </div>
+          </div>
+        </div>
+        
+        <div style="display:flex; flex-direction:column; gap:10px; margin-top:20px;">
+          <button class="p-btn p-btn-primary p-btn-block" onclick="window.bookAISuggestion('${currentRec.title}')" style="height:48px; border-radius:14px; font-size:14px; font-weight:700;">
+            Book Gaya Rambut Ini! ✂️
+          </button>
+          <button class="p-btn p-btn-secondary p-btn-block" onclick="startAIConsultation()" style="height:44px; border-radius:14px; font-size:13px; font-weight:700;">
+            Konsultasi Ulang
+          </button>
+        </div>
+      `;
+    }
+  } catch (err) {
+    console.error('AI Wizard Error:', err);
+    Swal.fire({
+      icon: 'error',
+      title: 'Terjadi Kesalahan',
+      text: 'Gagal memuat rekomendasi: ' + err.message
+    });
+  }
+}
+
+window.selectAIShape = function(shape) {
+  aiFaceShape = shape;
+  aiStep = 2;
+  window.scrollTo({top:0, behavior:'smooth'});
+  renderAIStep();
+};
+
+window.selectAITexture = function(texture) {
+  aiHairType = texture;
+  aiStep = 3;
+  window.scrollTo({top:0, behavior:'smooth'});
+  renderAIStep();
+};
+
+window.selectAILength = function(length) {
+  aiHairLength = length;
+  aiStep = 4;
+  window.scrollTo({top:0, behavior:'smooth'});
+  renderAIStep();
+};
+
+window.selectAIDensity = function(density) {
+  aiHairDensity = density;
+  aiStep = 5;
+  window.scrollTo({top:0, behavior:'smooth'});
+  renderAIStep();
+};
+
+window.selectAIStyleGoal = function(goal) {
+  aiStyleGoal = goal;
+  aiStep = 6;
+  window.scrollTo({top:0, behavior:'smooth'});
+  renderAIStep();
+};
+
+window.selectRecOption = function(idx) {
+  selectedRecIdx = idx;
+  renderAIStep();
+};
+
+window.goBackAIStep = function() {
+  if (aiStep > 1) {
+    aiStep--;
+    window.scrollTo({top:0, behavior:'smooth'});
+    renderAIStep();
+  }
+};
+
+window.bookAISuggestion = function(styleTitle) {
+  // Pre-fill booking details
+  booking.notes = `Gaya Rekomendasi AI: ${styleTitle}`;
+  
+  // Auto-select Haircut service if available
+  const svcs = sGetAll('services');
+  const haircut = svcs.find(s => s.name?.toLowerCase().includes('cut') || s.name?.toLowerCase().includes('cukur') || s.name?.toLowerCase().includes('pangkas')) || svcs[0];
+  if (haircut) {
+    booking.services = [haircut];
+  }
+  
+  // Advance to barber selection
+  currentStep = 2;
+  renderWizard();
+  Swal.fire({
+    icon: 'success',
+    title: 'Model Rambut Dipilih!',
+    text: `Gaya "${styleTitle}" telah ditambahkan ke catatan booking Anda. Silakan pilih barber favorit Anda.`,
+    confirmButtonColor: '#bfa15f'
+  });
 };
 
 // === Queue & Loyalty Helpers ===
@@ -891,6 +1154,7 @@ async function getLoyaltyStatus(phone) {
   };
 }
 
+
 // === Map Section ===
 function renderMapSection() {
   const settings = sGet('settings', {});
@@ -932,10 +1196,23 @@ window.startBooking = function (reset = true) {
 function renderWizard() {
   const main = document.getElementById('portal-main');
   main.innerHTML = `
-    <div class="portal-main fade-in">
-      ${renderWizardProgress()}
-      <div id="wizard-content"></div>
-      <div id="wizard-nav" style="display: flex; gap: 10px; margin-top: 24px;"></div>
+    <div class="pwa-portal-wrap fade-in">
+      <div class="pwa-portal-container" style="background: var(--p-bg);">
+        
+        <div class="pwa-top" style="padding: 60px 24px 30px; border-radius: 0 0 30px 30px;">
+          <div style="display:flex; align-items:center; gap: 12px; margin-bottom: 24px;">
+             <button onclick="renderHome()" style="width:36px; height:36px; background:rgba(255,255,255,0.2); border:none; border-radius:12px; color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px);"><i class="fas fa-arrow-left"></i></button>
+             <div style="font-size:18px; font-weight:800; color:#fff;">Booking Antrian</div>
+          </div>
+          ${renderWizardProgress()}
+        </div>
+
+        <div class="pwa-bottom" style="padding: 24px; flex: 1;">
+          <div id="wizard-content"></div>
+          <div id="wizard-nav" style="display: flex; gap: 10px; margin-top: 32px;"></div>
+        </div>
+
+      </div>
     </div>
   `;
   renderWizardStep();
@@ -996,14 +1273,14 @@ window.wizardNext = function () {
   };
   const m = labels[lang] || labels.id;
 
-  if (currentStep === 1 && (!booking.services || booking.services.length === 0)) return alert(m.svc);
-  if (currentStep === 2 && !booking.barber) return alert(m.barber);
-  if (currentStep === 3 && (!booking.date || !booking.time)) return alert(m.time);
+  if (currentStep === 1 && (!booking.services || booking.services.length === 0)) return Swal.fire({ icon: 'warning', title: 'Oops...', text: m.svc });
+  if (currentStep === 2 && !booking.barber) return Swal.fire({ icon: 'warning', title: 'Oops...', text: m.barber });
+  if (currentStep === 3 && (!booking.date || !booking.time)) return Swal.fire({ icon: 'warning', title: 'Oops...', text: m.time });
   if (currentStep === 4) {
     booking.name = document.querySelector('[name="cust-name"]')?.value || '';
     booking.phone = document.querySelector('[name="cust-phone"]')?.value || '';
     booking.notes = document.getElementById('p-notes')?.value || '';
-    if (!booking.name || !booking.phone) return alert(m.info);
+    if (!booking.name || !booking.phone) return Swal.fire({ icon: 'warning', title: 'Data Belum Lengkap', text: m.info });
   }
   currentStep++;
   renderWizard();
@@ -1043,34 +1320,36 @@ function renderStep1(container) {
     const finalPrice = Math.max(0, Math.min(Math.round(promo ? discountedPrice : s.price), hhPrice));
     const showsDiscount = finalPrice < s.price;
     const isSelected = booking.services.some(svc => svc.id === s.id);
+    const rawIcon = s.icon || 'fa-scissors';
+    const iconClass = rawIcon === 'fa-razor' ? 'fa-scissors' : rawIcon;
+    const iconStyle = getIconAuraStyle(iconClass);
 
     return `
-          <div class="service-option ${isSelected ? 'selected' : ''}" onclick="selectService('${s.id}')" style="display: flex; flex-direction: column; gap: 4px; padding: 20px; border-radius: 24px; position: relative; overflow: hidden;">
-            <div style="display: flex; align-items: flex-start; gap: 14px;">
-              <div class="atelier-aura">
-                <i class="fas ${s.icon || 'fa-scissors'}"></i>
-              </div>
-              <div style="flex: 1;">
-                <div class="svc-name" style="font-size: 16px; letter-spacing: -0.3px;">${s.name}</div>
-                <div class="svc-dur" style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.6;">
-                   ${s.duration} MIN • <span style="color: var(--p-accent);">WITA</span>
-                </div>
-              </div>
-              ${isSelected ? `<div style="background: var(--p-accent); color: #000; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; box-shadow: 0 0 10px var(--p-accent-glow);"><i class="fas fa-check"></i></div>` : ''}
+          <div class="service-option ${isSelected ? 'selected' : ''}" onclick="selectService('${s.id}')" style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; padding: 12px 6px; border-radius: 18px; position: relative; overflow: hidden; min-height: 150px; justify-content: space-between;">
+            <div class="atelier-aura" style="width: 38px; height: 38px; border-radius: 12px; font-size: 14px; margin-bottom: 2px; background: ${iconStyle.bg} !important; color: ${iconStyle.color} !important; border: 1px solid ${iconStyle.border} !important; display: flex; align-items: center; justify-content: center;">
+              <i class="fas ${iconClass}"></i>
             </div>
             
-            <div style="margin-top: 12px; display: flex; justify-content: space-between; align-items: flex-end;">
-              <div>
-                ${showsDiscount ? `<div style="text-decoration: line-through; color: var(--p-muted); font-size: 11px; margin-bottom: -2px;">Rp ${s.price.toLocaleString('id')}</div>` : ''}
-                <div class="svc-price" style="font-size: 19px; letter-spacing: -0.5px; color: var(--p-accent);">Rp ${finalPrice.toLocaleString('id')}</div>
+            <div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-start; width: 100%; gap: 2px;">
+              <div class="svc-name" style="font-size: 11px; font-weight: 800; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 26px;">${s.name}</div>
+              <div class="svc-dur" style="font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2px; opacity: 0.6;">
+                 ${s.duration} MIN
               </div>
-              <div style="display: flex; gap: 4px;">
-                ${promo ? `<span class="p-badge p-badge-gold" style="font-size: 8px; font-weight: 900;">PROMO</span>` : ''}
-                ${isHH && finalPrice === hhPrice ? `<span class="p-badge" style="font-size: 8px; font-weight: 900; background: #facc15; color: #111;">HAPPY HOUR</span>` : ''}
+              
+              <div style="margin-top: auto; padding-top: 4px;">
+                ${showsDiscount ? `<div style="text-decoration: line-through; color: var(--p-muted); font-size: 9px; margin-bottom: 0px;">Rp ${s.price.toLocaleString('id')}</div>` : ''}
+                <div class="svc-price" style="font-size: 13px; font-weight: 800; color: var(--p-accent); letter-spacing: -0.3px;">Rp ${finalPrice.toLocaleString('id')}</div>
+              </div>
+              
+              <div style="display: flex; justify-content: center; gap: 3px; margin-top: 4px; min-height: 12px;">
+                ${promo ? `<span class="p-badge p-badge-gold" style="font-size: 7px; padding: 2px 4px; font-weight: 900;">PROMO</span>` : ''}
+                ${isHH && finalPrice === hhPrice ? `<span class="p-badge" style="font-size: 7px; padding: 2px 4px; font-weight: 900; background: #facc15; color: #111;">HH</span>` : ''}
               </div>
             </div>
+            
+            ${isSelected ? `<div style="position: absolute; top: 6px; right: 6px; background: var(--p-accent); color: #fff; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; box-shadow: 0 0 5px var(--p-accent-glow);"><i class="fas fa-check"></i></div>` : ''}
           </div>
-        `;
+    `;
   }).join('')}
     </div>
   `;
@@ -1111,16 +1390,24 @@ function renderStep2(container) {
     const avgRating = reviews.length > 0 ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length) : (b.rating || 4.9);
     const isSelected = booking.barber?.id === b.id;
     return `
-          <div class="barber-option ${isSelected ? 'selected' : ''}" onclick="selectBarber('${b.id}')" style="padding: 24px; border-radius: 28px; position: relative;">
-            <div class="barber-avatar" style="${b.avatar ? `background: url(${b.avatar}) center/cover; border: 3px solid var(--p-accent-glow);` : ''} width: 80px; height: 80px;">
+          <div class="barber-option ${isSelected ? 'selected' : ''}" onclick="selectBarber('${b.id}')" style="padding: 12px 6px; border-radius: 18px; position: relative; text-align: center; display: flex; flex-direction: column; align-items: center; min-height: 150px; justify-content: space-between;">
+            <div class="barber-avatar" style="${b.avatar ? `background: url(${b.avatar}) center/cover; border: 2.5px solid var(--p-accent-glow);` : ''} width: 50px; height: 50px; margin: 0 auto; font-size: 13px;">
               ${b.avatar ? '' : getInitials(b.name)}
             </div>
-            <div class="barber-name" style="font-size: 16px; margin-top: 12px;">${b.name}</div>
-            <div class="barber-spec" style="font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; opacity: 0.6; margin-top: 4px;">${b.specialization || 'MASTER BARBER'}</div>
-            <div class="barber-rating" style="margin-top: 12px; background: var(--p-warning-bg); display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 12px; color: var(--p-warning); font-weight: 800; font-size: 11px;">
-              <i class="fas fa-star" style="font-size: 10px;"></i> ${avgRating.toFixed(1)}
+            
+            <div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-start; width: 100%; gap: 2px; margin-top: 6px;">
+              <div class="barber-name" style="font-size: 11px; font-weight: 800; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 26px;">${b.name}</div>
+              <div class="barber-spec" style="font-size: 8px; text-transform: uppercase; letter-spacing: 0.2px; opacity: 0.6;">${b.specialization?.split(' ')[0] || 'BARBER'}</div>
+              
+              <div style="margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 2px; padding-top: 4px;">
+                <div class="barber-rating" style="background: var(--p-warning-bg); display: inline-flex; align-items: center; gap: 2px; padding: 2px 8px; border-radius: 8px; color: var(--p-warning); font-weight: 800; font-size: 9px;">
+                  <i class="fas fa-star" style="font-size: 8px;"></i> ${avgRating.toFixed(1)}
+                </div>
+                <div style="font-size: 8px; color: var(--p-muted); font-weight: 700; margin-top: 2px;">${totalAppts} CLS</div>
+              </div>
             </div>
-            <div style="font-size: 10px; color: var(--p-muted); margin-top: 10px; font-weight: 600;">${totalAppts} CLIENTS SERVED</div>
+            
+            ${isSelected ? `<div style="position: absolute; top: 6px; right: 6px; background: var(--p-accent); color: #fff; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; box-shadow: 0 0 5px var(--p-accent-glow);"><i class="fas fa-check"></i></div>` : ''}
           </div>
         `;
   }).join('')}
@@ -1491,11 +1778,12 @@ function renderSuccess(code) {
 
   const main = document.getElementById('portal-main');
   main.innerHTML = `
-    <div class="portal-main fade-in">
-      <div class="success-page" style="padding-top: 40px;">
-        <div class="success-icon" style="background: var(--p-success-bg); color: var(--p-success); width: 80px; height: 80px; margin-bottom: 24px; box-shadow: 0 0 20px var(--p-success-bg);">
-          <i class="fas fa-check"></i>
-        </div>
+    <div class="pwa-portal-wrap fade-in">
+      <div class="pwa-portal-container" style="background: var(--p-bg); overflow-y: auto;">
+        <div class="success-page" style="padding: 60px 24px;">
+          <div class="success-icon" style="background: var(--p-success-bg); color: var(--p-success); width: 80px; height: 80px; margin-bottom: 24px; box-shadow: 0 0 20px var(--p-success-bg);">
+            <i class="fas fa-check"></i>
+          </div>
         <h2 style="font-size: 28px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 8px;">Pesanan Diterima!</h2>
         <p style="color: var(--p-muted); font-size: 15px; margin-bottom: 32px;">Barber kami sedang bersiap menyambut Anda.</p>
         
@@ -1624,7 +1912,15 @@ function drawQRCode(text) {
 window.showStatusCheckModal = function () {
   const main = document.getElementById('portal-main');
   main.innerHTML = `
-    <div class="portal-main fade-in">
+    <div class="pwa-portal-wrap fade-in">
+      <div class="pwa-portal-container" style="background: var(--p-bg); overflow-y: auto;">
+        <div class="pwa-top" style="padding: 60px 24px 30px; border-radius: 0 0 30px 30px;">
+          <div style="display:flex; align-items:center; gap: 12px; margin-bottom: 24px;">
+             <button onclick="renderHome()" style="width:36px; height:36px; background:rgba(255,255,255,0.2); border:none; border-radius:12px; color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px);"><i class="fas fa-arrow-left"></i></button>
+             <div style="font-size:18px; font-weight:800; color:#fff;">Cek Status</div>
+          </div>
+        </div>
+        <div style="padding: 24px; flex: 1;">
       <div class="p-card" style="max-width: 500px; margin: 40px auto; padding: 30px;">
         <h3 style="text-align: center; margin-bottom: 20px;">
           <i class="fas fa-search" style="color: var(--p-accent);"></i> Cek Status Booking
@@ -1637,10 +1933,6 @@ window.showStatusCheckModal = function () {
           <i class="fas fa-search"></i> Cek Status
         </button>
         <div id="status-result" style="margin-top: 20px;"></div>
-        <div style="text-align: center; margin-top: 16px;">
-          <button class="p-btn p-btn-secondary p-btn-sm" onclick="renderHome()">
-            <i class="fas fa-arrow-left"></i> Kembali
-          </button>
         </div>
       </div>
     </div>
@@ -1736,7 +2028,7 @@ window.setStarRating = function (n) {
 };
 
 window.submitReview = function (id) {
-  if (tempRating === 0) return alert('Pilih rating terlebih dahulu');
+  if (tempRating === 0) return Swal.fire({ icon: 'warning', text: 'Pilih rating terlebih dahulu' });
   const comment = document.getElementById('review-comment').value;
   const list = sGetAll('appointments');
   const index = list.findIndex(a => a.id === id);
@@ -1748,8 +2040,10 @@ window.submitReview = function (id) {
     // Sync review to Supabase
     syncToSupabase('appointments', list[index], true);
     
-    alert('Terima kasih atas ulasan Anda!');
-    checkBookingStatus(); // Refresh
+    setTimeout(() => {
+    Swal.fire({ icon: 'success', title: 'Berhasil', text: 'Terima kasih atas ulasan Anda!' });
+    renderHome();
+  }, 1000); // Refresh
   }
 };
 
@@ -1867,7 +2161,7 @@ window.submitWaitlist = function (time) {
   const name = document.getElementById('wl-name').value;
   const phone = document.getElementById('wl-phone').value;
 
-  if (!name || !phone) return alert('Nama dan No. HP wajib diisi');
+  if (!name || !phone) return Swal.fire({ icon: 'warning', text: 'Nama dan No. HP wajib diisi' });
 
   const wlEntry = {
     name,

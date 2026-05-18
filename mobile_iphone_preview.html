@@ -121,12 +121,12 @@
                 </span>
             </div>
 
-            <div class="error-msg" id="error">
-                <p>⚠️ Pastikan perintah <code>run_mobile.bat</code> sedang berjalan agar aplikasi muncul di sini.</p>
+            <div class="error-msg" id="error" style="display: none;">
+                <p>⏳ Memuat halaman BarberPro...</p>
             </div>
 
-            <!-- This iFrames the local Flutter web server -->
-            <iframe src="http://127.0.0.1:9000" id="preview-frame"></iframe>
+            <!-- This iFrames the local PWA screen dynamically -->
+            <iframe src="/index.html" id="preview-frame"></iframe>
         </div>
     </div>
 

@@ -50,7 +50,7 @@ export async function renderSignup(container) {
       </button>
     </div>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; align-items: start;">
 
       <!-- Form Tambah Staf -->
       <div class="card" style="border: 1px solid var(--border-accent);">
@@ -79,12 +79,11 @@ export async function renderSignup(container) {
           </div>
           <div class="form-group" style="margin: 0;">
             <label style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px;">Peran</label>
-            <select id="signup-role" class="form-control"
-              style="height: 46px; font-size: 14px; background: var(--bg-input) !important; color: var(--text-primary) !important;"
-              required>
-              <option value="barber">✂️ Barber</option>
-              <option value="admin">👑 Administrator</option>
-            </select>
+            <div class="pill-selector" id="signup-role-pills">
+              <button type="button" class="pill-btn active" data-value="barber">✂️ Barber</button>
+              <button type="button" class="pill-btn" data-value="admin">👑 Admin</button>
+            </div>
+            <input type="hidden" id="signup-role" value="barber">
           </div>
 
           <!-- Dropdown pilih barber (muncul saat role = barber) -->
@@ -92,11 +91,11 @@ export async function renderSignup(container) {
             <label style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px;">
               <i class="fas fa-scissors" style="color: var(--accent);"></i> Hubungkan ke Barber
             </label>
-            <select id="signup-barber-id" class="form-control"
-              style="height: 46px; font-size: 14px; background: var(--bg-input) !important; color: var(--text-primary) !important;">
-              <option value="">-- Pilih barber yang akan login --</option>
-              ${storage.getAll('barbers').map(b => `<option value="${b.id}">${b.name}</option>`).join('')}
-            </select>
+            <div class="pill-selector" id="signup-barber-id-pills">
+              <button type="button" class="pill-btn active" data-value="">-- Tanpa Barber --</button>
+              ${storage.getAll('barbers').map(b => `<button type="button" class="pill-btn" data-value="${b.id}">${b.name}</button>`).join('')}
+            </div>
+            <input type="hidden" id="signup-barber-id" value="">
             <div style="font-size: 11px; color: var(--text-muted); margin-top: 5px;"><i class="fas fa-info-circle"></i> Pilih barber agar jadwal & janji temu terhubung ke akun ini.</div>
           </div>
 
@@ -127,6 +126,25 @@ export async function renderSignup(container) {
   `;
 
   container.querySelector('#back-btn')?.addEventListener('click', () => navigateTo('barbers'));
+
+  // Helper for pill selector click binding
+  const bindPillSelector = (pillContainerId, hiddenInputId) => {
+    const pillContainer = container.querySelector(`#${pillContainerId}`);
+    const hiddenInput = container.querySelector(`#${hiddenInputId}`);
+    if (!pillContainer || !hiddenInput) return;
+
+    pillContainer.querySelectorAll('.pill-btn').forEach(btn => {
+      btn.onclick = () => {
+        pillContainer.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        hiddenInput.value = btn.dataset.value;
+        hiddenInput.dispatchEvent(new Event('change'));
+      };
+    });
+  };
+
+  bindPillSelector('signup-role-pills', 'signup-role');
+  bindPillSelector('signup-barber-id-pills', 'signup-barber-id');
 
   // Background fetch dari Supabase untuk update daftar staf
   if (shopId) {
@@ -198,7 +216,23 @@ export async function renderSignup(container) {
             shop_id: shopId,
           };
           if (selectedBarberId) profileData.barber_id = selectedBarberId;
-          await supabase.from('profiles').upsert(profileData);
+          
+          try {
+            const { error: upsertErr } = await supabase.from('profiles').upsert(profileData);
+            if (upsertErr) throw upsertErr;
+          } catch (netErr) {
+            console.warn("Profiles upsert failed (offline?), updating local storage:", netErr);
+            // Save to localStorage profiles array
+            const localProfiles = storage.getAll('profiles');
+            const index = localProfiles.findIndex(p => p.id === result.user.id);
+            const camelProfile = storage.toCamelCaseObj(profileData);
+            if (index !== -1) {
+              localProfiles[index] = { ...localProfiles[index], ...camelProfile };
+            } else {
+              localProfiles.push(camelProfile);
+            }
+            storage.set('profiles', localProfiles);
+          }
         }
 
         messageDiv.style.cssText = 'display:block; padding:12px; border-radius:8px; font-size:13px; font-weight:600; background:rgba(46,213,115,0.1); color:#2ed573;';
