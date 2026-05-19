@@ -428,44 +428,7 @@ export function renderLogin(container) {
 </div>
 </div>
 </main>
-<!-- Partners -->
-<section class="max-w-[1440px] mx-auto px-margin-desktop py-24 border-t border-white/5 flex flex-wrap justify-center md:justify-between items-center opacity-30 hover:opacity-60 transition-opacity duration-500 gap-xl animate-entrance stagger-2 reveal">
-<div class="font-headline-md text-2xl font-bold tracking-widest uppercase italic">ELITE BARBER</div>
-<div class="font-headline-md text-2xl font-bold tracking-widest uppercase italic">GENTLEMAN CO.</div>
-<div class="font-headline-md text-2xl font-bold tracking-widest uppercase italic">PRIME CUTS</div>
-<div class="font-headline-md text-2xl font-bold tracking-widest uppercase italic">ROYAL SHAVE</div>
-</section>
-<!-- Image Gallery (Editorial Masonry-lite) -->
-<section class="w-full px-margin-desktop pb-32 animate-entrance stagger-3 reveal max-w-[1440px] mx-auto">
-<div class="grid grid-cols-1 md:grid-cols-12 gap-lg h-auto md:h-[600px]">
-<div class="md:col-span-7 h-[400px] md:h-full overflow-hidden rounded-sm relative group cursor-pointer shadow-2xl transition-all duration-700 ease-out hover:shadow-primary/10">
-<img alt="High-end luxury barbershop interior, dark moody atmosphere, premium leather barber chairs, warm ambient lighting" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out filter grayscale-[20%] group-hover:grayscale-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCInbKoWc3X2J-cewPjUQFScOF-5d1XoOokz8mrsKXnQ5fqGoaHlL-fTHeTp4U7uYsndSZi_fWzak9vRQdiVS6A_Zqp5gir9BnajvbAMz7jZu7KdQ4lcWtoiqBKtWTx6FQl2If8ogQh-g2EQeToKKn44bcOAWcQnNl1ql0iN1w45oMrTTfJbYvoF3L7SyMX2LH5e_t9zzsRLr8o5qfSBDNvyIUBB1Z5WoJfiKkEJetP3wpd36KT8R1IAtSaTnSRYi_rL4z91nj0hDo"/>
-<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-60 transition-opacity duration-500"></div>
-<div class="absolute bottom-10 left-10 text-white">
-<p class="text-primary text-xs tracking-[0.3em] uppercase mb-2">01 / Interior</p>
-<h3 class="font-headline-md text-3xl italic">Luxury Studio</h3>
-</div>
-</div>
-<div class="md:col-span-5 grid grid-rows-2 gap-lg h-full">
-<div class="overflow-hidden rounded-sm relative group cursor-pointer shadow-2xl transition-all duration-700 ease-out hover:shadow-primary/10">
-<img alt="Professional barber performing a precision haircut on a client" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out filter grayscale-[20%] group-hover:grayscale-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCSkO583_3cE2Mn7VAy-jgX6E90cqBx25xSvrEYEDxM7d5EZk-Qw6apATwFWMXS4NPNGpTGruf64jtps0rW_IsgDdCEvgU57pvEPpWU1Q2iTh8fGaMimhbXzB8M_QIYLtru22_hIx-VrMZkrzv7bbw28Z796b3NTQdYzwqbtEijafvPnMYUr9Xybinlus68Uh2OhNsqKwH8hXUhVUsnWLxls3wLz4PEbxiCc95eAJ-D2qfKY3K0qY31cLxAxl5PmZvaNEZ6o4KUPig"/>
-<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80 group-hover:opacity-60 transition-opacity duration-500"></div>
-<div class="absolute bottom-8 left-8 text-white">
-<p class="text-primary text-xs tracking-[0.3em] uppercase mb-1">02 / Craft</p>
-<h3 class="font-headline-md text-2xl italic">Precision Work</h3>
-</div>
-</div>
-<div class="overflow-hidden rounded-sm relative group cursor-pointer shadow-2xl transition-all duration-700 ease-out hover:shadow-primary/10">
-<img alt="Close-up of premium barber tools on a marble tray" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out filter grayscale-[20%] group-hover:grayscale-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvYNo1RjWEF_y4w1cPuwMkn5LiZUkOHt95vuh52dzA93UrANQZSmlx1JBkHkWlAGVUJKoYvN3mkD5BPWEO5hXbHdxot3RUztjIB98Su4iIjkxY4jYKqkj99U4bIrS4y2yyRA6iq4s-OBNLgbVBTy1z8whwdKK9jKpdXj4awFGcPWJylapNonmqDhbqGApV6WJCshOrDSdE1h1QmDyI805BhnhCgnuCm0GM6MJn5I4MPAeTyZeg3zAQ5ynz07icNWxmHDs_JRQvrQE"/>
-<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80 group-hover:opacity-60 transition-opacity duration-500"></div>
-<div class="absolute bottom-8 left-8 text-white">
-<p class="text-primary text-xs tracking-[0.3em] uppercase mb-1">03 / Detail</p>
-<h3 class="font-headline-md text-2xl italic">Master Tools</h3>
-</div>
-</div>
-</div>
-</div>
-</section>
+
 <!-- Footer -->
 <footer class="w-full px-margin-desktop py-16 flex flex-col md:flex-row justify-between items-center max-w-[1440px] mx-auto border-t border-white/10 reveal">
 <div class="flex flex-col items-center md:items-start mb-md md:mb-0">
