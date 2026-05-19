@@ -13,35 +13,49 @@ import { receipt } from '../utils/receipt.js';
 
 let filterStatus = 'all';
 let filterDate = 'today';
+let filterBarber = 'all';
+let filterSearchText = '';
+let activeView = 'monthly'; // 'monthly', 'weekly', 'daily', 'list'
+let currentMonth = new Date().getMonth();
+let currentYear = new Date().getFullYear();
+let currentDay = new Date().getDate();
 
 export function renderAppointments(container) {
   const user = storage.getCurrentUser();
   const isBarber = user?.role === 'barber';
   const appointments = storage.getAll('appointments');
+  const barbers = storage.getAll('barbers');
+  const services = storage.getAll('services');
   const todayStr = new Date().toISOString().split('T')[0];
 
   // Cari barberId untuk barber yang login
   let myBarberId = user?.barberId;
   if (!myBarberId && isBarber) {
-    const barbers = storage.getAll('barbers');
     const matched = barbers.find(b => b.name?.toLowerCase() === (user?.fullName || user?.username || '').toLowerCase());
     if (matched) myBarberId = matched.id;
   }
 
   // Filter
   let filtered = [...appointments];
-  // Barber hanya lihat janji miliknya
   if (isBarber && myBarberId) {
     filtered = filtered.filter(a => a.barberId === myBarberId);
   }
-  if (filterStatus !== 'all') filtered = filtered.filter(a => a.status === filterStatus);
-  if (filterDate === 'today') filtered = filtered.filter(a => a.date === todayStr);
-  else if (filterDate === 'upcoming') filtered = filtered.filter(a => a.date >= todayStr && a.status !== 'done' && a.status !== 'cancelled');
-  else if (filterDate === 'week') {
-    const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
-    filtered = filtered.filter(a => new Date(a.date) >= weekAgo);
-  } else if (filterDate === 'month') {
-    filtered = filtered.filter(a => a.date.startsWith(todayStr.substring(0, 7)));
+  
+  if (filterStatus !== 'all') {
+    filtered = filtered.filter(a => a.status === filterStatus);
+  }
+  
+  if (filterBarber !== 'all') {
+    filtered = filtered.filter(a => a.barberId === filterBarber);
+  }
+
+  const q = (filterSearchText || '').toLowerCase().trim();
+  if (q) {
+    filtered = filtered.filter(a => 
+      a.customerName?.toLowerCase().includes(q) || 
+      a.serviceName?.toLowerCase().includes(q) ||
+      a.barberName?.toLowerCase().includes(q)
+    );
   }
 
   filtered.sort((a, b) => {
@@ -49,162 +63,612 @@ export function renderAppointments(container) {
     return cmp !== 0 ? cmp : a.time.localeCompare(b.time);
   });
 
-  container.innerHTML = `
-    <div class="page-header page-header-row">
-      <div>
-        <h2>Janji Temu</h2>
-        <p>Kelola jadwal dan booking pelanggan</p>
-      </div>
-      <button class="btn btn-primary" id="add-appointment-btn">
-        <i class="fas fa-plus"></i> Janji Baru
-      </button>
-    </div>
+  const getHeaderTitle = () => {
+    if (activeView === 'monthly') {
+      return `${dateUtils.getMonthName(currentMonth)} ${currentYear}`;
+    } else if (activeView === 'weekly') {
+      const startOfWeek = getStartOfWeek(new Date(currentYear, currentMonth, currentDay));
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(startOfWeek.getDate() + 6);
+      return `${dateUtils.formatDate(startOfWeek, 'short')} - ${dateUtils.formatDate(endOfWeek, 'short')}`;
+    } else if (activeView === 'daily') {
+      const selectedDate = new Date(currentYear, currentMonth, currentDay);
+      return dateUtils.formatDate(selectedDate, 'long');
+    }
+    return '';
+  };
 
-    <div class="filter-bar">
-      <div class="search-input">
-        <i class="fas fa-search"></i>
-        <input type="text" id="search-appt" placeholder="Cari pelanggan..." />
-      </div>
-      <select class="filter-select" id="filter-date">
-        <option value="today" ${filterDate === 'today' ? 'selected' : ''}>Hari Ini</option>
-        <option value="upcoming" ${filterDate === 'upcoming' ? 'selected' : ''}>Akan Datang</option>
-        <option value="week" ${filterDate === 'week' ? 'selected' : ''}>Minggu Ini</option>
-        <option value="month" ${filterDate === 'month' ? 'selected' : ''}>Bulan Ini</option>
-        <option value="all" ${filterDate === 'all' ? 'selected' : ''}>Semua</option>
-      </select>
-      <select class="filter-select" id="filter-status">
-        <option value="all" ${filterStatus === 'all' ? 'selected' : ''}>Semua Status</option>
-        <option value="pending" ${filterStatus === 'pending' ? 'selected' : ''}>Pending Portal</option>
-        <option value="confirmed" ${filterStatus === 'confirmed' ? 'selected' : ''}>Dikonfirmasi</option>
-        <option value="done" ${filterStatus === 'done' ? 'selected' : ''}>Selesai</option>
-        <option value="cancelled" ${filterStatus === 'cancelled' ? 'selected' : ''}>Dibatalkan</option>
-        <option value="rejected" ${filterStatus === 'rejected' ? 'selected' : ''}>Ditolak</option>
-      </select>
-    </div>
+  const getStartOfWeek = (d) => {
+    const date = new Date(d);
+    const day = date.getDay(); // 0 = Sunday
+    const diff = date.getDate() - day;
+    return new Date(date.setDate(diff));
+  };
 
-    <div id="appointments-list">
-      ${filtered.length > 0 ? `
-        <div class="table-container" style="background: var(--bg-card); box-shadow: var(--shadow-sm); border: 1px solid var(--border-light);">
-          <table style="width: 100%;">
-            <thead>
-              <tr>
-                <th style="padding-left: 20px;">Tanggal</th>
-                <th>Jam</th>
-                <th>Pelanggan</th>
-                <th>Layanan & Harga</th>
-                <th>Stylist</th>
-                <th>Status</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${filtered.map(apt => `
+  const getBarberColorClass = (name) => {
+    const lowerName = (name || '').toLowerCase();
+    if (lowerName.includes('budi') || lowerName.includes('1')) {
+      return { 
+        bg: 'bg-amber-50 dark:bg-amber-950/20', 
+        text: 'text-amber-700 dark:text-amber-400', 
+        border: 'border-amber-400 dark:border-amber-500/50' 
+      };
+    }
+    if (lowerName.includes('agus') || lowerName.includes('2')) {
+      return { 
+        bg: 'bg-teal-50 dark:bg-teal-950/20', 
+        text: 'text-teal-700 dark:text-teal-400', 
+        border: 'border-teal-400 dark:border-teal-500/50' 
+      };
+    }
+    if (lowerName.includes('dodi') || lowerName.includes('3')) {
+      return { 
+        bg: 'bg-indigo-50 dark:bg-indigo-950/20', 
+        text: 'text-indigo-700 dark:text-indigo-400', 
+        border: 'border-indigo-400 dark:border-indigo-500/50' 
+      };
+    }
+    return { 
+      bg: 'bg-purple-50 dark:bg-purple-950/20', 
+      text: 'text-purple-700 dark:text-purple-400', 
+      border: 'border-purple-400 dark:border-purple-500/50' 
+    };
+  };
+
+  const renderMonthlyCalendar = () => {
+    const firstDayOfWeek = dateUtils.getFirstDayOfMonth(currentYear, currentMonth);
+    const daysInMonth = dateUtils.getDaysInMonth(currentYear, currentMonth);
+    const prevMonthDays = new Date(currentYear, currentMonth, 0).getDate();
+    
+    const totalCells = Math.ceil((firstDayOfWeek + daysInMonth) / 7) * 7;
+    const startPrevDay = prevMonthDays - firstDayOfWeek + 1;
+    
+    let cellsHTML = '';
+    
+    for (let i = 0; i < totalCells; i++) {
+      let dayNum, isCurrentMonth, cellDate;
+      
+      if (i < firstDayOfWeek) {
+        dayNum = startPrevDay + i;
+        isCurrentMonth = false;
+        cellDate = new Date(currentYear, currentMonth - 1, dayNum);
+      } else if (i < firstDayOfWeek + daysInMonth) {
+        dayNum = i - firstDayOfWeek + 1;
+        isCurrentMonth = true;
+        cellDate = new Date(currentYear, currentMonth, dayNum);
+      } else {
+        dayNum = i - firstDayOfWeek - daysInMonth + 1;
+        isCurrentMonth = false;
+        cellDate = new Date(currentYear, currentMonth + 1, dayNum);
+      }
+      
+      const dateStr = cellDate.getFullYear() + '-' + 
+                      String(cellDate.getMonth() + 1).padStart(2, '0') + '-' + 
+                      String(cellDate.getDate()).padStart(2, '0');
+      
+      const dayAppts = filtered.filter(a => a.date === dateStr);
+      const isToday = dateUtils.isToday(cellDate);
+      const isSelected = isCurrentMonth && dayNum === currentDay;
+      
+      const cellClass = isCurrentMonth 
+        ? 'bg-white dark:bg-zinc-950 text-slate-700 dark:text-zinc-300' 
+        : 'bg-slate-50 dark:bg-zinc-900/40 text-slate-400 dark:text-zinc-600';
+        
+      const visibleAppts = dayAppts.slice(0, 2);
+      const hiddenCount = dayAppts.length - visibleAppts.length;
+      
+      cellsHTML += `
+        <div class="${cellClass} min-h-[120px] p-2 flex flex-col gap-1 border-r border-b border-slate-200 dark:border-zinc-800 transition-all select-none hover:bg-slate-50/50 dark:hover:bg-zinc-900/10 cursor-pointer" 
+          data-cell-date="${dateStr}" data-day="${dayNum}" data-month="${cellDate.getMonth()}" data-year="${cellDate.getFullYear()}">
+          <div class="flex justify-between items-center mb-1">
+            <div>
+              ${isToday ? `<span class="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block" title="Hari Ini"></span>` : ''}
+            </div>
+            ${isSelected ? `
+              <span class="text-xs font-bold text-white bg-amber-500 rounded px-1.5 py-0.5">${dayNum}</span>
+            ` : `
+              <span class="text-right text-xs font-medium ${isCurrentMonth ? 'text-slate-700 dark:text-zinc-300' : 'text-slate-400 dark:text-zinc-600'}">${dayNum}</span>
+            `}
+          </div>
+          <div class="flex flex-col gap-1 overflow-y-auto max-h-[80px]">
+            ${visibleAppts.map(apt => {
+              const barberColor = getBarberColorClass(apt.barberName);
+              return `
+                <div class="text-[10px] truncate px-1.5 py-0.5 rounded border-l-2 ${barberColor.bg} ${barberColor.text} ${barberColor.border} font-semibold" 
+                  data-appt-id="${apt.id}">
+                  ${apt.time} ${apt.customerName}
+                </div>
+              `;
+            }).join('')}
+            ${hiddenCount > 0 ? `
+              <div class="text-[9px] font-bold text-slate-500 dark:text-zinc-400 pl-1">+${hiddenCount} more</div>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    }
+    
+    return `
+      <div class="bg-white dark:bg-zinc-950 rounded-xl shadow-sm border border-slate-200 dark:border-zinc-800 overflow-hidden flex flex-col flex-1">
+        <!-- Days Header -->
+        <div class="grid grid-cols-7 border-b border-slate-200 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/30">
+          <div class="py-2.5 text-center text-xs font-medium text-slate-500 dark:text-zinc-400 border-r border-slate-200 dark:border-zinc-800 last:border-r-0">Sunday</div>
+          <div class="py-2.5 text-center text-xs font-semibold text-slate-700 dark:text-zinc-300 border-r border-slate-200 dark:border-zinc-800 last:border-r-0">Monday</div>
+          <div class="py-2.5 text-center text-xs font-semibold text-slate-700 dark:text-zinc-300 border-r border-slate-200 dark:border-zinc-800 last:border-r-0">Tuesday</div>
+          <div class="py-2.5 text-center text-xs font-semibold text-slate-700 dark:text-zinc-300 border-r border-slate-200 dark:border-zinc-800 last:border-r-0">Wednesday</div>
+          <div class="py-2.5 text-center text-xs font-semibold text-slate-700 dark:text-zinc-300 border-r border-slate-200 dark:border-zinc-800 last:border-r-0">Thursday</div>
+          <div class="py-2.5 text-center text-xs font-semibold text-slate-700 dark:text-zinc-300 border-r border-slate-200 dark:border-zinc-800 last:border-r-0">Friday</div>
+          <div class="py-2.5 text-center text-xs font-medium text-slate-500 dark:text-zinc-400">Saturday</div>
+        </div>
+        <!-- Calendar Grid -->
+        <div class="grid grid-cols-7 flex-1 bg-slate-200 dark:bg-zinc-800 gap-[1px]">
+          ${cellsHTML}
+        </div>
+      </div>
+    `;
+  };
+
+  const renderWeeklyCalendar = () => {
+    const startOfWeek = getStartOfWeek(new Date(currentYear, currentMonth, currentDay));
+    let daysHTML = '';
+    
+    for (let i = 0; i < 7; i++) {
+      const cellDate = new Date(startOfWeek);
+      cellDate.setDate(startOfWeek.getDate() + i);
+      
+      const dateStr = cellDate.getFullYear() + '-' + 
+                      String(cellDate.getMonth() + 1).padStart(2, '0') + '-' + 
+                      String(cellDate.getDate()).padStart(2, '0');
+                      
+      const dayAppts = filtered.filter(a => a.date === dateStr);
+      const isToday = dateUtils.isToday(cellDate);
+      
+      daysHTML += `
+        <div class="flex-1 min-w-[200px] bg-white dark:bg-zinc-950 rounded-xl border border-slate-200 dark:border-zinc-800 overflow-hidden flex flex-col p-4 shadow-sm">
+          <div class="flex items-center justify-between pb-2 mb-3 border-b border-slate-100 dark:border-zinc-800">
+            <div>
+              <div class="text-xs font-semibold text-slate-400 dark:text-zinc-500 uppercase">${dateUtils.formatDate(cellDate, 'day')}</div>
+              <div class="text-sm font-bold text-slate-800 dark:text-zinc-100">${dateUtils.formatDate(cellDate, 'short').split(' ')[0]} ${dateUtils.formatDate(cellDate, 'short').split(' ')[1]}</div>
+            </div>
+            ${isToday ? `<span class="bg-amber-500 text-white text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full">Hari Ini</span>` : ''}
+          </div>
+          <div class="flex-1 flex flex-col gap-2 overflow-y-auto max-h-[400px]">
+            ${dayAppts.length > 0 ? dayAppts.map(apt => {
+              const barberColor = getBarberColorClass(apt.barberName);
+              return `
+                <div class="p-2.5 rounded-lg border-l-3 ${barberColor.bg} ${barberColor.text} ${barberColor.border} cursor-pointer hover:shadow-xs transition-all flex flex-col gap-1" data-appt-id="${apt.id}">
+                  <div class="flex justify-between items-center">
+                    <span class="text-xs font-extrabold">${apt.time}</span>
+                    <span class="text-[9px] uppercase font-bold text-slate-400 dark:text-zinc-500">${apt.barberName}</span>
+                  </div>
+                  <div class="text-xs font-bold text-slate-800 dark:text-zinc-100 truncate">${apt.customerName}</div>
+                  <div class="text-[10px] text-slate-500 dark:text-zinc-400 truncate">${apt.serviceName}</div>
+                </div>
+              `;
+            }).join('') : `
+              <div class="flex-1 flex flex-col items-center justify-center py-8 text-slate-400 dark:text-zinc-600 text-xs italic">
+                <i class="fas fa-calendar-xmark mb-2 text-base opacity-40"></i>
+                Tidak ada janji
+              </div>
+            `}
+          </div>
+        </div>
+      `;
+    }
+    
+    return `
+      <div class="flex gap-4 overflow-x-auto pb-4">
+        ${daysHTML}
+      </div>
+    `;
+  };
+
+  const renderDailyCalendar = () => {
+    const selectedDate = new Date(currentYear, currentMonth, currentDay);
+    const dateStr = selectedDate.getFullYear() + '-' + 
+                    String(selectedDate.getMonth() + 1).padStart(2, '0') + '-' + 
+                    String(selectedDate.getDate()).padStart(2, '0');
+                    
+    const dayAppts = filtered.filter(a => a.date === dateStr);
+    dayAppts.sort((a, b) => a.time.localeCompare(b.time));
+    
+    return `
+      <div class="bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-xl p-6 shadow-sm flex flex-col flex-1">
+        <div class="flex justify-between items-center mb-6">
+          <div>
+            <h3 class="text-base font-bold text-slate-800 dark:text-zinc-100">Jadwal Harian</h3>
+            <p class="text-xs text-slate-400 dark:text-zinc-500">${dateUtils.formatDate(selectedDate, 'long')}</p>
+          </div>
+          <span class="bg-amber-100 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 text-xs font-bold px-3 py-1 rounded-full">
+            ${dayAppts.length} Janji Temu
+          </span>
+        </div>
+        
+        <div class="flex flex-col gap-3 flex-1 overflow-y-auto max-h-[500px]">
+          ${dayAppts.length > 0 ? dayAppts.map(apt => {
+            const barberColor = getBarberColorClass(apt.barberName);
+            return `
+              <div class="flex items-center gap-4 p-4 rounded-xl border border-slate-100 dark:border-zinc-900 bg-slate-50/50 dark:bg-zinc-900/10 hover:bg-slate-50 dark:hover:bg-zinc-900/30 transition-all cursor-pointer" data-appt-id="${apt.id}">
+                <div class="w-16 flex-shrink-0 text-center border-r border-slate-200 dark:border-zinc-800 pr-4">
+                  <span class="text-sm font-extrabold text-amber-500">${apt.time}</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-1">
+                    <h4 class="text-sm font-bold text-slate-800 dark:text-zinc-100 truncate">${apt.customerName}</h4>
+                    <span class="badge ${getStatusBadge(apt.status)}" style="font-size: 9px; padding: 2px 6px;">
+                      ${getStatusLabel(apt.status)}
+                    </span>
+                  </div>
+                  <div class="text-xs text-slate-500 dark:text-zinc-400 truncate">${apt.serviceName}</div>
+                  <div class="text-[10px] text-slate-400 dark:text-zinc-500 mt-1">Stylist: ${apt.barberName} · ${apt.duration} menit</div>
+                </div>
+                <div class="flex items-center gap-2">
+                  ${apt.status === 'pending' ? `
+                    <button class="btn btn-ghost btn-sm" title="Terima" onclick="event.stopPropagation(); window.__approvePortalAppt('${apt.id}')" style="color: var(--success);"><i class="fas fa-check"></i></button>
+                    <button class="btn btn-ghost btn-sm" title="Tolak" onclick="event.stopPropagation(); window.__rejectPortalAppt('${apt.id}')" style="color: var(--danger);"><i class="fas fa-times"></i></button>
+                  ` : ''}
+                  ${apt.status !== 'done' && apt.status !== 'cancelled' && apt.status !== 'rejected' && apt.status !== 'pending' ? `
+                    <button class="btn btn-ghost btn-sm" title="WhatsApp" onclick="event.stopPropagation(); window.__waAppt('${apt.id}')" style="color: #25d366;"><i class="fab fa-whatsapp"></i></button>
+                    <button class="btn btn-ghost btn-sm" title="Tandai Selesai" onclick="event.stopPropagation(); window.__doneAppt('${apt.id}')" style="color: var(--info);"><i class="fas fa-check-double"></i></button>
+                  ` : ''}
+                  <button class="btn btn-ghost btn-sm" title="Detail" onclick="event.stopPropagation(); window.__editAppt('${apt.id}')" style="color: var(--accent);"><i class="fas fa-eye"></i></button>
+                </div>
+              </div>
+            `;
+          }).join('') : `
+            <div class="flex-1 flex flex-col items-center justify-center py-16 text-slate-400 dark:text-zinc-600">
+              <i class="fas fa-calendar-xmark text-4xl mb-4 opacity-30"></i>
+              <h4 class="font-bold">Tidak Ada Janji Temu</h4>
+              <p class="text-xs mt-1">Tidak ada jadwal terdaftar untuk hari ini.</p>
+            </div>
+          `}
+        </div>
+      </div>
+    `;
+  };
+
+  const renderListView = () => {
+    let listFiltered = [...filtered];
+    
+    if (filterDate === 'today') {
+      listFiltered = listFiltered.filter(a => a.date === todayStr);
+    } else if (filterDate === 'upcoming') {
+      listFiltered = listFiltered.filter(a => a.date >= todayStr && a.status !== 'done' && a.status !== 'cancelled');
+    } else if (filterDate === 'week') {
+      const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
+      listFiltered = listFiltered.filter(a => new Date(a.date) >= weekAgo);
+    } else if (filterDate === 'month') {
+      listFiltered = listFiltered.filter(a => a.date.startsWith(todayStr.substring(0, 7)));
+    }
+    
+    return `
+      <div id="appointments-list">
+        ${listFiltered.length > 0 ? `
+          <div class="table-container shadow-sm border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+            <table style="width: 100%;">
+              <thead>
                 <tr>
-                  <td style="padding-left: 20px; width: 80px;">
-                    <div style="background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-sm); text-align: center; padding: 6px 4px; display: inline-block; min-width: 56px;">
-                      <div class="text-[9px] uppercase tracking-widest fw-800 text-muted" style="border-bottom: 1px solid var(--border-light); padding-bottom: 2px; margin-bottom: 4px;">${dateUtils.formatDate(apt.date, 'dayshort')}</div>
-                      <div class="fw-900 text-primary" style="font-size: 16px; line-height: 1;">${apt.date.split('-')[2]}</div>
-                      <div class="text-[9px] uppercase fw-800 text-accent mt-[2px]">${dateUtils.formatDate(apt.date, 'short').split(' ')[1]}</div>
-                    </div>
-                  </td>
-                  <td><span class="fw-800 text-primary" style="font-size: 15px; letter-spacing: -0.5px;">${apt.time}</span></td>
-                  <td>
-                    <div class="fw-700 text-primary" style="text-transform: capitalize; font-size: 14px;">${apt.customerName}</div>
-                  </td>
-                  <td>
-                    <div style="display: flex; flex-direction: column; gap: 2px;">
-                      <div style="display: flex; align-items: center; gap: 6px;">
-                        <span class="fw-600 text-primary" style="text-transform: capitalize; font-size: 13px;">${apt.serviceName}</span>
-                        ${apt.recurringType ? `<i class="fas fa-redo text-accent" style="font-size: 10px;" title="${apt.recurringType}"></i>` : ''}
+                  <th style="padding-left: 20px;">Tanggal</th>
+                  <th>Jam</th>
+                  <th>Pelanggan</th>
+                  <th>Layanan & Harga</th>
+                  <th>Stylist</th>
+                  <th>Status</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${listFiltered.map(apt => `
+                  <tr>
+                    <td style="padding-left: 20px; width: 80px;">
+                      <div class="bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded text-center padding-sm" style="padding: 6px 4px; display: inline-block; min-width: 56px;">
+                        <div class="text-[9px] uppercase tracking-widest fw-800 text-muted" style="border-bottom: 1px solid var(--border-light); padding-bottom: 2px; margin-bottom: 4px;">${dateUtils.formatDate(apt.date, 'dayshort')}</div>
+                        <div class="fw-900 text-primary" style="font-size: 16px; line-height: 1;">${apt.date.split('-')[2]}</div>
+                        <div class="text-[9px] uppercase fw-800 text-accent mt-[2px]">${dateUtils.formatDate(apt.date, 'short').split(' ')[1]}</div>
                       </div>
-                      <div class="text-[11px] fw-800 text-accent">${formatter.currency(apt.price)}</div>
-                    </div>
-                  </td>
-                  <td>
-                    <div class="fw-600 text-muted" style="text-transform: capitalize; font-size: 13px; display: flex; align-items: center; gap: 6px;">
-                      <div style="width: 20px; height: 20px; border-radius: 50%; background: var(--accent-subtle); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 9px;"><i class="fas fa-cut"></i></div>
-                      ${apt.barberName}
-                    </div>
-                  </td>
-                  <td>
-                    <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start;">
-                      <span class="badge ${getStatusBadge(apt.status)}" style="font-size: 10px; padding: 4px 8px;">
-                        ${getStatusLabel(apt.status)}
-                      </span>
-                      <span class="badge ${getPayBadge(apt.paymentStatus)}" style="font-size: 9px; padding: 2px 6px; opacity: 0.9;">
-                        ${apt.paymentStatus === 'paid' ? 'LUNAS' : apt.paymentStatus === 'dp' ? 'DP' : 'BELUM BAYAR'}
-                      </span>
-                    </div>
-                  </td>
-                  <td>
-                    <div style="display: flex; gap: 6px; align-items: center;">
-                      ${apt.status === 'pending' ? `
-                        <button class="btn btn-ghost btn-sm" title="Terima" onclick="window.__approvePortalAppt('${apt.id}')" style="background: var(--success-bg); color: var(--success); padding: 6px 10px; border-radius: 6px;">
-                          <i class="fas fa-check"></i>
-                        </button>
-                        <button class="btn btn-ghost btn-sm" title="Tolak" onclick="window.__rejectPortalAppt('${apt.id}')" style="background: var(--danger-bg); color: var(--danger); padding: 6px 10px; border-radius: 6px;">
-                          <i class="fas fa-times"></i>
-                        </button>
-                      ` : ''}
-                      ${apt.status !== 'done' && apt.status !== 'cancelled' && apt.status !== 'rejected' && apt.status !== 'pending' ? `
-                        <button class="btn btn-ghost btn-sm" title="WhatsApp Pelanggan" onclick="window.__waAppt('${apt.id}')" style="color: #25d366; background: rgba(37, 211, 102, 0.1); padding: 6px 10px; border-radius: 6px;">
-                          <i class="fab fa-whatsapp"></i>
-                        </button>
-                        ${apt.status === 'scheduled' ? `
-                          <button class="btn btn-ghost btn-sm" title="Konfirmasi Kedatangan" onclick="window.__confirmAppt('${apt.id}')" style="color: var(--success); padding: 6px 10px; border-radius: 6px;">
-                            <i class="fas fa-calendar-check"></i>
+                    </td>
+                    <td><span class="fw-800 text-primary" style="font-size: 15px; letter-spacing: -0.5px;">${apt.time}</span></td>
+                    <td>
+                      <div class="fw-700 text-primary" style="text-transform: capitalize; font-size: 14px;">${apt.customerName}</div>
+                    </td>
+                    <td>
+                      <div style="display: flex; flex-direction: column; gap: 2px;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                          <span class="fw-600 text-primary" style="text-transform: capitalize; font-size: 13px;">${apt.serviceName}</span>
+                          ${apt.recurringType ? `<i class="fas fa-redo text-accent" style="font-size: 10px;" title="${apt.recurringType}"></i>` : ''}
+                        </div>
+                        <div class="text-[11px] fw-800 text-accent">${formatter.currency(apt.price)}</div>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="fw-600 text-muted" style="text-transform: capitalize; font-size: 13px; display: flex; align-items: center; gap: 6px;">
+                        <div style="width: 20px; height: 20px; border-radius: 50%; background: var(--accent-subtle); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 9px;"><i class="fas fa-cut"></i></div>
+                        ${apt.barberName}
+                      </div>
+                    </td>
+                    <td>
+                      <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start;">
+                        <span class="badge ${getStatusBadge(apt.status)}" style="font-size: 10px; padding: 4px 8px;">
+                          ${getStatusLabel(apt.status)}
+                        </span>
+                        <span class="badge ${getPayBadge(apt.paymentStatus)}" style="font-size: 9px; padding: 2px 6px; opacity: 0.9;">
+                          ${apt.paymentStatus === 'paid' ? 'LUNAS' : apt.paymentStatus === 'dp' ? 'DP' : 'BELUM BAYAR'}
+                        </span>
+                      </div>
+                    </td>
+                    <td>
+                      <div style="display: flex; gap: 6px; align-items: center;">
+                        ${apt.status === 'pending' ? `
+                          <button class="btn btn-ghost btn-sm" title="Terima" onclick="window.__approvePortalAppt('${apt.id}')" style="background: var(--success-bg); color: var(--success); padding: 6px 10px; border-radius: 6px;">
+                            <i class="fas fa-check"></i>
+                          </button>
+                          <button class="btn btn-ghost btn-sm" title="Tolak" onclick="window.__rejectPortalAppt('${apt.id}')" style="background: var(--danger-bg); color: var(--danger); padding: 6px 10px; border-radius: 6px;">
+                            <i class="fas fa-times"></i>
                           </button>
                         ` : ''}
-                        <button class="btn btn-ghost btn-sm" title="Tandai Selesai" onclick="window.__doneAppt('${apt.id}')" style="color: var(--info); padding: 6px 10px; border-radius: 6px;">
-                          <i class="fas fa-check-double"></i>
+                        ${apt.status !== 'done' && apt.status !== 'cancelled' && apt.status !== 'rejected' && apt.status !== 'pending' ? `
+                          <button class="btn btn-ghost btn-sm" title="WhatsApp Pelanggan" onclick="window.__waAppt('${apt.id}')" style="color: #25d366; background: rgba(37, 211, 102, 0.1); padding: 6px 10px; border-radius: 6px;">
+                            <i class="fab fa-whatsapp"></i>
+                          </button>
+                          ${apt.status === 'scheduled' ? `
+                            <button class="btn btn-ghost btn-sm" title="Konfirmasi Kedatangan" onclick="window.__confirmAppt('${apt.id}')" style="color: var(--success); padding: 6px 10px; border-radius: 6px;">
+                              <i class="fas fa-calendar-check"></i>
+                            </button>
+                          ` : ''}
+                          <button class="btn btn-ghost btn-sm" title="Tandai Selesai" onclick="window.__doneAppt('${apt.id}')" style="color: var(--info); padding: 6px 10px; border-radius: 6px;">
+                            <i class="fas fa-check-double"></i>
+                          </button>
+                          <button class="btn btn-ghost btn-sm" title="Batalkan Pesanan" onclick="window.__cancelAppt('${apt.id}')" style="color: var(--text-muted); padding: 6px 10px; border-radius: 6px;">
+                            <i class="fas fa-ban"></i>
+                          </button>
+                        ` : ''}
+                        <button class="btn btn-ghost btn-sm" title="Lihat Detail" onclick="window.__editAppt('${apt.id}')" style="background: var(--accent-subtle); color: var(--accent); padding: 6px 10px; border-radius: 6px;">
+                          <i class="fas fa-eye"></i>
                         </button>
-                        <button class="btn btn-ghost btn-sm" title="Batalkan Pesanan" onclick="window.__cancelAppt('${apt.id}')" style="color: var(--text-muted); padding: 6px 10px; border-radius: 6px;">
-                          <i class="fas fa-ban"></i>
-                        </button>
-                      ` : ''}
-                      <button class="btn btn-ghost btn-sm" title="Lihat Detail" onclick="window.__editAppt('${apt.id}')" style="background: var(--accent-subtle); color: var(--accent); padding: 6px 10px; border-radius: 6px;">
-                        <i class="fas fa-eye"></i>
-                      </button>
-                      ${apt.status === 'done' ? `
-                        <button class="btn btn-ghost btn-sm" title="Cetak Struk" onclick="window.__invoiceAppt('${apt.id}')" style="background: var(--bg-input); color: var(--text-primary); padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border);">
-                          <i class="fas fa-print"></i>
-                        </button>
-                      ` : ''}
-                    </div>
-                  </td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
+                        ${apt.status === 'done' ? `
+                          <button class="btn btn-ghost btn-sm" title="Cetak Struk" onclick="window.__invoiceAppt('${apt.id}')" style="background: var(--bg-input); color: var(--text-primary); padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border);">
+                            <i class="fas fa-print"></i>
+                          </button>
+                        ` : ''}
+                      </div>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        ` : `
+          <div class="card empty-state">
+            <i class="fas fa-calendar-xmark"></i>
+            <h3>Belum Ada Janji</h3>
+            <p>Tambah janji baru untuk pelanggan</p>
+          </div>
+        `}
+      </div>
+    `;
+  };
+
+  const renderActiveView = () => {
+    if (activeView === 'monthly') return renderMonthlyCalendar();
+    if (activeView === 'weekly') return renderWeeklyCalendar();
+    if (activeView === 'daily') return renderDailyCalendar();
+    return renderListView();
+  };
+
+  container.innerHTML = `
+    <!-- MAIN CONTAINER -->
+    <div class="flex-grow p-6 max-w-7xl mx-auto w-full flex flex-col gap-6 fade-in text-slate-800 dark:text-slate-200">
+      
+      <!-- CONTROLS AREA -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <!-- Breadcrumbs -->
+        <div class="text-sm font-medium text-slate-500 dark:text-zinc-400">
+          Manajemen <span class="mx-2 text-slate-300 dark:text-zinc-700">/</span> <span class="text-slate-800 dark:text-zinc-100 font-semibold">Janji Temu</span>
         </div>
-      ` : `
-        <div class="card empty-state">
-          <i class="fas fa-calendar-xmark"></i>
-          <h3>Belum Ada Janji</h3>
-          <p>Tambah janji baru untuk pelanggan</p>
+        
+        <!-- Actions -->
+        <div class="flex items-center gap-3">
+          <!-- View Dropdown -->
+          <div class="relative">
+            <select id="calendar-view-select" class="appearance-none bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 text-slate-700 dark:text-zinc-100 py-2 pl-4 pr-10 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 cursor-pointer shadow-sm">
+              <option value="monthly" ${activeView === 'monthly' ? 'selected' : ''}>Monthly</option>
+              <option value="weekly" ${activeView === 'weekly' ? 'selected' : ''}>Weekly</option>
+              <option value="daily" ${activeView === 'daily' ? 'selected' : ''}>Daily</option>
+              <option value="list" ${activeView === 'list' ? 'selected' : ''}>List View</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500 dark:text-zinc-400">
+              <svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg">
+                <path d="m6 9 6 6 6-6"></path>
+              </svg>
+            </div>
+          </div>
+          
+          <!-- Add Appointment Button -->
+          <button id="add-appointment-btn" class="bg-amber-500 hover:bg-amber-600 text-white py-2 px-4 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 shadow-sm">
+            <svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg">
+              <line x1="12" x2="12" y1="5" y2="19"></line>
+              <line x1="5" x2="19" y1="12" y2="12"></line>
+            </svg>
+            Janji Baru
+          </button>
         </div>
-      `}
+      </div>
+
+      <!-- FILTER & NAVIGATION BAR -->
+      <div class="bg-white dark:bg-zinc-900/50 rounded-xl p-4 border border-slate-200 dark:border-zinc-800 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
+        
+        <!-- Navigation Controls for Calendar Views -->
+        ${activeView !== 'list' ? `
+          <div class="flex items-center gap-3">
+            <button id="prev-btn" class="p-2 bg-slate-50 dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-100 border border-slate-200 dark:border-zinc-700 rounded-lg transition-colors">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <h2 id="calendar-header-title" class="text-base font-bold text-slate-800 dark:text-zinc-100 min-w-[150px] text-center">
+              ${getHeaderTitle()}
+            </h2>
+            <button id="next-btn" class="p-2 bg-slate-50 dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-100 border border-slate-200 dark:border-zinc-700 rounded-lg transition-colors">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        ` : `
+          <!-- Search input for List View -->
+          <div class="relative flex-1 max-w-sm">
+            <input type="text" id="search-appt" placeholder="Cari pelanggan..." value="${filterSearchText}" class="w-full bg-slate-50 dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 text-slate-700 dark:text-zinc-100 py-2 pl-10 pr-4 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500" />
+            <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500 text-sm"></i>
+          </div>
+        `}
+
+        <!-- Unified Filter Options -->
+        <div class="flex flex-wrap items-center gap-3">
+          ${activeView === 'list' ? `
+            <select class="bg-slate-50 dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 text-slate-700 dark:text-zinc-100 py-2 px-3 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" id="filter-date">
+              <option value="today" ${filterDate === 'today' ? 'selected' : ''}>Hari Ini</option>
+              <option value="upcoming" ${filterDate === 'upcoming' ? 'selected' : ''}>Akan Datang</option>
+              <option value="week" ${filterDate === 'week' ? 'selected' : ''}>Minggu Ini</option>
+              <option value="month" ${filterDate === 'month' ? 'selected' : ''}>Bulan Ini</option>
+              <option value="all" ${filterDate === 'all' ? 'selected' : ''}>Semua Tanggal</option>
+            </select>
+          ` : ''}
+          
+          <!-- Stylist Filter -->
+          <select class="bg-slate-50 dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 text-slate-700 dark:text-zinc-100 py-2 px-3 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" id="filter-barber">
+            <option value="all" ${filterBarber === 'all' ? 'selected' : ''}>Semua Barber</option>
+            ${barbers.map(b => `<option value="${b.id}" ${filterBarber === b.id ? 'selected' : ''}>${b.name}</option>`).join('')}
+          </select>
+          
+          <!-- Status Filter -->
+          <select class="bg-slate-50 dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 text-slate-700 dark:text-zinc-100 py-2 px-3 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" id="filter-status">
+            <option value="all" ${filterStatus === 'all' ? 'selected' : ''}>Semua Status</option>
+            <option value="pending" ${filterStatus === 'pending' ? 'selected' : ''}>Pending Portal</option>
+            <option value="confirmed" ${filterStatus === 'confirmed' ? 'selected' : ''}>Dikonfirmasi</option>
+            <option value="done" ${filterStatus === 'done' ? 'selected' : ''}>Selesai</option>
+            <option value="cancelled" ${filterStatus === 'cancelled' ? 'selected' : ''}>Dibatalkan</option>
+            <option value="rejected" ${filterStatus === 'rejected' ? 'selected' : ''}>Ditolak</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- MAIN CONTENT VIEW -->
+      <div id="appointments-content-view" class="flex-grow flex flex-col">
+        ${renderActiveView()}
+      </div>
     </div>
   `;
 
   // Events
-  container.querySelector('#add-appointment-btn').addEventListener('click', () => showAppointmentForm());
-  container.querySelector('#filter-date').addEventListener('change', (e) => {
-    filterDate = e.target.value;
-    renderAppointments(container);
-  });
-  container.querySelector('#filter-status').addEventListener('change', (e) => {
+  container.querySelector('#add-appointment-btn')?.addEventListener('click', () => showAppointmentForm());
+  
+  if (activeView === 'list') {
+    container.querySelector('#filter-date')?.addEventListener('change', (e) => {
+      filterDate = e.target.value;
+      renderAppointments(container);
+    });
+    container.querySelector('#search-appt')?.addEventListener('input', (e) => {
+      filterSearchText = e.target.value;
+      const q = filterSearchText.toLowerCase();
+      container.querySelectorAll('tbody tr').forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+    });
+  }
+
+  container.querySelector('#filter-status')?.addEventListener('change', (e) => {
     filterStatus = e.target.value;
     renderAppointments(container);
   });
-  container.querySelector('#search-appt').addEventListener('input', (e) => {
-    const q = e.target.value.toLowerCase();
-    container.querySelectorAll('tbody tr').forEach(row => {
-      row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+  
+  container.querySelector('#filter-barber')?.addEventListener('change', (e) => {
+    filterBarber = e.target.value;
+    renderAppointments(container);
+  });
+
+  container.querySelector('#calendar-view-select')?.addEventListener('change', (e) => {
+    activeView = e.target.value;
+    renderAppointments(container);
+  });
+
+  const handlePrev = () => {
+    if (activeView === 'monthly') {
+      currentMonth--;
+      if (currentMonth < 0) {
+        currentMonth = 11;
+        currentYear--;
+      }
+    } else if (activeView === 'weekly') {
+      const d = new Date(currentYear, currentMonth, currentDay);
+      d.setDate(d.getDate() - 7);
+      currentDay = d.getDate();
+      currentMonth = d.getMonth();
+      currentYear = d.getFullYear();
+    } else if (activeView === 'daily') {
+      const d = new Date(currentYear, currentMonth, currentDay);
+      d.setDate(d.getDate() - 1);
+      currentDay = d.getDate();
+      currentMonth = d.getMonth();
+      currentYear = d.getFullYear();
+    }
+  };
+
+  const handleNext = () => {
+    if (activeView === 'monthly') {
+      currentMonth++;
+      if (currentMonth > 11) {
+        currentMonth = 0;
+        currentYear++;
+      }
+    } else if (activeView === 'weekly') {
+      const d = new Date(currentYear, currentMonth, currentDay);
+      d.setDate(d.getDate() + 7);
+      currentDay = d.getDate();
+      currentMonth = d.getMonth();
+      currentYear = d.getFullYear();
+    } else if (activeView === 'daily') {
+      const d = new Date(currentYear, currentMonth, currentDay);
+      d.setDate(d.getDate() + 1);
+      currentDay = d.getDate();
+      currentMonth = d.getMonth();
+      currentYear = d.getFullYear();
+    }
+  };
+
+  if (activeView !== 'list') {
+    container.querySelector('#prev-btn')?.addEventListener('click', () => {
+      handlePrev();
+      renderAppointments(container);
+    });
+    
+    container.querySelector('#next-btn')?.addEventListener('click', () => {
+      handleNext();
+      renderAppointments(container);
+    });
+    
+    if (activeView === 'monthly') {
+      container.querySelectorAll('[data-cell-date]').forEach(cell => {
+        cell.addEventListener('click', (e) => {
+          if (e.target.closest('[data-appt-id]')) return;
+          
+          const clickedDate = cell.dataset.cellDate;
+          const parts = clickedDate.split('-');
+          currentYear = parseInt(parts[0]);
+          currentMonth = parseInt(parts[1]) - 1;
+          currentDay = parseInt(parts[2]);
+          
+          activeView = 'daily';
+          renderAppointments(container);
+        });
+      });
+    }
+  }
+
+  container.querySelectorAll('[data-appt-id]').forEach(badge => {
+    badge.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const apptId = badge.dataset.apptId;
+      showAppointmentDetail(apptId);
     });
   });
 
-  // Global handlers
+  // Global window functions
   window.__waAppt = (id) => {
     window.openCRMTemplateModal(id);
   };
@@ -220,7 +684,6 @@ export function renderAppointments(container) {
     const address = settings.address || '';
     const bookingUrl = window.location.origin + `/portal/portal.html?shop=${settings.slug || 'barber'}`;
 
-    // Multiple templates
     const templates = [
       {
         id: 'confirm',
@@ -298,11 +761,9 @@ export function renderAppointments(container) {
     const textEditor = document.getElementById('crm-message-text');
     const sendBtn = document.getElementById('send-crm-wa-btn');
 
-    // Initial load
     let activeTpl = templates[0];
     textEditor.value = parseText(activeTpl.body);
 
-    // Template selector click handler
     const buttons = document.querySelectorAll('#crm-template-selector button');
     buttons.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -314,7 +775,6 @@ export function renderAppointments(container) {
       });
     });
 
-    // Send action
     sendBtn.addEventListener('click', () => {
       const finalMsg = textEditor.value;
       const phoneNum = customer.phone.replace(/\D/g, '');
@@ -323,14 +783,17 @@ export function renderAppointments(container) {
       showToast('Membuka WhatsApp...', 'success');
     });
   };
+
   window.__confirmAppt = (id) => {
     storage.update('appointments', id, { status: 'confirmed' });
     showToast('Janji dikonfirmasi!', 'success');
     renderAppointments(container);
   };
+
   window.__doneAppt = (id) => {
     showRatingModal(id, container);
   };
+
   window.__cancelAppt = (id) => {
     confirmDialog('Yakin ingin membatalkan janji ini?', () => {
       const apt = storage.find('appointments', id);
@@ -340,7 +803,6 @@ export function renderAppointments(container) {
       showToast('Janji dibatalkan', 'warning');
       renderAppointments(container);
 
-      // Notify Waitlist
       const waitlist = storage.getAll('waitlist');
       const waiting = waitlist.filter(w => w.date === apt.date && w.time === apt.time && w.barberId === apt.barberId && w.status === 'waiting');
 
@@ -356,18 +818,16 @@ export function renderAppointments(container) {
       }
     }, 'Batalkan Janji');
   };
+
   window.__editAppt = (id) => {
     showAppointmentDetail(id);
   };
+
   window.__invoiceAppt = (id) => {
     generateInvoice(id);
   };
 
-  // Portal actions re-using dashboard handlers
   window.__approvePortalAppt = (id) => {
-    // We use the global handlers from dashboard.js or re-implement here if needed
-    // Since dashboard.js adds them to window, we can call them or trigger dashboard logic
-    // But for convenience let's re-implement them here to update this page correctly
     const apt = storage.find('appointments', id);
     if (!apt) return;
     storage.update('appointments', id, { status: 'confirmed' });

@@ -887,8 +887,10 @@ function setTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
   if (theme === 'light') {
     document.documentElement.classList.add('light-theme');
+    document.documentElement.classList.remove('dark');
   } else {
     document.documentElement.classList.remove('light-theme');
+    document.documentElement.classList.add('dark');
   }
 }
 
