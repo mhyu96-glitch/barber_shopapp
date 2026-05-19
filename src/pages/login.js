@@ -2,13 +2,14 @@ import { storage } from '../utils/storage.js';
 import { supabase } from '../utils/supabaseClient.js';
 import { showToast } from '../components/toast.js';
 
-// Cache-buster: 2026-05-18T21:35:00
+// Cache-buster: 2026-05-19T21:40:00
 export function renderLogin(container) {
   const sidebar = document.getElementById('sidebar');
   const mainContent = document.getElementById('main-content');
   if (sidebar) sidebar.style.display = 'none';
   if (mainContent) { mainContent.style.marginLeft = '0'; mainContent.style.width = '100%'; mainContent.style.padding = '0'; }
   document.body.className = '';
+  document.body.classList.add('bg-[#0a0a0a]', 'text-[#e5e2e1]', 'selection:bg-[#b8860b]/30');
 
   // Sembunyikan burger button dan overlay saat login
   const burgerBtn = document.querySelector('.sidebar-toggle');
@@ -16,413 +17,467 @@ export function renderLogin(container) {
   if (burgerBtn) burgerBtn.style.display = 'none';
   if (sidebarOverlay) sidebarOverlay.style.display = 'none';
 
+  // Load Google Fonts
+  if (!document.getElementById('login-google-fonts')) {
+    const link = document.createElement('link');
+    link.id = 'login-google-fonts';
+    link.rel = 'stylesheet';
+    link.href = "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Hanken+Grotesk:wght@400;500&family=JetBrains+Mono:wght@500&display=swap";
+    document.head.appendChild(link);
+  }
+
+  // Load Material Symbols
+  if (!document.getElementById('login-material-symbols')) {
+    const link = document.createElement('link');
+    link.id = 'login-material-symbols';
+    link.rel = 'stylesheet';
+    link.href = "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200";
+    document.head.appendChild(link);
+  }
+
+  // Apply custom Tailwind config dynamically
+  if (window.tailwind) {
+    window.tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+              "on-secondary-fixed": "#221b00",
+              "surface-container-lowest": "#0e0e0e",
+              "on-primary-fixed-variant": "#574500",
+              "on-secondary-fixed-variant": "#544600",
+              "on-surface-variant": "#d0c5af",
+              "surface-container-low": "#1c1b1b",
+              "inverse-primary": "#735c00",
+              "on-primary": "#3c2f00",
+              "on-tertiary-container": "#454544",
+              "outline-variant": "#4d4635",
+              "outline": "#99907c",
+              "surface-container-high": "#2a2a2a",
+              "background": "#0a0a0a",
+              "secondary-fixed-dim": "#e9c400",
+              "on-secondary": "#3a3000",
+              "secondary-fixed": "#ffe16d",
+              "primary-fixed-dim": "#e9c349",
+              "error": "#ffb4ab",
+              "surface": "#131313",
+              "surface-variant": "#353534",
+              "inverse-surface": "#e5e2e1",
+              "secondary-container": "#ffdb3c",
+              "on-surface": "#e5e2e1",
+              "error-container": "#93000a",
+              "on-error": "#690005",
+              "surface-dim": "#131313",
+              "inverse-on-surface": "#313030",
+              "tertiary-container": "#b4b2b2",
+              "tertiary-fixed": "#e5e2e1",
+              "surface-container-highest": "#353534",
+              "on-background": "#e5e2e1",
+              "on-primary-fixed": "#241a00",
+              "primary": "#d4af37",
+              "primary-fixed": "#ffe088",
+              "tertiary": "#d0cdcd",
+              "on-tertiary-fixed": "#1c1b1b",
+              "on-tertiary-fixed-variant": "#474746",
+              "on-secondary-container": "#725f00",
+              "tertiary-fixed-dim": "#c8c6c5",
+              "surface-bright": "#3a3939",
+              "secondary": "#fff9ef",
+              "primary-container": "#b8860b",
+              "on-tertiary": "#313030",
+              "on-error-container": "#ffdad6",
+              "surface-container": "#201f1f",
+              "on-primary-container": "#554300",
+              "surface-tint": "#e9c349"
+          },
+          "borderRadius": {
+              "DEFAULT": "0.25rem",
+              "lg": "0.5rem",
+              "xl": "0.75rem",
+              "full": "9999px"
+          },
+          "spacing": {
+              "sm": "12px",
+              "md": "24px",
+              "gutter": "24px",
+              "margin-desktop": "48px",
+              "xs": "4px",
+              "margin-mobile": "16px",
+              "lg": "40px",
+              "base": "8px",
+              "xl": "64px"
+          },
+          "fontFamily": {
+              "body-md": ["Hanken Grotesk"],
+              "label-sm": ["JetBrains Mono"],
+              "headline-md": ["Playfair Display"],
+              "body-lg": ["Hanken Grotesk"],
+              "headline-lg-mobile": ["Playfair Display"],
+              "display-lg": ["Playfair Display"],
+              "headline-lg": ["Playfair Display"]
+          },
+          "fontSize": {
+              "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+              "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+              "headline-md": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+              "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+              "headline-lg-mobile": ["36px", {"lineHeight": "44px", "fontWeight": "700"}],
+              "display-lg": ["64px", {"lineHeight": "72px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+              "headline-lg": ["40px", {"lineHeight": "48px", "fontWeight": "700"}]
+          }
+        },
+      },
+    };
+  }
+
   container.innerHTML = `
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
-
-.lp-wrap {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: radial-gradient(circle at top right, rgba(212, 175, 55, 0.06), transparent 45%),
-              radial-gradient(circle at bottom left, rgba(212, 175, 55, 0.03), transparent 45%),
-              #090a0f;
-  font-family: 'Outfit', sans-serif;
-  padding: 20px;
-}
-
-.pwa-container {
-  width: 100%;
-  max-width: 100%;
-  height: 100vh;
-  background: #0b0c10;
-  position: relative;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.desktop-left-pane {
-  display: none;
-}
-
-@media (min-width: 480px) {
-  .pwa-container {
-    max-width: 450px;
-    height: auto;
-    min-height: 680px;
-    max-height: 90vh;
-    border-radius: 28px;
-    border: 1px solid rgba(212, 175, 55, 0.18);
-    background: #0b0c10;
-    box-shadow: 0 30px 60px rgba(0,0,0,0.6), 
-                0 0 100px rgba(212, 175, 55, 0.03);
-    overflow-y: auto;
-  }
-}
-
-@media (min-width: 768px) {
-  .lp-wrap {
-    padding: 0;
-    overflow: hidden;
-    flex-direction: row;
-    align-items: stretch;
-    justify-content: flex-start;
-  }
-  
-  .desktop-left-pane {
-    display: flex !important;
-    flex-direction: column;
-    justify-content: space-between;
-    flex: 1.2;
-    padding: 60px;
-    background: linear-gradient(135deg, #0d0f12 0%, #040507 100%);
-    border-right: 1px solid rgba(212, 175, 55, 0.12);
-    position: relative;
-  }
-  
-  .pwa-container {
-    flex: 1;
-    max-width: 100% !important;
-    height: 100vh !important;
-    max-height: 100vh !important;
-    border-radius: 0 !important;
-    border: none !important;
-    box-shadow: none !important;
-    background: radial-gradient(circle at center, rgba(212, 175, 55, 0.03), transparent 60%), #07080a !important;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .pwa-top {
-    padding: 40px !important;
-    background: transparent !important;
-    border-bottom: none !important;
-    border-radius: 0 !important;
-    width: 100%;
-    max-width: 460px;
-    margin: 0 auto;
-  }
-  
-  .glass-card {
-    background: rgba(255, 255, 255, 0.02) !important;
-    border: 1px solid rgba(212, 175, 55, 0.15) !important;
-    border-radius: 24px !important;
-    padding: 32px !important;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.5) !important;
-  }
-  
-  .pwa-header {
-    display: none !important;
-  }
-  
-  .greeting-title {
-    font-size: 38px !important;
-  }
-  
-  .stats-row {
-    margin-top: 0 !important;
-    padding: 0 !important;
-    width: 100%;
-    max-width: 460px;
-    margin: 20px auto 0 !important;
-  }
-  
-  .stat-item {
-    background: rgba(255, 255, 255, 0.01) !important;
-    border: 1px solid rgba(212, 175, 55, 0.08) !important;
-    border-radius: 16px !important;
-    padding: 12px 6px !important;
-  }
-  
-  .pwa-bottom {
-    background: transparent !important;
-    padding: 20px 0 0 !important;
-    width: 100%;
-    max-width: 460px;
-    margin: 0 auto;
-    overflow: visible !important;
-    flex: none !important;
-  }
-  
-  .login-btn {
-    height: 52px !important;
-    border-radius: 16px !important;
-  }
-  
-  .info-card {
-    margin-top: 16px !important;
-    background: rgba(255,255,255,0.01) !important;
-    border: 1px solid rgba(212, 175, 55, 0.05) !important;
-    border-radius: 18px !important;
-    padding: 12px !important;
-  }
-}
-
-.pwa-top {
-  padding: 60px 24px 80px;
-  background: linear-gradient(150deg, #1d1b18 0%, #0d0d0c 100%);
-  color: #fff;
-  border-bottom-left-radius: 40px;
-  border-bottom-right-radius: 40px;
-  border-bottom: 2px solid rgba(212, 175, 55, 0.25);
-  position: relative;
-  z-index: 1;
-}
-
-.pwa-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-}
-
-.back-btn {
-  width: 40px; height: 40px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.1);
-  display: flex; align-items: center; justify-content: center;
-  color: #fff; text-decoration: none; font-size: 18px;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.15);
-}
-
-.member-id { text-align: right; line-height: 1.2; }
-.member-id .label { font-size: 10px; font-weight: 700; letter-spacing: 1px; color: #d4af37; text-transform: uppercase; }
-.member-id .val { font-size: 16px; font-weight: 800; color: #fff; }
-
-.greeting { margin-bottom: 24px; }
-.greeting-sub { font-size: 13px; color: rgba(255,255,255,0.8); font-weight: 500; margin-bottom: 4px; }
-.greeting-title { 
-  font-size: 34px; 
-  font-weight: 900; 
-  letter-spacing: -1px; 
-  line-height: 1.1;
-  background: linear-gradient(135deg, #ffffff 10%, #d4af37 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.glass-card {
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(212, 175, 55, 0.2);
-  border-radius: 28px;
-  padding: 24px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-}
-
-.card-title {
-  font-size: 11px; font-weight: 800; letter-spacing: 1.5px; color: #d4af37; margin-bottom: 16px; text-transform: uppercase; display: flex; align-items: center; gap: 8px;
-}
-
-.lp-field { margin-bottom: 12px; position: relative; }
-.lp-input {
-  width: 100%; height: 48px;
-  background: rgba(0,0,0,0.4) !important;
-  border: 1px solid rgba(212, 175, 55, 0.2);
-  border-radius: 16px;
-  padding: 0 16px 0 46px;
-  color: #fff !important;
-  font-size: 14px; font-weight: 500; font-family: inherit;
-  transition: all 0.3s; outline: none;
-}
-.lp-input::placeholder { color: rgba(255,255,255,0.4) !important; }
-.lp-input:focus { background: rgba(0,0,0,0.6) !important; border-color: #d4af37; box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15); }
-.lp-icon { position: absolute; left: 16px; top: 16px; color: #d4af37; font-size: 15px; }
-
-.lp-pw-toggle {
-  position: absolute; right: 16px; top: 15px;
-  color: rgba(255,255,255,0.6); background: none; border: none; cursor: pointer; padding: 0; font-size: 15px;
-}
-
-.stats-row {
-  display: flex; gap: 12px;
-  padding: 0 24px;
-  margin-top: -30px;
-  position: relative; z-index: 2;
-  justify-content: space-between;
-}
-.stat-item {
-  flex: 1; background: #1c1b18; border-radius: 24px;
-  padding: 16px 8px; text-align: center;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  border: 1px solid rgba(212, 175, 55, 0.15);
-}
-.stat-val { font-size: 22px; font-weight: 800; line-height: 1; margin-bottom: 4px; }
-.stat-val.c-blue { color: #d4af37; }
-.stat-val.c-green { color: #10b981; }
-.stat-val.c-orange { color: #e67e22; }
-.stat-label { font-size: 9px; font-weight: 800; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.5px; }
-
-.pwa-bottom {
-  flex: 1; background: #0c0c0c; padding: 30px 24px;
-  overflow-y: auto; position: relative; z-index: 0;
-}
-
-.login-btn {
-  width: 100%; height: 56px;
-  background: #d4af37; color: #0d0d0c;
-  border: none; border-radius: 20px;
-  font-size: 16px; font-weight: 700; font-family: inherit;
-  cursor: pointer; box-shadow: 0 10px 25px rgba(212, 175, 55, 0.25);
-  transition: all 0.2s;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  margin-top: 10px;
-}
-.login-btn:active { transform: scale(0.98); }
-
-.info-card {
-  background: #1c1b18; border-radius: 24px; padding: 16px;
-  display: flex; align-items: center; gap: 16px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-  margin-top: 24px;
-  border: 1px solid rgba(212, 175, 55, 0.1);
-}
-.info-icon {
-  width: 48px; height: 48px; border-radius: 16px;
-  background: rgba(212, 175, 55, 0.15); color: #d4af37;
-  display: flex; align-items: center; justify-content: center; font-size: 20px;
-}
-.info-text { flex: 1; }
-.info-title { font-size: 15px; font-weight: 700; color: #fff; }
-.info-sub { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 2px; }
-
-input:-webkit-autofill,
-input:-webkit-autofill:hover, 
-input:-webkit-autofill:focus, 
-input:-webkit-autofill:active{
-    -webkit-box-shadow: 0 0 0 30px rgba(0,0,0,0.4) inset !important;
-    -webkit-text-fill-color: white !important;
-    transition: background-color 5000s ease-in-out 0s;
-}
-</style>
-
-<div class="lp-wrap">
-  <!-- Desktop Left Branding Panel -->
-  <div class="desktop-left-pane">
-    <div class="desktop-brand" style="display: flex; align-items: center; gap: 12px;">
-      <div style="width: 42px; height: 42px; border-radius: 12px; background: rgba(212, 175, 55, 0.15); display: flex; align-items: center; justify-content: center;">
-        <i class="fas fa-scissors brand-icon" style="color: #d4af37; font-size: 20px;"></i>
-      </div>
-      <span style="font-weight: 800; font-size: 22px; color: #fff; letter-spacing: 1.5px; font-family: 'Outfit', sans-serif;">BARBERPRO</span>
-    </div>
-    
-    <div class="desktop-hero-content" style="margin-top: 60px;">
-      <h1 class="hero-title" style="font-size: 40px; font-weight: 900; line-height: 1.15; margin-bottom: 24px; background: linear-gradient(135deg, #ffffff 30%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-family: 'Outfit', sans-serif;">Sistem Kasir &amp; Manajemen Barbershop Cerdas</h1>
-      <p class="hero-subtitle" style="color: rgba(255,255,255,0.6); font-size: 15px; line-height: 1.6; margin-bottom: 48px; font-family: 'Outfit', sans-serif;">Kelola bagi hasil komisi barber secara akurat, kirim slip gaji otomatis lewat WhatsApp, kelola antrean antarmuka kasir, dan berikan konsultasi gaya rambut digital dengan AI Stylist Wizard.</p>
+      body {
+        background-color: #0a0a0a;
+        color: #e5e2e1;
+        position: relative;
+      }
       
-      <div class="feature-bullets" style="display: flex; flex-direction: column; gap: 28px;">
-        <div class="feat-bullet" style="display: flex; gap: 18px; align-items: flex-start;">
-          <div class="feat-icon" style="width: 46px; height: 46px; border-radius: 14px; background: rgba(212, 175, 55, 0.1); color: #d4af37; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; border: 1px solid rgba(212, 175, 55, 0.15);"><i class="fas fa-calculator"></i></div>
-          <div>
-            <div class="feat-title" style="font-size: 15px; font-weight: 700; color: #fff; font-family: 'Outfit', sans-serif;">Payroll &amp; Bagi Hasil Komisi</div>
-            <div class="feat-desc" style="font-size: 13px; color: rgba(255,255,255,0.45); font-family: 'Outfit', sans-serif;">Skema komisi persentase atau nominal flat untuk barber yang langsung terintegrasi dengan slip gaji WhatsApp otomatis.</div>
-          </div>
-        </div>
-        <div class="feat-bullet" style="display: flex; gap: 18px; align-items: flex-start;">
-          <div class="feat-icon" style="width: 46px; height: 46px; border-radius: 14px; background: rgba(212, 175, 55, 0.1); color: #d4af37; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; border: 1px solid rgba(212, 175, 55, 0.15);"><i class="fas fa-magic"></i></div>
-          <div>
-            <div class="feat-title" style="font-size: 15px; font-weight: 700; color: #fff; font-family: 'Outfit', sans-serif;">AI Stylist Digital Consultant</div>
-            <div class="feat-desc" style="font-size: 13px; color: rgba(255,255,255,0.45); font-family: 'Outfit', sans-serif;">Bantu pelanggan menentukan model potongan rambut terbaik mereka dengan wizard rekomendasi kecerdasan buatan.</div>
-          </div>
-        </div>
-        <div class="feat-bullet" style="display: flex; gap: 18px; align-items: flex-start;">
-          <div class="feat-icon" style="width: 46px; height: 46px; border-radius: 14px; background: rgba(212, 175, 55, 0.1); color: #d4af37; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; border: 1px solid rgba(212, 175, 55, 0.15);"><i class="fas fa-chart-line"></i></div>
-          <div>
-            <div class="feat-title" style="font-size: 15px; font-weight: 700; color: #fff; font-family: 'Outfit', sans-serif;">Analitik &amp; Keuangan Real-Time</div>
-            <div class="feat-desc" style="font-size: 13px; color: rgba(255,255,255,0.45); font-family: 'Outfit', sans-serif;">Laporan pengeluaran, omzet harian, dan grafik performa barber untuk optimasi profit bisnis barbershop Anda.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <div class="desktop-footer" style="font-size: 12px; color: rgba(255,255,255,0.35); font-weight: 600; font-family: 'Outfit', sans-serif; letter-spacing: 0.5px;">
-      BarberPro Enterprise v2.0 &bull; &copy; ${new Date().getFullYear()}
-    </div>
-  </div>
+      /* Subtle Grain Texture overlay */
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+        pointer-events: none;
+        z-index: 9999;
+        opacity: 0.4;
+      }
 
-  <div class="pwa-container">
-    
-    <div class="pwa-top">
-      <div class="pwa-header">
-        <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i></a>
-        <div class="member-id">
-          <div class="label">SISTEM KASIR</div>
-          <div class="val">BARBERPRO</div>
-        </div>
-      </div>
-
-      <div class="greeting">
-        <div class="greeting-sub">Selamat datang kembali,</div>
-        <div class="greeting-title">Login Staff</div>
-      </div>
-
-      <div class="glass-card">
-        <div class="card-title"><i class="fas fa-lock"></i> KREDENSIAL AKSES</div>
-        
-        <form id="login-form" autocomplete="off">
-          <div class="lp-field">
-            <i class="fas fa-store lp-icon"></i>
-            <input id="shop-slug" class="lp-input" type="text" placeholder="Kode Toko (Opsional)" autocomplete="off" />
-          </div>
-          
-          <div class="lp-field">
-            <i class="fas fa-user lp-icon"></i>
-            <input id="username" class="lp-input" type="text" placeholder="Username" required autocomplete="off" />
-          </div>
-          
-          <div class="lp-field">
-            <i class="fas fa-key lp-icon"></i>
-            <input id="password" class="lp-input" type="password" placeholder="Password" required autocomplete="new-password" />
-            <button type="button" class="lp-pw-toggle" id="pw-toggle"><i class="fas fa-eye"></i></button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- Stats Row -->
-    <div class="stats-row">
-      <div class="stat-item">
-        <div class="stat-val c-blue">#1</div>
-        <div class="stat-label">SISTEM</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-val c-green">24</div>
-        <div class="stat-label">JAM</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-val c-orange">✨</div>
-        <div class="stat-label">MUDAH</div>
-      </div>
-    </div>
-
-    <div class="pwa-bottom">
-      <button type="submit" form="login-form" class="login-btn" id="login-btn">
-        Masuk Sekarang <i class="fas fa-arrow-right" style="font-size:14px; margin-left: 4px;"></i>
-      </button>
-
-      <div class="info-card">
-        <div class="info-icon"><i class="fas fa-headset"></i></div>
-        <div class="info-text">
-          <div class="info-title">Butuh Bantuan?</div>
-          <div class="info-sub">Hubungi admin pusat untuk bantuan login.</div>
-        </div>
-        <a href="#" style="width:36px;height:36px;border-radius:12px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;color:#64748b;text-decoration:none;"><i class="fas fa-chevron-right"></i></a>
-      </div>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
       
-      <div style="text-align:center; margin-top: 30px; font-size: 11px; color: #cbd5e1; font-weight: 600;">
-        BarberPro v2.0 &copy; ${new Date().getFullYear()}
-      </div>
-    </div>
+      .gold-gradient {
+        background: linear-gradient(135deg, #f2ca50 0%, #d4af37 50%, #b8860b 100%);
+      }
+      
+      .glass-card {
+        background: rgba(20, 20, 20, 0.4);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(212, 175, 55, 0.15);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      }
+      
+      .ai-glow {
+        box-shadow: 0 0 30px rgba(212, 175, 55, 0.1);
+      }
+      
+      .hero-bg {
+        background-image: radial-gradient(circle at 70% 20%, rgba(212, 175, 55, 0.08) 0%, transparent 60%),
+                          radial-gradient(circle at 10% 80%, rgba(212, 175, 55, 0.05) 0%, transparent 40%);
+      }
+      
+      /* Liquid Hover Effect for Buttons */
+      .btn-liquid {
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+      }
+      .btn-liquid::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: inherit;
+        z-index: -2;
+      }
+      .btn-liquid::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.2);
+        transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        border-radius: inherit;
+        z-index: -1;
+      }
+      .btn-liquid:hover::before {
+        width: 100%;
+      }
 
-  </div>
+      /* Animations */
+      @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      
+      @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0px); }
+      }
+
+      .animate-entrance {
+        animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        opacity: 0;
+      }
+      
+      .floating {
+        animation: float 6s ease-in-out infinite;
+      }
+      
+      .stagger-1 { animation-delay: 0.1s; }
+      .stagger-2 { animation-delay: 0.2s; }
+      .stagger-3 { animation-delay: 0.3s; }
+      
+      .nav-link {
+        position: relative;
+        transition: color 0.3s ease-out;
+      }
+      .nav-link::after {
+        content: '';
+        position: absolute;
+        bottom: -4px;
+        left: 0;
+        width: 0;
+        height: 1px;
+        background-color: #d4af37;
+        transition: width 0.3s ease-out;
+      }
+      .nav-link:hover::after {
+        width: 100%;
+      }
+      .nav-link-active::after {
+        width: 100%;
+      }
+
+      .cta-button:hover span.material-symbols-outlined {
+        transform: translateX(4px);
+      }
+      
+      /* Scroll Reveal */
+      .reveal {
+        opacity: 0;
+        transform: translateY(40px);
+        transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+      .reveal.active {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      /* Parallax Elements */
+      .parallax-layer {
+        position: absolute;
+        pointer-events: none;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .animate-entrance, .cta-button:hover span.material-symbols-outlined, .btn-liquid::before, .floating, .reveal {
+          animation: none !important;
+          transition: none !important;
+          opacity: 1 !important;
+          transform: none !important;
+        }
+      }
+    </style>
+
+<!-- Top Navigation -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-desktop py-md max-w-[1440px] left-1/2 -translate-x-1/2 bg-background/70 backdrop-blur-xl border-b border-outline-variant/30 transition-all duration-300" id="header">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">content_cut</span>
+<span class="text-headline-md font-headline-md font-bold tracking-tight text-white italic">BarberPro.</span>
 </div>
+<nav class="hidden md:flex items-center gap-lg">
+<a class="nav-link nav-link-active text-primary font-bold font-body-md tracking-wide uppercase text-sm" href="#features-section">Features</a>
+<a class="nav-link text-on-surface-variant font-medium hover:text-white font-body-md tracking-wide uppercase text-sm" href="#ai-section">AI Stylist</a>
+<a class="nav-link text-on-surface-variant font-medium hover:text-white font-body-md tracking-wide uppercase text-sm" href="#analytics-section">Pricing</a>
+<a class="nav-link text-on-surface-variant font-medium hover:text-white font-body-md tracking-wide uppercase text-sm" id="support-nav" href="#">Support</a>
+</nav>
+<button class="px-md py-sm bg-transparent border border-outline-variant/50 rounded-full hover:border-primary hover:text-primary transition-all duration-300 text-label-sm font-label-sm uppercase tracking-widest active:scale-95">
+            Staff Login
+        </button>
+</header>
+<main class="min-h-screen pt-[120px] hero-bg overflow-hidden relative">
+<!-- Parallax background elements -->
+<div class="parallax-layer w-96 h-96 rounded-full bg-primary/5 blur-[100px] top-20 right-[10%]" data-speed="2"></div>
+<div class="parallax-layer w-64 h-64 rounded-full bg-primary/5 blur-[80px] bottom-40 left-[5%]" data-speed="-1"></div>
+<!-- Hero & Login Container -->
+<div class="max-w-[1440px] mx-auto px-margin-desktop grid grid-cols-1 lg:grid-cols-12 gap-xl py-xl min-h-[85vh] items-center relative z-10">
+<!-- Content Section (Left) -->
+<div class="lg:col-span-7 flex flex-col justify-center space-y-xl animate-entrance pr-lg">
+<div class="space-y-lg">
+<div class="inline-flex items-center gap-xs px-4 py-2 bg-transparent border border-primary/30 rounded-full">
+<span class="material-symbols-outlined text-[14px] text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-label-sm font-label-sm text-primary uppercase tracking-[0.2em]">Enterprise Edition v2.0</span>
+</div>
+<h1 class="font-display-lg text-display-lg text-white leading-[1.1]">
+                        Sistem Kasir &amp; <br/>
+<span class="text-primary italic font-light">Manajemen Barbershop</span> <br/>
+                        Cerdas.
+                    </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant/80 max-w-xl font-light leading-relaxed">
+                        Kelola bagi hasil komisi barber secara akurat, kirim slip gaji otomatis lewat WhatsApp, kelola antrean antarmuka kasir, dan berikan konsultasi gaya rambut digital dengan AI Stylist Wizard.
+                    </p>
+</div>
+<!-- Features Bento (Reveal on scroll) -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md pt-lg reveal" id="features-section">
+<div class="glass-card p-lg rounded-2xl group hover:border-primary/40 hover:-translate-y-1 transition-all duration-500 ease-out">
+<div class="w-12 h-12 rounded-full border border-primary/20 flex items-center justify-center mb-md group-hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-primary font-light">payments</span>
+</div>
+<h3 class="font-headline-md text-xl text-white mb-sm">Payroll &amp; Bagi Hasil</h3>
+<p class="text-on-surface-variant/70 text-body-md font-light leading-relaxed">Skema komisi persentase atau nominal flat untuk barber yang langsung terintegrasi dengan slip gaji WhatsApp otomatis.</p>
+</div>
+<div class="glass-card p-lg rounded-2xl ai-glow border-primary/20 group hover:border-primary/50 hover:-translate-y-1 transition-all duration-500 ease-out relative overflow-hidden" id="ai-section">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-xl"></div>
+<div class="w-12 h-12 rounded-full border border-primary/20 flex items-center justify-center mb-md bg-primary/5">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">face_retouching_natural</span>
+</div>
+<h3 class="font-headline-md text-xl text-white mb-sm">AI Stylist Consultant</h3>
+<p class="text-on-surface-variant/70 text-body-md font-light leading-relaxed">Bantu pelanggan menentukan model potongan rambut terbaik mereka dengan wizard rekomendasi kecerdasan buatan.</p>
+</div>
+<div class="glass-card p-lg rounded-2xl group hover:border-primary/40 hover:-translate-y-1 transition-all duration-500 ease-out md:col-span-2" id="analytics-section">
+<div class="flex flex-col md:flex-row gap-lg items-start">
+<div class="w-12 h-12 shrink-0 rounded-full border border-primary/20 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-primary font-light">query_stats</span>
+</div>
+<div>
+<h3 class="font-headline-md text-xl text-white mb-sm">Analitik &amp; Keuangan Real-Time</h3>
+<p class="text-on-surface-variant/70 text-body-md font-light leading-relaxed max-w-2xl">Laporan pengeluaran, omzet harian, dan grafik performa barber untuk optimasi profit bisnis barbershop Anda.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Login Section (Right - Floating Glass Card) -->
+<div class="lg:col-span-5 animate-entrance stagger-1 flex items-center justify-end">
+<div class="glass-card p-xl rounded-3xl relative overflow-hidden w-full max-w-md floating shadow-2xl shadow-black/50 border-t border-l border-white/5">
+<div class="absolute -top-32 -right-32 w-80 h-80 bg-primary/10 rounded-full blur-[100px]"></div>
+<div class="absolute -bottom-32 -left-32 w-80 h-80 bg-primary/5 rounded-full blur-[100px]"></div>
+<div class="relative z-10 space-y-xl">
+<header>
+<p class="text-label-sm font-label-sm text-primary uppercase tracking-widest mb-2">Selamat datang kembali</p>
+<h2 class="font-headline-lg text-headline-lg text-white font-light italic">Login Staff</h2>
+</header>
+<form id="login-form" autocomplete="off" class="space-y-lg">
+<div class="space-y-md">
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-md flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-on-surface-variant/50 group-focus-within:text-primary transition-colors font-light">store</span>
+</div>
+<input id="shop-slug" class="block w-full pl-[56px] pr-md py-4 bg-black/40 border-0 border-b border-outline-variant/50 focus:border-primary focus:ring-0 text-white placeholder:text-on-surface-variant/30 transition-all font-light rounded-t-lg" placeholder="Kode Toko (Opsional)" type="text" autocomplete="off"/>
+</div>
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-md flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-on-surface-variant/50 group-focus-within:text-primary transition-colors font-light">person</span>
+</div>
+<input id="username" class="block w-full pl-[56px] pr-md py-4 bg-black/40 border-0 border-b border-outline-variant/50 focus:border-primary focus:ring-0 text-white placeholder:text-on-surface-variant/30 transition-all font-light rounded-t-lg" placeholder="Username" type="text" required autocomplete="username"/>
+</div>
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-md flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-on-surface-variant/50 group-focus-within:text-primary transition-colors font-light">key</span>
+</div>
+<input id="password" class="block w-full pl-[56px] pr-[56px] py-4 bg-black/40 border-0 border-b border-outline-variant/50 focus:border-primary focus:ring-0 text-white placeholder:text-on-surface-variant/30 transition-all font-light rounded-t-lg" placeholder="Password" type="password" required autocomplete="current-password"/>
+<div class="absolute inset-y-0 right-0 pr-md flex items-center">
+<button id="pw-toggle" type="button" class="text-on-surface-variant/50 hover:text-primary transition-colors">
+<span class="material-symbols-outlined font-light">visibility</span>
+</button>
+</div>
+</div>
+</div>
+
+<!-- Quick Stats Section -->
+<div class="grid grid-cols-3 gap-sm py-sm border-t border-white/5">
+<div class="text-center py-sm">
+<span class="block font-headline-md text-primary font-light text-2xl">#1</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant/50 text-[10px] uppercase tracking-widest">Sistem</span>
+</div>
+<div class="text-center py-sm">
+<span class="block font-headline-md text-primary font-light text-2xl">24</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant/50 text-[10px] uppercase tracking-widest">Jam</span>
+</div>
+<div class="text-center py-sm">
+<div class="flex justify-center mb-1">
+<span class="material-symbols-outlined text-primary text-[24px] font-light">auto_awesome</span>
+</div>
+<span class="text-label-sm font-label-sm text-on-surface-variant/50 text-[10px] uppercase tracking-widest">Mudah</span>
+</div>
+</div>
+
+<button id="login-btn" type="submit" class="cta-button btn-liquid w-full py-4 gold-gradient text-black font-bold text-sm tracking-widest uppercase rounded-full flex items-center justify-center gap-sm shadow-lg shadow-primary/20">
+                            Masuk Sekarang
+                            <span class="material-symbols-outlined transition-transform duration-300">arrow_forward</span>
+</button>
+</form>
+
+<div class="flex items-center gap-md pt-md border-t border-white/5 cursor-pointer group" id="support-link">
+<div class="w-10 h-10 rounded-full bg-black/40 border border-white/5 flex items-center justify-center group-hover:border-primary/30 transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant/70 font-light text-sm">headset_mic</span>
+</div>
+<div class="flex-1">
+<h4 class="text-xs font-bold text-white uppercase tracking-wider">Butuh Bantuan?</h4>
+<p class="text-[11px] font-label-sm text-on-surface-variant/50 mt-1">Hubungi admin pusat.</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant/30 group-hover:text-primary transition-colors font-light">east</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Partners -->
+<section class="max-w-[1440px] mx-auto px-margin-desktop py-24 border-t border-white/5 flex flex-wrap justify-center md:justify-between items-center opacity-30 hover:opacity-60 transition-opacity duration-500 gap-xl animate-entrance stagger-2 reveal">
+<div class="font-headline-md text-2xl font-bold tracking-widest uppercase italic">ELITE BARBER</div>
+<div class="font-headline-md text-2xl font-bold tracking-widest uppercase italic">GENTLEMAN CO.</div>
+<div class="font-headline-md text-2xl font-bold tracking-widest uppercase italic">PRIME CUTS</div>
+<div class="font-headline-md text-2xl font-bold tracking-widest uppercase italic">ROYAL SHAVE</div>
+</section>
+<!-- Image Gallery (Editorial Masonry-lite) -->
+<section class="w-full px-margin-desktop pb-32 animate-entrance stagger-3 reveal max-w-[1440px] mx-auto">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-lg h-auto md:h-[600px]">
+<div class="md:col-span-7 h-[400px] md:h-full overflow-hidden rounded-sm relative group cursor-pointer shadow-2xl transition-all duration-700 ease-out hover:shadow-primary/10">
+<img alt="High-end luxury barbershop interior, dark moody atmosphere, premium leather barber chairs, warm ambient lighting" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out filter grayscale-[20%] group-hover:grayscale-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCInbKoWc3X2J-cewPjUQFScOF-5d1XoOokz8mrsKXnQ5fqGoaHlL-fTHeTp4U7uYsndSZi_fWzak9vRQdiVS6A_Zqp5gir9BnajvbAMz7jZu7KdQ4lcWtoiqBKtWTx6FQl2If8ogQh-g2EQeToKKn44bcOAWcQnNl1ql0iN1w45oMrTTfJbYvoF3L7SyMX2LH5e_t9zzsRLr8o5qfSBDNvyIUBB1Z5WoJfiKkEJetP3wpd36KT8R1IAtSaTnSRYi_rL4z91nj0hDo"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-60 transition-opacity duration-500"></div>
+<div class="absolute bottom-10 left-10 text-white">
+<p class="text-primary text-xs tracking-[0.3em] uppercase mb-2">01 / Interior</p>
+<h3 class="font-headline-md text-3xl italic">Luxury Studio</h3>
+</div>
+</div>
+<div class="md:col-span-5 grid grid-rows-2 gap-lg h-full">
+<div class="overflow-hidden rounded-sm relative group cursor-pointer shadow-2xl transition-all duration-700 ease-out hover:shadow-primary/10">
+<img alt="Professional barber performing a precision haircut on a client" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out filter grayscale-[20%] group-hover:grayscale-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCSkO583_3cE2Mn7VAy-jgX6E90cqBx25xSvrEYEDxM7d5EZk-Qw6apATwFWMXS4NPNGpTGruf64jtps0rW_IsgDdCEvgU57pvEPpWU1Q2iTh8fGaMimhbXzB8M_QIYLtru22_hIx-VrMZkrzv7bbw28Z796b3NTQdYzwqbtEijafvPnMYUr9Xybinlus68Uh2OhNsqKwH8hXUhVUsnWLxls3wLz4PEbxiCc95eAJ-D2qfKY3K0qY31cLxAxl5PmZvaNEZ6o4KUPig"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80 group-hover:opacity-60 transition-opacity duration-500"></div>
+<div class="absolute bottom-8 left-8 text-white">
+<p class="text-primary text-xs tracking-[0.3em] uppercase mb-1">02 / Craft</p>
+<h3 class="font-headline-md text-2xl italic">Precision Work</h3>
+</div>
+</div>
+<div class="overflow-hidden rounded-sm relative group cursor-pointer shadow-2xl transition-all duration-700 ease-out hover:shadow-primary/10">
+<img alt="Close-up of premium barber tools on a marble tray" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out filter grayscale-[20%] group-hover:grayscale-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvYNo1RjWEF_y4w1cPuwMkn5LiZUkOHt95vuh52dzA93UrANQZSmlx1JBkHkWlAGVUJKoYvN3mkD5BPWEO5hXbHdxot3RUztjIB98Su4iIjkxY4jYKqkj99U4bIrS4y2yyRA6iq4s-OBNLgbVBTy1z8whwdKK9jKpdXj4awFGcPWJylapNonmqDhbqGApV6WJCshOrDSdE1h1QmDyI805BhnhCgnuCm0GM6MJn5I4MPAeTyZeg3zAQ5ynz07icNWxmHDs_JRQvrQE"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80 group-hover:opacity-60 transition-opacity duration-500"></div>
+<div class="absolute bottom-8 left-8 text-white">
+<p class="text-primary text-xs tracking-[0.3em] uppercase mb-1">03 / Detail</p>
+<h3 class="font-headline-md text-2xl italic">Master Tools</h3>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="w-full px-margin-desktop py-16 flex flex-col md:flex-row justify-between items-center max-w-[1440px] mx-auto border-t border-white/10 reveal">
+<div class="flex flex-col items-center md:items-start mb-md md:mb-0">
+<span class="text-headline-md font-headline-md font-bold text-white mb-2 italic">BarberPro.</span>
+<p class="text-label-sm font-label-sm text-on-surface-variant/50 tracking-widest uppercase text-[10px]">BarberPro Enterprise v2.0 • © ${new Date().getFullYear()}</p>
+</div>
+<div class="flex gap-lg">
+<a class="nav-link text-on-surface-variant/70 hover:text-primary text-xs uppercase tracking-widest font-light" href="#">Privacy Policy</a>
+<a class="nav-link text-on-surface-variant/70 hover:text-primary text-xs uppercase tracking-widest font-light" href="#">Terms of Service</a>
+<a class="nav-link text-on-surface-variant/70 hover:text-primary text-xs uppercase tracking-widest font-light" href="#">Contact Support</a>
+</div>
+</footer>
   `;
 
   // Toggle password visibility
@@ -430,8 +485,83 @@ input:-webkit-autofill:active{
     const p = container.querySelector('#password');
     const isHidden = p.type === 'password';
     p.type = isHidden ? 'text' : 'password';
-    this.innerHTML = isHidden ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+    this.innerHTML = isHidden 
+      ? '<span class="material-symbols-outlined font-light">visibility_off</span>' 
+      : '<span class="material-symbols-outlined font-light">visibility</span>';
   });
+
+  // Scroll to focus login form on Staff Login button click
+  container.querySelector('#header button')?.addEventListener('click', () => {
+    container.querySelector('#username')?.focus();
+  });
+
+  // Support links click handler
+  const openSupportWA = (e) => {
+    e.preventDefault();
+    window.open('https://wa.me/6281234567890?text=Halo%20Admin%20BarberPro,%20saya%20butuh%20bantuan%20untuk%20login.', '_blank');
+  };
+  container.querySelector('#support-link')?.addEventListener('click', openSupportWA);
+  container.querySelector('#support-nav')?.addEventListener('click', openSupportWA);
+
+  // Parallax, Header background, and scroll reveal setup
+  const reveal = () => {
+    const el = document.getElementById('login-form');
+    if (!el) {
+      window.removeEventListener('scroll', reveal);
+      return;
+    }
+    const reveals = container.querySelectorAll(".reveal");
+    reveals.forEach(item => {
+      const windowHeight = window.innerHeight;
+      const elementTop = item.getBoundingClientRect().top;
+      const elementVisible = 100;
+      if (elementTop < windowHeight - elementVisible) {
+        item.classList.add("active");
+      }
+    });
+  };
+
+  const parallax = (e) => {
+    const el = document.getElementById('login-form');
+    if (!el) {
+      document.removeEventListener('mousemove', parallax);
+      return;
+    }
+    const layers = container.querySelectorAll(".parallax-layer");
+    layers.forEach(move => {
+      const moving_value = move.getAttribute("data-speed");
+      const x = (e.clientX * moving_value) / 250;
+      const y = (e.clientY * moving_value) / 250;
+      move.style.transform = `translateX(${x}px) translateY(${y}px)`;
+    });
+  };
+
+  const headerScroll = () => {
+    const el = document.getElementById('login-form');
+    if (!el) {
+      window.removeEventListener('scroll', headerScroll);
+      return;
+    }
+    const header = container.querySelector('#header');
+    if (!header) return;
+    if (window.scrollY > 50) {
+      header.classList.add('bg-black/90', 'shadow-lg');
+      header.classList.remove('bg-background/70');
+    } else {
+      header.classList.remove('bg-black/90', 'shadow-lg');
+      header.classList.add('bg-background/70');
+    }
+  };
+
+  window.addEventListener('scroll', reveal);
+  window.addEventListener('scroll', headerScroll);
+  document.addEventListener('mousemove', parallax);
+
+  // Trigger initial checks
+  setTimeout(() => {
+    reveal();
+    headerScroll();
+  }, 100);
 
   const form = container.querySelector('#login-form');
   const btn = container.querySelector('#login-btn');
@@ -443,7 +573,7 @@ input:-webkit-autofill:active{
     if (!username || !password) return;
 
     btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> <span>Memproses...</span>';
+    btn.innerHTML = '<span>Memproses...</span> <span class="material-symbols-outlined animate-spin">autorenew</span>';
 
     try {
       const shopSlug = container.querySelector('#shop-slug').value.trim().toLowerCase();
@@ -622,11 +752,7 @@ input:-webkit-autofill:active{
       console.error('Login error:', err);
       showToast('Login gagal: Username atau password salah.', 'danger');
       btn.disabled = false;
-      btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> <span>Masuk Sekarang</span>';
+      btn.innerHTML = 'Masuk Sekarang <span class="material-symbols-outlined transition-transform duration-300">arrow_forward</span>';
     }
   });
 }
-
-
-
-
