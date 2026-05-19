@@ -2,13 +2,13 @@ import { storage } from '../utils/storage.js';
 import { supabase } from '../utils/supabaseClient.js';
 import { showToast } from '../components/toast.js';
 
+// Cache-buster: 2026-05-18T21:35:00
 export function renderLogin(container) {
   const sidebar = document.getElementById('sidebar');
   const mainContent = document.getElementById('main-content');
   if (sidebar) sidebar.style.display = 'none';
   if (mainContent) { mainContent.style.marginLeft = '0'; mainContent.style.width = '100%'; mainContent.style.padding = '0'; }
   document.body.className = '';
-  document.body.classList.add('bg-[#131313]', 'text-[#e5e2e1]', 'selection:bg-[#D4AF37]/30');
 
   // Sembunyikan burger button dan overlay saat login
   const burgerBtn = document.querySelector('.sidebar-toggle');
@@ -18,127 +18,419 @@ export function renderLogin(container) {
 
   container.innerHTML = `
 <style>
-  .brass-gradient {
-    background: linear-gradient(135deg, #FFD700 0%, #D4AF37 100%);
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
+
+.lp-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at top right, rgba(212, 175, 55, 0.06), transparent 45%),
+              radial-gradient(circle at bottom left, rgba(212, 175, 55, 0.03), transparent 45%),
+              #090a0f;
+  font-family: 'Outfit', sans-serif;
+  padding: 20px;
+}
+
+.pwa-container {
+  width: 100%;
+  max-width: 100%;
+  height: 100vh;
+  background: #0b0c10;
+  position: relative;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.desktop-left-pane {
+  display: none;
+}
+
+@media (min-width: 480px) {
+  .pwa-container {
+    max-width: 450px;
+    height: auto;
+    min-height: 680px;
+    max-height: 90vh;
+    border-radius: 28px;
+    border: 1px solid rgba(212, 175, 55, 0.18);
+    background: #0b0c10;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.6), 
+                0 0 100px rgba(212, 175, 55, 0.03);
+    overflow-y: auto;
   }
-  .noise-overlay {
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    opacity: 0.03;
+}
+
+@media (min-width: 768px) {
+  .lp-wrap {
+    padding: 0;
+    overflow: hidden;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: flex-start;
   }
+  
+  .desktop-left-pane {
+    display: flex !important;
+    flex-direction: column;
+    justify-content: space-between;
+    flex: 1.2;
+    padding: 60px;
+    background: linear-gradient(135deg, #0d0f12 0%, #040507 100%);
+    border-right: 1px solid rgba(212, 175, 55, 0.12);
+    position: relative;
+  }
+  
+  .pwa-container {
+    flex: 1;
+    max-width: 100% !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: radial-gradient(circle at center, rgba(212, 175, 55, 0.03), transparent 60%), #07080a !important;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .pwa-top {
+    padding: 40px !important;
+    background: transparent !important;
+    border-bottom: none !important;
+    border-radius: 0 !important;
+    width: 100%;
+    max-width: 460px;
+    margin: 0 auto;
+  }
+  
+  .glass-card {
+    background: rgba(255, 255, 255, 0.02) !important;
+    border: 1px solid rgba(212, 175, 55, 0.15) !important;
+    border-radius: 24px !important;
+    padding: 32px !important;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5) !important;
+  }
+  
+  .pwa-header {
+    display: none !important;
+  }
+  
+  .greeting-title {
+    font-size: 38px !important;
+  }
+  
+  .stats-row {
+    margin-top: 0 !important;
+    padding: 0 !important;
+    width: 100%;
+    max-width: 460px;
+    margin: 20px auto 0 !important;
+  }
+  
+  .stat-item {
+    background: rgba(255, 255, 255, 0.01) !important;
+    border: 1px solid rgba(212, 175, 55, 0.08) !important;
+    border-radius: 16px !important;
+    padding: 12px 6px !important;
+  }
+  
+  .pwa-bottom {
+    background: transparent !important;
+    padding: 20px 0 0 !important;
+    width: 100%;
+    max-width: 460px;
+    margin: 0 auto;
+    overflow: visible !important;
+    flex: none !important;
+  }
+  
+  .login-btn {
+    height: 52px !important;
+    border-radius: 16px !important;
+  }
+  
+  .info-card {
+    margin-top: 16px !important;
+    background: rgba(255,255,255,0.01) !important;
+    border: 1px solid rgba(212, 175, 55, 0.05) !important;
+    border-radius: 18px !important;
+    padding: 12px !important;
+  }
+}
+
+.pwa-top {
+  padding: 60px 24px 80px;
+  background: linear-gradient(150deg, #1d1b18 0%, #0d0d0c 100%);
+  color: #fff;
+  border-bottom-left-radius: 40px;
+  border-bottom-right-radius: 40px;
+  border-bottom: 2px solid rgba(212, 175, 55, 0.25);
+  position: relative;
+  z-index: 1;
+}
+
+.pwa-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.back-btn {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; text-decoration: none; font-size: 18px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.member-id { text-align: right; line-height: 1.2; }
+.member-id .label { font-size: 10px; font-weight: 700; letter-spacing: 1px; color: #d4af37; text-transform: uppercase; }
+.member-id .val { font-size: 16px; font-weight: 800; color: #fff; }
+
+.greeting { margin-bottom: 24px; }
+.greeting-sub { font-size: 13px; color: rgba(255,255,255,0.8); font-weight: 500; margin-bottom: 4px; }
+.greeting-title { 
+  font-size: 34px; 
+  font-weight: 900; 
+  letter-spacing: -1px; 
+  line-height: 1.1;
+  background: linear-gradient(135deg, #ffffff 10%, #d4af37 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 28px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.card-title {
+  font-size: 11px; font-weight: 800; letter-spacing: 1.5px; color: #d4af37; margin-bottom: 16px; text-transform: uppercase; display: flex; align-items: center; gap: 8px;
+}
+
+.lp-field { margin-bottom: 12px; position: relative; }
+.lp-input {
+  width: 100%; height: 48px;
+  background: rgba(0,0,0,0.4) !important;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 16px;
+  padding: 0 16px 0 46px;
+  color: #fff !important;
+  font-size: 14px; font-weight: 500; font-family: inherit;
+  transition: all 0.3s; outline: none;
+}
+.lp-input::placeholder { color: rgba(255,255,255,0.4) !important; }
+.lp-input:focus { background: rgba(0,0,0,0.6) !important; border-color: #d4af37; box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15); }
+.lp-icon { position: absolute; left: 16px; top: 16px; color: #d4af37; font-size: 15px; }
+
+.lp-pw-toggle {
+  position: absolute; right: 16px; top: 15px;
+  color: rgba(255,255,255,0.6); background: none; border: none; cursor: pointer; padding: 0; font-size: 15px;
+}
+
+.stats-row {
+  display: flex; gap: 12px;
+  padding: 0 24px;
+  margin-top: -30px;
+  position: relative; z-index: 2;
+  justify-content: space-between;
+}
+.stat-item {
+  flex: 1; background: #1c1b18; border-radius: 24px;
+  padding: 16px 8px; text-align: center;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  border: 1px solid rgba(212, 175, 55, 0.15);
+}
+.stat-val { font-size: 22px; font-weight: 800; line-height: 1; margin-bottom: 4px; }
+.stat-val.c-blue { color: #d4af37; }
+.stat-val.c-green { color: #10b981; }
+.stat-val.c-orange { color: #e67e22; }
+.stat-label { font-size: 9px; font-weight: 800; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.5px; }
+
+.pwa-bottom {
+  flex: 1; background: #0c0c0c; padding: 30px 24px;
+  overflow-y: auto; position: relative; z-index: 0;
+}
+
+.login-btn {
+  width: 100%; height: 56px;
+  background: #d4af37; color: #0d0d0c;
+  border: none; border-radius: 20px;
+  font-size: 16px; font-weight: 700; font-family: inherit;
+  cursor: pointer; box-shadow: 0 10px 25px rgba(212, 175, 55, 0.25);
+  transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin-top: 10px;
+}
+.login-btn:active { transform: scale(0.98); }
+
+.info-card {
+  background: #1c1b18; border-radius: 24px; padding: 16px;
+  display: flex; align-items: center; gap: 16px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  margin-top: 24px;
+  border: 1px solid rgba(212, 175, 55, 0.1);
+}
+.info-icon {
+  width: 48px; height: 48px; border-radius: 16px;
+  background: rgba(212, 175, 55, 0.15); color: #d4af37;
+  display: flex; align-items: center; justify-content: center; font-size: 20px;
+}
+.info-text { flex: 1; }
+.info-title { font-size: 15px; font-weight: 700; color: #fff; }
+.info-sub { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active{
+    -webkit-box-shadow: 0 0 0 30px rgba(0,0,0,0.4) inset !important;
+    -webkit-text-fill-color: white !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
 </style>
 
-<!-- Subtle Background Texture -->
-<div class="fixed inset-0 noise-overlay pointer-events-none z-0"></div>
-<div class="fixed inset-0 bg-gradient-to-tr from-[#0e0e0e] via-transparent to-[#0e0e0e]/50 pointer-events-none z-0"></div>
-
-<!-- Login Container -->
-<main class="relative z-10 min-h-screen flex flex-col items-center justify-center p-6" style="font-family: 'Manrope', sans-serif;">
-  <!-- Brand Header (Above Card) -->
-  <div class="mb-8 text-center">
-    <h1 class="text-4xl font-extrabold tracking-tighter text-[#D4AF37]" style="font-family: 'Epilogue', sans-serif;">
-        BarberPro Studio
-    </h1>
-    <p class="text-[10px] uppercase tracking-[0.2em] text-[#d0c5af] mt-2" style="font-family: 'Inter', sans-serif;">
-        The Private Atelier Experience
-    </p>
-  </div>
-
-  <!-- Login Card -->
-  <div class="w-full max-w-md bg-[#1c1b1b] rounded-xl shadow-[0px_24px_48px_rgba(0,0,0,0.4)] overflow-hidden border border-[#4d4635]/20">
-    <!-- Hero Image Section of Card -->
-    <div class="h-32 w-full overflow-hidden relative grayscale contrast-125 opacity-40">
-      <img class="w-full h-full object-cover" data-alt="close-up of antique barber shears and a leather strop in a dark moody vintage barbershop setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEGX40XkCtazrNZ9Mx5YeBA7BB64tt8WqUi42O3x45Fdt3HxsGfdsEFBbEAq79FRGm1eyQ9oZVdna3o627PR1IcoydRAbh8vwO2iSFHmQimcXcwrAaIJkRbSmyugWFV9xR4rMtkbMBkDtcMjh77JIuPSa9ZusDDLqkL6o3i4z24eqaMQp9XHM8a27w9VAFIBSWytbhnZbdLWECoOKD2yMDEEuV9ZiGR0_-tmLCQXexTkPM35m6qPhe_Z2kIec3wOy1xKiEv1cWQ_M"/>
-      <div class="absolute inset-0 bg-gradient-to-t from-[#1c1b1b] to-transparent"></div>
+<div class="lp-wrap">
+  <!-- Desktop Left Branding Panel -->
+  <div class="desktop-left-pane">
+    <div class="desktop-brand" style="display: flex; align-items: center; gap: 12px;">
+      <div style="width: 42px; height: 42px; border-radius: 12px; background: rgba(212, 175, 55, 0.15); display: flex; align-items: center; justify-content: center;">
+        <i class="fas fa-scissors brand-icon" style="color: #d4af37; font-size: 20px;"></i>
+      </div>
+      <span style="font-weight: 800; font-size: 22px; color: #fff; letter-spacing: 1.5px; font-family: 'Outfit', sans-serif;">BARBERPRO</span>
     </div>
-
-    <div class="px-10 pb-12 pt-4">
-      <header class="mb-8">
-        <h2 class="text-2xl font-bold tracking-tight text-[#e5e2e1]" style="font-family: 'Epilogue', sans-serif;">Welcome Back</h2>
-        <p class="text-[#d0c5af] text-sm mt-1">Sign in to your professional workspace.</p>
-      </header>
-
-      <form id="login-form" class="space-y-5" autocomplete="off">
-        <!-- Shop Slug Field -->
-        <div class="space-y-2">
-          <label class="text-[10px] uppercase tracking-[0.05em] text-[#d0c5af] px-1" for="shop-slug" style="font-family: 'Inter', sans-serif;">Kode Toko (Opsional)</label>
-          <div class="relative group">
-            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#d0c5af] text-lg transition-colors group-focus-within:text-[#D4AF37]">store</span>
-            <input id="shop-slug" class="w-full bg-[#0e0e0e] border-0 border-b border-[#4d4635]/50 py-4 pl-12 pr-4 text-[#e5e2e1] placeholder:text-[#d0c5af]/40 focus:ring-0 focus:border-[#D4AF37] transition-all rounded-t-lg" placeholder="contoh: garuda-studio" type="text" autocomplete="off"/>
+    
+    <div class="desktop-hero-content" style="margin-top: 60px;">
+      <h1 class="hero-title" style="font-size: 40px; font-weight: 900; line-height: 1.15; margin-bottom: 24px; background: linear-gradient(135deg, #ffffff 30%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-family: 'Outfit', sans-serif;">Sistem Kasir &amp; Manajemen Barbershop Cerdas</h1>
+      <p class="hero-subtitle" style="color: rgba(255,255,255,0.6); font-size: 15px; line-height: 1.6; margin-bottom: 48px; font-family: 'Outfit', sans-serif;">Kelola bagi hasil komisi barber secara akurat, kirim slip gaji otomatis lewat WhatsApp, kelola antrean antarmuka kasir, dan berikan konsultasi gaya rambut digital dengan AI Stylist Wizard.</p>
+      
+      <div class="feature-bullets" style="display: flex; flex-direction: column; gap: 28px;">
+        <div class="feat-bullet" style="display: flex; gap: 18px; align-items: flex-start;">
+          <div class="feat-icon" style="width: 46px; height: 46px; border-radius: 14px; background: rgba(212, 175, 55, 0.1); color: #d4af37; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; border: 1px solid rgba(212, 175, 55, 0.15);"><i class="fas fa-calculator"></i></div>
+          <div>
+            <div class="feat-title" style="font-size: 15px; font-weight: 700; color: #fff; font-family: 'Outfit', sans-serif;">Payroll &amp; Bagi Hasil Komisi</div>
+            <div class="feat-desc" style="font-size: 13px; color: rgba(255,255,255,0.45); font-family: 'Outfit', sans-serif;">Skema komisi persentase atau nominal flat untuk barber yang langsung terintegrasi dengan slip gaji WhatsApp otomatis.</div>
           </div>
         </div>
-
-        <!-- Username Field -->
-        <div class="space-y-2">
-          <label class="text-[10px] uppercase tracking-[0.05em] text-[#d0c5af] px-1" for="username" style="font-family: 'Inter', sans-serif;">Username</label>
-          <div class="relative group">
-            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#d0c5af] text-lg transition-colors group-focus-within:text-[#D4AF37]">person</span>
-            <input id="username" class="w-full bg-[#0e0e0e] border-0 border-b border-[#4d4635]/50 py-4 pl-12 pr-4 text-[#e5e2e1] placeholder:text-[#d0c5af]/40 focus:ring-0 focus:border-[#D4AF37] transition-all rounded-t-lg" placeholder="Masukkan username Anda" type="text" autocomplete="username" required/>
+        <div class="feat-bullet" style="display: flex; gap: 18px; align-items: flex-start;">
+          <div class="feat-icon" style="width: 46px; height: 46px; border-radius: 14px; background: rgba(212, 175, 55, 0.1); color: #d4af37; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; border: 1px solid rgba(212, 175, 55, 0.15);"><i class="fas fa-magic"></i></div>
+          <div>
+            <div class="feat-title" style="font-size: 15px; font-weight: 700; color: #fff; font-family: 'Outfit', sans-serif;">AI Stylist Digital Consultant</div>
+            <div class="feat-desc" style="font-size: 13px; color: rgba(255,255,255,0.45); font-family: 'Outfit', sans-serif;">Bantu pelanggan menentukan model potongan rambut terbaik mereka dengan wizard rekomendasi kecerdasan buatan.</div>
           </div>
         </div>
-
-        <!-- Password Field -->
-        <div class="space-y-2">
-          <div class="flex justify-between items-end px-1">
-            <label class="text-[10px] uppercase tracking-[0.05em] text-[#d0c5af]" for="password" style="font-family: 'Inter', sans-serif;">Password</label>
-            <a class="text-[10px] uppercase tracking-wider text-[#99907c] hover:text-[#D4AF37] transition-colors" href="#" style="font-family: 'Inter', sans-serif;">Forgot Password?</a>
-          </div>
-          <div class="relative group">
-            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#d0c5af] text-lg transition-colors group-focus-within:text-[#D4AF37]">lock</span>
-            <input id="password" class="w-full bg-[#0e0e0e] border-0 border-b border-[#4d4635]/50 py-4 pl-12 pr-12 text-[#e5e2e1] placeholder:text-[#d0c5af]/40 focus:ring-0 focus:border-[#D4AF37] transition-all rounded-t-lg" placeholder="••••••••" type="password" autocomplete="current-password" required/>
-            <button class="absolute right-4 top-1/2 -translate-y-1/2 text-[#d0c5af] hover:text-[#e5e2e1]" type="button" id="pw-toggle">
-              <span class="material-symbols-outlined text-lg">visibility_off</span>
-            </button>
+        <div class="feat-bullet" style="display: flex; gap: 18px; align-items: flex-start;">
+          <div class="feat-icon" style="width: 46px; height: 46px; border-radius: 14px; background: rgba(212, 175, 55, 0.1); color: #d4af37; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; border: 1px solid rgba(212, 175, 55, 0.15);"><i class="fas fa-chart-line"></i></div>
+          <div>
+            <div class="feat-title" style="font-size: 15px; font-weight: 700; color: #fff; font-family: 'Outfit', sans-serif;">Analitik &amp; Keuangan Real-Time</div>
+            <div class="feat-desc" style="font-size: 13px; color: rgba(255,255,255,0.45); font-family: 'Outfit', sans-serif;">Laporan pengeluaran, omzet harian, dan grafik performa barber untuk optimasi profit bisnis barbershop Anda.</div>
           </div>
         </div>
-
-        <!-- Remember Me -->
-        <div class="flex items-center space-x-3 px-1 pt-2">
-          <div class="relative flex items-center">
-            <input class="h-4 w-4 rounded-sm border-[#4d4635] bg-[#0e0e0e] text-[#D4AF37] focus:ring-[#D4AF37]/20 focus:ring-offset-0" id="remember" type="checkbox"/>
-          </div>
-          <label class="text-sm text-[#d0c5af]" for="remember">Keep me signed in</label>
-        </div>
-
-        <!-- Login Button -->
-        <div class="pt-4">
-          <button id="login-btn" class="w-full brass-gradient py-4 rounded-lg font-bold text-[#412d00] shadow-lg shadow-[#D4AF37]/10 hover:shadow-[#D4AF37]/20 hover:scale-[1.01] active:scale-[0.98] transition-all duration-200" type="submit" style="font-family: 'Epilogue', sans-serif;">
-              SIGN IN TO ATELIER
-          </button>
-        </div>
-      </form>
-
-      <!-- Support/Footer Info -->
-      <div class="mt-8 pt-6 border-t border-[#4d4635]/30 text-center">
-        <p class="text-[#d0c5af] text-xs">
-          New to the studio? <a class="text-[#D4AF37] font-bold hover:underline" href="#" onclick="window.location.hash='signup'">Contact Administration</a>
-        </p>
       </div>
     </div>
+    
+    <div class="desktop-footer" style="font-size: 12px; color: rgba(255,255,255,0.35); font-weight: 600; font-family: 'Outfit', sans-serif; letter-spacing: 0.5px;">
+      BarberPro Enterprise v2.0 &bull; &copy; ${new Date().getFullYear()}
+    </div>
   </div>
 
-  <!-- System Footer -->
-  <footer class="mt-12 flex flex-col items-center gap-4">
-    <div class="flex gap-8">
-      <a class="text-[10px] uppercase tracking-[0.05em] text-[#d0c5af] hover:text-[#D4AF37] transition-colors" href="#" style="font-family: 'Inter', sans-serif;">Privacy Policy</a>
-      <a class="text-[10px] uppercase tracking-[0.05em] text-[#d0c5af] hover:text-[#D4AF37] transition-colors" href="#" style="font-family: 'Inter', sans-serif;">Terms of Service</a>
-      <a class="text-[10px] uppercase tracking-[0.05em] text-[#d0c5af] hover:text-[#D4AF37] transition-colors" href="#" style="font-family: 'Inter', sans-serif;">Support</a>
+  <div class="pwa-container">
+    
+    <div class="pwa-top">
+      <div class="pwa-header">
+        <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+        <div class="member-id">
+          <div class="label">SISTEM KASIR</div>
+          <div class="val">BARBERPRO</div>
+        </div>
+      </div>
+
+      <div class="greeting">
+        <div class="greeting-sub">Selamat datang kembali,</div>
+        <div class="greeting-title">Login Staff</div>
+      </div>
+
+      <div class="glass-card">
+        <div class="card-title"><i class="fas fa-lock"></i> KREDENSIAL AKSES</div>
+        
+        <form id="login-form" autocomplete="off">
+          <div class="lp-field">
+            <i class="fas fa-store lp-icon"></i>
+            <input id="shop-slug" class="lp-input" type="text" placeholder="Kode Toko (Opsional)" autocomplete="off" />
+          </div>
+          
+          <div class="lp-field">
+            <i class="fas fa-user lp-icon"></i>
+            <input id="username" class="lp-input" type="text" placeholder="Username" required autocomplete="off" />
+          </div>
+          
+          <div class="lp-field">
+            <i class="fas fa-key lp-icon"></i>
+            <input id="password" class="lp-input" type="password" placeholder="Password" required autocomplete="new-password" />
+            <button type="button" class="lp-pw-toggle" id="pw-toggle"><i class="fas fa-eye"></i></button>
+          </div>
+        </form>
+      </div>
     </div>
-    <p class="text-[10px] uppercase tracking-[0.05em] text-[#99907c] opacity-60" style="font-family: 'Inter', sans-serif;">
-        &copy; ${new Date().getFullYear()} BarberPro Studio. The Private Atelier Experience.
-    </p>
-  </footer>
-</main>
+
+    <!-- Stats Row -->
+    <div class="stats-row">
+      <div class="stat-item">
+        <div class="stat-val c-blue">#1</div>
+        <div class="stat-label">SISTEM</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val c-green">24</div>
+        <div class="stat-label">JAM</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val c-orange">✨</div>
+        <div class="stat-label">MUDAH</div>
+      </div>
+    </div>
+
+    <div class="pwa-bottom">
+      <button type="submit" form="login-form" class="login-btn" id="login-btn">
+        Masuk Sekarang <i class="fas fa-arrow-right" style="font-size:14px; margin-left: 4px;"></i>
+      </button>
+
+      <div class="info-card">
+        <div class="info-icon"><i class="fas fa-headset"></i></div>
+        <div class="info-text">
+          <div class="info-title">Butuh Bantuan?</div>
+          <div class="info-sub">Hubungi admin pusat untuk bantuan login.</div>
+        </div>
+        <a href="#" style="width:36px;height:36px;border-radius:12px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;color:#64748b;text-decoration:none;"><i class="fas fa-chevron-right"></i></a>
+      </div>
+      
+      <div style="text-align:center; margin-top: 30px; font-size: 11px; color: #cbd5e1; font-weight: 600;">
+        BarberPro v2.0 &copy; ${new Date().getFullYear()}
+      </div>
+    </div>
+
+  </div>
+</div>
   `;
 
   // Toggle password visibility
   container.querySelector('#pw-toggle')?.addEventListener('click', function() {
     const p = container.querySelector('#password');
-    const iconSpan = this.querySelector('span');
     const isHidden = p.type === 'password';
     p.type = isHidden ? 'text' : 'password';
-    if (iconSpan) {
-      iconSpan.textContent = isHidden ? 'visibility' : 'visibility_off';
-    }
+    this.innerHTML = isHidden ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
   });
 
   const form = container.querySelector('#login-form');
@@ -330,7 +622,11 @@ export function renderLogin(container) {
       console.error('Login error:', err);
       showToast('Login gagal: Username atau password salah.', 'danger');
       btn.disabled = false;
-      btn.innerHTML = '<span>SIGN IN TO ATELIER</span>';
+      btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> <span>Masuk Sekarang</span>';
     }
   });
 }
+
+
+
+
